@@ -1,0 +1,102 @@
+# Global variables:
+DATA = LSU
+
+# Sequences:
+
+# The laphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# The sequence file to use (sequences must be aligned!)
+sequence.file=$(DATA).phy
+
+# The alignment format:
+# Must be one of Mase, Fasta, Phylip, Clustal, DCSE 
+sequence.format=Phylip
+
+# Mase format option:
+sequence.format_mase.site_selection =
+
+# Phylip format options:
+# interleaved or sequential:
+sequence.format_phylip.order = sequential
+
+# classic or extended (PAML):
+sequence.format_phylip.ext = extended
+
+#Sites to use:
+# all, nogap or complete (=only resolved chars)
+sequence.sites_to_use = complete
+# Specify a maximum amount of gaps: may be an absolute number or a percentage.
+sequence.max_gap_allowed = 100%
+
+tree.file = LSU.dnd
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+
+# Available models.
+# For proteins, the DCmutt method is used for JTT92 and DSO78.
+# You can use the 'empirical' option to specify another model.
+# JCnuc, K80, T92, HKY85, F84, TN93, JCprot, DSO78, JTT92 or empirical
+model = HKY85
+
+# Initial values for parameters:
+#kappa (K80, T92, HKY85, F84)
+#kappa1, kappa2 (TN93)
+#theta (T92)
+#pi1, piT, piC and piG (HKY85, F84 and TN93)
+kappa = 2.843
+
+#Tell if we have to use observed frequencies as parameter values (for piA, piT, piG, piC and theta).
+#For proteins, this is equivalent to the -F model family.
+model.use_observed_freq = yes
+
+#If empirical is set, specify the path where to find model (in PAML format).
+model_empirical.file = 
+
+# Rate Across Sites variation:
+# gamma or constant
+rate_distribution = gamma
+
+# The gamma distribution's shape parameter
+rate_distribution_gamma.alpha = 0.358
+
+# Number of classes for discretization:
+rate_distribution.classes_number = 4
+
+# -none
+# -G2001 for Galtier 2001 model
+# -TS1998 for Tuffley and Steel 1998 model
+covarion=none
+covarion_G2001.nu=1.
+covarion_TS98.s1=1.
+covarion_TS98.s2=1.
+
+optimization=yes
+optimization.verbose = 1
+optimization.ignore_parameter = piA,piC,piG,piT
+optimization.max_number_f_eval = 10000
+optimization.tolerance = 0.000001
+optimization.message_handler = $(DATA).messages
+optimization.profiler = $(DATA).profile
+optimization.topology = yes
+optimization.topology.nstep=4
+optimization.topology.numfirst=no
+optimization.topology.tolerance.before=100
+optimization.topology.tolerance.during=100
+optimization.method=NB //[NB|NND]
+optimization.method_NB.nstep=1
+optimization.scale_first=no
+optimization.verbose=3
+#optimization.ignore_parameter=piA,piC,piT,piG
+
+# Should we write the resulting tree? none or file name.
+output.tree.file = $(DATA)ML.dnd
+
+# Bootstrap:
+bootstrap.number = 1000
+bootstrap.approximate = no
+bootstrap.output.file = $(DATA)ML_bstrees.dnd
+

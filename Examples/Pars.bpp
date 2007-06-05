@@ -1,0 +1,43 @@
+# Global variables:
+DATA = LSU
+
+# Sequences:
+
+# The laphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# The sequence file to use (sequences must be aligned!)
+sequence.file=$(DATA).phy
+
+# The alignment format:
+# Must be one of Mase, Fasta, Phylip, Clustal, DCSE 
+sequence.format=Phylip
+
+# Mase format option:
+sequence.format_mase.site_selection =
+
+# Phylip format options:
+# interleaved or sequential:
+sequence.format_phylip.order = sequential
+
+# classic or extended (PAML):
+sequence.format_phylip.ext = extended
+
+#Sites to use:
+# all, nogap or complete (=only resolved chars)
+sequence.sites_to_use = complete
+# Specify a maximum amount of gaps: may be an absolute number or a percentage.
+sequence.max_gap_allowed = 100%
+
+tree.file = LSU.dnd
+
+optimization.topology = yes
+
+# Should we write the resulting tree? none or file name.
+output.tree.file = $(DATA)pars.dnd
+
+# Bootstrap:
+bootstrap.number = 1000
+bootstrap.output.file = $(DATA)pars_bstrees.dnd
+

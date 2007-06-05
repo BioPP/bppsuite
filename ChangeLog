@@ -1,0 +1,30 @@
+05/05/07 Julien Dutheil
+* First alpha release of bppsuite.
+
+-*- Old bppML ChangeLog -*-
+
+23/04/07 Julien Dutheil
+- Optimization with a global clock.
+- Possibility to set branch lengths before ML optimization, with different
+  methods.
+
+25/01/07 Julien Dutheil
+* Version 1.0.0
+- Topology search for ML
+- User input tree may be random, nj or bionj.
+- Possibility to make a parsimony search before ML estimation.
+
+28/08/06 Julien Dutheil
+* Version 0.2.0
+- Covarion models
+- New optimization methods.
+
+30/05/06 Julien Dutheil
+* option --enable-static in configure.
+
+19/04/06 Julien Dutheil
+* Version 0.1.2
+* Update for library compatibility
+* Check for 0 branch lengths leading to 0 likelihood before optimization.
+* New output.estimates options to get the final parameter values after optimization.
+
