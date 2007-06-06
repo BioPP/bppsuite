@@ -224,7 +224,11 @@ int main(int args, char ** argv)
       if(param == "BrLen")
         ignoreBrLen = true;
       else
-        parametersToIgnore.addParameter(*allParameters.getParameter(param));
+      {
+        Parameter * p = allParameters.getParameter(param);
+        if(p) parametersToIgnore.addParameter(*p);
+        else ApplicationTools::displayWarning("Parameter '" + param + "' not found."); 
+      }
 		} 
     catch(ParameterNotFoundException pnfe)
     {
