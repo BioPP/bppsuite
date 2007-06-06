@@ -30,4 +30,5 @@ rm Examples/warnings
 rm Examples/LSUbionj.dnd
 rm Examples/LSUpars*
 rm Examples/LSUML*
+rm Examples/boot.dnd
 

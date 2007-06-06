@@ -1,0 +1,11 @@
+input.list.file = treeList.dnd
+# [input|consensus]
+tree = input
+tree_input.file = tree.dnd
+# 0 = fully resolved
+# 0.5 = majority rule
+# 1 = strict
+# or any intermediate value...
+tree_consensus.threshold = 0.5
+output.tree.file = boot.dnd
+
