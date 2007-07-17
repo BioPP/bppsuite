@@ -76,8 +76,6 @@ AC_ARG_ENABLE(static,
              esac],[static=false])
 AM_CONDITIONAL(STATIC, test x$static = xtrue)
 
-AC_PROG_LIBTOOL
-
 VERSION="0.1.0"
 AC_SUBST(VERSION)
 AC_OUTPUT(Makefile bppSuite/Makefile)

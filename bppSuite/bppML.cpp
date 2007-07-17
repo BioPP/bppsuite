@@ -99,7 +99,7 @@ int main(int args, char ** argv)
 {
 	cout << "******************************************************************" << endl;
 	cout << "*       Bio++ Maximum Likelihood Computation, version 1.1.0      *" << endl;
-	cout << "* Author: J. Dutheil                        Last Modif. 19/03/07 *" << endl;
+	cout << "* Author: J. Dutheil                        Last Modif. 16/07/07 *" << endl;
 	cout << "******************************************************************" << endl;
 	cout << endl;
 
@@ -242,11 +242,12 @@ int main(int args, char ** argv)
   string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", params, "no", "", true, false);
   ApplicationTools::displayResult("Clock", optimizeClock);
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, "", true, false);
-  ApplicationTools::displayTask("Initializing likelihood");
+  unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0, "", true, false);
+  bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
   if(optimizeClock == "global") tl = new ClockTreeLikelihood(*tree, *sites, model, rDist, true, true);
   else if(optimizeClock == "no")
   {
-    if(optimizeTopo)
+    if(optimizeTopo || nbBS > 0)
       tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
     else
       tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
@@ -254,7 +255,6 @@ int main(int args, char ** argv)
   else throw Exception("Unknown option for optimization.clock: " + optimizeClock);
   tl->initialize();
  
-  ApplicationTools::displayTaskDone();
   delete tree;
 		
   double logL = tl->getValue();
@@ -295,8 +295,8 @@ int main(int args, char ** argv)
         PhylogeneticsApplicationTools::optimizeParameters(tl, params));
   }
 	
-	const TreeTemplate<Node> * treeOpt = dynamic_cast<const TreeTemplate<Node> *>(tl->getTree());
-	PhylogeneticsApplicationTools::writeTree(* treeOpt, params);
+	tree = new TreeTemplate<Node>(*tl->getTree());
+	PhylogeneticsApplicationTools::writeTree(* tree, params);
 	
   // Write parameters to screen:
 	ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
@@ -390,7 +390,6 @@ int main(int args, char ** argv)
   
   
   //Bootstrap:
-  unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0);
   if(nbBS > 0 && optimizeClock != "no")
   {
     ApplicationTools::displayError("Bootstrap is not supported with clock trees.");
@@ -402,9 +401,14 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
     
     const Tree * initTree = tree;
+    if(!bootstrapVerbose) params["optimization.verbose"] = "0";
+    params["optimization.profiler"] = "none";
+    params["optimization.messageHandler"] = "none";
     if(!optimizeTopo)
     {
-      tl = OptimizationTools::optimizeTreeNNI(dynamic_cast<NNIHomogeneousTreeLikelihood *>(tl), 1);
+      params["optimization.topology"] = "yes";
+      tl = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
+          PhylogeneticsApplicationTools::optimizeParameters(tl, params, "", true, false));
       initTree = tl->getTree();
     }
     
@@ -425,25 +429,23 @@ int main(int args, char ** argv)
     {
       ApplicationTools::displayGauge(i, nbBS-1, '=');
       VectorSiteContainer * sample = SiteContainerTools::bootstrapSites(*sites);
-      NNIHomogeneousTreeLikelihood * tl = new NNIHomogeneousTreeLikelihood(*initTree, *sample, model, rDist, true, false);
-      tl->initialize();
-      if(approx)
-      {
-        for(unsigned int j = 0; j < paramsToIgnore.size(); j++)
-          tl->ignoreParameter(paramsToIgnore[j]->getName());
-      }
-      else
+      if(!approx)
       {
         model->setFreqFromData(*sample);
       }
-
-	    tl = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
-        PhylogeneticsApplicationTools::optimizeParameters(tl, params));
-      //tl = OptimizationTools::optimizeTreeNNI(tl, false, 100, 100, 1000000, 1, 0);
-      bsTrees[i] = new TreeTemplate<Node>(*tl->getTree());
+      NNIHomogeneousTreeLikelihood *tlrep = new NNIHomogeneousTreeLikelihood(*initTree, *sample, model, rDist, true, false);
+      tlrep->initialize();
+      if(approx)
+      {
+        for(unsigned int j = 0; j < paramsToIgnore.size(); j++)
+          tlrep->ignoreParameter(paramsToIgnore[j]->getName());
+      }
+	    tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
+          PhylogeneticsApplicationTools::optimizeParameters(tlrep, params, "", true, false));
+      bsTrees[i] = new TreeTemplate<Node>(*tlrep->getTree());
       if(out && i==0) newick.write(*bsTrees[i], bsTreesPath, true);
       if(out && i>0) newick.write(*bsTrees[i], bsTreesPath, false);
-      delete tl;
+      delete tlrep;
       delete sample;
     }
     if(out) out->close();
@@ -468,6 +470,7 @@ int main(int args, char ** argv)
   if(modelCov != NULL) delete modelCov;
   if(rDistCov != NULL) delete rDistCov;
 	delete tl;
+  delete tree;
   cout << "BppML's done. Bye." << endl;
   ApplicationTools::displayTime("Total execution time:");
  

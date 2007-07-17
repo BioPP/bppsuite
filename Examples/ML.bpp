@@ -97,6 +97,9 @@ output.tree.file = $(DATA)ML.dnd
 
 # Bootstrap:
 bootstrap.number = 1000
+# Tell if numerical parameters should be kept to their initial value when bootstrapping: 
 bootstrap.approximate = no
+# Set this to yes for detailed output when bootstrapping. 
+bootstrap.verbose = no
 bootstrap.output.file = $(DATA)ML_bstrees.dnd
 
