@@ -51,7 +51,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Phyl/TreeTemplate.h>
 #include <Phyl/PhylogeneticsApplicationTools.h>
 #include <Phyl/MutationProcess.h>
-#include <Phyl/HomogeneousSequenceSimulator.h>
+#include <Phyl/NonHomogeneousSequenceSimulator.h>
 #include <Phyl/SequenceSimulationTools.h>
 
 // From NumCalc:
@@ -81,95 +81,98 @@ void help()
 
 int main(int args, char ** argv)
 {
-	cout << "******************************************************************" << endl;
-	cout << "*            Bio++ Sequence Generator, version 0.1               *" << endl;
-	cout << "* Author: J. Dutheil                        Last Modif. 24/10/05 *" << endl;
-	cout << "******************************************************************" << endl;
-	cout << endl;
-	
-  if(args == 1) {
+  cout << "******************************************************************" << endl;
+  cout << "*            Bio++ Sequence Generator, version 0.1               *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 24/10/05 *" << endl;
+  cout << "******************************************************************" << endl;
+  cout << endl;
+  
+  if(args == 1)
+  {
     help();
     exit(0);
   }
-	
-	try {
+  
+  try {
 
-	cout << "Parsing options:" << endl;
-	
+  cout << "Parsing options:" << endl;
+  
   // Get the parameters from command line:
-	map<string, string> cmdParams = AttributesTools::getAttributesMap(
-		AttributesTools::getVector(args, argv), "=");
+  map<string, string> cmdParams = AttributesTools::getAttributesMap(
+    AttributesTools::getVector(args, argv), "=");
 
-	// Look for a specified file with parameters:
+  // Look for a specified file with parameters:
   map<string, string> params;
-	if(cmdParams.find("param") != cmdParams.end()) {
-    	string file = cmdParams["param"];
-    	if(!FileTools::fileExists(file)) {
-      		cerr << "Parameter file not found." << endl;
-			exit(-1);
-    	} else {
-			params = AttributesTools::getAttributesMapFromFile(file, "=");
-			// Actualize attributes with ones passed to command line:
-			AttributesTools::actualizeAttributesMap(params, cmdParams);
-		}
-  	} else {
-		params = cmdParams;
-	}
-
-	Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
-
-	TreeTemplate<Node> * tree = PhylogeneticsApplicationTools::getTree(params);
-	cout << "# number of leaves......................: " << tree -> getNumberOfLeaves() << endl;
-	cout << "# number of sons at root................: " << tree -> getRootNode() -> getNumberOfSons() << endl;
-
-	string infosFile = ApplicationTools::getAFilePath("input.infos", params, false, true);
-	cout << "Site information........................: " << infosFile << endl;
-
-	SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet,NULL, params);
-	
-	SimpleMutationProcess * process = new SimpleMutationProcess(model);
-	
-	DiscreteDistribution * rDist = NULL;
-	HomogeneousSequenceSimulator * seqsim = NULL;
-	SiteContainer * sites = NULL;
-	if(infosFile != "none")
+  if(cmdParams.find("param") != cmdParams.end())
   {
-		ifstream in(infosFile.c_str());
-		DataTable * infos = DataTable::read(in, "\t");
-	  rDist = new ConstantDistribution(1.);
-		seqsim = new HomogeneousSequenceSimulator(process, rDist, tree, false);
-		unsigned int nbSites = infos->getNumberOfRows();
-		vector<double> rates(nbSites);
-		vector<string> ratesStrings = infos -> getColumn(string("pr"));
-		for(unsigned int i = 0; i < nbSites; i++)
+    string file = cmdParams["param"];
+    if(!FileTools::fileExists(file))
     {
-			rates[i] = TextTools::toDouble(ratesStrings[i]);
-		}
-		sites = SequenceSimulationTools::simulateSites(*seqsim, rates);
-	}
+      cerr << "Parameter file not found." << endl;
+      exit(-1);
+    }
+    else
+    {
+      params = AttributesTools::getAttributesMapFromFile(file, "=");
+      // Actualize attributes with ones passed to command line:
+      AttributesTools::actualizeAttributesMap(params, cmdParams);
+    }
+  }
   else
   {
-		rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
-		seqsim = new HomogeneousSequenceSimulator(process, rDist, tree, true);
-		unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", params, 100);
-		sites = seqsim->simulate(nbSites);
-	}
-	
-	// Write to file:
-	SequenceApplicationTools::writeSequenceFile(*sites, params);
+    params = cmdParams;
+  }
 
-	delete alphabet;
-	delete tree;
-	delete model;
-	delete rDist;
-	delete process;
-	delete seqsim;
+  Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
 
-	} catch(exception & e) {
-		cout << e.what() << endl;
-		exit(-1);
-	}
+  TreeTemplate<Node> * tree = PhylogeneticsApplicationTools::getTree(params);
+  ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
+  ApplicationTools::displayResult("Number of sons at root", TextTools::toString(tree->getRootNode()->getNumberOfSons()));
 
-	return (0);
+  string infosFile = ApplicationTools::getAFilePath("input.infos", params, false, true);
+  ApplicationTools::displayResult("Site information", infosFile);
+
+  SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet,NULL, params);
+  
+  DiscreteDistribution * rDist = NULL;
+  HomogeneousSequenceSimulator * seqsim = NULL;
+  SiteContainer * sites = NULL;
+  if(infosFile != "none")
+  {
+    ifstream in(infosFile.c_str());
+    DataTable * infos = DataTable::read(in, "\t");
+    rDist = new ConstantDistribution(1.);
+    seqsim = new HomogeneousSequenceSimulator(model, rDist, tree);
+    unsigned int nbSites = infos->getNumberOfRows();
+    vector<double> rates(nbSites);
+    vector<string> ratesStrings = infos->getColumn(string("pr"));
+    for(unsigned int i = 0; i < nbSites; i++)
+    {
+      rates[i] = TextTools::toDouble(ratesStrings[i]);
+    }
+    sites = SequenceSimulationTools::simulateSites(*seqsim, rates);
+  }
+  else
+  {
+    rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+    seqsim = new HomogeneousSequenceSimulator(model, rDist, tree);
+    unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", params, 100);
+    sites = seqsim->simulate(nbSites);
+  }
+  
+  // Write to file:
+  SequenceApplicationTools::writeSequenceFile(*sites, params);
+
+  delete alphabet;
+  delete tree;
+  delete rDist;
+  delete seqsim;
+
+  } catch(exception & e) {
+    cout << e.what() << endl;
+    exit(-1);
+  }
+
+  return (0);
 }
 

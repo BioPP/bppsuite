@@ -156,11 +156,18 @@ int main(int args, char ** argv)
 	DiscreteDistribution * rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
 
   string covarion = ApplicationTools::getStringParameter("covarion", params, "none", "", false, false);
-  SubstitutionModel * modelCov = NULL;
+  ReversibleSubstitutionModel * modelCov = NULL;
   DiscreteDistribution * rDistCov = NULL;
   if(covarion != "none")
   {
-    modelCov = model; 
+    try
+    {
+      modelCov = dynamic_cast<ReversibleSubstitutionModel *>(model); 
+    }
+    catch(exception & e)
+    {
+      throw Exception("Only reversible models can be used with a covarion process.");
+    }
     rDistCov = rDist;
     rDist = new ConstantDistribution(1.);
     model = PhylogeneticsApplicationTools::getCovarionProcess(modelCov, rDistCov, params, "", false, true);

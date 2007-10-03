@@ -4,7 +4,7 @@ METHOD = bionj
 
 # Sequences:
 
-# The laphabet to use:
+# The alphabet to use:
 # DNA, RNA or Protein
 alphabet=DNA
 

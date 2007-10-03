@@ -3,7 +3,7 @@ DATA = LSU
 
 # Sequences:
 
-# The laphabet to use:
+# The alphabet to use:
 # DNA, RNA or Protein
 alphabet=DNA
 
@@ -86,8 +86,8 @@ optimization.topology.nstep=4
 optimization.topology.numfirst=no
 optimization.topology.tolerance.before=100
 optimization.topology.tolerance.during=100
-optimization.method=NB //[NB|NND]
-optimization.method_NB.nstep=1
+optimization.method=DB //[DB|fullD]
+optimization.method_DB.nstep=1
 optimization.scale_first=no
 optimization.verbose=3
 #optimization.ignore_parameter=piA,piC,piT,piG

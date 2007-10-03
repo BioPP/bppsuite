@@ -1,0 +1,99 @@
+# Global variables:
+DATA = LSU
+
+# ---------------
+# Input sequences
+# ---------------
+
+# The alphabet to use:
+# [DNA|RNA|Protein|Generic]
+alphabet=DNA
+
+# The sequence file to use (sequences must be aligned!)
+input.sequence.file=$(DATA).phy
+
+# The file format:
+# Must be one of Mase, Fasta, Phylip, Clustal, DCSE, GanBank 
+input.sequence.format=Phylip
+
+# Mase format option:
+input.sequence.format_mase.site_selection =
+
+# Phylip format options:
+# interleaved or sequential:
+input.sequence.format_phylip.order = sequential
+
+# classic or extended (PAML):
+input.sequence.format_phylip.ext = extended
+
+# ----------------
+# Output sequences
+# ----------------
+
+output.sequence.file=$(DATA).fas
+
+# The file format:
+# Must be one of Mase, Fasta, Phylip 
+output.sequence.format=Fasta
+
+# Phylip format options:
+# interleaved or sequential:
+output.sequence.format_phylip.order = sequential
+
+# classic or extended (PAML):
+output.sequence.format_phylip.ext = extended
+
+# -----------------------
+# Sequences manipulations
+# -----------------------
+
+# Here is a list of possibles actions:
+# - complement (Nucleic acids only)
+#   Convert to the complementary sequence, keeping the original alphabet.
+# - transcript (Nucleic acids only)
+#   Convert to the complementary sequence, switching the type of alphabet (DNA<->RNA).
+# - switch (Nucleic acids only)
+#   Change the alphabet type (DNA<->RNA).
+# - translate (Nucleic acids only)
+#   Convert to proteins. You have to specify a genetic code, see forward...
+# - remove_gaps
+#   Remove all gaps in sequences (ie, 'unalign')
+# - gap2unknown
+#   Change gaps to fully unresolved characters, N for nucleotides and X for proteins.
+# - unknown2gap
+#   Change (partially) unresolved characters to gaps.
+# - resolve_dotted (Aligned sequences)
+#   Convert a human-readable alignment to a machine-readable alignement.
+# - keep_complete (Aligned sequences)
+#   Keep only complete sites, ie sites without any gap. Sites with unresolved characters are not removed.
+#   This is also possible to fix a maximum proportion of gaps, see forward.
+#
+# NB: you may specify as many operations as you want, providing they are compatible.
+# Examples:
+# - Just change file format:
+#   sequence.manip=
+# - Change DNA to RNA:
+#   sequence.manip=switch
+# - Unalign sequences, perform transcription and translate to proteins:
+#   sequence.manip=remove_gaps,transcript,translate
+# - Change all unresolved characters to gaps and keep only positions with less than 5 gaps:
+#   sequence.manip=unknown2gap,keep_complete
+#   sequence.manip_keep_complete.max_gap_allowed=5
+# - Keep only positions with less than 30% of gaps, and change them to unresolved characters:
+#   sequence.manip=keep_complete,gap2unknown
+#   sequence.manip_keep_complete.max_gap_allowed=30%
+sequence.manip = switch,transcript 
+
+
+
+### Manip-specific options: 
+
+# Option for translation, must be one of [Standard|VerMito|InvMito|EchMito] 
+sequence.manip_translate.code=Standard
+
+# Specify a maximum amount of gaps: may be an absolute number or a percentage.
+sequence.manip_keep_complete.max_gap_allowed=
+
+# The alphabet to use to resolve dotted alignments [RNA|DNA|Proteins]:
+sequence.manip_resolve_dotted.alphabet=
+

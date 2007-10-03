@@ -145,11 +145,18 @@ int main(int args, char ** argv)
   DiscreteDistribution * rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
 
   string covarion = ApplicationTools::getStringParameter("covarion", params, "none", "", false, false);
-  SubstitutionModel * modelCov = NULL;
+  ReversibleSubstitutionModel * modelCov = NULL;
   DiscreteDistribution * rDistCov = NULL;
   if(covarion != "none")
   {
-    modelCov = model; 
+    try
+    {
+      modelCov = dynamic_cast<ReversibleSubstitutionModel *>(model); 
+    }
+    catch(exception & e)
+    {
+      throw Exception("Only reversible models can be used with a covarion process.");
+    }
     rDistCov = rDist;
     rDist = new ConstantDistribution(1.);
     model = PhylogeneticsApplicationTools::getCovarionProcess(modelCov, rDistCov, params, "", false, true);
@@ -213,7 +220,7 @@ int main(int args, char ** argv)
   ParameterList allParameters = model->getParameters();
   allParameters.addParameters(rDist->getParameters());
 	ParameterList parametersToIgnore;
-  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "");
+  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", "", true, false);
 	bool ignoreBrLen = false;
   StringTokenizer st(paramListDesc, ",");
 	while(st.hasMoreToken())
@@ -245,7 +252,7 @@ int main(int args, char ** argv)
   //Here it is:
   ofstream out("warnings", ios::out);
   ApplicationTools::warning = &out;
-  tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, ignoreBrLen, false, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
+  tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, false, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
   ApplicationTools::warning = &cout;
 
   string matrixPath = ApplicationTools::getAFilePath("output.matrix.file", params, false, false, "", false);
