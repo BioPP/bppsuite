@@ -50,9 +50,9 @@ knowledge of the CeCILL license and that you accept its terms.
 // From PhylLib:
 #include <Phyl/TreeTemplate.h>
 #include <Phyl/PhylogeneticsApplicationTools.h>
-#include <Phyl/MutationProcess.h>
 #include <Phyl/NonHomogeneousSequenceSimulator.h>
 #include <Phyl/SequenceSimulationTools.h>
+#include <Phyl/SubstitutionModelSetTools.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -82,8 +82,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*            Bio++ Sequence Generator, version 0.1               *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 24/10/05 *" << endl;
+  cout << "*            Bio++ Sequence Generator, version 0.2               *" << endl;
+  cout << "* Author: J. Dutheil                                             *" << endl;
+  cout << "*         B. Boussau                        Last Modif. 06/10/07 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -132,17 +133,40 @@ int main(int args, char ** argv)
   string infosFile = ApplicationTools::getAFilePath("input.infos", params, false, true);
   ApplicationTools::displayResult("Site information", infosFile);
 
-  SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet,NULL, params);
-  
-  DiscreteDistribution * rDist = NULL;
-  HomogeneousSequenceSimulator * seqsim = NULL;
+  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
+  ApplicationTools::displayResult("Heterogeneous model", nhOpt);
+
+  SubstitutionModelSet * modelSet = NULL;
+
+  //Homogeneous case:
+  if(nhOpt == "no")
+  {
+    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet,NULL, params);
+    modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, tree);
+  }
+  //Galtier-Gouy case:
+  else if(nhOpt == "one_per_branch")
+  {
+    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet,NULL, params);
+    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
+    modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, tree, globalParameters); 
+  }
+  //General case;
+  else if(nhOpt == "general")
+  {
+    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet,NULL, params);
+  }
+  else throw Exception("Unknown non-homogeneous option: " + nhOpt);
+
+	DiscreteDistribution * rDist = NULL;
+  NonHomogeneousSequenceSimulator * seqsim = NULL;
   SiteContainer * sites = NULL;
   if(infosFile != "none")
   {
     ifstream in(infosFile.c_str());
     DataTable * infos = DataTable::read(in, "\t");
     rDist = new ConstantDistribution(1.);
-    seqsim = new HomogeneousSequenceSimulator(model, rDist, tree);
+    seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, tree);
     unsigned int nbSites = infos->getNumberOfRows();
     vector<double> rates(nbSites);
     vector<string> ratesStrings = infos->getColumn(string("pr"));
@@ -154,8 +178,16 @@ int main(int args, char ** argv)
   }
   else
   {
-    rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
-    seqsim = new HomogeneousSequenceSimulator(model, rDist, tree);
+    if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
+    {
+      //Markov-modulated Markov model!
+      rDist = new ConstantDistribution(1.);
+    }
+    else
+    {
+	    rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+    }
+    seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, tree);
     unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", params, 100);
     sites = seqsim->simulate(nbSites);
   }

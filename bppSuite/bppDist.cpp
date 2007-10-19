@@ -59,6 +59,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Phyl/NeighborJoining.h>
 #include <Phyl/BioNJ.h>
 #include <Phyl/OptimizationTools.h>
+#include <Phyl/MarkovModulatedSubstitutionModel.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -142,24 +143,15 @@ int main(int args, char ** argv)
   
   SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
   
-  DiscreteDistribution * rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
-
-  string covarion = ApplicationTools::getStringParameter("covarion", params, "none", "", false, false);
-  ReversibleSubstitutionModel * modelCov = NULL;
-  DiscreteDistribution * rDistCov = NULL;
-  if(covarion != "none")
+	DiscreteDistribution * rDist = NULL;
+  if(model->getNumberOfStates() > model->getAlphabet()->getSize())
   {
-    try
-    {
-      modelCov = dynamic_cast<ReversibleSubstitutionModel *>(model); 
-    }
-    catch(exception & e)
-    {
-      throw Exception("Only reversible models can be used with a covarion process.");
-    }
-    rDistCov = rDist;
+    //Markov-modulated Markov model!
     rDist = new ConstantDistribution(1.);
-    model = PhylogeneticsApplicationTools::getCovarionProcess(modelCov, rDistCov, params, "", false, true);
+  }
+  else
+  {
+	  rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
   }
    
   DistanceEstimation distEstimation(model, rDist, sites, 1, false);
@@ -338,8 +330,6 @@ int main(int args, char ** argv)
   delete sites;
   delete model;
   delete rDist;
-  if(modelCov != NULL) delete modelCov;
-  if(rDistCov != NULL) delete rDistCov;
   delete distMethod;
   delete tree;
   cout << "BppDist's done. Bye." << endl;

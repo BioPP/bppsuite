@@ -51,16 +51,20 @@ knowledge of the CeCILL license and that you accept its terms.
 // From PhylLib:
 #include <Phyl/Tree.h>
 #include <Phyl/DiscreteRatesAcrossSitesTreeLikelihood.h>
-#include <Phyl/HomogeneousTreeLikelihood.h>
+#include <Phyl/RHomogeneousTreeLikelihood.h>
 #include <Phyl/DRHomogeneousTreeLikelihood.h>
 #include <Phyl/NNIHomogeneousTreeLikelihood.h>
-#include <Phyl/ClockTreeLikelihood.h>
+#include <Phyl/RHomogeneousClockTreeLikelihood.h>
+#include <Phyl/RNonHomogeneousTreeLikelihood.h>
 #include <Phyl/PatternTools.h>
 #include <Phyl/PhylogeneticsApplicationTools.h>
 #include <Phyl/MarginalAncestralStateReconstruction.h>
 #include <Phyl/OptimizationTools.h>
 #include <Phyl/RASTools.h>
 #include <Phyl/Newick.h>
+#include <Phyl/MarkovModulatedSubstitutionModel.h>
+#include <Phyl/SubstitutionModelSet.h>
+#include <Phyl/SubstitutionModelSetTools.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -98,8 +102,8 @@ void help()
 int main(int args, char ** argv)
 {
 	cout << "******************************************************************" << endl;
-	cout << "*       Bio++ Maximum Likelihood Computation, version 1.1.0      *" << endl;
-	cout << "* Author: J. Dutheil                        Last Modif. 16/07/07 *" << endl;
+	cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.0      *" << endl;
+	cout << "* Author: J. Dutheil                        Last Modif. 11/10/07 *" << endl;
 	cout << "******************************************************************" << endl;
 	cout << endl;
 
@@ -152,27 +156,18 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 	
 	SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
-	
-	DiscreteDistribution * rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
-
-  string covarion = ApplicationTools::getStringParameter("covarion", params, "none", "", false, false);
-  ReversibleSubstitutionModel * modelCov = NULL;
-  DiscreteDistribution * rDistCov = NULL;
-  if(covarion != "none")
+	SubstitutionModelSet * modelSet = NULL;
+	DiscreteDistribution * rDist = NULL;
+  if(model->getNumberOfStates() > model->getAlphabet()->getSize())
   {
-    try
-    {
-      modelCov = dynamic_cast<ReversibleSubstitutionModel *>(model); 
-    }
-    catch(exception & e)
-    {
-      throw Exception("Only reversible models can be used with a covarion process.");
-    }
-    rDistCov = rDist;
+    //Markov-modulated Markov model!
     rDist = new ConstantDistribution(1.);
-    model = PhylogeneticsApplicationTools::getCovarionProcess(modelCov, rDistCov, params, "", false, true);
   }
- 
+  else
+  {
+	  rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+  }
+
   // Get the initial tree
   TreeTemplate<Node> * tree = NULL;
   string initTree = ApplicationTools::getStringParameter("init.tree", params, "user", "", false, false);
@@ -245,19 +240,43 @@ int main(int args, char ** argv)
   }
   else throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
 
-	AbstractHomogeneousTreeLikelihood *tl;
+	DiscreteRatesAcrossSitesTreeLikelihood *tl;
   string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", params, "no", "", true, false);
   ApplicationTools::displayResult("Clock", optimizeClock);
+  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
+  ApplicationTools::displayResult("Heterogeneous model", nhOpt);
+
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, "", true, false);
   unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0, "", true, false);
   bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
-  if(optimizeClock == "global") tl = new ClockTreeLikelihood(*tree, *sites, model, rDist, true, true);
+  if(optimizeClock == "global") tl = new RHomogeneousClockTreeLikelihood(*tree, *sites, model, rDist, true, true);
   else if(optimizeClock == "no")
   {
     if(optimizeTopo || nbBS > 0)
       tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
-    else
+    else if(nhOpt == "no")
       tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
+    else if(nhOpt == "one_per_branch")
+    {
+      vector<double> rateFreqs;
+      if(model->getNumberOfStates() != alphabet->getSize())
+      {
+        //Markov-Modulated Markov Model...
+        unsigned int n =(unsigned int)(model->getNumberOfStates() / alphabet->getSize());
+        vector<double> ratesFreq(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+                                                   // we should assume a rate distribution for the root also!!!  
+      }
+      FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, params, rateFreqs);
+      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
+      modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, tree, globalParameters, rootFreqs); 
+      tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+    }
+    else if(nhOpt == "general")
+    {
+      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet,NULL, params);
+      tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true); 
+    }
+    else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
   }
   else throw Exception("Unknown option for optimization.clock: " + optimizeClock);
   tl->initialize();
@@ -271,13 +290,13 @@ int main(int args, char ** argv)
     ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
     ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
     ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
-    vector<Node*> nodes = tree->getNodes();
-    for(unsigned int i = 0; i < nodes.size(); i++)
+    ParameterList pl = tl->getBranchLengthsParameters();
+    for(unsigned int i = 0; i < pl.size(); i++)
     {
-      if(nodes[i]->hasDistanceToFather() && nodes[i]->getDistanceToFather() < 0.000001) nodes[i]->setDistanceToFather(0.000001);
+      if(pl[i]->getValue() < 0.000001) pl[i]->setValue(0.000001);
     }
-    tl->initParameters();
-	  logL = tl->f(tl->getParameters());
+    tl->matchParametersValues(pl);
+	  logL = tl->getValue();
   }
   ApplicationTools::displayResult("Initial likelihood", TextTools::toString(logL, 15));
   if(isinf(logL))
@@ -298,7 +317,7 @@ int main(int args, char ** argv)
   }
   else
   {
-	  tl = dynamic_cast<AbstractHomogeneousTreeLikelihood *>(
+	  tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(
         PhylogeneticsApplicationTools::optimizeParameters(tl, params));
   }
 	
@@ -474,8 +493,6 @@ int main(int args, char ** argv)
 	delete sites;
 	delete model;
 	delete rDist;
-  if(modelCov != NULL) delete modelCov;
-  if(rDistCov != NULL) delete rDistCov;
 	delete tl;
   delete tree;
   cout << "BppML's done. Bye." << endl;
