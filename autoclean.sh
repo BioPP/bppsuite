@@ -16,7 +16,7 @@ rm ./Makefile.in
 rm ./missing
 rm ./mkinstalldirs
 rm ./README
-rm ./Seq/Makefile.in
+rm ./bppSuite/Makefile.in
 rm ./config.status
 rm ./libtool
 rm ./Makefile

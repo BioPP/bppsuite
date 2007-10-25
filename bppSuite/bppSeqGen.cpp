@@ -53,6 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Phyl/NonHomogeneousSequenceSimulator.h>
 #include <Phyl/SequenceSimulationTools.h>
 #include <Phyl/SubstitutionModelSetTools.h>
+#include <Phyl/Newick.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -63,6 +64,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/AttributesTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/ApplicationTools.h>
+#include <Utils/Number.h>
 
 using namespace std;
 
@@ -130,6 +132,26 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   ApplicationTools::displayResult("Number of sons at root", TextTools::toString(tree->getRootNode()->getNumberOfSons()));
 
+  string treeWIdPath = ApplicationTools::getAFilePath("output.tree.path", params, false, false);
+  if(treeWIdPath != "none")
+  {
+    vector<Node *> nodes = tree->getNodes();
+    for(unsigned int i = 0; i < nodes.size(); i++)
+    {
+      if(nodes[i]->isLeaf())
+        nodes[i]->setName(TextTools::toString(nodes[i]->getId()) + "_" + nodes[i]->getName());
+      else
+        nodes[i]->setBranchProperty("NodeId", String(TextTools::toString(nodes[i]->getId())));
+    }
+    Newick treeWriter;
+    treeWriter.enableExtendedBootstrapProperty("NodeId");
+    ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
+    treeWriter.write(*tree, treeWIdPath);
+    delete tree;
+    cout << "BppSegGen's done." << endl;
+    exit(0);
+  }
+
   string infosFile = ApplicationTools::getAFilePath("input.infos", params, false, true);
   ApplicationTools::displayResult("Site information", infosFile);
 
@@ -168,13 +190,16 @@ int main(int args, char ** argv)
     rDist = new ConstantDistribution(1.);
     seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, tree);
     unsigned int nbSites = infos->getNumberOfRows();
+    ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
     vector<double> rates(nbSites);
     vector<string> ratesStrings = infos->getColumn(string("pr"));
     for(unsigned int i = 0; i < nbSites; i++)
     {
       rates[i] = TextTools::toDouble(ratesStrings[i]);
     }
+    ApplicationTools::displayTask("Perform simulations");
     sites = SequenceSimulationTools::simulateSites(*seqsim, rates);
+    ApplicationTools::displayTaskDone();
   }
   else
   {
@@ -189,7 +214,10 @@ int main(int args, char ** argv)
     }
     seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, tree);
     unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", params, 100);
+    ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
+    ApplicationTools::displayTask("Perform simulations");
     sites = seqsim->simulate(nbSites);
+    ApplicationTools::displayTaskDone();
   }
   
   // Write to file:
@@ -204,6 +232,8 @@ int main(int args, char ** argv)
     cout << e.what() << endl;
     exit(-1);
   }
+
+  cout << "BppSegGen's done." << endl;
 
   return (0);
 }

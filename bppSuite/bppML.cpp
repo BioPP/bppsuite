@@ -101,73 +101,60 @@ void help()
 
 int main(int args, char ** argv)
 {
-	cout << "******************************************************************" << endl;
-	cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.0      *" << endl;
-	cout << "* Author: J. Dutheil                        Last Modif. 11/10/07 *" << endl;
-	cout << "******************************************************************" << endl;
-	cout << endl;
+  cout << "******************************************************************" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.0      *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 11/10/07 *" << endl;
+  cout << "******************************************************************" << endl;
+  cout << endl;
 
   if(args == 1)
   {
     help();
     exit(0);
   }
-	
-	try {
+  
+  try {
 
   ApplicationTools::startTimer();
 
-	cout << "Parsing options:" << endl;
-	
+  cout << "Parsing options:" << endl;
+  
   // Get the parameters from command line:
-	map<string, string> cmdParams = AttributesTools::getAttributesMap(
-		AttributesTools::getVector(args, argv), "=");
+  map<string, string> cmdParams = AttributesTools::getAttributesMap(
+    AttributesTools::getVector(args, argv), "=");
 
-	// Look for a specified file with parameters:
+  // Look for a specified file with parameters:
   map<string, string> params;
-	if(cmdParams.find("param") != cmdParams.end())
+  if(cmdParams.find("param") != cmdParams.end())
   {
-    	string file = cmdParams["param"];
-    	if(!FileTools::fileExists(file))
-      {
-     		cerr << "Parameter file not found." << endl;
-  			exit(-1);
-    	}
-      else
-      {
-			params = AttributesTools::getAttributesMapFromFile(file, "=");
-			// Actualize attributes with ones passed to command line:
-			AttributesTools::actualizeAttributesMap(params, cmdParams);
-		}
+    string file = cmdParams["param"];
+    if(!FileTools::fileExists(file))
+    {
+      cerr << "Parameter file not found." << endl;
+      exit(-1);
+    }
+    else
+    {
+      params = AttributesTools::getAttributesMapFromFile(file, "=");
+      // Actualize attributes with ones passed to command line:
+      AttributesTools::actualizeAttributesMap(params, cmdParams);
+    }
   }
   else
   {
-		params = cmdParams;
-	}
+    params = cmdParams;
+  }
 
-	Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
+  Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
 
-	VectorSiteContainer * allSites = SequenceApplicationTools::getSiteContainer(alphabet, params);
-	
-	VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, params);
-	delete allSites;
+  VectorSiteContainer * allSites = SequenceApplicationTools::getSiteContainer(alphabet, params);
+  
+  VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, params);
+  delete allSites;
 
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
-	
-	SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
-	SubstitutionModelSet * modelSet = NULL;
-	DiscreteDistribution * rDist = NULL;
-  if(model->getNumberOfStates() > model->getAlphabet()->getSize())
-  {
-    //Markov-modulated Markov model!
-    rDist = new ConstantDistribution(1.);
-  }
-  else
-  {
-	  rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
-  }
-
+  
   // Get the initial tree
   TreeTemplate<Node> * tree = NULL;
   string initTree = ApplicationTools::getStringParameter("init.tree", params, "user", "", false, false);
@@ -184,17 +171,17 @@ int main(int args, char ** argv)
     tree->setBranchLengths(1.);
   }
   else throw Exception("Unknown init tree method.");
-	
+  
   // Try to write the current tree to file. This will be overwritten by the optimized tree,
   // but allow to check file existence before running optimization!
-	PhylogeneticsApplicationTools::writeTree(*tree, params);
-	
-	bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", params, true, "", false, false);
+  PhylogeneticsApplicationTools::writeTree(*tree, params);
+  
+  bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", params, true, "", false, false);
   if(!computeLikelihood)
   {
     delete alphabet;
-	  delete sites;
-	  delete tree;
+    delete sites;
+    delete tree;
     cout << "BppML's done. Bye." << endl;
     return(0);
   }
@@ -240,7 +227,27 @@ int main(int args, char ** argv)
   }
   else throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
 
-	DiscreteRatesAcrossSitesTreeLikelihood *tl;
+  string treeWIdPath = ApplicationTools::getAFilePath("output.tree.path", params, false, false);
+  if(treeWIdPath != "none")
+  {
+    vector<Node *> nodes = tree->getNodes();
+    for(unsigned int i = 0; i < nodes.size(); i++)
+    {
+      if(nodes[i]->isLeaf())
+        nodes[i]->setName(TextTools::toString(nodes[i]->getId()) + "_" + nodes[i]->getName());
+      else
+        nodes[i]->setBranchProperty("NodeId", String(TextTools::toString(nodes[i]->getId())));
+    }
+    Newick treeWriter;
+    treeWriter.enableExtendedBootstrapProperty("NodeId");
+    ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
+    treeWriter.write(*tree, treeWIdPath);
+    delete tree;
+    cout << "BppSegGen's done." << endl;
+    exit(0);
+  }
+
+  DiscreteRatesAcrossSitesTreeLikelihood *tl;
   string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", params, "no", "", true, false);
   ApplicationTools::displayResult("Clock", optimizeClock);
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
@@ -249,15 +256,67 @@ int main(int args, char ** argv)
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, "", true, false);
   unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0, "", true, false);
   bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
-  if(optimizeClock == "global") tl = new RHomogeneousClockTreeLikelihood(*tree, *sites, model, rDist, true, true);
+  
+  SubstitutionModel    * model    = NULL;
+  SubstitutionModelSet * modelSet = NULL;
+  DiscreteDistribution * rDist    = NULL;
+
+  if(optimizeClock == "global")
+  {
+    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+    if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+    {
+      //Markov-modulated Markov model!
+      rDist = new ConstantDistribution(1.);
+    }
+    else
+    {
+      rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+    }
+    tl = new RHomogeneousClockTreeLikelihood(*tree, *sites, model, rDist, true, true);
+  }
   else if(optimizeClock == "no")
   {
     if(optimizeTopo || nbBS > 0)
+    {
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+      if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+      {
+        //Markov-modulated Markov model!
+        rDist = new ConstantDistribution(1.);
+      }
+      else
+      {
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+      }
       tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
+    }
     else if(nhOpt == "no")
+    {  
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+      if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+      {
+        //Markov-modulated Markov model!
+        rDist = new ConstantDistribution(1.);
+      }
+      else
+      {
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+      }
       tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
+    }
     else if(nhOpt == "one_per_branch")
     {
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+      if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+      {
+        //Markov-modulated Markov model!
+        rDist = new ConstantDistribution(1.);
+      }
+      else
+      {
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+      }
       vector<double> rateFreqs;
       if(model->getNumberOfStates() != alphabet->getSize())
       {
@@ -274,6 +333,15 @@ int main(int args, char ** argv)
     else if(nhOpt == "general")
     {
       modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet,NULL, params);
+      if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
+      {
+        //Markov-modulated Markov model!
+        rDist = new ConstantDistribution(1.);
+      }
+      else
+      {
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+      }
       tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true); 
     }
     else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
@@ -282,7 +350,7 @@ int main(int args, char ** argv)
   tl->initialize();
  
   delete tree;
-		
+    
   double logL = tl->getValue();
   if(isinf(logL))
   {
@@ -296,7 +364,7 @@ int main(int args, char ** argv)
       if(pl[i]->getValue() < 0.000001) pl[i]->setValue(0.000001);
     }
     tl->matchParametersValues(pl);
-	  logL = tl->getValue();
+    logL = tl->getValue();
   }
   ApplicationTools::displayResult("Initial likelihood", TextTools::toString(logL, 15));
   if(isinf(logL))
@@ -317,31 +385,31 @@ int main(int args, char ** argv)
   }
   else
   {
-	  tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(
+    tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(
         PhylogeneticsApplicationTools::optimizeParameters(tl, params));
   }
-	
-	tree = new TreeTemplate<Node>(*tl->getTree());
-	PhylogeneticsApplicationTools::writeTree(* tree, params);
-	
+  
+  tree = new TreeTemplate<Node>(*tl->getTree());
+  PhylogeneticsApplicationTools::writeTree(* tree, params);
+  
   // Write parameters to screen:
-	ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
+  ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
   ParameterList parameters = tl->getSubstitutionModelParameters();
   for(unsigned int i = 0; i < parameters.size(); i++)
   {
-		ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
+    ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
   }
   parameters = tl->getRateDistributionParameters();
   for(unsigned int i = 0; i < parameters.size(); i++)
   {
-		ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
+    ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
   }
   // Write parameters to file:
-	string parametersFile = ApplicationTools::getAFilePath("output.estimates", params, false, false);
+  string parametersFile = ApplicationTools::getAFilePath("output.estimates", params, false, false);
   if(parametersFile != "none")
   {
-		ofstream out(parametersFile.c_str(), ios::out);
-		out << "Log likelihood = " << tl->getValue() << endl;
+    ofstream out(parametersFile.c_str(), ios::out);
+    out << "Log likelihood = " << tl->getValue() << endl;
     parameters = tl->getSubstitutionModelParameters();
     for(unsigned int i = 0; i < parameters.size(); i++)
     {
@@ -356,63 +424,63 @@ int main(int args, char ** argv)
   }
 
   // Getting posterior rate class distribution:
-	DiscreteDistribution * prDist = RASTools::getPosteriorRateDistribution(* tl);
-	ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
-	if(ApplicationTools::message) prDist->print(*ApplicationTools::message);
-	ApplicationTools::displayMessage("\n");
+  DiscreteDistribution * prDist = RASTools::getPosteriorRateDistribution(* tl);
+  ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
+  if(ApplicationTools::message) prDist->print(*ApplicationTools::message);
+  ApplicationTools::displayMessage("\n");
   delete prDist;
  
-	// Write infos to file:
-	string infosFile = ApplicationTools::getAFilePath("output.infos", params, false, false);
-	if(infosFile != "none")
+  // Write infos to file:
+  string infosFile = ApplicationTools::getAFilePath("output.infos", params, false, false);
+  if(infosFile != "none")
   {
-		ApplicationTools::displayResult("Alignment information logfile", infosFile);
-		ofstream out(infosFile.c_str(), ios::out);
-		
-		// Get the rate class with maximum posterior probability:
-		vector<unsigned int> classes = tl->getRateClassWithMaxPostProbOfEachSite();
-		// Get the posterior rate, i.e. rate averaged over all posterior probabilities:
-		Vdouble rates = tl->getPosteriorRateOfEachSite();
+    ApplicationTools::displayResult("Alignment information logfile", infosFile);
+    ofstream out(infosFile.c_str(), ios::out);
+    
+    // Get the rate class with maximum posterior probability:
+    vector<unsigned int> classes = tl->getRateClassWithMaxPostProbOfEachSite();
+    // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
+    Vdouble rates = tl->getPosteriorRateOfEachSite();
 
-		vector<string> colNames;
-		colNames.push_back("is.complete");
-		colNames.push_back("is.constant");
-		colNames.push_back("lnL");
-		colNames.push_back("rc");
-		colNames.push_back("pr");
-		vector<string> row(5);
-		DataTable * infos = new DataTable(colNames);
-		
-		for(unsigned int i = 0; i < sites->getNumberOfSites(); i++)
+    vector<string> colNames;
+    colNames.push_back("is.complete");
+    colNames.push_back("is.constant");
+    colNames.push_back("lnL");
+    colNames.push_back("rc");
+    colNames.push_back("pr");
+    vector<string> row(5);
+    DataTable * infos = new DataTable(colNames);
+    
+    for(unsigned int i = 0; i < sites->getNumberOfSites(); i++)
     {
-			double lnL = tl->getLogLikelihoodForASite(i);
-			const Site * currentSite = sites->getSite(i);
-			int currentSitePosition = currentSite->getPosition();
-			int isCompl = (SiteTools::isComplete(* currentSite) ? 1 : 0);
-			int isConst = (SiteTools::isConstant(* currentSite) ? 1 : 0);
-			row[0] = TextTools::toString(isCompl);
-			row[1] = TextTools::toString(isConst);
-			row[2] = TextTools::toString(lnL);
-			row[3] = TextTools::toString(classes[i]);
-			row[4] = TextTools::toString(rates[i]);
-			infos->addRow(string("Site"+TextTools::toString(currentSitePosition)), row);
-		}
+      double lnL = tl->getLogLikelihoodForASite(i);
+      const Site * currentSite = sites->getSite(i);
+      int currentSitePosition = currentSite->getPosition();
+      int isCompl = (SiteTools::isComplete(* currentSite) ? 1 : 0);
+      int isConst = (SiteTools::isConstant(* currentSite) ? 1 : 0);
+      row[0] = TextTools::toString(isCompl);
+      row[1] = TextTools::toString(isConst);
+      row[2] = TextTools::toString(lnL);
+      row[3] = TextTools::toString(classes[i]);
+      row[4] = TextTools::toString(rates[i]);
+      infos->addRow(string("Site"+TextTools::toString(currentSitePosition)), row);
+    }
 
-		// Not compatible with covarion model...
+    // Not compatible with covarion model...
     //MarginalAncestralStateReconstruction masr(* dynamic_cast<DRHomogeneousTreeLikelihood *>(tl));
-		//Sequence * ancestors = masr.getAncestralSequenceForNode(tree->getRootNode());
-		//vector<string> ancestorColumn(sites->getNumberOfSites());
-		//for(unsigned int i = 0; i < ancestorColumn.size(); i++) {
-		//	ancestorColumn[i] = alphabet->intToChar((*ancestors)[i]);
-		//}
-		//infos->addColumn("ancestral.state", ancestorColumn);
-		//delete ancestors;
+    //Sequence * ancestors = masr.getAncestralSequenceForNode(tree->getRootNode());
+    //vector<string> ancestorColumn(sites->getNumberOfSites());
+    //for(unsigned int i = 0; i < ancestorColumn.size(); i++) {
+    //  ancestorColumn[i] = alphabet->intToChar((*ancestors)[i]);
+    //}
+    //infos->addColumn("ancestral.state", ancestorColumn);
+    //delete ancestors;
 
-		DataTable::write(*infos, out, "\t");
+    DataTable::write(*infos, out, "\t");
 
-		delete infos;
-	}
-	
+    delete infos;
+  }
+  
   
   
   //Bootstrap:
@@ -466,7 +534,7 @@ int main(int args, char ** argv)
         for(unsigned int j = 0; j < paramsToIgnore.size(); j++)
           tlrep->ignoreParameter(paramsToIgnore[j]->getName());
       }
-	    tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
+      tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
           PhylogeneticsApplicationTools::optimizeParameters(tlrep, params, "", true, false));
       bsTrees[i] = new TreeTemplate<Node>(*tlrep->getTree());
       if(out && i==0) newick.write(*bsTrees[i], bsTreesPath, true);
@@ -489,11 +557,12 @@ int main(int args, char ** argv)
   }
 
 
-	delete alphabet;
-	delete sites;
-	delete model;
-	delete rDist;
-	delete tl;
+  delete alphabet;
+  delete sites;
+  if(model)    delete model;
+  if(modelSet) delete modelSet;
+  delete rDist;
+  delete tl;
   delete tree;
   cout << "BppML's done. Bye." << endl;
   ApplicationTools::displayTime("Total execution time:");
@@ -501,10 +570,10 @@ int main(int args, char ** argv)
   }
   catch(exception & e)
   {
-		cout << e.what() << endl;
-		exit(-1);
-	}
+    cout << e.what() << endl;
+    exit(-1);
+  }
 
-	return (0);
+  return (0);
 }
 
