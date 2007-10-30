@@ -381,7 +381,7 @@ int main(int args, char ** argv)
 
   if(optimizeClock == "global")
   {
-    PhylogeneticsApplicationTools::optimizeParameters(dynamic_cast<ClockTreeLikelihood *>(tl), params);
+    PhylogeneticsApplicationTools::optimizeParameters(dynamic_cast<DiscreteRatesAcrossSitesClockTreeLikelihood *>(tl), params);
   }
   else
   {
