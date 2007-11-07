@@ -13,10 +13,9 @@ model.name = HKY85
 # theta (T92)
 # pi1, piT, piC and piG (HKY85, F84 and TN93)
 model.kappa = 2.843
-model.piA = 0.13
-model.piT = 0.16
-model.piC = 0.31
-model.piG = 0.40
+model.theta = 0.7
+model.theta1 = 0.4
+model.theta2 = 0.6
 
 #If empirical is set, specify the path where to find the model description (in PAML format).
 model_empirical.file = 

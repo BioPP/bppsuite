@@ -322,12 +322,12 @@ int main(int args, char ** argv)
       {
         //Markov-Modulated Markov Model...
         unsigned int n =(unsigned int)(model->getNumberOfStates() / alphabet->getSize());
-        vector<double> ratesFreq(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-                                                   // we should assume a rate distribution for the root also!!!  
+        rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+                                                     // we should assume a rate distribution for the root also!!!  
       }
       FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, params, rateFreqs);
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
-      modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, tree, globalParameters, rootFreqs); 
+      modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
       tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
     }
     else if(nhOpt == "general")
