@@ -443,12 +443,13 @@ int main(int args, char ** argv)
     Vdouble rates = tl->getPosteriorRateOfEachSite();
 
     vector<string> colNames;
+    colNames.push_back("Sites");
     colNames.push_back("is.complete");
     colNames.push_back("is.constant");
     colNames.push_back("lnL");
     colNames.push_back("rc");
     colNames.push_back("pr");
-    vector<string> row(5);
+    vector<string> row(6);
     DataTable * infos = new DataTable(colNames);
     
     for(unsigned int i = 0; i < sites->getNumberOfSites(); i++)
@@ -458,12 +459,13 @@ int main(int args, char ** argv)
       int currentSitePosition = currentSite->getPosition();
       int isCompl = (SiteTools::isComplete(* currentSite) ? 1 : 0);
       int isConst = (SiteTools::isConstant(* currentSite) ? 1 : 0);
-      row[0] = TextTools::toString(isCompl);
-      row[1] = TextTools::toString(isConst);
-      row[2] = TextTools::toString(lnL);
-      row[3] = TextTools::toString(classes[i]);
-      row[4] = TextTools::toString(rates[i]);
-      infos->addRow(string("Site"+TextTools::toString(currentSitePosition)), row);
+      row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+      row[1] = TextTools::toString(isCompl);
+      row[2] = TextTools::toString(isConst);
+      row[3] = TextTools::toString(lnL);
+      row[4] = TextTools::toString(classes[i]);
+      row[5] = TextTools::toString(rates[i]);
+      infos->addRow(row);
     }
 
     // Not compatible with covarion model...
