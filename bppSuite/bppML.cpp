@@ -56,6 +56,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Phyl/NNIHomogeneousTreeLikelihood.h>
 #include <Phyl/RHomogeneousClockTreeLikelihood.h>
 #include <Phyl/RNonHomogeneousTreeLikelihood.h>
+#include <Phyl/DRNonHomogeneousTreeLikelihood.h>
 #include <Phyl/PatternTools.h>
 #include <Phyl/PhylogeneticsApplicationTools.h>
 #include <Phyl/MarginalAncestralStateReconstruction.h>
@@ -328,6 +329,7 @@ int main(int args, char ** argv)
       FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, params, rateFreqs);
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
       modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
+      model = NULL;
       tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
     }
     else if(nhOpt == "general")
@@ -342,7 +344,8 @@ int main(int args, char ** argv)
       {
         rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
       }
-      tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true); 
+      //tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true); 
+      tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true); 
     }
     else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
   }

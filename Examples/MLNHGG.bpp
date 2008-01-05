@@ -8,7 +8,7 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-sequence.file=$(DATA).phy
+sequence.file=$(DATA)small.paml
 
 # The alignment format:
 # Must be one of Mase, Fasta, Phylip, Clustal, DCSE 

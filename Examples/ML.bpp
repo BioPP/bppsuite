@@ -74,7 +74,7 @@ model.s1=1.
 model.s2=1.
 
 # Rate Across Sites variation:
-# gamma or constant
+# gamma or constant [+invariant]
 rate_distribution = gamma
 
 # The gamma distribution's shape parameter
@@ -82,6 +82,9 @@ rate_distribution.alpha = 0.358
 
 # Number of classes for discretization:
 rate_distribution.classes_number = 4
+
+# The proportion of invariants
+rate_distribution.p = 0.2
 
 optimization=yes
 optimization.verbose = 1
