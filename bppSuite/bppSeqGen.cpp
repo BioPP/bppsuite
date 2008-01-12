@@ -42,6 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <fstream>
 #include <iomanip>
 
+using namespace std;
+
 // From SeqLib:
 #include <Seq/Alphabet.h>
 #include <Seq/VectorSiteContainer.h>
@@ -66,7 +68,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/ApplicationTools.h>
 #include <Utils/Number.h>
 
-using namespace std;
+using namespace bpp;
 
 /**
  * @brief Read trees from an input file, with segment annotations.

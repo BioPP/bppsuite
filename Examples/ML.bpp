@@ -110,6 +110,9 @@ output.tree.file = $(DATA)ML.dnd
 # Alignment information log file (site specific rates, etc):
 output.infos = $(DATA).infos
 
+# Write numerical parameter estimated values:
+output.estimates = $(DATA).params.txt
+
 # Bootstrap:
 bootstrap.number = 100
 # Tell if numerical parameters should be kept to their initial value when bootstrapping: 

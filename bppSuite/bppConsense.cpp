@@ -42,6 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
+
 // From PhylLib:
 #include <Phyl/Tree.h>
 #include <Phyl/Newick.h>
@@ -53,7 +55,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
 
-using namespace std;
+using namespace bpp;
 
 void help()
 {

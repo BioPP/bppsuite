@@ -43,6 +43,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
+
 // From SeqLib:
 #include <Seq/Alphabet.h>
 #include <Seq/VectorSiteContainer.h>
@@ -63,7 +65,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
 
-using namespace std;
+using namespace bpp;
 
 void help()
 {

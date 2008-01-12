@@ -42,6 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
+
 // From SeqLib:
 #include <Seq/Alphabet.h>
 #include <Seq/VectorSiteContainer.h>
@@ -81,7 +83,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
 
-using namespace std;
+using namespace bpp;
 
 /******************************************************************************/
 
@@ -98,6 +100,65 @@ void help()
   *ApplicationTools::message << "output.infos                  | file where to write site infos" << endl;
   *ApplicationTools::message << "output.estimates              | file where to write estimated parameter values" << endl;
   *ApplicationTools::message << "______________________________|___________________________________________" << endl;
+}
+
+void printParameters(const SubstitutionModel* model, ofstream& out)
+{
+  out << "model.name = " << model->getName() << endl;
+  ParameterList pl = model->getParameters();
+  for(unsigned int i = 0; i < pl.size(); i++)
+    out << "model." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
+}
+
+void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<string, string>& params)
+{
+  out << "nonhomogeneous = general" << endl;
+  out << "number_of_models = " << modelSet->getNumberOfModels() << endl;
+  for(unsigned int i = 0; i < modelSet->getNumberOfModels(); i++)
+  {
+    const SubstitutionModel* model = modelSet->getModel(i);
+    out << endl;
+    out << "model" << (i+1) << ".name = " << model->getName() << endl;
+    //ParameterList pl = model->getParameters();
+    //for(unsigned int j = 0; j < pl.size(); j++)
+    //  out << "model" << (i+1) << "." << pl[j]->getName() << " = " << pl[j]->getValue() << endl;
+    vector<int> ids = modelSet->getNodesWithModel(i);
+    out << "model" << (i+1) << ".nodes_id = " << ids[0];
+    for(unsigned int j = 1; j < ids.size(); j++)
+      out << "," << ids[j];
+    out << endl;
+    out << "model" << (i+1) << ".use_observed_freq = no" << endl;
+  }
+  ParameterList pl = modelSet->getParameters();
+  for(unsigned int i = 0; i < pl.size(); i++)
+  {
+    string name = modelSet->getParameterModelName(pl[i]->getName());
+    vector<int> ids = modelSet->getNodesWithParameter(pl[i]->getName());
+    unsigned int indexF = modelSet->getModelIndexForNode(ids[0]);
+    out << "model" << (indexF+1) << "." << name << " = " << pl[i]->getValue() << endl;
+    for(unsigned int j = 0; j < ids.size(); j++)
+    {
+      unsigned int index = modelSet->getModelIndexForNode(ids[j]);
+      out << "model" << (index+1) << "." << name << " = model" << (indexF + 1) << "." << name << endl;
+    }
+  }
+ 
+  //Root frequencies:
+  out << endl;
+  out << "# Root frequencies:" << endl;
+  out << "nonhomogeneous.root_freq = " << params["nonhomogeneous.root_freq"] << endl;
+  pl = modelSet->getRootFrequenciesParameters();
+  for(unsigned int i = 0; i < pl.size(); i++)
+    out << "model." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
+}
+
+void printParameters(const DiscreteDistribution* rDist, ofstream& out, map<string, string>& params)
+{
+  out << "rate_distribution = " << params["rate_distribution"] << endl;
+  ParameterList pl = rDist->getParameters();
+  for(unsigned int i = 0; i < pl.size(); i++)
+    out << "rate_distribution." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
+
 }
 
 int main(int args, char ** argv)
@@ -344,8 +405,7 @@ int main(int args, char ** argv)
       {
         rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
       }
-      //tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true); 
-      tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true); 
+      tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true); 
     }
     else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
   }
@@ -412,17 +472,14 @@ int main(int args, char ** argv)
   if(parametersFile != "none")
   {
     ofstream out(parametersFile.c_str(), ios::out);
-    out << "Log likelihood = " << tl->getValue() << endl;
-    parameters = tl->getSubstitutionModelParameters();
-    for(unsigned int i = 0; i < parameters.size(); i++)
-    {
-      out << parameters[i]->getName() << " = " << parameters[i]->getValue() << endl;
-    }
-    parameters = tl->getRateDistributionParameters();
-    for(unsigned int i = 0; i < parameters.size(); i++)
-    {
-      out << parameters[i]->getName() << " = " << parameters[i]->getValue() << endl;
-    }
+    out << "# Log likelihood = " << tl->getValue() << endl;
+    out << endl;
+    out << "# Substitution model parameters:" << endl;
+    if(modelSet) printParameters(modelSet, out, params);
+    else         printParameters(model, out);
+    out << endl;
+    out << "# Rate distribution parameters:" << endl;
+    printParameters(rDist, out, params);
     out.close();
   }
 
@@ -542,8 +599,8 @@ int main(int args, char ** argv)
       tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
           PhylogeneticsApplicationTools::optimizeParameters(tlrep, params, "", true, false));
       bsTrees[i] = new TreeTemplate<Node>(*tlrep->getTree());
-      if(out && i==0) newick.write(*bsTrees[i], bsTreesPath, true);
-      if(out && i>0) newick.write(*bsTrees[i], bsTreesPath, false);
+      if(out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
+      if(out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);
       delete tlrep;
       delete sample;
     }

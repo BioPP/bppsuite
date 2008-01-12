@@ -57,7 +57,7 @@ nonhomogeneous = general
 # initGC    : manually set the ancestral GC content.
 nonhomogeneous.root_freq=balancedGC
 
-# If the init option is selcted, ignored otherwise:
+# If the init option is selected, ignored otherwise:
 model.ancA=
 model.ancC=
 model.ancG=
@@ -126,6 +126,12 @@ optimization.verbose=3
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA)ML.dnd
+
+# Alignment information log file (site specific rates, etc):
+output.infos = $(DATA).infos
+
+# Write numerical parameter estimated values:
+output.estimates = $(DATA).params.txt
 
 # Bootstrap:
 bootstrap.number = 0

@@ -42,6 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
+
 // From NumCalc:
 #include <NumCalc/DataTable.h>
 
@@ -64,7 +66,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Phyl/PhylogeneticsApplicationTools.h>
 #include <Phyl/PhylipDistanceMatrixFormat.h>
 
-using namespace std;
+using namespace bpp;
 
 void help()
 {
