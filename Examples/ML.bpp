@@ -86,6 +86,20 @@ rate_distribution.classes_number = 4
 # The proportion of invariants
 rate_distribution.p = 0.2
 
+# Likelihood recursion option:
+# - simple
+# - double
+likelihood.recursion = simple
+# Site compression for the simple recursion:
+# - simple: identical sites are not computed twice
+# - recursive: look for site patterns to save computation time during optimization, but require
+#   extra time to initiate the patterns.
+likelihood.recursioni_simple.compression = simple
+
+# ----------------------------------------------------------------------------------------
+#                                     Optimization
+# ----------------------------------------------------------------------------------------
+
 optimization=yes
 optimization.verbose = 1
 optimization.ignore_parameter = piA,piC,piG,piT
@@ -113,7 +127,10 @@ output.infos = $(DATA).infos
 # Write numerical parameter estimated values:
 output.estimates = $(DATA).params.txt
 
-# Bootstrap:
+# ----------------------------------------------------------------------------------------
+#                                     Bootstrap
+# ----------------------------------------------------------------------------------------
+
 bootstrap.number = 100
 # Tell if numerical parameters should be kept to their initial value when bootstrapping: 
 bootstrap.approximate = no

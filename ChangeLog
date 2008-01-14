@@ -1,3 +1,8 @@
+1"/01/08 Julien Dutheil
+* More options in bppml: possibility to chose between simple and double
+recursion and data compression method.
+* Simple recursion method improved.
+
 11/01/08 Julien Dutheil
 * Compatibility update
 * bppML now output more handy parameter values.

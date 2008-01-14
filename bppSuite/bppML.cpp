@@ -165,7 +165,7 @@ int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.0      *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 11/10/07 *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 12/01/08 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -182,8 +182,9 @@ int main(int args, char ** argv)
   cout << "Parsing options:" << endl;
   
   // Get the parameters from command line:
-  map<string, string> cmdParams = AttributesTools::getAttributesMap(
-    AttributesTools::getVector(args, argv), "=");
+  vector<string> vec = AttributesTools::getVector(args, argv);
+  string delimiter("=");
+  map<string, string> cmdParams = AttributesTools::getAttributesMap(vec, delimiter);
 
   // Look for a specified file with parameters:
   map<string, string> params;
@@ -365,7 +366,23 @@ int main(int args, char ** argv)
       {
         rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
       }
-      tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", params, "simple", "", true, false);
+      ApplicationTools::displayResult("Likelihood recursion", recursion);
+      if(recursion == "simple")
+      {
+        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", params, "simple", "", true, false);
+        ApplicationTools::displayResult("Likelihood data compression", compression);
+        if(compression == "simple")
+          tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
+        else if(compression == "recursive")
+          tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
+        else throw Exception("Unknown likelihood data compression method: " + compression);
+      }
+      else if(recursion == "double")
+      {
+        tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true);
+      }
+      else throw Exception("Unknown recursion option: " + recursion);
     }
     else if(nhOpt == "one_per_branch")
     {
@@ -391,7 +408,14 @@ int main(int args, char ** argv)
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
       modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
       model = NULL;
-      tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+      
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", params, "simple", "", true, false);
+      ApplicationTools::displayResult("Likelihood recursion", recursion);
+      if(recursion == "simple")
+        tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+      else if(recursion == "double")
+        tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+      else throw Exception("Unknown recursion option: " + recursion);
     }
     else if(nhOpt == "general")
     {
@@ -405,7 +429,14 @@ int main(int args, char ** argv)
       {
         rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
       }
-      tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true); 
+
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", params, "simple", "", true, false);
+      ApplicationTools::displayResult("Likelihood recursion", recursion);
+      if(recursion == "simple")
+        tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+      else if(recursion == "double")
+        tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+      else throw Exception("Unknown recursion option: " + recursion);
     }
     else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
   }
