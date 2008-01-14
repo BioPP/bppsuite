@@ -370,7 +370,7 @@ int main(int args, char ** argv)
       ApplicationTools::displayResult("Likelihood recursion", recursion);
       if(recursion == "simple")
       {
-        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", params, "simple", "", true, false);
+        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", params, "recursive", "", true, false);
         ApplicationTools::displayResult("Likelihood data compression", compression);
         if(compression == "simple")
           tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
