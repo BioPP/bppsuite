@@ -130,16 +130,21 @@ void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<st
     out << "model" << (i+1) << ".use_observed_freq = no" << endl;
   }
   ParameterList pl = modelSet->getParameters();
+  ParameterList plroot = modelSet->getRootFrequenciesParameters();
   for(unsigned int i = 0; i < pl.size(); i++)
   {
-    string name = modelSet->getParameterModelName(pl[i]->getName());
-    vector<int> ids = modelSet->getNodesWithParameter(pl[i]->getName());
-    unsigned int indexF = modelSet->getModelIndexForNode(ids[0]);
-    out << "model" << (indexF+1) << "." << name << " = " << pl[i]->getValue() << endl;
-    for(unsigned int j = 0; j < ids.size(); j++)
+    if(plroot.getParameter(pl[i]->getName()) == NULL)
     {
-      unsigned int index = modelSet->getModelIndexForNode(ids[j]);
-      out << "model" << (index+1) << "." << name << " = model" << (indexF + 1) << "." << name << endl;
+      out << endl;
+      string name = modelSet->getParameterModelName(pl[i]->getName());
+      vector<int> ids = modelSet->getNodesWithParameter(pl[i]->getName());
+      unsigned int indexF = modelSet->getModelIndexForNode(ids[0]);
+      out << "model" << (indexF+1) << "." << name << " = " << pl[i]->getValue() << endl;
+      for(unsigned int j = 1; j < ids.size(); j++)
+      {
+        unsigned int index = modelSet->getModelIndexForNode(ids[j]);
+        out << "model" << (index+1) << "." << name << " = model" << (indexF + 1) << "." << name << endl;
+      }
     }
   }
  
@@ -147,9 +152,8 @@ void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<st
   out << endl;
   out << "# Root frequencies:" << endl;
   out << "nonhomogeneous.root_freq = " << params["nonhomogeneous.root_freq"] << endl;
-  pl = modelSet->getRootFrequenciesParameters();
-  for(unsigned int i = 0; i < pl.size(); i++)
-    out << "model." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
+  for(unsigned int i = 0; i < plroot.size(); i++)
+    out << "model." << plroot[i]->getName() << " = " << plroot[i]->getValue() << endl;
 }
 
 void printParameters(const DiscreteDistribution* rDist, ofstream& out, map<string, string>& params)
@@ -158,7 +162,7 @@ void printParameters(const DiscreteDistribution* rDist, ofstream& out, map<strin
   ParameterList pl = rDist->getParameters();
   for(unsigned int i = 0; i < pl.size(); i++)
     out << "rate_distribution." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
-
+  out << "rate_distribution.classes_number = " << rDist->getNumberOfCategories() << endl;
 }
 
 int main(int args, char ** argv)
