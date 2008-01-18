@@ -1,0 +1,335 @@
+//
+// File: bppReRoot.cpp
+// Created by: Celine Scornavacca
+// Created on: Jan Tue 15 18:15 2008
+//
+
+/*
+Copyright or © or Copr. CNRS
+
+This software is a computer program whose purpose is to estimate
+phylogenies and evolutionary parameters from a dataset according to
+the maximum likelihood principle.
+
+This software is governed by the CeCILL  license under French law and
+abiding by the rules of distribution of free software.  You can  use, 
+modify and/ or redistribute the software under the terms of the CeCILL
+license as circulated by CEA, CNRS and INRIA at the following URL
+"http://www.cecill.info". 
+
+As a counterpart to the access to the source code and  rights to copy,
+modify and redistribute granted by the license, users are provided only
+with a limited warranty  and the software's author,  the holder of the
+economic rights,  and the successive licensors  have only  limited
+liability. 
+
+In this respect, the user's attention is drawn to the risks associated
+with loading,  using,  modifying and/or developing or reproducing the
+software by the user in light of its specific status of free software,
+that may mean  that it is complicated to manipulate,  and  that  also
+therefore means  that it is reserved for developers  and  experienced
+professionals having in-depth computer knowledge. Users are therefore
+encouraged to load and test the software's suitability as regards their
+requirements in conditions enabling the security of their systems and/or 
+data to be ensured and,  more generally, to use and operate it in the 
+same conditions as regards security. 
+
+The fact that you are presently reading this means that you have had
+knowledge of the CeCILL license and that you accept its terms.
+*/
+
+// From the STL:
+#include <iostream>
+
+using namespace std;
+
+// From PhylLib:
+#include <Phyl/IOTree.h>
+#include <Phyl/Newick.h>
+#include <Phyl/Tree.h>
+#include <Phyl/Node.h>
+#include <Phyl/TreeExceptions.h>
+#include <Phyl/TreeTemplateTools.h>
+#include <Phyl/PhylogeneticsApplicationTools.h>
+
+// From NumCalc:
+#include <NumCalc/VectorTools.h>
+
+// From Utils:
+#include <Utils/FileTools.h>
+#include <Utils/StringTokenizer.h>
+#include <Utils/ApplicationTools.h>
+#include <Utils/AttributesTools.h>
+
+using namespace bpp;
+
+typedef TreeTemplate<Node> MyTree;
+
+
+void help()
+{
+  *ApplicationTools::message << "__________________________________________________________________________" << endl;
+  *ApplicationTools::message << "input.list.file            | [path] toward multi-trees file (newick)      " << endl;
+  *ApplicationTools::message << "outgroups.file             | [path] toward file containing the different levels of outgroups " << endl;
+  *ApplicationTools::message << "print.option               | [false|rue] threshold to use in consensus        " << endl;
+  *ApplicationTools::message << "                           | true = the unrootable trees are printed as unrooted in the output.tree.file " << endl;
+  *ApplicationTools::message << "                           | false = the unrootable trees are not printed in the output.tree.file " << endl;
+ 
+  *ApplicationTools::message << "___________________________|______________________________________________" << endl;
+  *ApplicationTools::message << "Output tree parameters:" << endl;
+  *ApplicationTools::message << "output.tree.file              | file where to write the rerooted trees" << endl;
+  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
+}
+
+
+
+int main(int args, char ** argv)
+{
+  
+  cout << "******************************************************************" << endl;
+  cout << "*                  Bio++ ReRoot, version 0.1.0                   *" << endl;
+  cout << "* Author: C. Scornavacca                    Created     15/01/08 *" << endl;
+  cout << "*                                           Last Modif. 15/01/08 *" << endl;
+  cout << "******************************************************************" << endl;
+  cout << endl;
+
+  if(args == 1)
+  {
+    help();
+    exit(0);
+  }
+  
+  try {
+  
+  ApplicationTools::startTimer();
+
+  cout << "Parsing options:" << endl;
+  
+  // Get the parameters from command line:
+  map<string, string> cmdParams = AttributesTools::getAttributesMap(AttributesTools::getVector(args, argv), "=");
+
+  // Look for a specified file with parameters:
+  map<string, string> params;
+  if(cmdParams.find("param") != cmdParams.end())
+  {
+    string file = cmdParams["param"];
+    if(!FileTools::fileExists(file))
+    {
+      cerr << "Parameter file not found." << endl;
+      exit(-1);
+    }
+    else
+    {
+      params = AttributesTools::getAttributesMapFromFile(file, "=");
+      // Actualize attributes with ones passed to command line:
+      AttributesTools::actualizeAttributesMap(params, cmdParams);
+    }
+  }
+  else
+  {
+    params = cmdParams;
+  }
+
+  Newick newick;
+  string listPath = ApplicationTools::getAFilePath("input.list.file", params);
+  ApplicationTools::displayResult("Input list file", listPath);
+  if(listPath == "none") throw Exception("You must provide an input tree list file.");
+     
+  string outgroupsPath = ApplicationTools::getAFilePath("outgroups.file", params);
+  ApplicationTools::displayResult("Outgroups file", outgroupsPath);
+  if(outgroupsPath == "none") throw Exception("You must provide an outgroup list file.");
+       
+  string outputPath = ApplicationTools::getAFilePath("output.tree.file", params, true, false);
+  ApplicationTools::displayResult("Output file", outputPath);
+  if(outputPath == "none") throw Exception("You must provide an output file.");
+     
+  bool printOption = ApplicationTools::getBooleanParameter("print.option", params, false);
+    
+  vector<bool> printOrNot;
+      
+  vector<Tree *> tempTrees;
+  vector<MyTree *> trees;
+      
+  //Reading trees to root
+  newick.read(listPath, tempTrees);
+  for(unsigned int i = 0; i < tempTrees.size(); i++)
+    trees.push_back(dynamic_cast <MyTree* >(tempTrees[i]));
+        
+  ApplicationTools::displayResult("Number of trees found", TextTools::toString(trees.size()));
+            
+  const string path = outgroupsPath;  
+  ifstream file(path.c_str(), ios::in);
+  string temp, description, taxon;
+
+  vector < vector<string> > levelOutgroup;
+    
+  //Reading outgroup levels  
+  while (!file.eof()) 
+  {
+    vector <string> tempTaxa;
+    getline(file, temp, '\n');  
+    StringTokenizer line = StringTokenizer::StringTokenizer(temp, " ,"); 
+    while(line.hasMoreToken())
+    {
+      tempTaxa.push_back(line.nextToken());  
+    }
+    levelOutgroup.push_back(tempTaxa);
+  }
+  file.close();    
+ 
+  ApplicationTools::displayTask("Rooting trees", true);
+  for(unsigned int tr = 0; tr < trees.size(); tr++)
+  {
+    ApplicationTools::displayGauge(tr, trees.size() - 1, '=');
+    vector<string> leavesTree;      
+    leavesTree = (* trees[tr]).getLeavesNames();  
+  
+    unsigned int numNodes = trees[tr]->getNumberOfNodes() - 1;
+    unsigned int numNodeWithBranchLength = 0;
+    vector<Node *>  nodes = trees[tr]->getNodes();
+    for(unsigned int i = 0; i < nodes.size(); i++)
+    {
+      if(nodes[i]->hasDistanceToFather())
+        numNodeWithBranchLength++;
+    }
+    if((numNodes != numNodeWithBranchLength) && (numNodeWithBranchLength != 0))\
+    {
+      cout << "Could not execute due to a source tree with missing branch lengths \n(reminder: a source tree must either have no branch length, either length for all branches\n";
+      exit(-1);
+    }
+    vector<string> outGroup;
+    bool found = false;
+    bool analyseOutgroupLevel = true;
+    for (unsigned int t = 0; t < levelOutgroup.size() && analyseOutgroupLevel; t++)
+    {
+      vector<string>::iterator Iterator;  
+      for(Iterator = levelOutgroup[t].begin(); Iterator != levelOutgroup[t].end(); Iterator++ )
+      {
+        if(VectorTools::contains(leavesTree, *Iterator))
+        {
+          outGroup.push_back(*Iterator);
+        }
+      }
+      if(outGroup.size() > 0)
+      {
+        vector<string> remainingTaxa;
+        VectorTools::diff(leavesTree, outGroup, remainingTaxa);
+        if(remainingTaxa.size() > 0)
+        {
+          trees[tr]->newOutGroup(* trees[tr]->getNode(remainingTaxa[0]));
+          Node * newRoot = trees[tr]->getNode(outGroup[0]);
+          vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+          while(newRoot->hasFather() && !(VectorTools::containsAll(tempLeaves, outGroup)))
+          {   
+            newRoot = newRoot->getFather();
+            tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+          }
+            
+          tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+          std::sort(tempLeaves.begin(), tempLeaves.end());
+      
+          if(tempLeaves.size() == outGroup.size())
+          {
+            trees[tr]->newOutGroup(* newRoot);
+            found = true;
+          }
+          else
+          {
+            bool monophylOk = true;
+            for(unsigned f = 0; f < newRoot->getNumberOfSons() && monophylOk; f++)
+            {
+              vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot->getSon(f));
+              vector<string> diff;
+              VectorTools::diff(tempLeaves, outGroup, diff);
+              unsigned int difference = diff.size();
+              if(!( (difference == 0) || (difference == tempLeaves.size()) ) )
+              {
+                //The proposed outgroup is not monophyletic. The analysis for this tree is interrupted
+                //No more outgroup are analysed
+                monophylOk = false;
+              }
+            }
+            if(monophylOk)
+            {
+              vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+              std::sort(tempLeaves.begin(), tempLeaves.end());      
+              if(tempLeaves.size() != leavesTree.size())
+              {
+                MyTree * low = new MyTree(* TreeTemplateTools::cloneSubtree<Node>(* newRoot));
+                trees[tr]->newOutGroup(* newRoot);
+                Node * sonUpper;
+                vector<string>  tempLeaves2 = TreeTemplateTools::getLeavesNames(* (trees[tr]->getRootNode())->getSon(0));
+                std::sort(tempLeaves2.begin(), tempLeaves2.end());
+                if((VectorTools::vectorIntersection(tempLeaves2,outGroup).size()) !=0)
+                {
+                  sonUpper = (trees[tr]->getRootNode())->getSon(1);
+                }
+                else
+                {
+                  sonUpper = (trees[tr]->getRootNode())->getSon(0);
+                }
+                int ident = TreeTools::getMaxId(* low, low->getRootId());
+                vector <Node *> nodesTemp= TreeTemplateTools::getNodes( * sonUpper);
+                for(unsigned int F = 0; F < nodesTemp.size(); F++)
+                  ( * nodesTemp[F]).setId(ident + F + 1);
+                low->getRootNode()->addSon(* sonUpper);
+                trees[tr] = low;
+              }
+              //A good outgroup was found
+              found = true;
+            }
+          }                  
+        }
+        analyseOutgroupLevel = false;
+      }    
+    }
+    if(!found)
+    {  
+      if(!printOption)
+        printOrNot.push_back(false);
+      else
+        printOrNot.push_back(true);
+      cout << "Sorry but I can't root your tree " << tr+1 << " ; or none of the taxa in your list is present in the tree or the outgroup is not monophyletic!\n";
+    }
+    else
+    {
+      printOrNot.push_back(true);
+      trees[tr]->resetNodesId();
+    }      
+  }
+  ApplicationTools::displayTaskDone();
+     
+  //Write rooted trees:  
+  for(unsigned int i = 0; i < trees.size(); i++)
+  {
+    if(printOrNot[i])
+    {
+      if(i == 0)
+        newick.write(* trees[i], outputPath, true);
+      else
+        newick.write(* trees[i], outputPath, false);
+    }
+  }
+     
+  for(unsigned int i = 0; i < trees.size(); i++) delete trees[i];
+    
+  cout << "Bio++ ReRoot's done. Bye." << endl;
+      
+  ApplicationTools::displayTime("Total execution time:");
+
+  }
+  catch(exception & e)
+  {
+    cout << e.what() << endl;
+    exit(-1);
+  }
+
+  return (0);
+};
+
+
+
+
+
+
+

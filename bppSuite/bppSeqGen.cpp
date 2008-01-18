@@ -100,7 +100,7 @@ void readTrees(ifstream& file, vector<TreeTemplate<Node> *>& trees, vector<doubl
       line += FileTools::getNextLine(file);
       index3 = line.find_first_of(";", index3);
     }
-    newickStr = line.substr(index2 + 1, index3 - index2 - 1);
+    newickStr = line.substr(index2 + 1, index3 - index2);
     TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(newickStr);
     if(trees.size() > 0)
     {
