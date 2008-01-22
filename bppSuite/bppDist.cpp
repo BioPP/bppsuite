@@ -308,7 +308,7 @@ int main(int args, char ** argv)
     }
 
     vector<Tree *> bsTrees(nbBS);
-    ApplicationTools::displayTask("Bootstrapping");
+    ApplicationTools::displayTask("Bootstrapping", true);
     for(unsigned int i = 0; i < nbBS; i++)
     {
       ApplicationTools::displayGauge(i, nbBS-1, '=');

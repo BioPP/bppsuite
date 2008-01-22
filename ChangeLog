@@ -1,4 +1,6 @@
-1"/01/08 Julien Dutheil
+22/01/08 -*- Version 0.2.0 -*-
+
+13/01/08 Julien Dutheil
 * More options in bppml: possibility to chose between simple and double
 recursion and data compression method.
 * Simple recursion method improved.
