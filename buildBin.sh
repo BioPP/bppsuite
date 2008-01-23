@@ -5,5 +5,8 @@ strip bppSuite/bpppars
 strip bppSuite/bppml
 strip bppSuite/bppseqgen
 strip bppSuite/bppconsense
-tar cvzf bppSuite-linux-bin-static-0.1.0.tar.gz bppSuite/bppdist bppSuite/bpppars bppSuite/bppml bppSuite/bppseqgen bppSuite/bppconsense
+strip bppSuite/bppseqman
+strip bppSuite/bppphysamp
+strip bppSuite/bppreroot
+tar cvzf bppSuite-linux32-bin-static-0.2.0.tar.gz bppSuite/bppdist bppSuite/bpppars bppSuite/bppml bppSuite/bppseqgen bppSuite/bppconsense bppSuite/bppseqman bppSuite/bppphysamp bppSuite/bppreroot
 
