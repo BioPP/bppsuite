@@ -108,23 +108,78 @@ likelihood.recursion_simple.compression = recursive
 #                                     Optimization
 # ----------------------------------------------------------------------------------------
 
-optimization=yes
-optimization.verbose = 1
-optimization.ignore_parameter = piA,piC,piG,piT
-optimization.max_number_f_eval = 10000
-optimization.tolerance = 0.000001
-optimization.message_handler = $(DATA).messages
-optimization.profiler = $(DATA).profile
+# Should we reestimate likelihood parameters? Tree topology will not be optimized.
+# (recommanded)
+optimization = yes
 
+# Method to use for optimizing numerical parameters:
+# -DB (default) derivatives for branch lengths + Brent for other parameters
+# -fullD derivatives for all parameters, using numerical derivatives for non-branch lengths parameters.
+optimization.method = DB
+
+# Number of progressive steps to use in DB optimization (a value of 5 is often fine).
+# 1 means no progressive optimization.
+optimization.method_DB.nstep = 1
+
+# Derivatives-based algorithm to us:
+# - newton (recommanded) uses first and second order derivatives
+# - gradient uses only first-order derivatives
+optimization.method.derivatives = newton
+
+# Final optimization step, may be useful if numerical derivatives are used:
+# powell or simplex, leave the field empty for no final optimization step.
+optimization.final = 
+
+# Set the quantity of output to the screen:
+optimization.verbose = 3
+
+# Parameters to ignore (for instance equilibrium frequencies)
+optimization.ignore_parameter =
+
+# Maximum number of likelihood evaluations:
+optimization.max_number_f_eval = 10000
+
+# Precision to reach:
+optimization.tolerance = 0.000001
+
+# idem for error or warning messages:
+optimization.message_handler = $(DATA).messages
+
+# A file where to dump optimization steps (a file path or std for standard output)
+ooptimization.profiler = $(DATA).profile
+
+# Shall we optimize tree topology as well?
 optimization.topology = yes
-optimization.topology.nstep=4
-optimization.topology.numfirst=no
-optimization.topology.tolerance.before=100
-optimization.topology.tolerance.during=100
-optimization.method=DB //[DB|fullD]
-optimization.method_DB.nstep=1
-optimization.scale_first=no
-optimization.verbose=3
+
+# Algorithm to use for topology estimation: only NNI for now
+optimization.topology.algorithm = NNI
+
+# NNI method: fast, better or phyml
+# You should use the phyml option, since it is realy more efficient!
+optimization.topology.algorithm_nni.method = phyml
+
+# Number of phyml topology movement steps before reoptimizing parameters:
+optimization.topology.nstep = 4
+
+# Shall we estimate parameters before looking for topology movements?
+optimization.topology.numfirst = no
+
+# Tolerances: These number should not be too low, in order to save computation
+# time and also for a better topology estimation.
+# The optimization.tolerance parameter will be used for the final optimization
+# of numerical parameters.
+#
+# Tolerance for the prior.topology estimation
+optimization.topology.tolerance.before = 100
+
+# Tolerance for the during-topology estimation
+optimization.topology.tolerance.during = 100
+
+# Shall we first scale the tree befor optimizing parameters? [deprecated]
+optimization.scale_first = no
+
+
+
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA)ML.dnd

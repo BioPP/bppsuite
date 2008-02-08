@@ -3,6 +3,7 @@
 LSU.phy                        Sequence file in phylip format.
 LSU.dnd                        Unrooted tree in newick format.
 LSUrooted.dnd                  Rooted tree in newick format.
+tree.dnd                       A candidate tree.
 treeList.dnd                   A list of trees in newick format.
 treeList2.dnd                  Another list of trees in newick format.
 OutGroup.txt                   A list of taxons to be used with BppReRoot.

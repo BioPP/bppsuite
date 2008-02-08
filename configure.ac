@@ -29,7 +29,7 @@
 #The fact that you are presently reading this means that you have had
 #knowledge of the CeCILL license and that you accept its terms.
 
-AC_INIT(bppSuite, 0.2.0, Julien.Dutheil@univ-montp2.fr, bppSuite)
+AC_INIT(bppSuite, 0.2.1, Julien.Dutheil@univ-montp2.fr, bppSuite)
 AC_CONFIG_SRCDIR(bppSuite/bppML.cpp)
 AM_INIT_AUTOMAKE()
 

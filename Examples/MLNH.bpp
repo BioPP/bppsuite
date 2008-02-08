@@ -73,7 +73,7 @@ model.ancTheta=0.5
 
 # Now the general heterogeneous case:
 # Specify the number of distincts models.
-number_of_models = 2
+nonhomogeneous.number_of_models = 2
 # Set up each model:
 model1.name=T92 # The name of the model, as above. Covarion models can be used.
 model1.kappa=2 # Initial values for each parameter.

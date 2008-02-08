@@ -31,4 +31,7 @@ rm Examples/LSUbionj.dnd
 rm Examples/LSUpars*
 rm Examples/LSUML*
 rm Examples/boot.dnd
+rm Examples/treeList2_rooted.dnd
+rm Examples/*~
+rm Examples/LSUSim.fasta
 

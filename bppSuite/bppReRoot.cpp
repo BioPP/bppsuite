@@ -70,11 +70,14 @@ void help()
 {
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
   *ApplicationTools::message << "input.list.file            | [path] toward multi-trees file (newick)      " << endl;
-  *ApplicationTools::message << "outgroups.file             | [path] toward file containing the different levels of outgroups " << endl;
-  *ApplicationTools::message << "print.option               | [false|rue] threshold to use in consensus        " << endl;
-  *ApplicationTools::message << "                           | true = the unrootable trees are printed as unrooted in the output.tree.file " << endl;
-  *ApplicationTools::message << "                           | false = the unrootable trees are not printed in the output.tree.file " << endl;
- 
+  *ApplicationTools::message << "outgroups.file             | [path] toward file containing the different levels of outgroups. " << endl;
+  *ApplicationTools::message << "print.option               | [false|rue]         " << endl;
+  *ApplicationTools::message << "                           | true = the unrootable trees are printed as unrooted in the output.tree.file. " << endl;
+  *ApplicationTools::message << "                           | false = the unrootable trees are not printed in the output.tree.file. " << endl;
+  *ApplicationTools::message << "tryAgain.option            | [false|rue] " << endl;
+  *ApplicationTools::message << "                           | true = if ReRoot finds a non-monophyletic outgroup, it tries the next outgroup. " << endl;
+  *ApplicationTools::message << "                           | false = if ReRoot finds a non-monophyletic outgroup, the analysis for this tree is interrupted." << endl;
+  *ApplicationTools::message << "                           |         No more outgroup are analysed" << endl;
   *ApplicationTools::message << "___________________________|______________________________________________" << endl;
   *ApplicationTools::message << "Output tree parameters:" << endl;
   *ApplicationTools::message << "output.tree.file              | file where to write the rerooted trees" << endl;
@@ -87,9 +90,9 @@ int main(int args, char ** argv)
 {
   
   cout << "******************************************************************" << endl;
-  cout << "*                  Bio++ ReRoot, version 0.1.0                   *" << endl;
+  cout << "*                  Bio++ ReRoot, version 0.1.1                   *" << endl;
   cout << "* Author: C. Scornavacca                    Created     15/01/08 *" << endl;
-  cout << "*                                           Last Modif. 15/01/08 *" << endl;
+  cout << "*                                           Last Modif. 06/02/08 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -144,6 +147,7 @@ int main(int args, char ** argv)
   if(outputPath == "none") throw Exception("You must provide an output file.");
      
   bool printOption = ApplicationTools::getBooleanParameter("print.option", params, false);
+  bool tryAgain = ApplicationTools::getBooleanParameter("tryAgain.option", params, true);
     
   vector<bool> printOrNot;
       
@@ -181,6 +185,7 @@ int main(int args, char ** argv)
   for(unsigned int tr = 0; tr < trees.size(); tr++)
   {
     ApplicationTools::displayGauge(tr, trees.size() - 1, '=');
+
     vector<string> leavesTree;      
     leavesTree = (* trees[tr]).getLeavesNames();  
   
@@ -236,14 +241,16 @@ int main(int args, char ** argv)
           else
           {
             bool monophylOk = true;
+
             for(unsigned f = 0; f < newRoot->getNumberOfSons() && monophylOk; f++)
             {
               vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot->getSon(f));
               vector<string> diff;
-              VectorTools::diff(tempLeaves, outGroup, diff);
+              VectorTools::diff(outGroup, tempLeaves, diff);
+              
               unsigned int difference = diff.size();
               if(!( (difference == 0) || (difference == tempLeaves.size()) ) )
-              {
+              {   
                 //The proposed outgroup is not monophyletic. The analysis for this tree is interrupted
                 //No more outgroup are analysed
                 monophylOk = false;
@@ -252,16 +259,18 @@ int main(int args, char ** argv)
             if(monophylOk)
             {
               vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+
               std::sort(tempLeaves.begin(), tempLeaves.end());      
               if(tempLeaves.size() != leavesTree.size())
               {
+                
                 MyTree * low = new MyTree(* TreeTemplateTools::cloneSubtree<Node>(* newRoot));
                 trees[tr]->newOutGroup(* newRoot);
                 Node * sonUpper;
                 vector<string>  tempLeaves2 = TreeTemplateTools::getLeavesNames(* (trees[tr]->getRootNode())->getSon(0));
                 std::sort(tempLeaves2.begin(), tempLeaves2.end());
                 if((VectorTools::vectorIntersection(tempLeaves2,outGroup).size()) !=0)
-                {
+                {                 
                   sonUpper = (trees[tr]->getRootNode())->getSon(1);
                 }
                 else
@@ -280,7 +289,8 @@ int main(int args, char ** argv)
             }
           }                  
         }
-        analyseOutgroupLevel = false;
+        if(!tryAgain)
+          analyseOutgroupLevel = false;
       }    
     }
     if(!found)

@@ -113,7 +113,7 @@ void printParameters(const SubstitutionModel* model, ofstream& out)
 void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<string, string>& params)
 {
   out << "nonhomogeneous = general" << endl;
-  out << "number_of_models = " << modelSet->getNumberOfModels() << endl;
+  out << "nonhomogeneous.number_of_models = " << modelSet->getNumberOfModels() << endl;
   for(unsigned int i = 0; i < modelSet->getNumberOfModels(); i++)
   {
     const SubstitutionModel* model = modelSet->getModel(i);
@@ -151,9 +151,18 @@ void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<st
   //Root frequencies:
   out << endl;
   out << "# Root frequencies:" << endl;
-  out << "nonhomogeneous.root_freq = " << params["nonhomogeneous.root_freq"] << endl;
-  for(unsigned int i = 0; i < plroot.size(); i++)
-    out << "model." << plroot[i]->getName() << " = " << plroot[i]->getValue() << endl;
+  if(plroot.size() == 1 && plroot[0]->getName() == "RootFreqtheta")
+  {
+    out << "nonhomogeneous.root_freq = initGC" << endl;
+    out << "model.ancTheta = " << plroot[0]->getValue() << endl;
+  }
+  else
+  {
+    out << "nonhomogeneous.root_freq = init" << endl;
+    vector<double> rootFreqs = modelSet->getRootFrequencies();
+    for(unsigned int i = 0; i < rootFreqs.size(); i++)
+      out << "model.anc" << modelSet->getAlphabet()->intToChar((int)i) << " = " << rootFreqs[i] << endl;
+  }
 }
 
 void printParameters(const DiscreteDistribution* rDist, ofstream& out, map<string, string>& params)
@@ -162,7 +171,8 @@ void printParameters(const DiscreteDistribution* rDist, ofstream& out, map<strin
   ParameterList pl = rDist->getParameters();
   for(unsigned int i = 0; i < pl.size(); i++)
     out << "rate_distribution." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
-  out << "rate_distribution.classes_number = " << rDist->getNumberOfCategories() << endl;
+  bool invariant = (params["rate_distribution"].find("+invariant") != string::npos);
+  out << "rate_distribution.classes_number = " << (rDist->getNumberOfCategories() + (invariant ? -1 : 0)) << endl;
 }
 
 int main(int args, char ** argv)
