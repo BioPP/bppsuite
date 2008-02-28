@@ -57,6 +57,7 @@ using namespace std;
 
 // From Utils:
 #include <Utils/FileTools.h>
+#include <Utils/TextTools.h>
 #include <Utils/StringTokenizer.h>
 #include <Utils/ApplicationTools.h>
 #include <Utils/AttributesTools.h>
@@ -90,9 +91,9 @@ int main(int args, char ** argv)
 {
   
   cout << "******************************************************************" << endl;
-  cout << "*                  Bio++ ReRoot, version 0.1.1                   *" << endl;
+  cout << "*                  Bio++ ReRoot, version 0.1.3                   *" << endl;
   cout << "* Author: C. Scornavacca                    Created     15/01/08 *" << endl;
-  cout << "*                                           Last Modif. 06/02/08 *" << endl;
+  cout << "*                                           Last Modif. 14/02/08 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -148,18 +149,11 @@ int main(int args, char ** argv)
      
   bool printOption = ApplicationTools::getBooleanParameter("print.option", params, false);
   bool tryAgain = ApplicationTools::getBooleanParameter("tryAgain.option", params, true);
-    
-  vector<bool> printOrNot;
-      
+          
   vector<Tree *> tempTrees;
   vector<MyTree *> trees;
-      
-  //Reading trees to root
-  newick.read(listPath, tempTrees);
-  for(unsigned int i = 0; i < tempTrees.size(); i++)
-    trees.push_back(dynamic_cast <MyTree* >(tempTrees[i]));
-        
-  ApplicationTools::displayResult("Number of trees found", TextTools::toString(trees.size()));
+
+  //ApplicationTools::displayResult("Number of trees found", TextTools::toString(trees.size()));
             
   const string path = outgroupsPath;  
   ifstream file(path.c_str(), ios::in);
@@ -179,19 +173,44 @@ int main(int args, char ** argv)
     }
     levelOutgroup.push_back(tempTaxa);
   }
-  file.close();    
- 
-  ApplicationTools::displayTask("Rooting trees", true);
-  for(unsigned int tr = 0; tr < trees.size(); tr++)
+  file.close();  
+  
+  const string path2 = listPath;  
+  ifstream treePath(path2.c_str(), ios::in);  
+
+  if(! treePath) { throw IOException ("Newick::read: failed to read from stream"); }
+
+  string temp2, description2;// Initialization
+  string::size_type index;  
+  
+  int k = 0;
+  
+  while(!treePath.eof())
   {
-    ApplicationTools::displayGauge(tr, trees.size() - 1, '=');
+    k++;
+    bool printOrNot =true;
+    Tree * tempTree ;
+
+    getline(treePath, temp2, '\n');  // Copy current line in temporary string
+   
+    index = temp2.find(";");
+    if(index != string::npos)
+    {
+      description2 += temp2.substr(0, index + 1);
+      tempTree = TreeTemplateTools::parenthesisToTree(description2);    
+      description2 = temp2.substr(index + 1);       
+    }
+    else description2 += temp;
+
+    MyTree * tree = dynamic_cast <MyTree* >(tempTree);
+    //ApplicationTools::displayGauge(tr, trees.size() - 1, '=');
 
     vector<string> leavesTree;      
-    leavesTree = (* trees[tr]).getLeavesNames();  
+    leavesTree = (* tree).getLeavesNames();  
   
-    unsigned int numNodes = trees[tr]->getNumberOfNodes() - 1;
+    unsigned int numNodes = tree->getNumberOfNodes() - 1;
     unsigned int numNodeWithBranchLength = 0;
-    vector<Node *>  nodes = trees[tr]->getNodes();
+    vector<Node *>  nodes = tree->getNodes();
     for(unsigned int i = 0; i < nodes.size(); i++)
     {
       if(nodes[i]->hasDistanceToFather())
@@ -206,7 +225,8 @@ int main(int args, char ** argv)
     bool found = false;
     bool analyseOutgroupLevel = true;
     for (unsigned int t = 0; t < levelOutgroup.size() && analyseOutgroupLevel; t++)
-    {
+    {      
+      outGroup.clear();
       vector<string>::iterator Iterator;  
       for(Iterator = levelOutgroup[t].begin(); Iterator != levelOutgroup[t].end(); Iterator++ )
       {
@@ -221,22 +241,24 @@ int main(int args, char ** argv)
         VectorTools::diff(leavesTree, outGroup, remainingTaxa);
         if(remainingTaxa.size() > 0)
         {
-          trees[tr]->newOutGroup(* trees[tr]->getNode(remainingTaxa[0]));
-          Node * newRoot = trees[tr]->getNode(outGroup[0]);
+          tree->newOutGroup(* tree->getNode(remainingTaxa[0]));
+          Node * newRoot = tree->getNode(outGroup[0]);
           vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+           
           while(newRoot->hasFather() && !(VectorTools::containsAll(tempLeaves, outGroup)))
           {   
             newRoot = newRoot->getFather();
             tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
           }
-            
+          
           tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
           std::sort(tempLeaves.begin(), tempLeaves.end());
       
           if(tempLeaves.size() == outGroup.size())
           {
-            trees[tr]->newOutGroup(* newRoot);
+            tree->newOutGroup(* newRoot);
             found = true;
+            analyseOutgroupLevel = false;
           }
           else
           {
@@ -247,10 +269,12 @@ int main(int args, char ** argv)
               vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot->getSon(f));
               vector<string> diff;
               VectorTools::diff(outGroup, tempLeaves, diff);
-              
+
+ 
               unsigned int difference = diff.size();
               if(!( (difference == 0) || (difference == tempLeaves.size()) ) )
-              {   
+              {
+                
                 //The proposed outgroup is not monophyletic. The analysis for this tree is interrupted
                 //No more outgroup are analysed
                 monophylOk = false;
@@ -263,29 +287,30 @@ int main(int args, char ** argv)
               std::sort(tempLeaves.begin(), tempLeaves.end());      
               if(tempLeaves.size() != leavesTree.size())
               {
-                
                 MyTree * low = new MyTree(* TreeTemplateTools::cloneSubtree<Node>(* newRoot));
-                trees[tr]->newOutGroup(* newRoot);
+                tree->newOutGroup(* newRoot);
                 Node * sonUpper;
-                vector<string>  tempLeaves2 = TreeTemplateTools::getLeavesNames(* (trees[tr]->getRootNode())->getSon(0));
+                vector<string>  tempLeaves2 = TreeTemplateTools::getLeavesNames(* (tree->getRootNode())->getSon(0));
                 std::sort(tempLeaves2.begin(), tempLeaves2.end());
                 if((VectorTools::vectorIntersection(tempLeaves2,outGroup).size()) !=0)
-                {                 
-                  sonUpper = (trees[tr]->getRootNode())->getSon(1);
+                {
+                  sonUpper = (tree->getRootNode())->getSon(1);
                 }
                 else
                 {
-                  sonUpper = (trees[tr]->getRootNode())->getSon(0);
+                  sonUpper = (tree->getRootNode())->getSon(0);
                 }
                 int ident = TreeTools::getMaxId(* low, low->getRootId());
                 vector <Node *> nodesTemp= TreeTemplateTools::getNodes( * sonUpper);
                 for(unsigned int F = 0; F < nodesTemp.size(); F++)
                   ( * nodesTemp[F]).setId(ident + F + 1);
                 low->getRootNode()->addSon(* sonUpper);
-                trees[tr] = low;
+                tree = low;
               }
               //A good outgroup was found
+
               found = true;
+              analyseOutgroupLevel = false;
             }
           }                  
         }
@@ -296,30 +321,32 @@ int main(int args, char ** argv)
     if(!found)
     {  
       if(!printOption)
-        printOrNot.push_back(false);
+        printOrNot = false;
       else
-        printOrNot.push_back(true);
-      cout << "Sorry but I can't root your tree " << tr+1 << " ; or none of the taxa in your list is present in the tree or the outgroup is not monophyletic!\n";
+        printOrNot = true;
+      cout << "Sorry but I can't root your tree " << k << " ; or none of the taxa in your list is present in the tree or the outgroup is not monophyletic!\n";
     }
     else
     {
-      printOrNot.push_back(true);
-      trees[tr]->resetNodesId();
-    }      
+      printOrNot = (true);
+      tree->resetNodesId();
+    }
+    if(printOrNot)
+    {
+      if(k == 1)
+        newick.write(* tree, outputPath, true);
+      else
+        newick.write(* tree, outputPath, false);
+    }  
+    
+
+    delete tree;
+    //delete(tempTree);    
   }
   ApplicationTools::displayTaskDone();
      
   //Write rooted trees:  
-  for(unsigned int i = 0; i < trees.size(); i++)
-  {
-    if(printOrNot[i])
-    {
-      if(i == 0)
-        newick.write(* trees[i], outputPath, true);
-      else
-        newick.write(* trees[i], outputPath, false);
-    }
-  }
+
      
   for(unsigned int i = 0; i < trees.size(); i++) delete trees[i];
     
@@ -334,7 +361,7 @@ int main(int args, char ** argv)
     exit(-1);
   }
 
-  return (0);
+  return 0;
 };
 
 
