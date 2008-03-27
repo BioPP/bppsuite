@@ -79,7 +79,7 @@ model.s2=1.
 
 # For one_per_branch heterogeneous models.
 # Tell which parameters are common to all branches.
-# Other parameters will be consedered branch specific.
+# Other parameters will be considered branch specific.
 nonhomogeneous_one_per_branch.shared_parameters = kappa
 
 # How to deal with root frequencies:

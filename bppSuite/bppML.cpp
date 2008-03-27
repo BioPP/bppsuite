@@ -137,13 +137,11 @@ void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<st
     {
       out << endl;
       string name = modelSet->getParameterModelName(pl[i]->getName());
-      vector<int> ids = modelSet->getNodesWithParameter(pl[i]->getName());
-      unsigned int indexF = modelSet->getModelIndexForNode(ids[0]);
-      out << "model" << (indexF+1) << "." << name << " = " << pl[i]->getValue() << endl;
-      for(unsigned int j = 1; j < ids.size(); j++)
+      vector<unsigned int> models = modelSet->getModelsWithParameter(pl[i]->getName());
+      out << "model" << (models[0] + 1) << "." << name << " = " << pl[i]->getValue() << endl;
+      for(unsigned int j = 1; j < models.size(); j++)
       {
-        unsigned int index = modelSet->getModelIndexForNode(ids[j]);
-        out << "model" << (index+1) << "." << name << " = model" << (indexF + 1) << "." << name << endl;
+        out << "model" << (models[j] + 1) << "." << name << " = model" << (models[0] + 1) << "." << name << endl;
       }
     }
   }
@@ -320,7 +318,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
     treeWriter.write(*tree, treeWIdPath);
     delete tree;
-    cout << "BppSegGen's done." << endl;
+    cout << "BppML's done." << endl;
     exit(0);
   }
 
@@ -520,10 +518,19 @@ int main(int args, char ** argv)
     out << "# Log likelihood = " << tl->getValue() << endl;
     out << endl;
     out << "# Substitution model parameters:" << endl;
-    if(modelSet) printParameters(modelSet, out, params);
-    else         printParameters(model, out);
+    if(modelSet)
+    {
+      modelSet->matchParametersValues(tl->getParameters());
+      printParameters(modelSet, out, params);
+    }
+    else
+    {
+      model->matchParametersValues(tl->getParameters());
+      printParameters(model, out);
+    }
     out << endl;
     out << "# Rate distribution parameters:" << endl;
+    rDist->matchParametersValues(tl->getParameters());
     printParameters(rDist, out, params);
     out.close();
   }

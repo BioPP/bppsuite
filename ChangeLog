@@ -1,3 +1,6 @@
+27/03/08 Julien Dutheil
+* Bug fixed when printing parameters of non-homogeneous models in bppML.
+
 22/01/08 -*- Version 0.2.2 -*-
 
 28/02/08 Celine Scronavacca
