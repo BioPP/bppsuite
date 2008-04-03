@@ -1,3 +1,6 @@
+03/03/08 Julien Dutheil
+* Bug fixed in keep_complete method of BppSeqMan.
+
 27/03/08 Julien Dutheil
 * Bug fixed when printing parameters of non-homogeneous models in bppML.
 

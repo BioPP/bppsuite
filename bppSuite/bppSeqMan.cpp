@@ -354,7 +354,11 @@ int main(int args, char ** argv)
     else if(actions[i] == "keep_complete")
     {
       SiteContainer * sites = NULL;
-      try { sites = dynamic_cast<SiteContainer *>(sequences); }
+      try
+      {
+        sites = dynamic_cast<SiteContainer *>(sequences);
+        if(!sites) throw exception();
+      }
       catch(exception & e)
       {
         sites = new VectorSiteContainer(*sequences);
@@ -377,7 +381,10 @@ int main(int args, char ** argv)
         for(unsigned int i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, unsigned int> count = SiteTools::getCounts(*sites->getSite(i-1));
-          if(count[-1] >= gapNum) sites->deleteSite(i-1);
+          if(count[-1] > gapNum)
+          {
+            sites->deleteSite(i-1);
+          }
         }
       }
     }
