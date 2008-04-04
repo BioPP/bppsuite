@@ -381,11 +381,14 @@ int main(int args, char ** argv)
         for(unsigned int i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, unsigned int> count = SiteTools::getCounts(*sites->getSite(i-1));
+          count[-1]; //Needed in case this entry does not exist in the map. This will set it to 0.
           if(count[-1] > gapNum)
           {
             sites->deleteSite(i-1);
           }
         }
+        cout << sites->getNumberOfSites() << endl;
+        cout << dynamic_cast<SiteContainer *>(sequences)->getNumberOfSites() << endl;
       }
     }
     else throw Exception("Unknown action: " + actions[i]);
