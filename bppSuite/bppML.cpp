@@ -176,8 +176,8 @@ void printParameters(const DiscreteDistribution* rDist, ofstream& out, map<strin
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.0      *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 12/01/08 *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.1      *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 24/04/08 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 

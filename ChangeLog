@@ -1,3 +1,6 @@
+24/04/08 -*- Version 0.2.3 -*-
+* This version requires the CVS version of Bio++ to be built.
+
 03/03/08 Julien Dutheil
 * Bug fixed in keep_complete method of BppSeqMan.
 

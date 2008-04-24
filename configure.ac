@@ -29,7 +29,7 @@
 #The fact that you are presently reading this means that you have had
 #knowledge of the CeCILL license and that you accept its terms.
 
-AC_INIT(bppSuite, 0.2.2, Julien.Dutheil@univ-montp2.fr, bppSuite)
+AC_INIT(bppSuite, 0.2.3, Julien.Dutheil@univ-montp2.fr, bppSuite)
 AC_CONFIG_SRCDIR(bppSuite/bppML.cpp)
 AM_INIT_AUTOMAKE()
 
@@ -76,6 +76,6 @@ AC_ARG_ENABLE(static,
              esac],[static=false])
 AM_CONDITIONAL(STATIC, test x$static = xtrue)
 
-VERSION="0.2.2"
+VERSION="0.2.3"
 AC_SUBST(VERSION)
 AC_OUTPUT(Makefile bppSuite/Makefile)
