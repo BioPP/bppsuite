@@ -189,159 +189,160 @@ int main(int args, char ** argv)
   {
     k++;
     bool printOrNot =true;
-    Tree * tempTree ;
+    Tree * tempTree = NULL;
 
     getline(treePath, temp2, '\n');  // Copy current line in temporary string
    
     index = temp2.find(";");
-    if(index != string::npos)
+    if(temp2 != "")
     {
-      description2 += temp2.substr(0, index + 1);
-      tempTree = TreeTemplateTools::parenthesisToTree(description2);    
-      description2 = temp2.substr(index + 1);       
-    }
-    else description2 += temp;
-
-    MyTree * tree = dynamic_cast <MyTree* >(tempTree);
-    //ApplicationTools::displayGauge(tr, trees.size() - 1, '=');
-
-    vector<string> leavesTree;      
-    leavesTree = (* tree).getLeavesNames();  
-  
-    unsigned int numNodes = tree->getNumberOfNodes() - 1;
-    unsigned int numNodeWithBranchLength = 0;
-    vector<Node *>  nodes = tree->getNodes();
-    for(unsigned int i = 0; i < nodes.size(); i++)
-    {
-      if(nodes[i]->hasDistanceToFather())
-        numNodeWithBranchLength++;
-    }
-    if((numNodes != numNodeWithBranchLength) && (numNodeWithBranchLength != 0))\
-    {
-      cout << "Could not execute due to a source tree with missing branch lengths \n(reminder: a source tree must either have no branch length, either length for all branches\n";
-      exit(-1);
-    }
-    vector<string> outGroup;
-    bool found = false;
-    bool analyseOutgroupLevel = true;
-    for (unsigned int t = 0; t < levelOutgroup.size() && analyseOutgroupLevel; t++)
-    {      
-      outGroup.clear();
-      vector<string>::iterator Iterator;  
-      for(Iterator = levelOutgroup[t].begin(); Iterator != levelOutgroup[t].end(); Iterator++ )
+      if(index != string::npos)
       {
-        if(VectorTools::contains(leavesTree, *Iterator))
-        {
-          outGroup.push_back(*Iterator);
-        }
+        description2 += temp2.substr(0, index + 1);
+        tempTree = TreeTemplateTools::parenthesisToTree(description2);    
+        description2 = temp2.substr(index + 1);       
       }
-      if(outGroup.size() > 0)
+      else description2 += temp;
+
+      MyTree * tree = dynamic_cast <MyTree* >(tempTree);
+      //ApplicationTools::displayGauge(tr, trees.size() - 1, '=');
+
+      vector<string> leavesTree;      
+      leavesTree = (* tree).getLeavesNames();  
+  
+      unsigned int numNodes = tree->getNumberOfNodes() - 1;
+      unsigned int numNodeWithBranchLength = 0;
+      vector<Node *>  nodes = tree->getNodes();
+      for(unsigned int i = 0; i < nodes.size(); i++)
       {
-        vector<string> remainingTaxa;
-        VectorTools::diff(leavesTree, outGroup, remainingTaxa);
-        if(remainingTaxa.size() > 0)
+        if(nodes[i]->hasDistanceToFather())
+          numNodeWithBranchLength++;
+      }
+      if((numNodes != numNodeWithBranchLength) && (numNodeWithBranchLength != 0))\
+      {
+        cout << "Could not execute due to a source tree with missing branch lengths \n(reminder: a source tree must either have no branch length, either length for all branches\n";
+        exit(-1);
+      }
+      vector<string> outGroup;
+      bool found = false;
+      bool analyseOutgroupLevel = true;
+      for (unsigned int t = 0; t < levelOutgroup.size() && analyseOutgroupLevel; t++)
+      {      
+        outGroup.clear();
+        vector<string>::iterator Iterator;  
+        for(Iterator = levelOutgroup[t].begin(); Iterator != levelOutgroup[t].end(); Iterator++ )
         {
-          tree->newOutGroup(* tree->getNode(remainingTaxa[0]));
-          Node * newRoot = tree->getNode(outGroup[0]);
-          vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+          if(VectorTools::contains(leavesTree, *Iterator))
+          {
+            outGroup.push_back(*Iterator);
+          }
+        }
+        if(outGroup.size() > 0)
+        {
+          vector<string> remainingTaxa;
+          VectorTools::diff(leavesTree, outGroup, remainingTaxa);
+          if(remainingTaxa.size() > 0)
+          {
+            tree->newOutGroup(* tree->getNode(remainingTaxa[0]));
+            Node * newRoot = tree->getNode(outGroup[0]);
+            vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
            
-          while(newRoot->hasFather() && !(VectorTools::containsAll(tempLeaves, outGroup)))
-          {   
-            newRoot = newRoot->getFather();
-            tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
-          }
-          
-          tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
-          std::sort(tempLeaves.begin(), tempLeaves.end());
-      
-          if(tempLeaves.size() == outGroup.size())
-          {
-            tree->newOutGroup(* newRoot);
-            found = true;
-            analyseOutgroupLevel = false;
-          }
-          else
-          {
-            bool monophylOk = true;
-
-            for(unsigned f = 0; f < newRoot->getNumberOfSons() && monophylOk; f++)
-            {
-              vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot->getSon(f));
-              vector<string> diff;
-              VectorTools::diff(outGroup, tempLeaves, diff);
-
- 
-              unsigned int difference = diff.size();
-              if(!( (difference == 0) || (difference == tempLeaves.size()) ) )
-              {
-                
-                //The proposed outgroup is not monophyletic. The analysis for this tree is interrupted
-                //No more outgroup are analysed
-                monophylOk = false;
-              }
+            while(newRoot->hasFather() && !(VectorTools::containsAll(tempLeaves, outGroup)))
+            {   
+              newRoot = newRoot->getFather();
+              tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
             }
-            if(monophylOk)
+          
+            tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+            std::sort(tempLeaves.begin(), tempLeaves.end());
+      
+            if(tempLeaves.size() == outGroup.size())
             {
-              vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
-
-              std::sort(tempLeaves.begin(), tempLeaves.end());      
-              if(tempLeaves.size() != leavesTree.size())
-              {
-                MyTree * low = new MyTree(* TreeTemplateTools::cloneSubtree<Node>(* newRoot));
-                tree->newOutGroup(* newRoot);
-                Node * sonUpper;
-                vector<string>  tempLeaves2 = TreeTemplateTools::getLeavesNames(* (tree->getRootNode())->getSon(0));
-                std::sort(tempLeaves2.begin(), tempLeaves2.end());
-                if((VectorTools::vectorIntersection(tempLeaves2,outGroup).size()) !=0)
-                {
-                  sonUpper = (tree->getRootNode())->getSon(1);
-                }
-                else
-                {
-                  sonUpper = (tree->getRootNode())->getSon(0);
-                }
-                int ident = TreeTools::getMaxId(* low, low->getRootId());
-                vector <Node *> nodesTemp= TreeTemplateTools::getNodes( * sonUpper);
-                for(unsigned int F = 0; F < nodesTemp.size(); F++)
-                  ( * nodesTemp[F]).setId(ident + F + 1);
-                low->getRootNode()->addSon(* sonUpper);
-                tree = low;
-              }
-              //A good outgroup was found
-
+              tree->newOutGroup(* newRoot);
               found = true;
               analyseOutgroupLevel = false;
             }
-          }                  
-        }
-        if(!tryAgain)
-          analyseOutgroupLevel = false;
-      }    
-    }
-    if(!found)
-    {  
-      if(!printOption)
-        printOrNot = false;
+            else
+            {
+              bool monophylOk = true;
+
+              for(unsigned f = 0; f < newRoot->getNumberOfSons() && monophylOk; f++)
+              {
+                vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot->getSon(f));
+                vector<string> diff;
+                VectorTools::diff(outGroup, tempLeaves, diff);
+
+                unsigned int difference = diff.size();
+                if(!( (difference == 0) || (difference == tempLeaves.size()) ) )
+                {
+                  //The proposed outgroup is not monophyletic. The analysis for this tree is interrupted
+                  //No more outgroup are analysed
+                  monophylOk = false;
+                }
+              }
+              if(monophylOk)
+              {
+                vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+
+                std::sort(tempLeaves.begin(), tempLeaves.end());      
+                if(tempLeaves.size() != leavesTree.size())
+                {
+                  MyTree * low = new MyTree(* TreeTemplateTools::cloneSubtree<Node>(* newRoot));
+                  tree->newOutGroup(* newRoot);
+                  Node * sonUpper;
+                  vector<string>  tempLeaves2 = TreeTemplateTools::getLeavesNames(* (tree->getRootNode())->getSon(0));
+                  std::sort(tempLeaves2.begin(), tempLeaves2.end());
+                  if((VectorTools::vectorIntersection(tempLeaves2,outGroup).size()) !=0)
+                  {
+                    sonUpper = (tree->getRootNode())->getSon(1);
+                  }
+                  else
+                  {
+                    sonUpper = (tree->getRootNode())->getSon(0);
+                  }
+                  int ident = TreeTools::getMaxId(* low, low->getRootId());
+                  vector <Node *> nodesTemp= TreeTemplateTools::getNodes( * sonUpper);
+                  for(unsigned int F = 0; F < nodesTemp.size(); F++)
+                    ( * nodesTemp[F]).setId(ident + F + 1);
+                  low->getRootNode()->addSon(* sonUpper);
+                  tree = low;
+                }
+                //A good outgroup was found
+
+                found = true;
+                analyseOutgroupLevel = false;
+              }
+            }                  
+          }
+          if(!tryAgain)
+            analyseOutgroupLevel = false;
+        }    
+      }
+      if(!found)
+      {  
+        if(!printOption)
+          printOrNot = false;
+        else
+          printOrNot = true;
+        cout << "Sorry but I can't root your tree " << k << " ; or none of the taxa in your list is present in the tree or the outgroup is not monophyletic!\n";
+      }
       else
-        printOrNot = true;
-      cout << "Sorry but I can't root your tree " << k << " ; or none of the taxa in your list is present in the tree or the outgroup is not monophyletic!\n";
-    }
-    else
-    {
-      printOrNot = (true);
-      tree->resetNodesId();
-    }
-    if(printOrNot)
-    {
-      if(k == 1)
-        newick.write(* tree, outputPath, true);
-      else
-        newick.write(* tree, outputPath, false);
-    }  
+      {
+        printOrNot = (true);
+        tree->resetNodesId();
+      }
+      if(printOrNot)
+      {
+        if(k == 1)
+          newick.write(* tree, outputPath, true);
+        else
+          newick.write(* tree, outputPath, false);
+      }  
     
 
-    delete tree;
-    //delete(tempTree);    
+      delete tree;
+      //delete(tempTree);
+    }
   }
   ApplicationTools::displayTaskDone();
      
