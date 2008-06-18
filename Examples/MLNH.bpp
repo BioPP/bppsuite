@@ -84,7 +84,7 @@ model1.use_observed_freq=no
 model2.name=T92
 model2.kappa=model1.kappa # or model2.kappa=model1.kappa if you want only one kappa parameter estimated for both models.
 model2.theta=0.9
-model2.nodes_id=63:154
+model2.nodes_id=63:155
 model2.use_observed_freq=no
 
 //model3.name=HKY85
