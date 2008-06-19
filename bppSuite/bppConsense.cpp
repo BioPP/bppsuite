@@ -76,8 +76,8 @@ int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Consensus and Bootstrap Methods, version 0.1.0     *" << endl;
-  cout << "* Author: J. Dutheil                        Created     06/06/07 *" << endl;
-  cout << "*                                           Last Modif. 06/06/07 *" << endl;
+  cout << "* Authors: J. Dutheil                       Created     06/06/07 *" << endl;
+  cout << "*          N. Galtier                       Last Modif. 18/06/08 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -93,31 +93,7 @@ int main(int args, char ** argv)
 
   cout << "Parsing options:" << endl;
   
-  // Get the parameters from command line:
-  map<string, string> cmdParams = AttributesTools::getAttributesMap(
-    AttributesTools::getVector(args, argv), "=");
-
-  // Look for a specified file with parameters:
-  map<string, string> params;
-  if(cmdParams.find("param") != cmdParams.end())
-  {
-      string file = cmdParams["param"];
-      if(!FileTools::fileExists(file))
-      {
-         cerr << "Parameter file not found." << endl;
-        exit(-1);
-      }
-      else
-      {
-      params = AttributesTools::getAttributesMapFromFile(file, "=");
-      // Actualize attributes with ones passed to command line:
-      AttributesTools::actualizeAttributesMap(params, cmdParams);
-    }
-  }
-  else
-  {
-    params = cmdParams;
-  }
+  map<string, string> params = AttributesTools::parseOptions(args, argv);
 
   Newick newick;
   string listPath = ApplicationTools::getAFilePath("input.list.file", params);

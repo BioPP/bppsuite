@@ -149,31 +149,7 @@ int main(int args, char ** argv)
 
   cout << "Parsing options:" << endl;
   
-  // Get the parameters from command line:
-  map<string, string> cmdParams = AttributesTools::getAttributesMap(
-    AttributesTools::getVector(args, argv), "=");
-
-  // Look for a specified file with parameters:
-  map<string, string> params;
-  if(cmdParams.find("param") != cmdParams.end())
-  {
-    string file = cmdParams["param"];
-    if(!FileTools::fileExists(file))
-    {
-      cerr << "Parameter file not found." << endl;
-      exit(-1);
-    }
-    else
-    {
-      params = AttributesTools::getAttributesMapFromFile(file, "=");
-      // Actualize attributes with ones passed to command line:
-      AttributesTools::actualizeAttributesMap(params, cmdParams);
-    }
-  }
-  else
-  {
-    params = cmdParams;
-  }
+  map<string, string> params = AttributesTools::parseOptions(args, argv);
 
   Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
 
