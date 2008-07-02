@@ -406,7 +406,7 @@ int main(int args, char ** argv)
     }
     else if(nhOpt == "general")
     {
-      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet,NULL, params);
+      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, params);
       if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
       {
         //Markov-modulated Markov model!
