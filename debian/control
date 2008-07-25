@@ -1,6 +1,6 @@
 Source: bppsuite
-Section: unknown
-Priority: extra
+Section: science
+Priority: optional
 Maintainer: Julien Dutheil <jdutheil@daimi.au.dk>
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
