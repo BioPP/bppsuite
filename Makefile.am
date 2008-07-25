@@ -30,5 +30,5 @@
 #knowledge of the CeCILL license and that you accept its terms.
 
 SUBDIRS = bppSuite
-EXTRA_DIST = Examples
+EXTRA_DIST = Examples debian
 

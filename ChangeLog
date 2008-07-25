@@ -1,5 +1,7 @@
+24/04/08 -*- Version 0.3.0 -*-
+
 02/07/08 Laurent Guegen
-* Bug fixed in bppML: freaqencies can be computed from the data with
+* Bug fixed in bppML: frequencies can be computed from the data with
 non-homogeneous models.
 
 19/06/08 Julien Dutheil

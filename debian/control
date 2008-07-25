@@ -1,0 +1,14 @@
+Source: bppsuite
+Section: unknown
+Priority: extra
+Maintainer: Julien Dutheil <jdutheil@daimi.au.dk>
+Build-Depends: debhelper (>= 5), autotools-dev
+Standards-Version: 3.7.2
+
+Package: bppsuite
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-utils (= 1.3.0), libbpp-numcalc (= 1.5.0), libbpp-seq (= 1.4.1), libbpp-phyl (= 1.5.1)
+Description: Bio++ program suite
+ Includes program BppML for maximum likelihood analysis, BppseqGen for sequences simulation, BppDist for distance methods, and much more!
+
+
