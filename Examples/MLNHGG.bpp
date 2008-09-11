@@ -154,7 +154,7 @@ optimization.verbose=3
 #optimization.ignore_parameter=piA,piC,piT,piG
 
 # Should we write the resulting tree? none or file name.
-output.tree.file = $(DATA)ML.dnd
+output.tree.file = $(DATA).ML.dnd
 
 # Alignment information log file (site specific rates, etc):
 output.infos = $(DATA).infos
@@ -171,5 +171,5 @@ bootstrap.number = 0
 bootstrap.approximate = no
 # Set this to yes for detailed output when bootstrapping. 
 bootstrap.verbose = no
-bootstrap.output.file = $(DATA)ML_bstrees.dnd
+bootstrap.output.file = $(DATA).ML_bstrees.dnd
 

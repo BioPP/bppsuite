@@ -176,8 +176,9 @@ void printParameters(const DiscreteDistribution* rDist, ofstream& out, map<strin
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.1      *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 24/04/08 *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.2      *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 10/09/08 *" << endl;
+  cout << "*         B. Boussau                                             *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -554,16 +555,6 @@ int main(int args, char ** argv)
       row[5] = TextTools::toString(rates[i]);
       infos->addRow(row);
     }
-
-    // Not compatible with covarion model...
-    //MarginalAncestralStateReconstruction masr(* dynamic_cast<DRHomogeneousTreeLikelihood *>(tl));
-    //Sequence * ancestors = masr.getAncestralSequenceForNode(tree->getRootNode());
-    //vector<string> ancestorColumn(sites->getNumberOfSites());
-    //for(unsigned int i = 0; i < ancestorColumn.size(); i++) {
-    //  ancestorColumn[i] = alphabet->intToChar((*ancestors)[i]);
-    //}
-    //infos->addColumn("ancestral.state", ancestorColumn);
-    //delete ancestors;
 
     DataTable::write(*infos, out, "\t");
 

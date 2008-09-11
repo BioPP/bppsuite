@@ -69,9 +69,14 @@ REROOT_H_FILES =
 REROOT_CPP_FILES = \
 bppReRoot.cpp
 
+ANCESTOR_H_FILES = 
+
+ANCESTOR_CPP_FILES = \
+bppAncestor.cpp
+
 AUTOMAKE_OPTIONS = gnu
 
-bin_PROGRAMS = bppml bpppars bppdist bppseqgen bppconsense bppseqman bppphysamp bppreroot
+bin_PROGRAMS = bppml bpppars bppdist bppseqgen bppconsense bppseqman bppphysamp bppreroot bppancestor
 if STATIC
 bppml_LDFLAGS = -static
 bpppars_LDFLAGS = -static
@@ -81,6 +86,7 @@ bppconsense_LDFLAGS = -static
 bppseqman_LDFLAGS = -static
 bppphysamp_LDFLAGS = -static
 bppreroot_LDFLAGS = -static
+bppancestor_LDFLAGS = -static
 else
 bppml_LDFLAGS = 
 bpppars_LDFLAGS = 
@@ -90,6 +96,7 @@ bppconsense_LDFLAGS =
 bppseqman_LDFLAGS =
 bppphysamp_LDFLAGS =
 bppreroot_LDFLAGS =
+bppancestor_LDFLAGS =
 endif
 bppml_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
 bppml_SOURCES = $(ML_H_FILES) $(ML_CPP_FILES)
@@ -107,4 +114,6 @@ bppphysamp_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
 bppphysamp_SOURCES = $(PHYSAMP_H_FILES) $(PHYSAMP_CPP_FILES)
 bppreroot_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
 bppreroot_SOURCES = $(REROOT_H_FILES) $(REROOT_CPP_FILES)
+bppancestor_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
+bppancestor_SOURCES = $(ANCESTOR_H_FILES) $(ANCESTOR_CPP_FILES)
 

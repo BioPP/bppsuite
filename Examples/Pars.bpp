@@ -35,9 +35,9 @@ tree.file = LSU.dnd
 optimization.topology = yes
 
 # Should we write the resulting tree? none or file name.
-output.tree.file = $(DATA)pars.dnd
+output.tree.file = $(DATA).pars.dnd
 
 # Bootstrap:
 bootstrap.number = 1000
-bootstrap.output.file = $(DATA)pars_bstrees.dnd
+bootstrap.output.file = $(DATA).pars_bstrees.dnd
 

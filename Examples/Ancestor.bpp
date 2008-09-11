@@ -1,0 +1,67 @@
+# WARNING!!! You need to run bppml on the ML.bpp example file first to be able to run this example!
+
+
+# Global variables:
+DATA = LSU
+
+# Sequences:
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# The sequence file to use (sequences must be aligned!)
+sequence.file=$(DATA).phy
+
+# The alignment format:
+# Must be one of Mase, Fasta, Phylip, Clustal, DCSE 
+sequence.format=Phylip
+
+# Mase format option:
+sequence.format_mase.site_selection =
+
+# Phylip format options:
+# interleaved or sequential:
+sequence.format_phylip.order = sequential
+
+# classic or extended (PAML):
+sequence.format_phylip.ext = extended
+
+#Sites to use:
+# all, nogap or complete (=only resolved chars)
+sequence.sites_to_use = complete
+# Specify a maximum amount of gaps: may be an absolute number or a percentage.
+sequence.max_gap_allowed = 100%
+
+tree.file = $(DATA).ML.dnd
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+
+# the same syntaxe as in bppML!
+# Here we directly use the output file from example ML.bpp to load the model:
+param = LSU.params.txt
+
+# ----------------------------------------------------------------------------------------
+#                                     Ancestral Sequence Reconstruction
+# ----------------------------------------------------------------------------------------
+
+asr.method = marginal //only option for now
+
+# Shall we output the site specific probabilities in each case:
+asr.probabilities = yes
+
+# Should we sample from the posterior distribution instead of using the maximum probability?
+asr.sample = yes
+
+# How many samples should we use?
+asr.sample.number = 10
+
+# Alignment information log file (site specific rates, probabilities, etc):
+output.file = $(DATA).asr.csv
+
+# Write numerical parameter estimated values:
+output.sequence.file = $(DATA).ancestors.fasta
+output.sequence.format = Fasta
+

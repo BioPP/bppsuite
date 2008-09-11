@@ -27,9 +27,11 @@ rm Examples/*.profile
 rm Examples/*.messages
 rm Examples/*.mat
 rm Examples/warnings
-rm Examples/LSUbionj.dnd
-rm Examples/LSUpars*
-rm Examples/LSUML*
+rm Examples/LSU.bionj.dnd
+rm Examples/LSU.pars*
+rm Examples/LSU.ML*
+rm Examples/LSU.asr.csv
+rm Examples/LSU.ancestors.*
 rm Examples/boot.dnd
 rm Examples/treeList2_rooted.dnd
 rm Examples/*~
