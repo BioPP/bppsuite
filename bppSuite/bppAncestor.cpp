@@ -279,7 +279,7 @@ int main(int args, char ** argv)
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
     model = NULL;
     tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-    nbStates = model->getNumberOfStates();
+    nbStates = modelSet->getNumberOfStates();
   }
   else if(nhOpt == "general")
   {
