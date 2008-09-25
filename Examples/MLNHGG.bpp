@@ -151,7 +151,7 @@ optimization.method=fullD //[DB|fullD]
 optimization.method_DB.nstep=15
 optimization.scale_first=no
 optimization.verbose=3
-#optimization.ignore_parameter=piA,piC,piT,piG
+optimization.ignore_parameter=kappa_1
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd

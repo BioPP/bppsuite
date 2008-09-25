@@ -1,4 +1,8 @@
-24/04/08 -*- Version 0.3.0 -*-
+25/09/08 -*- Version 0.3.0 -*-
+
+20/09/08 Julien Dutheil
+* New program bppAncestor to reconstruct acestral states and rates.
+* New +F models from PhylLib. 
 
 02/07/08 Laurent Guegen
 * Bug fixed in bppML: frequencies can be computed from the data with

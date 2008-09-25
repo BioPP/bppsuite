@@ -30,5 +30,9 @@
 #knowledge of the CeCILL license and that you accept its terms.
 
 SUBDIRS = bppSuite
-EXTRA_DIST = Examples debian
+EXTRA_DIST = Examples debian bppSuite.spec
+
+dist-hook:
+	rm -rf `find $(distdir)/debian -name .svn`
+	rm -rf `find $(distdir)/Examples -name .svn`
 
