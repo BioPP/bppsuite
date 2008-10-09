@@ -56,6 +56,8 @@ output.sequence.format_phylip.ext = extended
 #   Change the alphabet type (DNA<->RNA).
 # - translate (Nucleic acids only)
 #   Convert to proteins. You have to specify a genetic code, see forward...
+# - invert
+#   Invert the sequence
 # - remove_gaps
 #   Remove all gaps in sequences (ie, 'unalign')
 # - gap2unknown

@@ -367,6 +367,22 @@ int main(int args, char ** argv)
         cout << dynamic_cast<SiteContainer *>(sequences)->getNumberOfSites() << endl;
       }
     }
+    // +-----------------+
+    // | Invert sequence |
+    // +-----------------+
+    else if(actions[i] == "invert")
+    {
+      VectorSequenceContainer * vsc = new VectorSequenceContainer(sequences->getAlphabet());
+      for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      {
+        const Sequence * old = sequences->getSequence(i);
+        Sequence * tmp = SequenceTools::invert(*old);
+        vsc->addSequence(*tmp);
+        delete tmp;
+      }
+      delete sequences;
+      sequences = vsc;
+    }
     else throw Exception("Unknown action: " + actions[i]);
   }
   
