@@ -97,6 +97,7 @@ void help()
   PhylogeneticsApplicationTools::printCovarionModelHelp();
   PhylogeneticsApplicationTools::printOptimizationHelp(true, false);
   PhylogeneticsApplicationTools::printOutputTreeHelp();
+  *ApplicationTools::message << "output.tree.path              | file where to print the tree ids" << endl;
   *ApplicationTools::message << "output.infos                  | file where to write site infos" << endl;
   *ApplicationTools::message << "output.estimates              | file where to write estimated parameter values" << endl;
   *ApplicationTools::message << "______________________________|___________________________________________" << endl;
