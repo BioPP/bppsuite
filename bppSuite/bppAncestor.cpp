@@ -98,6 +98,7 @@ void help()
   *ApplicationTools::message << "asr.sample                    | [bool] shall I sample the posterior distribution" << endl;
   *ApplicationTools::message << "                              | instead of taking the max probability?" << endl;
   *ApplicationTools::message << "asr.sample.number             | [int>0] number of samples" << endl;
+  *ApplicationTools::message << "output.tree.path              | file where to print the tree ids" << endl;
   *ApplicationTools::message << "output.file                   | file where to write site infos" << endl;
   *ApplicationTools::message << "______________________________|___________________________________________" << endl;
 }
