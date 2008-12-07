@@ -158,7 +158,17 @@ void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<st
   else
   {
     out << "nonhomogeneous.root_freq = init" << endl;
-    vector<double> rootFreqs = modelSet->getRootFrequencies();
+    vector<double> rootFreqs;
+    try
+    {
+      const MarkovModulatedFrequenciesSet* mmFreqSet = dynamic_cast<const MarkovModulatedFrequenciesSet *>(modelSet->getRootFrequenciesSet());
+      if(!mmFreqSet) throw Exception("");
+      rootFreqs = mmFreqSet->getStatesFrequenciesSet()->getFrequencies();
+    }
+    catch(exception& e)
+    {
+      rootFreqs = modelSet->getRootFrequencies();
+    }
     for(unsigned int i = 0; i < rootFreqs.size(); i++)
       out << "model.anc" << modelSet->getAlphabet()->intToChar((int)i) << " = " << rootFreqs[i] << endl;
   }
@@ -489,6 +499,7 @@ int main(int args, char ** argv)
   }
   // Write parameters to file:
   string parametersFile = ApplicationTools::getAFilePath("output.estimates", params, false, false);
+  ApplicationTools::displayResult("Output estimates to file", parametersFile);
   if(parametersFile != "none")
   {
     ofstream out(parametersFile.c_str(), ios::out);
