@@ -7,7 +7,7 @@ Standards-Version: 3.7.2
 
 Package: bppsuite
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-utils (= 1.3.0), libbpp-numcalc (= 1.5.0), libbpp-seq (= 1.4.1), libbpp-phyl (= 1.6.0)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-utils (= 1.3.1), libbpp-numcalc (= 1.6.0), libbpp-seq (= 1.5.0), libbpp-phyl (= 1.7.0)
 Description: Bio++ program suite
  Includes programs:
  - BppML for maximum likelihood analysis,

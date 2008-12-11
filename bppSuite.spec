@@ -1,5 +1,5 @@
 %define name bppsuite
-%define version 0.3.0
+%define version 0.3.1
 %define release 1
 %define _prefix /usr/local
 
@@ -14,10 +14,10 @@ Group: System Environment/Libraries
 BuildRoot: %{_builddir}/%{name}-root
 Packager: Julien Dutheil
 Prefix: %{_prefix}
-Requires: Bpp-Utils = 1.3.0
-Requires: Bpp-NumCalc = 1.5.0
-Requires: Bpp-Seq = 1.4.1
-Requires: Bpp-Phyl = 1.6.0
+Requires: Bpp-Utils = 1.3.1
+Requires: Bpp-NumCalc = 1.6.0
+Requires: Bpp-Seq = 1.5.0
+Requires: Bpp-Phyl = 1.7.0
 
 %description
 Bio++ program suite includes programs:
@@ -63,6 +63,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/bin/bppreroot
 
 %changelog
+* Thu Dec 11 2008 Julien Dutheil <jdutheil@daimi.au.dk>
+- BppSuite 0.3.0 release
 * Thu Sep 23 2008 Julien Dutheil <jdutheil@daimi.au.dk>
 - BppSuite 0.3.0 release
 

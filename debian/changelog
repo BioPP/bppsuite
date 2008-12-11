@@ -1,3 +1,9 @@
+bppsuite (0.3.1-1) unstable; urgency=low
+
+  * Several bug fixed.
+
+ -- Julien Dutheil <jdutheil@daimi.au.dk>  Thu, 11 Dec 2008 12:21:37 +0100.
+
 bppsuite (0.3.0-1) unstable; urgency=low
 
   * Initial release
