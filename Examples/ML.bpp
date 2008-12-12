@@ -53,12 +53,11 @@ model.name = HKY85
 # kappa (K80, T92, HKY85, F84)
 # kappa1, kappa2 (TN93)
 # theta (T92)
-# pi1, piT, piC and piG (HKY85, F84 and TN93)
+# theta, theta1, theta2 (HKY85, F84 and TN93) theta = piG + piCm theta1 = piA / (piA + piT), theta2 = piC / (piC + piG)
 model.kappa = 2.843
-model.piA = 0.13
-model.piT = 0.16
-model.piC = 0.31
-model.piG = 0.40
+model.theta = 0.5
+model.theta1 = 0.5
+model.theta2 = 0.5
 
 #If empirical is set, specify the path where to find the model description (in PAML format).
 model_empirical.file = 
@@ -128,7 +127,7 @@ optimization.method.derivatives = newton
 
 # Final optimization step, may be useful if numerical derivatives are used:
 # powell or simplex or none.
-optimization.final = none 
+optimization.final = none
 
 # Set the quantity of output to the screen:
 optimization.verbose = 3
