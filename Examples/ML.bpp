@@ -24,13 +24,35 @@ sequence.format_phylip.order = sequential
 # classic or extended (PAML):
 sequence.format_phylip.ext = extended
 
+# tab or spaces
+sequence.format_phylip.extended.split = spaces
+
 #Sites to use:
 # all, nogap or complete (=only resolved chars)
-sequence.sites_to_use = complete
+sequence.sites_to_use = all
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
-sequence.max_gap_allowed = 100%
+sequence.max_gap_allowed = 50%
+
+# ----------------------------------------------------------------------------------------
+#                                     Input tree file
+# ----------------------------------------------------------------------------------------
+
+# user or random
+init.tree = user
 
 tree.file = LSU.dnd
+
+#input: keep initial branch lengths
+#equal: put all branch lengths to the same value
+#clock: coerce to a clock tree
+#grafen: uses Grafen's method to compute branch lengths
+init.brlen.method = input
+#The value for the equal option:
+init.brlen.method_equal.value = 0.1
+#The height of the tree for Grafen's method (input for using the current height of the tree)
+init.brlen.method_grafen.height = input
+#Grafen's power parameter:
+init.brlen.method_grafen.rho = 1.0
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
@@ -47,13 +69,14 @@ nonhomogenous = no
 # You can use the 'empirical' option to specify another model.
 # JCnuc, K80, T92, HKY85, F84, TN93, JCprot, DSO78, JTT92 or empirical
 # Append +G2001 or +TS98 to the model name to add a covarion model.
+# Append +RE08 for a substitution model accounting for gaps.
 model.name = HKY85
 
 # Initial values for parameters:
 # kappa (K80, T92, HKY85, F84)
 # kappa1, kappa2 (TN93)
 # theta (T92)
-# theta, theta1, theta2 (HKY85, F84 and TN93) theta = piG + piCm theta1 = piA / (piA + piT), theta2 = piC / (piC + piG)
+# theta, theta1, theta2 (HKY85, F84 and TN93) theta = piG + piC, theta1 = piA / (piA + piT), theta2 = piC / (piC + piG)
 model.kappa = 2.843
 model.theta = 0.5
 model.theta1 = 0.5
@@ -86,7 +109,7 @@ rate_distribution.classes_number = 4
 rate_distribution.p = 0.2
 
 # Likelihood recursion option:
-# - simple: derivatives takes more time to compute, but likelihooh computation is faster.
+# - simple: derivatives takes more time to compute, but likelihood computation is faster.
 #   For big data sets, it can save a lot of memory usage too, particularly when the data are compressed.
 # - double: Uses more memory and need more time to compute likelihood, due to the double recursion.
 #   Analytical derivatives are however faster to compute.
@@ -100,7 +123,7 @@ likelihood.recursion = simple
 # - simple: identical sites are not computed twice
 # - recursive: look for site patterns to save computation time during optimization, but
 #   requires extra time for building the patterns.
-#   This is usually the best option, particularly for nucleotides data sets.
+#   This is usually the best option, particularly for nucleotide data sets.
 likelihood.recursion_simple.compression = recursive
 
 # ----------------------------------------------------------------------------------------
@@ -145,7 +168,7 @@ optimization.tolerance = 0.000001
 optimization.message_handler = $(DATA).messages
 
 # A file where to dump optimization steps (a file path or std for standard output)
-ooptimization.profiler = $(DATA).profile
+optimization.profiler = $(DATA).profile
 
 # Shall we optimize tree topology as well?
 optimization.topology = yes
@@ -154,7 +177,7 @@ optimization.topology = yes
 optimization.topology.algorithm = NNI
 
 # NNI method: fast, better or phyml
-# You should use the phyml option, since it is realy more efficient!
+# You should use the phyml option, since it is really more efficient!
 optimization.topology.algorithm_nni.method = phyml
 
 # Number of phyml topology movement steps before reoptimizing parameters:
@@ -163,18 +186,18 @@ optimization.topology.nstep = 4
 # Shall we estimate parameters before looking for topology movements?
 optimization.topology.numfirst = no
 
-# Tolerances: These number should not be too low, in order to save computation
+# Tolerances: These numbers should not be too low, in order to save computation
 # time and also for a better topology estimation.
 # The optimization.tolerance parameter will be used for the final optimization
 # of numerical parameters.
 #
-# Tolerance for the prior.topology estimation
+# Tolerance for the prior-topology estimation
 optimization.topology.tolerance.before = 100
 
 # Tolerance for the during-topology estimation
 optimization.topology.tolerance.during = 100
 
-# Shall we first scale the tree befor optimizing parameters? [deprecated]
+# Shall we first scale the tree before optimizing parameters? [deprecated]
 optimization.scale_first = no
 
 

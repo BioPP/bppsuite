@@ -62,6 +62,7 @@ using namespace std;
 #include <Phyl/BioNJ.h>
 #include <Phyl/OptimizationTools.h>
 #include <Phyl/MarkovModulatedSubstitutionModel.h>
+#include <Phyl/Newick.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -89,9 +90,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*              Bio++ Distance Methods, version 0.1.0             *" << endl;
+  cout << "*              Bio++ Distance Methods, version 0.2.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 04/06/07 *" << endl;
+  cout << "*                                           Last Modif. 07/01/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -282,7 +283,17 @@ int main(int args, char ** argv)
       parametersToIgnore = allParameters;
       ignoreBrLen = true;
     }
-
+    bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
+ 
+    string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", params, false, false);
+    ofstream *out = NULL;
+    if(bsTreesPath != "none")
+    {
+      ApplicationTools::displayResult("Bootstrap trees stored in file", bsTreesPath);
+      out = new ofstream(bsTreesPath.c_str(), ios::out);
+    }
+    Newick newick;
+    
     vector<Tree *> bsTrees(nbBS);
     ApplicationTools::displayTask("Bootstrapping", true);
     for(unsigned int i = 0; i < nbBS; i++)
@@ -291,9 +302,25 @@ int main(int args, char ** argv)
       VectorSiteContainer * sample = SiteContainerTools::bootstrapSites(*sites);
       if(approx) model->setFreqFromData(*sample);
       distEstimation.setData(sample);
-      bsTrees[i] = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, ignoreBrLen, false, type, tolerance, nbEvalMax, NULL, NULL, 0);
+      bsTrees[i] = OptimizationTools::buildDistanceTree(
+          distEstimation,
+          *distMethod,
+          parametersToIgnore,
+          ignoreBrLen,
+          false,
+          type,
+          tolerance,
+          nbEvalMax,
+          NULL,
+          NULL,
+          (bootstrapVerbose ? 1 : 0)
+        );
+      if(out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
+      if(out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);
       delete sample;
     }
+    if(out) out->close();
+    if(out) delete out;
     ApplicationTools::displayTaskDone();
     ApplicationTools::displayTask("Compute bootstrap values");
     TreeTools::computeBootstrapValues(*tree, bsTrees);

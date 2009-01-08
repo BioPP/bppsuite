@@ -1,0 +1,988 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename bppsuite.info
+@settitle BppSuite Manual 0.3.1
+@afourpaper
+@c %**end of header
+
+@include version.texi
+
+@copying
+This is the manual of the Bio++ Program Suite, version @value{VERSION}, @value{UPDATED}.
+
+Copyright @copyright{} 2007, 2008, 2009 Julien Dutheil
+@end copying
+
+@titlepage
+@title BppSuite Manual
+@author Julien Dutheil
+@author @email{jdutheil@@birc.au.dk}
+
+@c The following two commands start the copyright page.
+@page
+@vskip 0pt plus 1fill1
+@insertcopying
+@end titlepage
+
+@c Output the table of contents at the beginning.
+@contents
+
+@ifnottex
+@node Top, Introduction, (dir), (dir)
+@top The Bio++ Program Suite Manual
+
+@insertcopying
+@end ifnottex
+
+@menu
+* Introduction::                Introducing the Bio++ Program Suite and this manual.                
+* Syntax::                      A general description of the syntax used to communicate with the programs.
+* Common::                      Common options shared by several programs.                      
+* Reference::                   The exhaustive list of options available for all programs in the Bio++ Program Suite.
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Common options encountered in several programs.
+
+* Sequences::                   Loading sequences/alignments.
+* Tree::                        Loading trees.
+* Model::                       Setting up a substitution model.
+* Estimation::                  Estimating parameters by maximizing a likelihood function.
+* WritingSequences::            Writing sequences/alignments to files. 
+
+Bio++ Program Suite Reference
+
+* bppml::                       Bio++ Maximum Likelihood.
+* bppseqgen::                   Bio++ Sequence Generator.
+* bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction.
+* bppdist::                     Bio++ Distance Methods.
+* bpppars::                     Bio++ Maximum Parsimony.
+* bppconsense::                 Bio++ Consensus Trees.
+* bppphysamp::                  Bio++ Phylogenetic Sampler.
+* bppreroot::                   Bio++ Serial Tree Re-rooting.
+* bppseqman::                   Bio++ Sequences Manipulation.
+
+@end detailmenu
+@end menu
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node Introduction, Syntax, Top, Top
+@chapter Introduction
+
+The Bio++ Program Suite is a package of programs using the Bio++ libraries and dedicated to Phylogenetics and Molecular Evolution.
+All programs are independent, but can be combined to perform complex analysis.
+These programs use the interface helper tools of the libraries, and hence share the same syntax.
+They also have several options in common, which may also be shared by third-party software.
+This manual was hence split into three parts: 
+@table @emph
+@item Bio++ option file syntax
+A general description about the language used to interact with the programs.
+
+@item Common options
+A more detailed description about several options that are encountered in several programs. This include input/output of data and model specifications.
+
+@item The Bio++ Program Suite reference
+Include a program per program reference of all available options.
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node Syntax, Common, Introduction, Top
+@chapter Syntax description
+
+@section Calling the programs and writing the option files.
+
+The programs in the Bio++ Program Suite are command line-driven. The arguments may be passed as parameter=value options, either directly to the command line or
+using an option file:
+@cartouche
+@example
+@{program@} parameter1=value1 parameter2=value2 ... parameterN=valueN
+@end example
+@end cartouche
+or
+@cartouche
+@example
+@{program@} param=option_file
+@end example
+@end cartouche
+where @{program@} is the name of the program to use (bppml, bppseqgen, etc.).
+Option files are a list of parameter=value lines, with only one
+parameter per line. They can be written from scratch using a regular text editor, but since these file can potentially turn to be quite complex, it is probably wiser to start with a sample provided along with the program (if any!).
+
+Extra-space may be included between
+parameter name, equal sign and value:
+@cartouche
+@example
+first_parameter   = value1
+second_parameter  = value2
+@end example
+@end cartouche
+Comment may also be included, in either script format
+@cartouche
+@example
+# This is a comment
+@end example
+@end cartouche
+or C format
+@cartouche
+@example
+/* This is a comment
+*/
+@end example
+@end cartouche
+or C++ format
+@cartouche
+@example
+// This is a comment
+@end example
+@end cartouche
+Command line and file options may be combined:
+@cartouche
+@example
+@{program@} param=option_file parameterX=valueX
+@end example
+@end cartouche
+In case of parameterX is specified in both option file and command
+line, the command line value will be used.
+This allows to run the programs several time by changing a single option,
+like the name of the data set for instance.
+
+Option files can be nested, by using param=optionfile within an option file, as with the command line.
+It is possible to use this option as often as needed, this will load all the required option files.
+
+@section Different types of options
+
+The next chapters describe the whole set of options available in BppSuite.
+The type of parameter value expected is defined as:
+@table @command
+@item @{chars@}
+A character chain
+
+@item @{path@}
+A file path, may be absolute or related to the current directory
+
+@item @{int@}
+An integer
+
+@item @{int@}, @{int>0@}, @{int>=0@}, @{int[2,10]@}
+An integer, a positive integer, a positive non-null integer, an
+integer falling between 2 and 10
+
+@item @{real@}, @{real>0@}, etc
+A real number, a positive real number, etc.
+
+@item @{boolean@}
+A Boolean value, may be one of 'yes', 'no', 'true' or 'false'
+
+@item @{xxx|yyy|zzz@}
+A set of allowed values
+
+@item @{list<type>@}
+A list of values of specified type, separated by comas.
+
+@end table
+
+If an option availability or choice depends on another parameters, it will be noted as
+
+@example
+parameter1=@{xxx|yyy|zzz@}
+
+parameter2=@{chars@} (parameter1=zzz)
+@end example
+meaning that parameter2 is available only if parameter1 is set to 'zzz'.
+
+Any optional argument will be noted within hooks [].
+
+
+@section Variables
+
+It is possible to recall anywhere the value of an option by using $(parameter).
+@cartouche
+@example
+model.name=JTT92
+rat_distribution=gamma
+output.tree = mydata$(model.name)$(rate_distribution).dnd
+@end example
+@end cartouche
+You can use this syntax to define global variables:
+@cartouche
+@example
+data=LSU
+sequence.file=$(data).fasta
+input.tree=$(data).dnd
+output.infos=$(data).infos
+@end example
+@end cartouche
+
+Important note: it is not possible to use a macro with the 'param' option.
+This is because all nested option files are parsed before the variable resolution.
+Writing param=$(model1).bpp will not work, but this allows the user to override variables in nested files, as with the command line.
+For instance:
+@cartouche
+@example
+#Option file 1:
+param=options2.bpp
+sequence.file=$(data).fasta
+sequence.format=Fasta
+@end example
+@end cartouche
+@cartouche
+@example
+#Option file 2:
+data=LSU
+#etc
+@end example
+@end cartouche
+ 
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node Common, Reference, Syntax, Top
+@chapter Common options encountered in several programs.
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@menu
+* Sequences::                   Loading sequences/alignments.
+* Tree::                        Loading trees.
+* Model::                       Setting up a substitution model.
+* Estimation::                  Estimating parameters by maximizing a likelihood function.
+* WritingSequences::            Writing sequences/alignments to files. 
+@end menu
+
+@node Sequences, Tree, Common, Common
+@section Setting alphabet and reading sequences
+
+@table @command
+@item alphabet = @{DNA|RNA|Protein@}
+The alphabet to use when reading sequences.
+
+@item sequence.file=@{path@}
+The sequence file to use. Depending on the program, these sequences must or do not have to be aligned.
+
+@item sequence.format = @{Mase|Fasta|Phylip|Clustal|DCSE|Genbank@}
+The sequence file format.
+
+@item sequence.format_mase.site_selection = @{chars@} (sequence.format=Mase)
+Specify a name for a site set to use.
+
+@item sequence.format_phylip.order = @{interleaved|sequential@} (sequence.format=Phylip)
+Tells if sequences are interleave or sequential format.
+
+@item sequence.format_phylip.ext = @{classic|extended@} (sequence.format=Phylip)
+The @option{classic} option corresponds to old phylip format, with
+names up to ten characters.
+The @option{extended} option corresponds to the behavior of PAML,
+which allows sequence name of any size, separated from the sequence
+with at least two spaces. 
+
+@item sequence.format_phylip.extended.split = @{spaces|tab@}
+Specify the type of character that separates the sequence name from the sequence content. The conventional option is to use one (classic)or more spaces (extended).
+ 
+@item sequence.sites_to_use = @{all|nogap|complete@}
+This option only works if the program requires an alignment.
+Tells which sites to use.
+The @option{nogap} option removes all sites containing at least one
+gap, and the @option{complete} option removes all sites containing at
+least one gap or one generic character, as 'X' for instance.
+
+@item sequence.max_gap_allowed=101%
+This option only works if the program requires an alignment.
+Only works when the @option{all} option is selected.
+specify the maximum amount of gap allowed by site, given as a number
+of sequence or a percentage.
+Sites not matching the criterion will not be included in the analysis.
+
+@end table
+ 
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node Tree, Model, Sequences, Common
+@section Reading trees
+
+@table @command
+@item tree.file = @{path@}
+The phylogenetic tree file to use.
+Branch lengths are optional.
+Only newick format is supported for now.
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node Model, Estimation, Tree, Common
+@section Model specification
+
+@table @command
+@item nonhomogeneous = @{no|one_per_branch_general@}
+Set the type of model. The @option{no} option is used for homogeneous models.
+The @option{one_per_branch} option is used as a short cut for setting Galtier and Gouy 97-like branch-specific models, and the @option{general} option for non-stationary and eventually non-homogeneous models.
+In either of the last two cases, the model is non-stationary, that is, possibly not at the equilibrium and hence includes the root frequencies as additional parameters. If the substitution model is not the same across the tree, then the model is also non-homogeneous.
+@end table
+
+
+@subsection Specifying the substitution model
+
+@table @command
+
+@item model.name = @{JCnuc|K80|T92|HKY85|F84|L95|TN93|GTR|JCprot|DSO78|JTT92|empirical@}[+F (alphabet=Protein)][+@{TS98|G2001@}][+RE08]
+Specify the substitution model to use.
+For proteins, the DCmutt method is used for JTT92 and DSO78.
+You can use the @option{empirical} option to specify another model, as
+a text file in PAML format.
+The @option{+F} option is available only for protein substitution models and allow the equilibrium frequencies to be estimated from the data instead of being fixed. The second optional argument is for Markov-Modulated substitution models. The third one enables the accounting of gaps, fallowing the model of Rivas and Eddy (2008). This option introduces gaps as additional states, but do not use (yet) the modified Felsenstein's algorithm. See Rivas and Eddy's paper for more details, and use with care!
+
+@item model.kappa=@{real>0@}
+Initial value or fixed value for parameter kappa
+(transition/transversion ratio) in models K80, T92, HKY85 and F84
+
+@item model.kappa1=@{real>0@}
+Initial value or fixed value for parameter kappa1 in model TN93
+
+@item model.kappa2=@{real>0@}
+Initial value or fixed value for parameter kappa2 in model TN93
+
+@item model.theta=@{real]0,1[@}
+Initial value or fixed value for parameter theta (GC content) in model
+T92, HKY85, F84, TN93 and GTR.
+
+@item model.theta1 = @{real]0,1[@}
+Proportion of G / (G + C) in models
+HKY85, F84, TN93 and GTR
+
+@item model.theta2 = @{real]0,1[@}
+Proportion of A / (A + T/U) in models
+HKY85, F84, TN93 and GTR
+
+@item model.thetaX = @{real]0,1[@} (+F)
+where X is 1 to 19. Frequency parameter for the +F models.
+theta1 is the proportion of A, theta2 is the proportion of R over (1-A), theta3 the proportion of N over (1-A-R), etc.
+
+@item model.a,b,c,d,e = @{real>0@}
+Parameters of the GTR model
+
+@item model.use_observed_freq = @{boolean@}
+Tell if we have to use observed frequencies as initial parameter values (for @option{theta}, @option{theta1}, @option{theta2}, etc).
+For proteins, this is option only has an effect if the +F tag is used.
+
+@item model_empirical.file = @{path@} (model.name=empirical)
+Specify the path where to find the model (in PAML format).
+
+@item model.s1, model.s2 = @{real>0@} (+TS98)
+The parameter for the TS98 model.
+
+@item model.nu = @{real@} (+G2001)
+The nu parameter in Galtier 2001's SSRV model.
+
+@item model.rate_distribution = @{gamma@} (+G2001)
+The rate distribution to use in the G2001 model (only gamma for now).
+
+@item model.rate_distribution.classes_number = @{int>=2@} (+G2001)
+The number of rate classes in the G2001 model.
+
+@item model.alpha @{real>0@} (+G2001)
+The shape of the gamma distribution in the G2001 model.
+
+@item model.lambda @{real>0@} (+RE08)
+The insertion rate.
+
+@item model.mu @{real>0@} (+RE08)
+The deletion rate.
+
+@end table
+
+
+
+@subsection Setting up non-stationary / non-homogeneous models
+
+You can specify a wide range of non-homogeneous models, by combining different options.
+
+@subsubsection One-per-branch non-homogeneous models
+
+This option share the same parameters as the homogeneous case, since the same kind of model is used for each branch. The additional options are the following:
+@table @command
+@item nonhomogeneous_one_per_branch.shared_parameters = @{list<chars>@}
+List the names of the parameters that are shared by all branches.
+In Galtier & Gouy model, that would be model.kappa, since only the theta parameter is branch-specific.
+
+@end table
+
+@subsubsection General non-homogeneous models
+
+Bio++ provides a general syntax to specify almost any non-homogeneous model.
+
+@table @command
+
+@item nonhomogeneous.number_of_models = @{int>0@}
+Set the number of distinct models to use.
+
+@end table
+
+You now have to configure each model individually, using the syntax introduced for the homogeneous case, excepted that model will be numbered, for instance:
+
+@example
+model1.name  = T92
+model1.theta = 0.39
+model1.kappa = 2.79
+@end example
+
+The additional option is available to attach the model to branches in the tree, specified by the id of the upper node in the tree:
+
+@table @command
+
+@item model1.nodes_id = 1,5,10:15,19
+Specify the ids of the nodes to which the node is attached.
+Id ranges can be specified using the @option{begin:end} syntax.
+
+@end table
+
+You can also make a given model share parameters with another one by writing for instance:
+@example
+model2.name = T92
+model2.theta = 0.39
+model2.kappa = model1.kappa
+@end example
+
+Finally, you may find useful the following options:
+
+@table @command
+
+@item output.tree.path = @{@{path@}|none@}
+A tree file in newick format, with node ids instead of bootstrap
+values, and leaf names with their id as suffix.
+The use of that option will cause the program to exit just after producing the tagged tree.
+
+@end table
+
+@subsubsection Root frequencies
+
+@table @command
+
+@item nonhomogeneous.root_freq=@{balanced|observed|init|balancedGC|observedGC|initGC@}
+The @option{balanced} option set all the frequencies to 1/size of the alphabet.
+The @option{balancedGC} option is for nucleotides only, and set the G content equal to the C content equal to 0.5.
+The @option{observed} option set frequencies equal to their values in the data set, and @option{observedGC} does the same for the GC content.
+The @option{init} and @option{initGC} options allows you to set the values of the frequencies by hand.
+
+@item model.ancA, ancC,..., ancA, ancR, ancN, ..., ancTheta
+Initial values of ancestral frequencies if the @option{init} or @option{initGC} have been specified.
+
+@end table
+
+
+@subsection Rate across site distribution
+
+@table @command
+
+@item rate_distribution = @{constant|gamma[+invariant]@}
+Specify the rate across sites distribution, as constant or gamma, optionally with an invariant class.
+
+@item rate_distribution.alpha = @{real>0@}
+The gamma distribution's shape parameter
+
+@item rate_distribution.classes_number = @{int>=2@}
+The number of classes to use in discretization (not including the invariant class if any)
+
+@item rate_distribution.p = @{real[0,1]@}
+Proportion of invariant sites
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node Estimation, WritingSequences, Model, Common
+@section Numerical parameters estimation
+
+Some programs allow you to (re-)estimate numerical parameters, including
+@itemize @bullet
+@item
+Branch lengths
+
+@item
+Entries of the substitution matrices, included base frequencies.
+values)
+
+@item
+Parameters of the rate distribution (shape parameter of the gamma law, proportion of invariant sites).
+
+@end itemize
+
+@table @command
+
+@item optimization = @{boolean@}
+Tells if numerical parameters should be estimated.
+Topology estimation is not supported.
+
+@item optimization.method=@{DB|fullD@}
+The optimization method to use.
+DB (default) uses derivatives-based optimization for branch lengths + Brent for
+other parameters, and the fullD options uses derivatives for all parameters, with numerical derivatives for non-branch lengths parameters.
+
+@item optimization_DB.nstep=@{int>=1@}
+Number of progressive steps to perform during optimization.
+If @option{nstep=3} and @option{precision=E-6}, a first optimization with @option{precision = E-2}, will be performed, then a round with @option{precision} set to E-4 and
+finally @option{precision} will be set to E-6. This approach generally saves
+significant computation time.
+
+@item optimization.method.derivatives = @{newton|gradient@}
+Derivatives-based algorithm to use.
+The Newton algorithm uses derivatives up to the second order, and is the recommended choice.
+The gradient algorithm uses only first order derivatives and can also be used.
+
+@item optimization.final = @{powell|simplex@}
+Optional final optimization step, useful if numerical derivatives are to be used.
+Leave the field empty in order to skip this step.
+
+@item optimization.profiler = @{@{path@}|std|none@}
+A file where to dump optimization steps (a file path or std for
+standard output or none for no output).
+
+@item optimization.message_handler = @{@{path@}|std|none@}
+A file where to dump warning messages.
+
+@item optimization.max_number_f_eval = @{int<0@}
+The maximum number of likelihood evaluation to perform.
+
+@item optimization.ignore_parameter = @{list<chars>@}
+A list of parameters to ignore during the estimation process.
+
+@item optimization.tolerance = @{float>0@}
+The precision on the log-likelihood to reach.
+
+@item output.tree.file = @{@{path@}|none@}
+File path where to write the optimized tree.
+
+@item output.infos = @{@{path@}|none@}
+A text file containing several statistics for each site in the
+alignment.
+These statistics include posterior rate, rate class with maximum
+posterior probability and whether the site is conserved or not.
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node WritingSequences,  , Estimation, Common
+@section Writing sequences/alignments to files
+
+@table @command
+
+@item output.sequence.file = @{path@}
+The output file where to write the sequences.
+
+@item output.sequence.format = @{Fasta|Mase|Phylip@}
+The output file format. Options for the Phylip format are the same as for reading (@pxref{Sequences}).
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node Reference,  , Common, Top
+@chapter Bio++ Program Suite Reference
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+This section now details the specific options for each program in the Bio++ Program suite.
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@menu
+* bppml::                       Bio++ Maximum Likelihood.
+* bppseqgen::                   Bio++ Sequence Generator.
+* bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction.
+* bppdist::                     Bio++ Distance Methods.
+* bpppars::                     Bio++ Maximum Parsimony.
+* bppconsense::                 Bio++ Consensus Trees.
+* bppphysamp::                  Bio++ Phylogenetic Sampler.
+* bppreroot::                   Bio++ Serial Tree Re-rooting.
+* bppseqman::                   Bio++ Sequences Manipulation.
+@end menu
+
+@node bppml, bppseqgen, Reference, Reference
+@section BppML: Bio++ Maximum Likelihood
+
+The BppML program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}), specifying the model (@pxref{Model}), and estimating parameters (@pxref{Estimation}).
+
+The BppML program allows you to optimize tree topologies and perform a bootstrap analysis.
+
+@subsection Topology optimization
+
+@table @command
+
+@item init.tree = @{user|random@}
+Set the method for the initial tree to use. @option{user} allows you to use an existing file using the method described in the Common options section. This file may have been built using another method like neighbor joining or parsimony for instance. @option{random} picks a random tree, which is handy to test convergence. This may however slows down significantly the optimization process.
+
+@item init.brlen.method = @{input|equal|clock|grafen@}
+Set how to initialize the branch lengths. @option{input}: keep initial branch lengths as is. @option{equal}: put all branch lengths to the same value. @option{clock}: coerce to a clock tree. @option{grafen}: uses Grafen's method to compute branch lengths.
+In Grafen's method, all node is given a weight equal to the number of underlying leaves. The length of each branch is then computed as the difference of the weights of the connected nodes, and further divided by the number of leaves in the tree. The height of all nodes are then raised to the power of 'rho', a user specified value. The tree is finally scaled to match a given total height. A value of rho=0 provides a star tree, and the greater the value of rho, the more recent the inner nodes. 
+
+@item init.brlen.method_equal.value = @{real@} (init.brlen.method = equal)
+The value for the @option{equal} option.
+
+@item init.brlen.method_grafen.height = @{@{real>0@}|input@} (init.brlen.method = grafen)
+The height of the tree for Grafen's method (input for using the current height of the tree)
+@item init.brlen.method_grafen.rho = @{real>0@}
+Grafen's power parameter.
+
+@item optimization.topology = @{boolean@}
+Enable the tree topology estimation.
+
+@item optimization.topology.algorithm = @{NNI@}
+Algorithm to use for topology estimation: only NNI available for now.
+
+@item optimization.topology.algorithm_nni.method = @{fast|better|phyml@}
+Set the NNI method to use.
+@option{fast}: test sequentially all NNI, if a NNI improving the likelihood is found, it is performed.
+@option{better}: test all possible NNIs, do the one with the biggest likelihood increase.
+@option{phyml}: test all possible NNIs, try doing all the improving ones. If the final likelihoods is better, perform all NNIs. Otherwise, try to do half of them, and so on. 
+In most cases the @option{phyml} option shows the best performance.
+
+@item optimization.topology.nstep = @{int>0@}
+Number of phyml topology movement steps before re-optimizing parameters.
+
+@item optimization.topology.numfirst = @{boolean@}
+Shall we estimate parameters before looking for topology movements?
+
+@item optimization.topology.tolerance.before = @{real>0@}
+Tolerance for the prior-topology estimation.
+The tolerance numbers should not be too low, in order to save computation time and also for a better topology estimation.
+The @option{optimization.tolerance} parameter will be used for the final optimization of numerical parameters (see Common options).
+
+@item optimization.topology.tolerance.during = 100
+Tolerance for the during-topology estimation
+
+@item optimization.scale_first = no
+Shall we first scale the tree before optimizing parameters? [deprecated]
+
+@end table
+
+@subsection Output results
+
+@table @command
+
+@item output.tree.file = @{@{path@}|none@}
+Should we write the resulting tree? none or file name.
+
+@item output.infos = @{@{path@}|none@}
+Alignment information log file (site specific rates, etc):
+
+@item output.estimates = @{@{path@}|none@}
+Write numerical parameter estimated values.
+
+@end table
+
+@subsection Bootstrap analysis
+
+@table @command
+
+@item bootstrap.number = @{int>0@}
+Number of replicates. A reasonable value would be >= 100.
+
+@item bootstrap.approximate = @{boolean@}
+Tell if numerical parameters should be kept to their initial value when bootstrapping. 
+
+@item bootstrap.verbose = @{boolean@}
+Set this to yes for detailed output when bootstrapping. 
+
+@item bootstrap.output.file = @{@{path@}|none@}
+Where to write the resulting trees (multi-trees newick format).
+
+@end table
+
+@subsection Rather technical options
+
+Theses options are mainly for debugging or testing purpose, in most case you will be happy with the default setting.
+
+@table @command
+
+@item likelihood.recursion = @{simple|double@}
+Set the type of likelihood recursion to use.
+@option{simple}: derivatives take more time to compute, but likelihood computation is faster. For big data sets, it can save a lot of memory usage too, particularly when the data are compressed.
+@option{double}: uses more memory and need more time to compute likelihood, due to the double recursion. Analytical derivatives are however faster to compute. This option has no effect in the following cases: (i) topology estimation: this requires a double recursive algorithm, (ii) optimization with a molecular clock: a simple recursion with data compression is used in this case, due to the impossibility of computing analytical derivatives.
+
+@item likelihood.recursion_simple.compression = @{simple|recursive@}
+
+Site compression for the simple recursion:
+@option{simple}: identical sites are not computed twice, @option{recursive}: look for site patterns to save computation time during optimization, but requires extra time for building the patterns. This is usually the best option, particularly for nucleotide data sets.
+
+@end table
+
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bppseqgen, bppancestor, bppml, Reference
+@section BppSeqGen: Bio++ Sequence Simulator
+
+The BppSeqGen program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model (@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
+
+@table @command
+
+@item number_of_sites = @{int > 0@}
+The number of site positions to simulate.
+
+@end table
+Yes, that's the only specific option here!
+
+ 
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bppancestor, bppdist, bppseqgen, Reference
+@section BppAncestor: Bio++ Ancestral Sequence and Rate Reconstruction
+
+The BppAncestor program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model (@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
+
+Specific options are:
+@table @command
+
+@item asr.method = @{marginal@}
+That's the only option for now!
+
+@item asr.probabilities = @{boolean@}
+Tells if we should output the site specific probabilities in each case.
+
+@item asr.sample = @{boolean@}
+Tell if we should sample from the posterior distribution instead of using the maximum probability.
+
+@item asr.sample.number = 10 (asr.sample=yes)
+Number of sample sequences to output.
+
+@item output.file = @{@{path@}|none@}
+Alignment information log file (site specific rates, probabilities, etc).
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bppdist, bpppars, bppancestor, Reference
+@section BppDist: Bio++ Distance Methods
+ 
+The BppDist program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}) and specifying the model (@pxref{Model}, only the section corresponding to the homogeneous case).
+
+Specific options are:
+@table @command
+
+@item output.matrix.file = @{@{path@}|none@}
+Where to write the matrix file (only philip format supported for now).
+
+@item method = @{wpgma|upgma|nj|bionj@}
+The algorithm to use to build the tree.
+
+@item optimization.method = @{init|pairwise|iterations@}
+There are several way to optimize substitution parameters.
+The @option{init} option corresponds to the standard behavior, that is keep them to their initial, user-provided value.
+The @option{pairwise} option estimate those parameters in a pairwise manner. This should be avoided, particularly with parameter-rich models.
+Finally the @option{iterations} option corresponds to Ninio et al, Bioinformatics (2007) recursive algorithm:
+After each distance tree, a global ML estimation of the substitution parameters is performed.
+The estimated values are then used to rebuild a distance matrix and a tree.
+The algorithm stops when the topology does not change anymore.
+The ML optimization uses the parameters described in (@pxref{Estimation}).
+
+@item output.tree.file = @{@{path@}|none@}
+The final tree, possibly with bootstrap values:
+BppDist uses the same options for bootstrap analysis than the BppML program (@pxref{bppml}).
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bpppars, bppconsense, bppdist, Reference
+@section BppPars: Bio++ Maximum Parsimony
+ 
+The BppPars program is currently quite limited and should not be used for serious phylogenetic analysis.
+It can compute parsimony scores and perform topology estimation using the same algorithm of BppML.
+It uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree})).
+
+Specific options are:
+@table @command
+
+@item optimization.topology = @{boolean@}
+Tell if topology has to be estimated.
+
+@item output.tree.file = @{@{path@}|none@}
+Where to print the output file.
+
+@item bootstrap.number = @{int>0@}
+Number of bootstrap replicates to perform.
+
+@item bootstrap.output.file = @{@{path@}|none@}
+Where to write bootstrap trees.
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bppconsense, bppphysamp, bpppars, Reference
+@section BppConsense: Bio++ Consensus Trees
+
+Probably one of the simplest program to use in the suite, just takes a list of trees (for instance produced by BppML, BppDist or BppPars with the bootstrap option enabled) and compute bootstrap values for a reference tree, provided as input, or constructed using a consensus method.
+
+There are only specific options here:
+@table @command
+
+@item input.list.file = @{path@}
+The trees file in multi-newick format.
+
+@item tree = @{input|consensus@}
+The method to use for getting the reference tree.
+
+@item tree_input.file = @{path@} (tree = input)
+The input file for the reference tree, in simple-newick format.
+
+@item tree_consensus.threshold = @{int[0,1]@} (tree = consensus)
+The threshold to use for the consensus method. 0 will output a fully resolved tree, 0.5 corresponds to the majority rule and 1 to the strict consensus, but any intermediate value can be specified.
+
+@item output.tree.file = @{path@}
+The output file for the tree (in simple newick format).
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bppphysamp, bppreroot, bppconsense, Reference
+@section BppPhySamp: Bio++ Phylogenetic Sampler
+ 
+The Bio++ Phylogenetic Sampler samples sequences from a file according to phylogenetic information.
+The goal is to clean a big data set by removing redundant sequences, bringing only few additional information for evolutionary analyses.
+
+The BppPhySamp programs uses the common options for setting the alphabet, loading the sequences (@pxref{Sequences}) and writing the resulting data set (@pxref{WritingSequences}).
+
+@table @command
+
+@item input.method = @{tree|matrix@}
+The method to provide phylogenetic information, either by a tree or a matrix.
+
+@item tree.file = @{path@} (input.method = tree)
+The input tree file.
+
+@item input.matrix = @{path@}
+The input matrix file.
+
+@item threshold = @{float>0@}
+The minimum distance separating two sequences in the sampled data set.
+Any sequences closer than this threshold in the original data set will be confronted so that only one is kept.
+
+@item choice_criterion = @{length|length.complete|random@}
+How to chose between closely related sequences? @option{length} takes the longest (maximum number of non-gap positions), @option{length.complete} takes the sequence with the maximum number of fully resolved positions and @option{random} picks one sequence at random.
+@end table 
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bppreroot, bppseqman, bppphysamp, Reference
+@section BppReroot: Bio++ Serial Tree Re-rooting
+ 
+[todo]
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bppseqman,  , bppreroot, Reference
+@section BppSeqMan: Bio++ Sequence Manipulation
+
+The Bio++ Sequence Manipulator convert between various file formats, and can also perform various operations on sequences.
+It uses the common options for setting the alphabet, loading the sequences (@pxref{Sequences}) and writing the resulting data set (@pxref{WritingSequences}).
+It can use the ``Generic'' option for alphabets if only file format conversion is to be performed, but the correct alphabet must be specified for more advanced manipulations, like in silico molecular biology.
+
+BppSeqMan can perform any number of elementary operation, in any order, providing the output of operation n is compatible with input of operation n+1, and that the input of operation 1 is compatible with the input data.
+
+Specific options:
+@table @command
+
+@item sequence.manip = @{list<string>@}
+The list, in appropriate order, of elementary operations to perform.
+See below for a list of these operations.
+@end table
+
+@table @option
+@item complement (alphabet = DNA | RNA)
+Convert to the complementary sequence, keeping the original alphabet.
+
+@item transcript (alphabet = DNA | RNA)
+Convert to the complementary sequence, switching the type of alphabet (DNA<->RNA).
+
+@item switch (alphabet = DNA | RNA)
+Change the alphabet type (DNA<->RNA).
+
+@item translate (alphabet = DNA | RNA)
+Convert to proteins. You have to specify a genetic code, see specific options.
+
+@item invert
+Invert the sequence 5' <-> 3' or N <-> C
+
+@item remove_gaps
+Remove all gaps in sequences (ie, 'unalign')
+
+@item gap2unknown
+Change gaps to fully unresolved characters, N for nucleotides and X for proteins.
+
+@item unknown2gap
+Change (partially) unresolved characters to gaps.
+
+@item resolve_dotted (Aligned sequences)
+Convert a human-readable alignment to a machine-readable alignment.
+This manipulation must be first if it is used, and the data must be load with the @option{Generic} alphabet.
+
+@item keep_complete (Aligned sequences)
+Keep only complete sites, ie sites without any gap. Sites with unresolved characters are not removed.
+It is also possible to fix a maximum proportion of gaps, see specific options.
+
+
+@end table
+
+Here are some manipulation-specific options:
+@table @command
+ 
+@item sequence.manip_translate.code = @{Standard|VerMito|InvMito|EchMito@}
+The genetic code to use for translation.
+
+@item sequence.manip_keep_complete.max_gap_allowed = @{int>0@} or @{float[0,100]@}+% 
+Set the maximum proportion of gaps allowed.
+
+@item sequence.manip_resolve_dotted.alphabet = @{RNA|DNA|Proteins@}
+The alphabet to use in order to resolve a dotted alignment.
+
+@end table
+
+Examples of usage:
+
+@table @bullet
+
+@item Just change file format:
+@example
+sequence.manip=
+@end example
+
+@item Change DNA to RNA:
+@example
+sequence.manip=switch
+@end example
+
+@item Unalign sequences, perform transcription and translate to proteins:
+@example
+sequence.manip=remove_gaps,transcript,translate
+@end example
+
+@item Change all unresolved characters to gaps and keep only positions with less than 5 gaps:
+@example
+sequence.manip=unknown2gap,keep_complete
+sequence.manip_keep_complete.max_gap_allowed=5
+@end example
+
+@item Keep only positions with less than 30% of gaps, and change them to unresolved characters:
+@example
+sequence.manip=keep_complete,gap2unknown
+sequence.manip_keep_complete.max_gap_allowed=30%
+@end example
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@c ------------------------------------------------------------------------------------------------------------------
+@c end of document
+
+@c @node Index,  , Reference, Top
+@c @unnumbered Index
+@c
+@c @printindex cp
+
+@bye

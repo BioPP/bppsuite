@@ -78,4 +78,4 @@ AM_CONDITIONAL(STATIC, test x$static = xtrue)
 
 VERSION="0.3.1"
 AC_SUBST(VERSION)
-AC_OUTPUT(Makefile bppSuite/Makefile)
+AC_OUTPUT(Makefile bppSuite/Makefile doc/Makefile)

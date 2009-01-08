@@ -211,7 +211,7 @@ int main(int args, char ** argv)
 
   VectorSiteContainer * allSites = SequenceApplicationTools::getSiteContainer(alphabet, params);
   
-  VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, params);
+  VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, params, "", true, false);
   delete allSites;
 
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
@@ -317,7 +317,6 @@ int main(int args, char ** argv)
 
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, "", true, false);
   unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0, "", true, false);
-  bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
   
   SubstitutionModel    * model    = NULL;
   SubstitutionModelSet * modelSet = NULL;
@@ -326,7 +325,8 @@ int main(int args, char ** argv)
   if(optimizeClock == "global")
   {
     model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
-    if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+    if(model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+    if(model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
       rDist = new ConstantDistribution(1.);
@@ -342,7 +342,8 @@ int main(int args, char ** argv)
     if(optimizeTopo || nbBS > 0)
     {
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
-      if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+      if(model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      if(model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
       {
         //Markov-modulated Markov model!
         rDist = new ConstantDistribution(1.);
@@ -356,7 +357,8 @@ int main(int args, char ** argv)
     else if(nhOpt == "no")
     {  
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
-      if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+      if(model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      if(model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
       {
         //Markov-modulated Markov model!
         rDist = new ConstantDistribution(1.);
@@ -386,7 +388,8 @@ int main(int args, char ** argv)
     else if(nhOpt == "one_per_branch")
     {
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
-      if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+      if(model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      if(model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
       {
         //Markov-modulated Markov model!
         rDist = new ConstantDistribution(1.);
@@ -419,7 +422,8 @@ int main(int args, char ** argv)
     else if(nhOpt == "general")
     {
       modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, params);
-      if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
+      if(modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      if(modelSet->getNumberOfStates() >= 2*modelSet->getAlphabet()->getSize())
       {
         //Markov-modulated Markov model!
         rDist = new ConstantDistribution(1.);
@@ -459,7 +463,7 @@ int main(int args, char ** argv)
     tl->matchParametersValues(pl);
     logL = tl->getValue();
   }
-  ApplicationTools::displayResult("Initial likelihood", TextTools::toString(logL, 15));
+  ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
   if(isinf(logL))
   {
     ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
@@ -486,7 +490,7 @@ int main(int args, char ** argv)
   PhylogeneticsApplicationTools::writeTree(* tree, params);
   
   // Write parameters to screen:
-  ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
+  ApplicationTools::displayResult("Log likelihood", TextTools::toString(- tl->getValue(), 15));
   ParameterList parameters = tl->getSubstitutionModelParameters();
   for(unsigned int i = 0; i < parameters.size(); i++)
   {
@@ -503,7 +507,7 @@ int main(int args, char ** argv)
   if(parametersFile != "none")
   {
     ofstream out(parametersFile.c_str(), ios::out);
-    out << "# Log likelihood = " << tl->getValue() << endl;
+    out << "# Log likelihood = " << (- tl->getValue()) << endl;
     out << endl;
     out << "# Substitution model parameters:" << endl;
     if(modelSet)
@@ -585,6 +589,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
     bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", params, true);
     ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
+    bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
     
     const Tree * initTree = tree;
     if(!bootstrapVerbose) params["optimization.verbose"] = "0";

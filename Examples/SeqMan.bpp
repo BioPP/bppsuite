@@ -55,7 +55,7 @@ output.sequence.format_phylip.ext = extended
 # - switch (Nucleic acids only)
 #   Change the alphabet type (DNA<->RNA).
 # - translate (Nucleic acids only)
-#   Convert to proteins. You have to specify a genetic code, see forward...
+#   Convert to proteins. You have to specify a genetic code, see below...
 # - invert
 #   Invert the sequence
 # - remove_gaps
@@ -65,10 +65,10 @@ output.sequence.format_phylip.ext = extended
 # - unknown2gap
 #   Change (partially) unresolved characters to gaps.
 # - resolve_dotted (Aligned sequences)
-#   Convert a human-readable alignment to a machine-readable alignement.
+#   Convert a human-readable alignment to a machine-readable alignment. Must be the first option if used.
 # - keep_complete (Aligned sequences)
 #   Keep only complete sites, ie sites without any gap. Sites with unresolved characters are not removed.
-#   This is also possible to fix a maximum proportion of gaps, see forward.
+#   It is also possible to fix a maximum proportion of gaps, see below.
 #
 # NB: you may specify as many operations as you want, providing they are compatible.
 # Examples:

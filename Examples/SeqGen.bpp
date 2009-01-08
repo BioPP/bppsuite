@@ -16,7 +16,7 @@ number_of_sites = 300
 # The output file:
 output.sequence.file = LSUSim.fasta
 # The alignment format:
-# Must be one of Mase, Fasta, Phylip, Clustal, DCSE
+# Must be one of Mase, Fasta, Phylip
 output.sequence.format = Fasta
 # Phylip format options:
 # interleaved or sequential:

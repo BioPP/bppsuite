@@ -1,3 +1,7 @@
+08/01/09 Julien Dutheil
+* Added texinfo documentation.
+* More bootstrap options in BppDist (the same as in BppML).
+
 25/09/08 -*- Version 0.3.1 -*-
 
 07/12/08 Bastien Boussau & Julien Dutheil

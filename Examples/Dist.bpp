@@ -106,4 +106,7 @@ output.tree.file = $(DATA).$(METHOD).dnd
 # Bootstrap:
 bootstrap.number = 10
 bootstrap.approximate = no
+# Set this to yes for detailed output when bootstrapping. 
+bootstrap.verbose = no
+bootstrap.output.file = $(DATA).$(METHOD)_bstrees.dnd
 
