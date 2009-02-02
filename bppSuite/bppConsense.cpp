@@ -75,9 +75,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Consensus and Bootstrap Methods, version 0.1.0     *" << endl;
+  cout << "*       Bio++ Consensus and Bootstrap Methods, version 0.2.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created     06/06/07 *" << endl;
-  cout << "*          N. Galtier                       Last Modif. 18/06/08 *" << endl;
+  cout << "*          N. Galtier                       Last Modif. 02/02/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -112,6 +112,7 @@ int main(int args, char ** argv)
     if(treePath == "none") throw Exception("You must provide a file name for 'tree_input.file'.");
     ApplicationTools::displayResult("Input tree file", treePath);
     tree = newick.read(treePath);
+    ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
   }
   else if(treeMethod == "consensus")
   {

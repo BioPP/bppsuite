@@ -1,3 +1,6 @@
+02/02/09 Julien Dutheil
+* bppConsense now outputs the number of leaves of the input tree.
+
 08/01/09 Julien Dutheil
 * Added texinfo documentation.
 * More bootstrap options in BppDist (the same as in BppML).
