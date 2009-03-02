@@ -71,9 +71,9 @@ using namespace bpp;
 void help()
 {
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "phylosample arg1=value1 arg2=value2 etc" << endl;
+  *ApplicationTools::message << "bppphysamp arg1=value1 arg2=value2 etc" << endl;
   *ApplicationTools::message << "or" << endl;
-  *ApplicationTools::message << "phylosample param=optionfile" << endl;
+  *ApplicationTools::message << "bppphylosamp param=optionfile" << endl;
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
 }
 
@@ -81,7 +81,7 @@ int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*           Bio++ Phylogenetic Sampler, version 0.1              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 31/12/07 *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 02/03/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
