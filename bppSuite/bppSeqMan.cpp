@@ -77,7 +77,7 @@ int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*           Bio++ Sequence Manipulator, version 0.1              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 02/10/07 *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 02/03/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -347,8 +347,9 @@ int main(int args, char ** argv)
         double gapFreq = TextTools::toDouble(maxGapOption.substr(0, maxGapOption.size()-1)) / 100.;
         for(unsigned int i = sites->getNumberOfSites(); i > 0; i--)
         {
-          map<int, double> freq = SiteTools::getFrequencies(*sites->getSite(i-1));
-          if(freq[-1] >= gapFreq) sites->deleteSite(i-1);
+          map<int, double> freqs;
+          SiteTools::getFrequencies(*sites->getSite(i-1), freqs);
+          if(freqs[-1] >= gapFreq) sites->deleteSite(i-1);
         }
       }
       else
@@ -356,12 +357,10 @@ int main(int args, char ** argv)
         unsigned int gapNum=TextTools::to<unsigned int>(maxGapOption);
         for(unsigned int i = sites->getNumberOfSites(); i > 0; i--)
         {
-          map<int, unsigned int> count = SiteTools::getCounts(*sites->getSite(i-1));
-          count[-1]; //Needed in case this entry does not exist in the map. This will set it to 0.
-          if(count[-1] > gapNum)
-          {
-            sites->deleteSite(i-1);
-          }
+          map<int, unsigned int> counts;
+          SiteTools::getCounts(*sites->getSite(i-1), counts);
+          counts[-1]; //Needed in case this entry does not exist in the map. This will set it to 0.
+          if(counts[-1] > gapNum) sites->deleteSite(i-1);
         }
         cout << sites->getNumberOfSites() << endl;
         cout << dynamic_cast<SiteContainer *>(sequences)->getNumberOfSites() << endl;
