@@ -68,6 +68,8 @@ using namespace std;
 #include <Phyl/MarkovModulatedSubstitutionModel.h>
 #include <Phyl/SubstitutionModelSet.h>
 #include <Phyl/SubstitutionModelSetTools.h>
+#include <Phyl/UserProteinSubstitutionModel.h>
+#include <Phyl/UserProteinSubstitutionModelF.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -105,7 +107,25 @@ void help()
 
 void printParameters(const SubstitutionModel* model, ofstream& out)
 {
-  out << "model.name = " << model->getName() << endl;
+  const UserProteinSubstitutionModel * trial1 = dynamic_cast<const UserProteinSubstitutionModel *>(model);
+  if(trial1)
+  {
+    out << "model.name = empirical" << endl;
+    out << "model_empirical.file = " << trial1->getPath() << endl;
+  }
+  else
+  {
+    const UserProteinSubstitutionModelF * trial2 = dynamic_cast<const UserProteinSubstitutionModelF *>(model);
+    if(trial2)
+    {
+      out << "model.name = empirical+F" << endl;
+      out << "model_empirical.file = " << trial2->getPath() << endl;
+    }
+    else
+    {
+      out << "model.name = " << model->getName() << endl;
+    }
+  }
   ParameterList pl = model->getParameters();
   for(unsigned int i = 0; i < pl.size(); i++)
     out << "model." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
@@ -119,10 +139,25 @@ void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<st
   {
     const SubstitutionModel* model = modelSet->getModel(i);
     out << endl;
-    out << "model" << (i+1) << ".name = " << model->getName() << endl;
-    //ParameterList pl = model->getParameters();
-    //for(unsigned int j = 0; j < pl.size(); j++)
-    //  out << "model" << (i+1) << "." << pl[j]->getName() << " = " << pl[j]->getValue() << endl;
+    const UserProteinSubstitutionModel * trial1 = dynamic_cast<const UserProteinSubstitutionModel *>(model);
+    if(trial1)
+    {
+      out << "model" << (i+1) << ".name = empirical" << endl;
+      out << "model" << (i+1) << "_empirical.file = " << trial1->getPath() << endl;
+    }
+    else
+    {
+      const UserProteinSubstitutionModelF * trial2 = dynamic_cast<const UserProteinSubstitutionModelF *>(model);
+      if(trial2)
+      {
+        out << "model" << (i+1) << ".name = empirical+F" << endl;
+        out << "model" << (i+1) << "_empirical.file = " << trial2->getPath() << endl;
+      }
+      else
+      {
+        out << "model" << (i+1) << ".name = " << model->getName() << endl;
+      }
+    }
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i+1) << ".nodes_id = " << ids[0];
     for(unsigned int j = 1; j < ids.size(); j++)
