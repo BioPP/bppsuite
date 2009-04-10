@@ -1,5 +1,6 @@
 02/02/09 Julien Dutheil
 * bppConsense now outputs the number of leaves of the input tree.
+* New progress bar in bppConsense.
 
 08/01/09 Julien Dutheil
 * Added texinfo documentation.

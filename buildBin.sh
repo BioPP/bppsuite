@@ -1,5 +1,5 @@
 #! /bin/sh
-arch=linux32
+arch=linux64
 version=0.3.1
 
 strip bppSuite/bppdist

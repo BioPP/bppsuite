@@ -367,6 +367,14 @@ Parameters of the GTR model
 Tell if we have to use observed frequencies as initial parameter values (for @option{theta}, @option{theta1}, @option{theta2}, etc).
 For proteins, this is option only has an effect if the +F tag is used.
 
+@item model.use_observed_freq.pseudo_count = @{int>0@} (model.use_observed_freq=yes)
+A peudo-count value to add to the observed frequencies.
+This is to prevent issues with missing counts on small data sets for instance.
+The corrected values are computed as:
+@tex
+$$\pi_i = {f_i + \psi \over 4\cdot\psi + \sum_j f_j}$$
+@end tex
+
 @item model_empirical.file = @{path@} (model.name=empirical)
 Specify the path where to find the model (in PAML format).
 
