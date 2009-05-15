@@ -88,9 +88,6 @@ void help()
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
   SequenceApplicationTools::printInputAlignmentHelp();
   PhylogeneticsApplicationTools::printInputTreeHelp();
-  PhylogeneticsApplicationTools::printSubstitutionModelHelp();
-  PhylogeneticsApplicationTools::printRateDistributionHelp();
-  PhylogeneticsApplicationTools::printCovarionModelHelp();
   SequenceApplicationTools::printOutputSequenceHelp();
   *ApplicationTools::message << "asr.method                    | (marginal only for now)" << endl;
   *ApplicationTools::message << "asr.probabilites              | [bool] shall I print the posterior" << endl;
@@ -103,83 +100,12 @@ void help()
   *ApplicationTools::message << "______________________________|___________________________________________" << endl;
 }
 
-void printParameters(const SubstitutionModel* model, ofstream& out)
-{
-  out << "model.name = " << model->getName() << endl;
-  ParameterList pl = model->getParameters();
-  for(unsigned int i = 0; i < pl.size(); i++)
-    out << "model." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
-}
-
-void printParameters(const SubstitutionModelSet* modelSet, ofstream& out, map<string, string>& params)
-{
-  out << "nonhomogeneous = general" << endl;
-  out << "nonhomogeneous.number_of_models = " << modelSet->getNumberOfModels() << endl;
-  for(unsigned int i = 0; i < modelSet->getNumberOfModels(); i++)
-  {
-    const SubstitutionModel* model = modelSet->getModel(i);
-    out << endl;
-    out << "model" << (i+1) << ".name = " << model->getName() << endl;
-    //ParameterList pl = model->getParameters();
-    //for(unsigned int j = 0; j < pl.size(); j++)
-    //  out << "model" << (i+1) << "." << pl[j]->getName() << " = " << pl[j]->getValue() << endl;
-    vector<int> ids = modelSet->getNodesWithModel(i);
-    out << "model" << (i+1) << ".nodes_id = " << ids[0];
-    for(unsigned int j = 1; j < ids.size(); j++)
-      out << "," << ids[j];
-    out << endl;
-    out << "model" << (i+1) << ".use_observed_freq = no" << endl;
-  }
-  ParameterList pl = modelSet->getParameters();
-  ParameterList plroot = modelSet->getRootFrequenciesParameters();
-  for(unsigned int i = 0; i < pl.size(); i++)
-  {
-    if(plroot.getParameter(pl[i]->getName()) == NULL)
-    {
-      out << endl;
-      string name = modelSet->getParameterModelName(pl[i]->getName());
-      vector<unsigned int> models = modelSet->getModelsWithParameter(pl[i]->getName());
-      out << "model" << (models[0] + 1) << "." << name << " = " << pl[i]->getValue() << endl;
-      for(unsigned int j = 1; j < models.size(); j++)
-      {
-        out << "model" << (models[j] + 1) << "." << name << " = model" << (models[0] + 1) << "." << name << endl;
-      }
-    }
-  }
- 
-  //Root frequencies:
-  out << endl;
-  out << "# Root frequencies:" << endl;
-  if(plroot.size() == 1 && plroot[0]->getName() == "RootFreqtheta")
-  {
-    out << "nonhomogeneous.root_freq = initGC" << endl;
-    out << "model.ancTheta = " << plroot[0]->getValue() << endl;
-  }
-  else
-  {
-    out << "nonhomogeneous.root_freq = init" << endl;
-    vector<double> rootFreqs = modelSet->getRootFrequencies();
-    for(unsigned int i = 0; i < rootFreqs.size(); i++)
-      out << "model.anc" << modelSet->getAlphabet()->intToChar((int)i) << " = " << rootFreqs[i] << endl;
-  }
-}
-
-void printParameters(const DiscreteDistribution* rDist, ofstream& out, map<string, string>& params)
-{
-  out << "rate_distribution = " << params["rate_distribution"] << endl;
-  ParameterList pl = rDist->getParameters();
-  for(unsigned int i = 0; i < pl.size(); i++)
-    out << "rate_distribution." << pl[i]->getName() << " = " << pl[i]->getValue() << endl;
-  bool invariant = (params["rate_distribution"].find("+invariant") != string::npos);
-  out << "rate_distribution.classes_number = " << (rDist->getNumberOfCategories() + (invariant ? -1 : 0)) << endl;
-}
-
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.1.0     *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 10/09/08 *" << endl;
-  cout << "*         B. Boussau                                             *" << endl;
+  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.2.0     *" << endl;
+  cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
+  cout << "*          B. Boussau                       Last Modif: 10/09/08 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 

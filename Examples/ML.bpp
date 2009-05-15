@@ -57,56 +57,11 @@ init.brlen.method_grafen.rho = 1.0
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
 # ----------------------------------------------------------------------------------------
+# See the manual for a description of the syntax and available options.
+#
+model = HKY85(kappa=2.843, useObservedFrequencies=yes)
 
-# Homogeneous model?
-# no => Homogeneous case
-# one_per_branch => Galtier & Gouy 97 series of NH models
-# general => Specify the model by hand.
-nonhomogenous = no
-
-# Available models.
-# For proteins, the DCmutt method is used for JTT92 and DSO78.
-# You can use the 'empirical' option to specify another model.
-# JCnuc, K80, T92, HKY85, F84, TN93, JCprot, DSO78, JTT92 or empirical
-# Append +G2001 or +TS98 to the model name to add a covarion model.
-# Append +RE08 for a substitution model accounting for gaps.
-model.name = HKY85
-
-# Initial values for parameters:
-# kappa (K80, T92, HKY85, F84)
-# kappa1, kappa2 (TN93)
-# theta (T92)
-# theta, theta1, theta2 (HKY85, F84 and TN93) theta = piG + piC, theta1 = piA / (piA + piT), theta2 = piC / (piC + piG)
-model.kappa = 2.843
-model.theta = 0.5
-model.theta1 = 0.5
-model.theta2 = 0.5
-
-#If empirical is set, specify the path where to find the model description (in PAML format).
-model_empirical.file = 
-
-#Covarions:
-#G2001:
-model.nu=1.
-model.rate_distribution=gamma //only choice for now
-model.rate_distribution.classes_number = 4
-model.alpha = 0.358
-#TS98:
-model.s1=1.
-model.s2=1.
-
-# Rate Across Sites variation:
-# gamma or constant [+invariant]
-rate_distribution = gamma
-
-# The gamma distribution's shape parameter
-rate_distribution.alpha = 0.358
-
-# Number of classes for discretization:
-rate_distribution.classes_number = 4
-
-# The proportion of invariants
-rate_distribution.p = 0.2
+rate_distribution = Gamma(n=4, alpha=0.358)
 
 # Likelihood recursion option:
 # - simple: derivatives takes more time to compute, but likelihood computation is faster.

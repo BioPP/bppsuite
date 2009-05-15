@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename bppsuite.info
-@settitle BppSuite Manual 0.3.1
+@settitle BppSuite Manual 0.4.0
 @afourpaper
 @c %**end of header
 
@@ -322,85 +322,83 @@ The @option{one_per_branch} option is used as a short cut for setting Galtier an
 In either of the last two cases, the model is non-stationary, that is, possibly not at the equilibrium and hence includes the root frequencies as additional parameters. If the substitution model is not the same across the tree, then the model is also non-homogeneous.
 @end table
 
-
 @subsection Specifying the substitution model
 
 @table @command
 
-@item model.name = @{JCnuc|K80|T92|HKY85|F84|L95|TN93|GTR|JCprot|DSO78|JTT92|empirical@}[+F (alphabet=Protein)][+@{TS98|G2001@}][+RE08]
-Specify the substitution model to use.
-For proteins, the DCmutt method is used for JTT92 and DSO78.
-You can use the @option{empirical} option to specify another model, as
-a text file in PAML format.
-The @option{+F} option is available only for protein substitution models and allow the equilibrium frequencies to be estimated from the data instead of being fixed. The second optional argument is for Markov-Modulated substitution models. The third one enables the accounting of gaps, fallowing the model of Rivas and Eddy (2008). This option introduces gaps as additional states, but do not use (yet) the modified Felsenstein's algorithm. See Rivas and Eddy's paper for more details, and use with care!
+@item model = @{model description@}
+A description of the substitution model to use, in the keyval syntax.
 
-@item model.kappa=@{real>0@}
-Initial value or fixed value for parameter kappa
-(transition/transversion ratio) in models K80, T92, HKY85 and F84
+@end table
+From version 0.4.0 of BppSuite, the model specification used a completely new syntax, based on the keyval (key = value) scheme. The old option files will hence not be compatible with new version of the software. The new syntax however is hopefully more intuitive, and more generalizable, so that few changes are expected when new models will be built. The substitution model is a function, potentially including parameters. The following table lists the set of usable functions, and their parameters.
 
-@item model.kappa1=@{real>0@}
-Initial value or fixed value for parameter kappa1 in model TN93
+@table @command
 
-@item model.kappa2=@{real>0@}
-Initial value or fixed value for parameter kappa2 in model TN93
+@item JC69()
+The Jukes and Cantor model, for proteins or nucleotide alphabets. This model has no additional parameter.
 
-@item model.theta=@{real]0,1[@}
-Initial value or fixed value for parameter theta (GC content) in model
-T92, HKY85, F84, TN93 and GTR.
+@item K80(kappa=@{real>0@})
+The Kimura 2 parameters model for nucleotides. @var{kappa} is the transition over transversion ratio.
 
-@item model.theta1 = @{real]0,1[@}
-Proportion of G / (G + C) in models
-HKY85, F84, TN93 and GTR
-
-@item model.theta2 = @{real]0,1[@}
-Proportion of A / (A + T/U) in models
-HKY85, F84, TN93 and GTR
-
-@item model.thetaX = @{real]0,1[@} (+F)
-where X is 1 to 19. Frequency parameter for the +F models.
-theta1 is the proportion of A, theta2 is the proportion of R over (1-A), theta3 the proportion of N over (1-A-R), etc.
-
-@item model.a,b,c,d,e = @{real>0@}
-Parameters of the GTR model
-
-@item model.use_observed_freq = @{boolean@}
-Tell if we have to use observed frequencies as initial parameter values (for @option{theta}, @option{theta1}, @option{theta2}, etc).
-For proteins, this is option only has an effect if the +F tag is used.
-
-@item model.use_observed_freq.pseudo_count = @{int>0@} (model.use_observed_freq=yes)
-A peudo-count value to add to the observed frequencies.
-This is to prevent issues with missing counts on small data sets for instance.
+@item F84(kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Felsenstein's 1984 substitution model for nucleotides, with transition/transversion ratio and 4 distinct equilibrium frequencies. @var{theta} is the GC content, @var{theta1} is the proportion of G / (G + C) and @var{theta2} is the proportion of A / (A + T or U). The @var{useObservedFreqs} option set the @var{theta}s parameters according to the observed counts in the data set, and @var{useObservedFreqs.pseudoCount} is a quantity, defaulting to 0, that can be used in case some counts are zero, on small data sets for instance.
 The corrected values are computed as:
 @tex
 $$\pi_i = {f_i + \psi \over 4\cdot\psi + \sum_j f_j}$$
 @end tex
 
-@item model_empirical.file = @{path@} (model.name=empirical)
-Specify the path where to find the model (in PAML format).
+@item HKY85(kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Hasegawa, Kishino and Yano 1985's substitution model for nucleotides. Similar to @command{F84}, but with a different implementation. The @var{kappa} parameter used here is comparable to the one in @command{K80}.
 
-@item model.s1, model.s2 = @{real>0@} (+TS98)
-The parameter for the TS98 model.
+@item T92(kappa=@{real>0@}, theta=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Tamura 1992's model for nucleotides, similar to @command{HKY85}, yet assuming that the frequencies of A = T/U and G = C.
 
-@item model.nu = @{real@} (+G2001)
-The nu parameter in Galtier 2001's SSRV model.
+@item TN93(kappa1=@{real>0@}, kappa2=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Tamura and Nei 1993's model for nucleotides, similar to @command{HKY85}, but allowing for two distinct transition/transversion ratios.
 
-@item model.rate_distribution = @{gamma@} (+G2001)
-The rate distribution to use in the G2001 model (only gamma for now).
+@item GTR(a=@{real>0@}, b=@{real>0@}, c=@{real>0@}, d=@{real>0@}, e=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+The General Time-Reversible substitution model for nucleotides. Parameters @var{a}, @var{b}, @var{c}, @var{d}, @var{e} are the entries of the matrix.
 
-@item model.rate_distribution.classes_number = @{int>=2@} (+G2001)
-The number of rate classes in the G2001 model.
+@item L95(beta=@{real>0@}, gamma=@{real>0@}, delta=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+The strand-symmetric model of Lobry 1995, for nucleotides.
 
-@item model.alpha @{real>0@} (+G2001)
-The shape of the gamma distribution in the G2001 model.
+@item DSO78()
+Protein substitution model, using the dcmutt implementation of Kosiol and Goldamn 2005.
 
-@item model.lambda @{real>0@} (+RE08)
-The insertion rate.
+@item JTT92()
+Protein substitution model, using the dcmutt implementation of Kosiol and Goldamn 2005.
 
-@item model.mu @{real>0@} (+RE08)
-The deletion rate.
+@item DSO78+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Protein substitution model, using the dcmutt implementation of Kosiol and Goldamn 2005 and free equilibrium frequencies. The @var{thetaX} are frequencies parameters, where X is 1 to 19.
+Parameter @var{theta1} is the proportion of A, @var{theta2} is the proportion of R over (1-A), @var{theta3} the proportion of N over (1-A-R), etc.
+
+@item JTT92+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Protein substitution model, using the dcmutt implementation of Kosiol and Goldamn 2005 and free equilibrium frequencies.
+
+@item Empirical(file=@{path@})
+Build a protein substitution model from a file in PAML format.
+
+@item Empirical(file=@{path@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Build a protein substitution model from a file in PAML format, and use free equilibrium frequencies.
+
+@item TS98(model=@{model description@}, s1=@{real>0@}, s2=@{real>0@})
+Tuffley and Steel 1998's 'covarion' model, taking a nested substitution model as argument for @var{model}. the nested model can be any substitution model for any alphabet.
+
+@item G01(model=@{model description@}, rdist=@{rate distribution description@}, mu=@{real>0@})
+Galtier 2001's 'covarion' model, taking a nested substitution model as argument for @var{model} and a rate distribution for parameter @var{rdist} (see below).
+The nested model can be any substitution model for any alphabet.
+
+@item RE08(model=@{model description@}, lambda=@{real>0@}, mu=@{real>0@})
+Rivas and Eddy 2008's substitution model with gaps, taking a nested substitution model as argument for @var{model}.
+Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rate.
 
 @end table
 
+It is possible to reduce the parameter space by putting extra constraints on parameters, using for instance
+@example
+model=TN93(kappa1=1.0,kapp2=kappa1,theta=0.5)
+@end example
+In that particular case the resulting model is strictly equivalent to the HKY85 model. This syntax however allows to define a larger set of models.
 
 
 @subsection Setting up non-stationary / non-homogeneous models
@@ -411,9 +409,10 @@ You can specify a wide range of non-homogeneous models, by combining different o
 
 This option share the same parameters as the homogeneous case, since the same kind of model is used for each branch. The additional options are the following:
 @table @command
+
 @item nonhomogeneous_one_per_branch.shared_parameters = @{list<chars>@}
 List the names of the parameters that are shared by all branches.
-In Galtier & Gouy model, that would be model.kappa, since only the theta parameter is branch-specific.
+In Galtier & Gouy model, that would be @var{T92.kappa}, since only the theta parameter is branch-specific.
 
 @end table
 
@@ -431,9 +430,7 @@ Set the number of distinct models to use.
 You now have to configure each model individually, using the syntax introduced for the homogeneous case, excepted that model will be numbered, for instance:
 
 @example
-model1.name  = T92
-model1.theta = 0.39
-model1.kappa = 2.79
+model1 = T92(theta=0.39, kappa=2.79)
 @end example
 
 The additional option is available to attach the model to branches in the tree, specified by the id of the upper node in the tree:
@@ -448,10 +445,9 @@ Id ranges can be specified using the @option{begin:end} syntax.
 
 You can also make a given model share parameters with another one by writing for instance:
 @example
-model2.name = T92
-model2.theta = 0.39
-model2.kappa = model1.kappa
+model2 = T92(theta=0.39, kappa=model1.T92.kappa)
 @end example
+Please watch out the syntax, parameters are referred to as [model name].[parameter name] in that case.
 
 Finally, you may find useful the following options:
 
@@ -466,35 +462,58 @@ The use of that option will cause the program to exit just after producing the t
 
 @subsubsection Root frequencies
 
+As since version 0.4.0, BppSuite uses the keyval syntaxe to set up root frequencies,
+@table @command
+@item nonhomogeneous.root_freq=@{description of frequency set@}
+@end table
+The following functions are available:
+
 @table @command
 
-@item nonhomogeneous.root_freq=@{balanced|observed|init|balancedGC|observedGC|initGC@}
-The @option{balanced} option set all the frequencies to 1/size of the alphabet.
-The @option{balancedGC} option is for nucleotides only, and set the G content equal to the C content equal to 0.5.
-The @option{observed} option set frequencies equal to their values in the data set, and @option{observedGC} does the same for the GC content.
-The @option{init} and @option{initGC} options allows you to set the values of the frequencies by hand.
+@item Balanced()
+Set all the frequencies to 1/size of the alphabet.
 
-@item model.ancA, ancC,..., ancA, ancR, ancN, ..., ancTheta
-Initial values of ancestral frequencies if the @option{init} or @option{initGC} have been specified.
+@item BalancedGC()
+For nucleotides only, set the G content equal to the C content equal to 0.5.
+
+@item Observed()
+Set frequencies equal to their values in the data set.
+
+@item ObservedGC()
+Does the same as @command{Observed} for the GC content.
+
+@item Init(ancA=@{real]0,1[@}, ancC=@{real]0,1[@}, ..., ancA=@{real]0,1[@}, ancR=@{real]0,1[@}, ancN=@{real]0,1[@})
+Allows you to set the values of the frequencies by hand.
+
+@item Init(ancTheta=@{real]0,1[@})
+Allows you to set the GC content by hand.
 
 @end table
 
 
 @subsection Rate across site distribution
 
+From version 0.4.0, BppSuite uses the keyval syntax for specifying rate distributions.
+
 @table @command
 
-@item rate_distribution = @{constant|gamma[+invariant]@}
-Specify the rate across sites distribution, as constant or gamma, optionally with an invariant class.
+@item rate_distribution = @{rate distribution description@}
+Specify the rate across sites distribution.
 
-@item rate_distribution.alpha = @{real>0@}
-The gamma distribution's shape parameter
+@end table
 
-@item rate_distribution.classes_number = @{int>=2@}
-The number of classes to use in discretization (not including the invariant class if any)
+the following distributions are currently available:
 
-@item rate_distribution.p = @{real[0,1]@}
-Proportion of invariant sites
+@table @command
+
+@item Uniform()
+Uses a constant rate across sites.
+
+@item Gamma(n=@{int>=2@}, alpha=@{float>0@})
+A gamma discretized distribution of rates, with @var{n} classes, and a given shape.
+
+@item Invariant(dist=@{rate distribution description@}, p=@{real[0,1]@})
+A composite distribution llowing a special class of invariant site, with a probability @var{p}.
 
 @end table
 
@@ -554,7 +573,8 @@ A file where to dump warning messages.
 The maximum number of likelihood evaluation to perform.
 
 @item optimization.ignore_parameter = @{list<chars>@}
-A list of parameters to ignore during the estimation process.
+A list of parameters to ignore during the estimation process. The parameter name should include there "namespace", that is their model name, for instance K80.kappa, TN93.theta, GTR.a, Gamma.alpha, etc.
+For nested model, the syntax is the following: G01.Gamma.alpha, TS98.T92.kappa, RE08.lamba, RE08.G01.GTR.a, etc. 'Ancient' will ignore all parameters in the ancestral frequency set (non-homogeneous models), and 'BrLen' will ignore all branch lengths.
 
 @item optimization.tolerance = @{float>0@}
 The precision on the log-likelihood to reach.
@@ -717,7 +737,6 @@ Site compression for the simple recursion:
 
 @end table
 
-
 @c ------------------------------------------------------------------------------------------------------------------
 
 @node bppseqgen, bppancestor, bppml, Reference
@@ -730,9 +749,10 @@ The BppSeqGen program uses the common syntax introduced in the previous section 
 @item number_of_sites = @{int > 0@}
 The number of site positions to simulate.
 
-@end table
-Yes, that's the only specific option here!
+@item input.infos = @{path@}
+A info file like the one output by bppML. The estimated site-specific rates will then be used to simulate the same number of sites as found in the info file, with the corresponding rates.
 
+@end table
  
 @c ------------------------------------------------------------------------------------------------------------------
 

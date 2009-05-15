@@ -362,8 +362,6 @@ int main(int args, char ** argv)
           counts[-1]; //Needed in case this entry does not exist in the map. This will set it to 0.
           if(counts[-1] > gapNum) sites->deleteSite(i-1);
         }
-        cout << sites->getNumberOfSites() << endl;
-        cout << dynamic_cast<SiteContainer *>(sequences)->getNumberOfSites() << endl;
       }
     }
     // +-----------------+

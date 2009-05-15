@@ -81,18 +81,15 @@ void help()
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
   SequenceApplicationTools::printInputAlignmentHelp();
   PhylogeneticsApplicationTools::printInputTreeHelp();
-  PhylogeneticsApplicationTools::printSubstitutionModelHelp();
-  PhylogeneticsApplicationTools::printRateDistributionHelp();
-  PhylogeneticsApplicationTools::printCovarionModelHelp();
   PhylogeneticsApplicationTools::printOutputTreeHelp();
 }
 
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*              Bio++ Distance Methods, version 0.2.0             *" << endl;
+  cout << "*              Bio++ Distance Methods, version 0.3.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 07/01/09 *" << endl;
+  cout << "*                                           Last Modif. 08/05/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -203,8 +200,11 @@ int main(int args, char ** argv)
         ignoreBrLen = true;
       else
       {
-        Parameter * p = allParameters.getParameter(param);
-        if(p) parametersToIgnore.addParameter(*p);
+        if (allParameters.hasParameter(param))
+        {
+          Parameter* p = &allParameters.getParameter(param);
+          parametersToIgnore.addParameter(*p);
+        }
         else ApplicationTools::displayWarning("Parameter '" + param + "' not found."); 
       }
 		} 

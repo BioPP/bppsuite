@@ -1,3 +1,10 @@
+15/05/09 -*- Version 0.4.0 -*-
+
+15/05/09 Julien Dutheil
+* Compatibility update with the libs, new keyval syntax for model
+specification.
+* Documentation up to date.
+
 02/02/09 Julien Dutheil
 * bppConsense now outputs the number of leaves of the input tree.
 * New progress bar in bppConsense.

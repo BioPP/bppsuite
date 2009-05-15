@@ -94,9 +94,6 @@ void help()
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
   SequenceApplicationTools::printInputAlignmentHelp();
   PhylogeneticsApplicationTools::printInputTreeHelp();
-  PhylogeneticsApplicationTools::printSubstitutionModelHelp();
-  PhylogeneticsApplicationTools::printRateDistributionHelp();
-  PhylogeneticsApplicationTools::printCovarionModelHelp();
   PhylogeneticsApplicationTools::printOptimizationHelp(true, false);
   PhylogeneticsApplicationTools::printOutputTreeHelp();
   *ApplicationTools::message << "output.tree.path              | file where to print the tree ids" << endl;
@@ -108,8 +105,8 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 1.2.2      *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 10/09/08 *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 1.3.0      *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 08/05/09 *" << endl;
   cout << "*         B. Boussau                                             *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
@@ -399,12 +396,13 @@ int main(int args, char ** argv)
 
   if(optimizeClock == "global")
   {
-    PhylogeneticsApplicationTools::optimizeParameters(dynamic_cast<DiscreteRatesAcrossSitesClockTreeLikelihood *>(tl), params);
+    PhylogeneticsApplicationTools::optimizeParameters(
+        dynamic_cast<DiscreteRatesAcrossSitesClockTreeLikelihood *>(tl), tl->getParameters(), params);
   }
   else
   {
     tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(
-        PhylogeneticsApplicationTools::optimizeParameters(tl, params));
+        PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), params));
   }
   
   tree = new TreeTemplate<Node>(*tl->getTree());
@@ -520,7 +518,7 @@ int main(int args, char ** argv)
     {
       params["optimization.topology"] = "yes";
       tl = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
-          PhylogeneticsApplicationTools::optimizeParameters(tl, params, "", true, false));
+          PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), params, "", true, false));
       initTree = tl->getTree();
     }
     
@@ -547,13 +545,13 @@ int main(int args, char ** argv)
       }
       NNIHomogeneousTreeLikelihood *tlrep = new NNIHomogeneousTreeLikelihood(*initTree, *sample, model, rDist, true, false);
       tlrep->initialize();
+      ParameterList parameters = tlrep->getParameters();
       if(approx)
       {
-        for(unsigned int j = 0; j < paramsToIgnore.size(); j++)
-          tlrep->ignoreParameter(paramsToIgnore[j]->getName());
+        parameters.deleteParameters(paramsToIgnore.getParameterNames());
       }
       tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
-          PhylogeneticsApplicationTools::optimizeParameters(tlrep, params, "", true, false));
+          PhylogeneticsApplicationTools::optimizeParameters(tlrep, parameters, params, "", true, false));
       bsTrees[i] = new TreeTemplate<Node>(*tlrep->getTree());
       if(out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
       if(out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);

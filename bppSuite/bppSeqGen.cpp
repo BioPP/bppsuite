@@ -125,17 +125,15 @@ void help()
   *ApplicationTools::message << "alphabet                      | the alphabet to use [DNA|RNA|Proteins]" << endl;
   *ApplicationTools::message << "number_of_sites               | number of site to simulate" << endl;
   *ApplicationTools::message << "______________________________|___________________________________________" << endl;
-  PhylogeneticsApplicationTools::printSubstitutionModelHelp();
-  PhylogeneticsApplicationTools::printRateDistributionHelp();
   SequenceApplicationTools::printOutputSequenceHelp();
 }
 
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*            Bio++ Sequence Generator, version 1.0.0             *" << endl;
+  cout << "*            Bio++ Sequence Generator, version 1.1.0             *" << endl;
   cout << "* Author: J. Dutheil                                             *" << endl;
-  cout << "*         B. Boussau                        Last Modif. 18/01/08 *" << endl;
+  cout << "*         B. Boussau                        Last Modif. 08/05/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   

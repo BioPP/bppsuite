@@ -47,63 +47,20 @@ tree.file = LSUrooted.dnd
 # general => Specify the model by hand.
 nonhomogeneous = general
 
-# How to deal with root frequencies:
-# balanced  : all frequencies are set to 1/size of the alphabet
-# observed  : use observed counts in the data set
-# init      : manually set the frequencies (they have to sum to one)
-# For nucleotides, one can use the GC rate (theta) parametrization, like in the T92 model:
-# balancedGC: ancestral GC set to 0.5
-# observedGC: use observed GC content
-# initGC    : manually set the ancestral GC content.
-nonhomogeneous.root_freq=balancedGC
+nonhomogeneous.root_freq=BalancedGC()
 
-# If the init option is selected, ignored otherwise:
-model.ancA=
-model.ancC=
-model.ancG=
-model.ancT=
-# or:
-model.ancA=
-model.ancR=
-model.ancN=
-#etc
-
-# If the initGC option is used, ignored otherwise:
-model.ancTheta=0.5
+rate_distribution = Gamma(n=4, alpha=0.358)
 
 # Now the general heterogeneous case:
 # Specify the number of distincts models.
 nonhomogeneous.number_of_models = 2
+
 # Set up each model:
-model1.name=T92 # The name of the model, as above. Covarion models can be used.
-model1.kappa=2 # Initial values for each parameter.
-model1.theta=0.5
+model1 = T92(kappa=2, theta=0.5, useObservedFreqs=no)
 model1.nodes_id=0:62 # The Ids of the nodes to which this model should be assigned.
-model1.use_observed_freq=no
 
-model2.name=T92
-model2.kappa=model1.kappa # or model2.kappa=model1.kappa if you want only one kappa parameter estimated for both models.
-model2.theta=0.9
+model2 = T92(kappa=model1.T92.kappa, theta=0.9, useObservedFreqs=no)
 model2.nodes_id=63:155
-model2.use_observed_freq=no
-
-//model3.name=HKY85
-//model3.kappa=2
-//model3.piA = 0.13
-//model3.piT = 0.16
-//model3.piC = 0.31
-//model3.piG = 0.40
-#etc
-
-# Rate Across Sites variation:
-# gamma or constant
-rate_distribution = gamma
-
-# The gamma distribution's shape parameter
-rate_distribution.alpha = 0.358
-
-# Number of classes for discretization:
-rate_distribution.classes_number = 4
 
 # Likelihood recursion option:
 # - simple: derivatives takes more time to compute, but likelihooh computation is faster.

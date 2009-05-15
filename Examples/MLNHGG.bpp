@@ -8,7 +8,7 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-sequence.file=$(DATA)small.paml
+sequence.file=$(DATA).phy
 
 # The alignment format:
 # Must be one of Mase, Fasta, Phylip, Clustal, DCSE 
@@ -40,6 +40,8 @@ tree.file = LSU.dnd
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
 # ----------------------------------------------------------------------------------------
+# See the manual for a description of the syntax and available options.
+#
 
 # Homogeneous model?
 # no => Homogeneous case
@@ -48,73 +50,16 @@ tree.file = LSU.dnd
 nonhomogeneous = one_per_branch
 
 # Options for non-homogeneous one-per_branch models:
-
-# Available models.
-# For proteins, the DCmutt method is used for JTT92 and DSO78.
-# You can use the 'empirical' option to specify another model.
-# JCnuc, K80, T92, HKY85, F84, TN93, JCprot, DSO78, JTT92 or empirical
-# Append +G2001 or +TS98 to the model name to add a covarion model.
-model.name = T92
-
-# Initial values for parameters:
-# kappa (K80, T92, HKY85, F84)
-# kappa1, kappa2 (TN93)
-# theta (T92)
-# pi1, piT, piC and piG (HKY85, F84 and TN93)
-model.kappa = 2.843
-model.theta = 0.5
-
-#If empirical is set, specify the path where to find the model description (in PAML format).
-model_empirical.file = 
-
-#Covarions:
-#G2001:
-model.nu=1.
-model.rate_distribution=gamma //only choice for now
-model.rate_distribution.classes_number = 4
-model.alpha = 0.358
-#TS98:
-model.s1=1.
-model.s2=1.
+model = T92(kappa=2.843, theta=0.5)
 
 # For one_per_branch heterogeneous models.
 # Tell which parameters are common to all branches.
 # Other parameters will be considered branch specific.
 nonhomogeneous_one_per_branch.shared_parameters = kappa
 
-# How to deal with root frequencies:
-# balanced  : all frequencies are set to 1/size of the alphabet
-# observed  : use observed counts in the data set
-# init      : manually set the frequencies (they have to sum to one)
-# For nucleotides, one can use the GC rate (theta) parametrization, like in the T92 model:
-# balancedGC: ancestral GC set to 0.5
-# observedGC: use observed GC content
-# initGC    : manually set the ancestral GC content.
-nonhomogeneous.root_freq=balancedGC
+nonhomogeneous.root_freq=BalancedGC()
 
-# If the init option is selcted, ignored otherwise:
-model.ancA=
-model.ancC=
-model.ancG=
-model.ancT=
-# or:
-model.ancA=
-model.ancR=
-model.ancN=
-#etc
-
-# If the initGC option is used, ignored otherwise:
-model.ancTheta=0.5
-
-# Rate Across Sites variation:
-# gamma or constant
-rate_distribution = gamma
-
-# The gamma distribution's shape parameter
-rate_distribution.alpha = 0.358
-
-# Number of classes for discretization:
-rate_distribution.classes_number = 4
+rate_distribution = Gamma(n=4, alpha=0.358)
 
 # Likelihood recursion option:
 # - simple: derivatives takes more time to compute, but likelihooh computation is faster.
@@ -151,7 +96,7 @@ optimization.method=fullD //[DB|fullD]
 optimization.method_DB.nstep=15
 optimization.scale_first=no
 optimization.verbose=3
-optimization.ignore_parameter=kappa_1
+optimization.ignore_parameter=
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
