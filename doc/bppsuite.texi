@@ -120,6 +120,15 @@ first_parameter   = value1
 second_parameter  = value2
 @end example
 @end cartouche
+and lines can be broken using the backslash character:
+@cartouche
+@example
+parameter = value1,\
+            value2,\
+            value3
+@end example
+@end cartouche
+
 Comment may also be included, in either script format
 @cartouche
 @example
@@ -202,15 +211,15 @@ Any optional argument will be noted within hooks [].
 It is possible to recall anywhere the value of an option by using $(parameter).
 @cartouche
 @example
-model.name=JTT92
-rat_distribution=gamma
-output.tree = mydata$(model.name)$(rate_distribution).dnd
+optimization.topology.algorithm = NNI
+optimization.topology.algorithm_nni.method = phyml
+output.tree = MyData_$(optimization.topology.algorithm)_$(optimization.topology.algorithm_nni.method).dnd
 @end example
 @end cartouche
 You can use this syntax to define global variables:
 @cartouche
 @example
-data=LSU
+data=MyData
 sequence.file=$(data).fasta
 input.tree=$(data).dnd
 output.infos=$(data).infos
@@ -259,36 +268,58 @@ data=LSU
 @item alphabet = @{DNA|RNA|Protein@}
 The alphabet to use when reading sequences.
 
-@item sequence.file=@{path@}
+@item input.sequence.file=@{path@}
 The sequence file to use. Depending on the program, these sequences must or do not have to be aligned.
 
-@item sequence.format = @{Mase|Fasta|Phylip|Clustal|DCSE|Genbank@}
+@item input.sequence.format = @{sequence format description@}
 The sequence file format.
 
-@item sequence.format_mase.site_selection = @{chars@} (sequence.format=Mase)
-Specify a name for a site set to use.
+@end table
+Since Bio++ Program Suite version 0.4.0, the format description uses the keyval syntax.
+The format is a function, with optional parameters:
 
-@item sequence.format_phylip.order = @{interleaved|sequential@} (sequence.format=Phylip)
-Tells if sequences are interleave or sequential format.
+@table @command
 
-@item sequence.format_phylip.ext = @{classic|extended@} (sequence.format=Phylip)
-The @option{classic} option corresponds to old phylip format, with
-names up to ten characters.
-The @option{extended} option corresponds to the behavior of PAML,
-which allows sequence name of any size, separated from the sequence
-with at least two spaces. 
+@item Fasta()
+The fasta format.
 
-@item sequence.format_phylip.extended.split = @{spaces|tab@}
-Specify the type of character that separates the sequence name from the sequence content. The conventional option is to use one (classic)or more spaces (extended).
- 
-@item sequence.sites_to_use = @{all|nogap|complete@}
+@item Mase(siteSelection=@{chars@})
+The Mase format (as read by Seaview and Phylo_win for instance), with an optional site selection name.
+
+@item Phylip(order=@{interleaved|sequential@}, type=@{classic|extended@}, split=@{spaces|tab@})
+The Phylip format, with various variation. The argument @command{order} distinguishes between sequential and interleaved format, while the option @command{type} distinguished between the plain old Phylip format and the more recent extension allowing for sequence names longer than 10 characters, as understood by PAML and PhyML.
+Finally, @command{split} specifies the type of character that separates the sequence name from the sequence content. The conventional option is to use one (classic) or more (extended) spaces, but tabs can also be used instead.
+
+@item Clustal(extraSpaces=@{int@})
+The Clustal format. In its basic set up, sequence names do not have space characters, and one space splits the sequence content from its name.
+The parser can however be configured to allow for spaces in the sequence names, providing a minimum of space is used to split the content form the name.
+Setting @command{extraSpaces} to 5 for instance, the sequences are expected to be at least 6 spaces away for their names.
+
+@item Dcse()
+The DCSE alignment format. The secondary structure annotation will be ignored.
+
+@end table
+
+For programs that do not require the sequences to be aligned, the following format are also available:
+@table @command
+
+@item GenBank()
+Very basic support: only retrieves the sequence content for now, all features are ignored.
+
+@end table
+
+Basic operations can be performed on the sequences:
+
+@table @command
+
+@item input.sequence.sites_to_use = @{all|nogap|complete@}
 This option only works if the program requires an alignment.
 Tells which sites to use.
 The @option{nogap} option removes all sites containing at least one
 gap, and the @option{complete} option removes all sites containing at
 least one gap or one generic character, as 'X' for instance.
 
-@item sequence.max_gap_allowed=101%
+@item input.sequence.max_gap_allowed=101%
 This option only works if the program requires an alignment.
 Only works when the @option{all} option is selected.
 specify the maximum amount of gap allowed by site, given as a number
@@ -600,8 +631,10 @@ posterior probability and whether the site is conserved or not.
 @item output.sequence.file = @{path@}
 The output file where to write the sequences.
 
-@item output.sequence.format = @{Fasta|Mase|Phylip@}
-The output file format. Options for the Phylip format are the same as for reading (@pxref{Sequences}).
+@item output.sequence.format = @{sequence format description@}
+The output file format, using the same syntaxe as for reading (@pxref{Sequences}).
+Only formats Fasta, Mase and Phylip are supported for writing.
+In addition, most of the formats support the @command{length} argument, that specifies the maximum number of sequence characters to output on each line (default set to 100).
 
 @end table
 

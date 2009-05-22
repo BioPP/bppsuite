@@ -120,12 +120,11 @@ void readTrees(ifstream& file, vector<TreeTemplate<Node> *>& trees, vector<doubl
 void help()
 {
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "param                         | a parameter file to parse" << endl;
-  *ApplicationTools::message << "tree.file                     | tree file path (Newick format)" << endl;
-  *ApplicationTools::message << "alphabet                      | the alphabet to use [DNA|RNA|Proteins]" << endl;
-  *ApplicationTools::message << "number_of_sites               | number of site to simulate" << endl;
-  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
-  SequenceApplicationTools::printOutputSequenceHelp();
+  *ApplicationTools::message << "bppseqgen parameter1_name=parameter1_value"    << endl;
+  *ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file" << endl;
+  *ApplicationTools::message << endl;
+  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
+  *ApplicationTools::message << "__________________________________________________________________________" << endl;
 }
 
 int main(int args, char ** argv)

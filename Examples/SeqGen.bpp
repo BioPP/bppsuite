@@ -17,12 +17,7 @@ number_of_sites = 300
 output.sequence.file = LSUSim.fasta
 # The alignment format:
 # Must be one of Mase, Fasta, Phylip
-output.sequence.format = Fasta
-# Phylip format options:
-# interleaved or sequential:
-output.sequence.format_phylip.order =
-# classic or extended (PAML):
-output.sequence.format_phylip.ext =
+output.sequence.format = Fasta()
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
@@ -38,22 +33,6 @@ nonhomogeneous = general
 //param = SeqGenHomogeneousModel.bpp
 param = SeqGenNonHomogeneousModel.bpp
 
-# For one_per_branch heterogeneous models.
-# Tell which parameters are common to all branches.
-# Other parameters will be consedered branch specific.
-nonhomogneous_one_per_branch.shared_parameters = kappa
-
-
-# Rate Across Sites variation (not for use with covarion models)
-# gamma or constant [+invariant]
-rate_distribution = gamma
-
-# The gamma distribution's shape parameter
-rate_distribution.alpha = 0.358
-
-# Number of classes for discretization:
-rate_distribution.classes_number = 4
-
-# The proportion of invariants
-rate_distribution.p = 0.2
+# Rate Across Sites variation
+rate_distribution = Gamma(n=4, alpha=0.358)
 

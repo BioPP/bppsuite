@@ -68,9 +68,11 @@ using namespace bpp;
 void help()
 {
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "       bppseqman arg1=value1 arg2=value2 ..." << endl;
-  *ApplicationTools::message << "and/or bppseqman params=argfile" << endl;
-  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
+  *ApplicationTools::message << "bppseqman parameter1_name=parameter1_value"    << endl;
+  *ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file" << endl;
+  *ApplicationTools::message << endl;
+  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
+  *ApplicationTools::message << "__________________________________________________________________________" << endl;
 }
 
 int main(int args, char ** argv)
@@ -97,52 +99,9 @@ int main(int args, char ** argv)
   Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
 
   // Get sequences:
-  string sequenceFilePath = ApplicationTools::getAFilePath("input.sequence.file", params, true, true);
-  string sequenceFormat = ApplicationTools::getStringParameter("input.sequence.format", params, "Fasta");
-  ApplicationTools::displayResult("Input sequence format", sequenceFormat);
-  ISequence * seqReader = NULL;
-  if(sequenceFormat == "Mase")
-  {
-    seqReader = new Mase();
-  }
-  else if(sequenceFormat == "Phylip")
-  {
-    bool sequential = true, extended = true;
-    if(params.find("input.sequence.format_phylip.order") != params.end())
-    {
-           if(params["input.sequence.format_phylip.order"] == "sequential" ) sequential = true;
-      else if(params["input.sequence.format_phylip.order"] == "interleaved") sequential = false;
-      else ApplicationTools::displayWarning("Argument '" +
-             params["input.sequence.format_phylip.order"] +
-             "' for parameter 'input.sequence.format_phylip.order' is unknown. " +
-             "Default used instead: sequential.");
-    }
-    else ApplicationTools::displayWarning("Argument 'input.sequence.format_phylip.order' not found. Default used instead: sequential.");
-    if(params.find("input.sequence.format_phylip.ext") != params.end())
-    {
-           if(params["input.sequence.format_phylip.ext"] == "extended") extended = true;
-      else if(params["input.sequence.format_phylip.ext"] == "classic" ) extended = false;
-      else ApplicationTools::displayWarning("Argument '" +
-             params["input.sequence.format_phylip.ext"] +
-             "' for parameter 'input.sequence.format_phylip.ext' is unknown. " +
-             "Default used instead: extended.");
-    }
-    else ApplicationTools::displayWarning("Argument 'input.sequence.format_phylip.ext' not found. Default used instead: extended.");
-    seqReader = new Phylip(extended, sequential);
-  }
-  else if(sequenceFormat == "Fasta") seqReader = new Fasta();
-  else if(sequenceFormat == "Clustal") seqReader = new Clustal();
-  else if(sequenceFormat == "GenBank") seqReader = new GenBank();
-  else
-  {
-    ApplicationTools::displayError("Unknown sequence format.");
-    exit(-1);
-  }
-  ApplicationTools::displayResult("Input sequence file", sequenceFilePath);
-  SequenceContainer * tmp = seqReader->read(sequenceFilePath, alphabet);
-  OrderedSequenceContainer * sequences = new VectorSequenceContainer(*tmp);
+  SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, params, "", true, true);
+  OrderedSequenceContainer* sequences = new VectorSequenceContainer(*tmp);
   delete tmp;
-  delete seqReader;
   
   // Perform manipulations
   
@@ -384,48 +343,7 @@ int main(int args, char ** argv)
   }
   
   // Write sequences
-  sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file",params, true, false);
-  sequenceFormat = ApplicationTools::getStringParameter("output.sequence.format", params, "Fasta");
-  ApplicationTools::displayResult("Output sequence format", sequenceFormat);
-  OSequence * seqWriter = NULL;
-  if(sequenceFormat == "Mase")
-  {
-    seqWriter = new Mase();
-  }
-  else if(sequenceFormat == "Phylip")
-  {
-    bool sequential = true, extended = true;
-    if(params.find("output.sequence.format_phylip.order") != params.end())
-    {
-           if(params["output.sequence.format_phylip.order"] == "sequential" ) sequential = true;
-      else if(params["output.sequence.format_phylip.order"] == "interleaved") sequential = false;
-      else ApplicationTools::displayWarning("Argument '" +
-             params["output.sequence.format_phylip.order"] +
-             "' for parameter 'output.sequence.format_phylip.order' is unknown. " +
-             "Default used instead: sequential.");
-    }
-    else ApplicationTools::displayWarning("Argument 'sequence.format_phylip.order' not found. Default used instead: sequential.");
-    if(params.find("output.sequence.format_phylip.ext") != params.end())
-    {
-           if(params["output.sequence.format_phylip.ext"] == "extended") extended = true;
-      else if(params["output.sequence.format_phylip.ext"] == "classic" ) extended = false;
-      else ApplicationTools::displayWarning("Argument '" +
-             params["output.sequence.format_phylip.ext"] +
-             "' for parameter 'output.sequence.format_phylip.ext' is unknown. " +
-             "Default used instead: extended.");
-    }
-    else ApplicationTools::displayWarning("Argument 'output.sequence.format_phylip.ext' not found. Default used instead: extended.");
-    seqWriter = new Phylip(extended, sequential);
-  }
-  else if(sequenceFormat == "Fasta") seqWriter = new Fasta();
-  else
-  {
-    ApplicationTools::displayError("Unknown sequence format.");
-    exit(-1);
-  }
-  ApplicationTools::displayResult("Output sequence file", sequenceFilePath);
-  seqWriter->write(sequenceFilePath, *sequences, true);
-  delete seqWriter;
+  SequenceApplicationTools::writeSequenceFile(*sequences, params, "", true);
 
   delete alphabet;
   delete sequences;

@@ -11,27 +11,13 @@ alphabet=DNA
 sequence.file=$(DATA).phy
 
 # The alignment format:
-# Must be one of Mase, Fasta, Phylip, Clustal, DCSE 
-sequence.format=Phylip
-
-# Mase format option:
-sequence.format_mase.site_selection =
-
-# Phylip format options:
-# interleaved or sequential:
-sequence.format_phylip.order = sequential
-
-# classic or extended (PAML):
-sequence.format_phylip.ext = extended
-
-# tab or spaces
-sequence.format_phylip.extended.split = spaces
+sequence.format=Phylip(order=sequential, type=extended, split=spaces)
 
 #Sites to use:
 # all, nogap or complete (=only resolved chars)
-sequence.sites_to_use = all
+input.sequence.sites_to_use = all
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
-sequence.max_gap_allowed = 50%
+input.sequence.max_gap_allowed = 50%
 
 # ----------------------------------------------------------------------------------------
 #                                     Input tree file
@@ -59,7 +45,7 @@ init.brlen.method_grafen.rho = 1.0
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = HKY85(kappa=2.843, useObservedFrequencies=yes)
+model = HKY85(kappa=2.843, theta=0.5, theta1=0.5, theta2=0.5, useObservedFrequencies=yes)
 
 rate_distribution = Gamma(n=4, alpha=0.358)
 

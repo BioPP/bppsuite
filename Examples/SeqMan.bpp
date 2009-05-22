@@ -13,18 +13,7 @@ alphabet=DNA
 input.sequence.file=$(DATA).phy
 
 # The file format:
-# Must be one of Mase, Fasta, Phylip, Clustal, DCSE, GanBank 
-input.sequence.format=Phylip
-
-# Mase format option:
-input.sequence.format_mase.site_selection =
-
-# Phylip format options:
-# interleaved or sequential:
-input.sequence.format_phylip.order = sequential
-
-# classic or extended (PAML):
-input.sequence.format_phylip.ext = extended
+input.sequence.format=Phylip(order=sequential, type=extended)
 
 # ----------------
 # Output sequences
@@ -33,15 +22,7 @@ input.sequence.format_phylip.ext = extended
 output.sequence.file=$(DATA).fas
 
 # The file format:
-# Must be one of Mase, Fasta, Phylip 
-output.sequence.format=Fasta
-
-# Phylip format options:
-# interleaved or sequential:
-output.sequence.format_phylip.order = sequential
-
-# classic or extended (PAML):
-output.sequence.format_phylip.ext = extended
+output.sequence.format=Fasta()
 
 # -----------------------
 # Sequences manipulations

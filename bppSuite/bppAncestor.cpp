@@ -86,18 +86,11 @@ using namespace bpp;
 void help()
 {
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  SequenceApplicationTools::printInputAlignmentHelp();
-  PhylogeneticsApplicationTools::printInputTreeHelp();
-  SequenceApplicationTools::printOutputSequenceHelp();
-  *ApplicationTools::message << "asr.method                    | (marginal only for now)" << endl;
-  *ApplicationTools::message << "asr.probabilites              | [bool] shall I print the posterior" << endl;
-  *ApplicationTools::message << "                              | probabilities of each state?" << endl;
-  *ApplicationTools::message << "asr.sample                    | [bool] shall I sample the posterior distribution" << endl;
-  *ApplicationTools::message << "                              | instead of taking the max probability?" << endl;
-  *ApplicationTools::message << "asr.sample.number             | [int>0] number of samples" << endl;
-  *ApplicationTools::message << "output.tree.path              | file where to print the tree ids" << endl;
-  *ApplicationTools::message << "output.file                   | file where to write site infos" << endl;
-  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
+  *ApplicationTools::message << "bppancestor parameter1_name=parameter1_value " << endl;
+  *ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file" << endl;
+  *ApplicationTools::message << endl;
+  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
+  *ApplicationTools::message << "__________________________________________________________________________" << endl;
 }
 
 int main(int args, char ** argv)

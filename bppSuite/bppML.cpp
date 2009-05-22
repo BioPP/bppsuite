@@ -92,14 +92,11 @@ using namespace bpp;
 void help()
 {
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  SequenceApplicationTools::printInputAlignmentHelp();
-  PhylogeneticsApplicationTools::printInputTreeHelp();
-  PhylogeneticsApplicationTools::printOptimizationHelp(true, false);
-  PhylogeneticsApplicationTools::printOutputTreeHelp();
-  *ApplicationTools::message << "output.tree.path              | file where to print the tree ids" << endl;
-  *ApplicationTools::message << "output.infos                  | file where to write site infos" << endl;
-  *ApplicationTools::message << "output.estimates              | file where to write estimated parameter values" << endl;
-  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
+  *ApplicationTools::message << "bppml parameter1_name=parameter1_value parameter2_name=parameter2_value"    << endl;
+  *ApplicationTools::message << "      ... param=option_file" << endl;
+  *ApplicationTools::message << endl;
+  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
+  *ApplicationTools::message << "__________________________________________________________________________" << endl;
 }
 
 int main(int args, char ** argv)
