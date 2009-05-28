@@ -48,6 +48,7 @@ optimization.profiler = $(DATA).profile
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).$(METHOD).dnd
+output.tree.format = Newick
 
 # Bootstrap:
 bootstrap.number = 10

@@ -8,10 +8,10 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-sequence.file=$(DATA).phy
+input.sequence.file=$(DATA).phy
 
 # The alignment format:
-sequence.format=Phylip(order=sequential, type=extended, split=spaces)
+input.sequence.format=Phylip(order=sequential, type=extended, split=spaces)
 
 #Sites to use:
 # all, nogap or complete (=only resolved chars)
@@ -26,7 +26,8 @@ input.sequence.max_gap_allowed = 50%
 # user or random
 init.tree = user
 
-tree.file = LSU.dnd
+input.tree.file = $(DATA).dnd
+input.tree.format = Newick
 
 #input: keep initial branch lengths
 #equal: put all branch lengths to the same value
@@ -146,6 +147,7 @@ optimization.scale_first = no
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
+output.tree.format = Newick
 
 # Alignment information log file (site specific rates, etc):
 output.infos = $(DATA).infos

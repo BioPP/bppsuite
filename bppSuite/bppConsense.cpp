@@ -60,16 +60,11 @@ using namespace bpp;
 void help()
 {
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "input.list.file            | [path] toward multi-trees file (newick)      " << endl;
-  *ApplicationTools::message << "tree                       | [input|consensus] reference tree to use      " << endl;
-  *ApplicationTools::message << "  tree_input.file          | [path] toward reference tree file            " << endl;
-  *ApplicationTools::message << "  tree_consensus.threshold | [[0,1]] threshold to use in consensus        " << endl;
-  *ApplicationTools::message << "                           | 0   = fully resolved                         " << endl;
-  *ApplicationTools::message << "                           | 0.5 = majority rule                          " << endl;
-  *ApplicationTools::message << "                           | 1   = strict                                 " << endl;
-  *ApplicationTools::message << "                           | or any other value                           " << endl;
-  *ApplicationTools::message << "___________________________|______________________________________________" << endl;
-  PhylogeneticsApplicationTools::printOutputTreeHelp();
+  *ApplicationTools::message << "bppconsense parameter1_name=parameter1_value" << endl;
+  *ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file" << endl;
+  *ApplicationTools::message << endl;
+  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
+  *ApplicationTools::message << "__________________________________________________________________________" << endl;
 }
 
 int main(int args, char ** argv)

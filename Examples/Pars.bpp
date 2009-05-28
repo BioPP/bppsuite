@@ -19,12 +19,14 @@ input.sequence.sites_to_use = complete
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
 input.sequence.max_gap_allowed = 100%
 
-tree.file = LSU.dnd
+input.tree.file = $(DATA)dnd
+input.tree.format = Newick
 
 optimization.topology = yes
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).pars.dnd
+output.tree.format = Newick
 
 # Bootstrap:
 bootstrap.number = 1000

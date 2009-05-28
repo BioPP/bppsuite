@@ -298,6 +298,10 @@ Setting @command{extraSpaces} to 5 for instance, the sequences are expected to b
 @item Dcse()
 The DCSE alignment format. The secondary structure annotation will be ignored.
 
+@item Nexus()
+The Nexus alignment format.
+Only very basic support is provided.
+
 @end table
 
 For programs that do not require the sequences to be aligned, the following format are also available:
@@ -334,10 +338,12 @@ Sites not matching the criterion will not be included in the analysis.
 @section Reading trees
 
 @table @command
-@item tree.file = @{path@}
+@item input.tree.file = @{path@}
 The phylogenetic tree file to use.
 Branch lengths are optional.
-Only newick format is supported for now.
+
+@item input.tree.format = [Newick|Nexus]
+The format of the input tree file.
 
 @end table
 

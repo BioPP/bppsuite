@@ -82,7 +82,7 @@ void help()
   *ApplicationTools::message << "bppdist parameter1_name=parameter1_value parameter2_name=parameter2_value" << endl;
   *ApplicationTools::message << "      ... param=option_file" << endl;
   *ApplicationTools::message << endl;
-  *ApplicationTools::message << "     Refer to the Bio++ Progam Suite Manual for list of available options." << endl;
+  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
 }
 
