@@ -8,34 +8,38 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-sequence.file=$(DATA).phy
+input.sequence.file=$(DATA).phy
 
 # The alignment format:
-# Must be one of Mase, Fasta, Phylip, Clustal, DCSE 
-sequence.format=Phylip
-
-# Mase format option:
-sequence.format_mase.site_selection =
-
-# Phylip format options:
-# interleaved or sequential:
-sequence.format_phylip.order = sequential
-
-# classic or extended (PAML):
-sequence.format_phylip.ext = extended
+input.sequence.format=Phylip(order=sequential, type=extended)
 
 #Sites to use:
 # all, nogap or complete (=only resolved chars)
-sequence.sites_to_use = complete
+input.sequence.sites_to_use = complete
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
-sequence.max_gap_allowed = 100%
+input.sequence.max_gap_allowed = 100%
 
-tree.file = LSU.dnd
+# ----------------------------------------------------------------------------------------
+#                                     Input tree file
+# ----------------------------------------------------------------------------------------
 
-# Print a tree with ids as bootstrap values.
-# This is helpful when setting up complexe non-homogeneous models.
-# Setting this option will cause the program to exit after printing the tree.
-//output.tree.path = LSUrooted_wid.dnd
+# user or random
+init.tree = user
+
+input.tree.file = $(DATA).dnd
+input.tree.format = Newick
+
+#input: keep initial branch lengths
+#equal: put all branch lengths to the same value
+#clock: coerce to a clock tree
+#grafen: uses Grafen's method to compute branch lengths
+init.brlen.method = input
+#The value for the equal option:
+init.brlen.method_equal.value = 0.1
+#The height of the tree for Grafen's method (input for using the current height of the tree)
+init.brlen.method_grafen.height = input
+#Grafen's power parameter:
+init.brlen.method_grafen.rho = 1.0
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
@@ -100,6 +104,7 @@ optimization.ignore_parameter=
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
+output.tree.format = Newick
 
 # Alignment information log file (site specific rates, etc):
 output.infos = $(DATA).infos

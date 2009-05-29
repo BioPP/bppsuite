@@ -103,8 +103,10 @@ int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Maximum Likelihood Computation, version 1.3.0      *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 08/05/09 *" << endl;
-  cout << "*         B. Boussau                                             *" << endl;
+  cout << "*                                                                *" << endl; 
+  cout << "* Authors: J. Dutheil                       Last Modif. 28/05/09 *" << endl;
+  cout << "*          B. Boussau                                            *" << endl;
+  cout << "*          L. Gueguen                                            *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
