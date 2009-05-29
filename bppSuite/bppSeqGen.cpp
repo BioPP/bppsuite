@@ -182,7 +182,7 @@ int main(int args, char ** argv)
   }
   else if(inputTrees == "multiple")
   {
-    string treesPath = ApplicationTools::getAFilePath("tree.file", params, false, true);
+    string treesPath = ApplicationTools::getAFilePath("input.tree.file", params, false, true);
     ApplicationTools::displayResult("Trees file", treesPath);
     ifstream treesFile(treesPath.c_str(), ios::in);
     readTrees(treesFile, trees, positions);
