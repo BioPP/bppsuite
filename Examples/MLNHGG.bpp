@@ -59,7 +59,7 @@ model = T92(kappa=2.843, theta=0.5)
 # For one_per_branch heterogeneous models.
 # Tell which parameters are common to all branches.
 # Other parameters will be considered branch specific.
-nonhomogeneous_one_per_branch.shared_parameters = kappa
+nonhomogeneous_one_per_branch.shared_parameters = T92.kappa
 
 nonhomogeneous.root_freq=BalancedGC()
 
