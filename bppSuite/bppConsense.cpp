@@ -54,6 +54,7 @@ using namespace std;
 #include <Utils/ApplicationTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
+#include <Utils/KeyvalTools.h>
 
 using namespace bpp;
 
@@ -94,14 +95,17 @@ int main(int args, char ** argv)
 
   Tree* tree = 0;
   string treeMethod = ApplicationTools::getStringParameter("tree", params, "consensus");
-  if(treeMethod == "input")
+  string cmdName;
+  map<string, string> cmdArgs;
+  KeyvalTools::parseProcedure(treeMethod, cmdName, cmdArgs);
+  if(cmdName == "Input")
   {
     tree = PhylogeneticsApplicationTools::getTree(params);
     ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
   }
-  else if(treeMethod == "consensus")
+  else if(cmdName == "Consensus")
   {
-    double threshold = ApplicationTools::getDoubleParameter("tree_consensus.threshold", params, 0);
+    double threshold = ApplicationTools::getDoubleParameter("threshold", cmdArgs, 0);
     ApplicationTools::displayResult("Consensus threshold", TextTools::toString(threshold));
     ApplicationTools::displayTask("Computing consensus tree");
     tree = TreeTools::thresholdConsensus(list, threshold, true);
@@ -115,7 +119,8 @@ int main(int args, char ** argv)
 
   //Write resulting tree:
   PhylogeneticsApplicationTools::writeTree(*tree, params);
-  for(unsigned int i = 0; i < list.size(); i++) delete list[i];
+  for (unsigned int i = 0; i < list.size(); i++)
+    delete list[i];
   delete tree;
 
   cout << "BppConsense's done. Bye." << endl;

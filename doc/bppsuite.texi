@@ -198,7 +198,7 @@ If an option availability or choice depends on another parameters, it will be no
 @example
 parameter1=@{xxx|yyy|zzz@}
 
-parameter2=@{chars@} (parameter1=zzz)
+parameter2=@{chars@} |parameter1=zzz|
 @end example
 meaning that parameter2 is available only if parameter1 is set to 'zzz'.
 
@@ -878,7 +878,7 @@ Tells if we should output the site specific probabilities in each case.
 @item asr.sample = @{boolean@}
 Tell if we should sample from the posterior distribution instead of using the maximum probability.
 
-@item asr.sample.number = 10 (asr.sample=yes)
+@item asr.sample.number = 10 |asr.sample=yes|
 Number of sample sequences to output.
 
 @item output.file = @{@{path@}|none@}
@@ -955,13 +955,20 @@ The program uses the multiple-trees reading options for input (@pxref{Tree}) and
 There are only specific options here:
 @table @command
 
-@item tree = @{input|consensus@}
+@item tree = @{tree methods@}
 The method to use for getting the reference tree.
-If @option{input} is chosend, then the tree is loaded using the single-tree reading options (@pxref{Tree}). 
+Available function are:
 
-@item tree_consensus.threshold = @{int[0,1]@} (tree = consensus)
-The threshold to use for the consensus method.
+@table @command
+
+@item Input
+The tree is loaded using the single-tree reading options (@pxref{Tree}). 
+
+@item Consensus(threshold = @{int[0,1]@})
+Build a consensus tree according to a given threshold.
 0 will output a fully resolved tree, 0.5 corresponds to the majority rule and 1 to the strict consensus, but any intermediate value can be specified.
+
+@end table
 
 @end table
 
@@ -981,7 +988,7 @@ The BppPhySamp programs uses the common options for setting the alphabet, loadin
 The method to provide phylogenetic information, either by a tree or a matrix.
 If the @option{tree} option is used, then the options for reading trees are used (@pxref{Tree}).
 
-@item input.matrix = @{path@} (input.method = matrix)
+@item input.matrix = @{path@} |input.method = matrix|
 The input matrix file.
 
 @item threshold = @{float>0@}
@@ -1038,16 +1045,16 @@ See below for a list of these operations.
 @end table
 
 @table @option
-@item complement (alphabet = DNA | RNA)
+@item complement |alphabet = DNA or RNA|
 Convert to the complementary sequence, keeping the original alphabet.
 
-@item transcript (alphabet = DNA | RNA)
+@item transcript |alphabet = DNA or RNA|
 Convert to the complementary sequence, switching the type of alphabet (DNA<->RNA).
 
-@item switch (alphabet = DNA | RNA)
+@item switch |alphabet = DNA or RNA|
 Change the alphabet type (DNA<->RNA).
 
-@item translate (alphabet = DNA | RNA)
+@item translate |alphabet = DNA or RNA|
 Convert to proteins. You have to specify a genetic code, see specific options.
 
 @item invert
@@ -1062,11 +1069,11 @@ Change gaps to fully unresolved characters, N for nucleotides and X for proteins
 @item unknown2gap
 Change (partially) unresolved characters to gaps.
 
-@item resolve_dotted (Aligned sequences)
+@item resolve_dotted |Aligned sequences|
 Convert a human-readable alignment to a machine-readable alignment.
 This manipulation must be first if it is used, and the data must be load with the @option{Generic} alphabet.
 
-@item keep_complete (Aligned sequences)
+@item keep_complete |Aligned sequences|
 Keep only complete sites, ie sites without any gap. Sites with unresolved characters are not removed.
 It is also possible to fix a maximum proportion of gaps, see specific options.
 
