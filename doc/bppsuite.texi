@@ -198,7 +198,7 @@ If an option availability or choice depends on another parameters, it will be no
 @example
 parameter1=@{xxx|yyy|zzz@}
 
-parameter2=@{chars@} |parameter1=zzz|
+parameter2=@{chars@} [[parameter1=zzz]]
 @end example
 meaning that parameter2 is available only if parameter1 is set to 'zzz'.
 
@@ -357,7 +357,7 @@ original site numbering will be used in the output files (if relevent).
 @item input.tree.file = @{path@}
 The phylogenetic tree file to use.
 
-@item input.tree.format = [Newick|Nexus]
+@item input.tree.format = @{Newick|Nexus@}
 The format of the input tree file.
 
 @end table
@@ -369,7 +369,7 @@ The corresponding options are then:
 @item input.trees.file = @{path@}
 The file containing multiple trees.
 
-@item input.trees.format = [Newick|Nexus]
+@item input.trees.format = @{Newick|Nexus@}
 The format of the input tree file.
 
 @end table
@@ -850,7 +850,7 @@ The BppSeqGen program uses the common syntax introduced in the previous section 
 
 @table @command
 
-@item number_of_sites = @{int > 0@}
+@item number_of_sites = @{int>0@}
 The number of site positions to simulate.
 
 @item input.infos = @{path@}
@@ -878,7 +878,7 @@ Tells if we should output the site specific probabilities in each case.
 @item asr.sample = @{boolean@}
 Tell if we should sample from the posterior distribution instead of using the maximum probability.
 
-@item asr.sample.number = 10 |asr.sample=yes|
+@item asr.sample.number = 10 [[asr.sample=yes]]
 Number of sample sequences to output.
 
 @item output.file = @{@{path@}|none@}
@@ -988,7 +988,7 @@ The BppPhySamp programs uses the common options for setting the alphabet, loadin
 The method to provide phylogenetic information, either by a tree or a matrix.
 If the @option{tree} option is used, then the options for reading trees are used (@pxref{Tree}).
 
-@item input.matrix = @{path@} |input.method = matrix|
+@item input.matrix = @{path@} [[input.method = matrix]]
 The input matrix file.
 
 @item threshold = @{float>0@}
@@ -1012,10 +1012,10 @@ A path toward multi-trees file (newick).
 @item outgroups.file=@{path@}
 A path toward a file containing the different levels of outgroups.
 
-@item print.option=@{bool@}
+@item print.option=@{boolean@}
 If set to true, the unrootable trees are printed as unrooted in the output file, otherwise the unrootable trees are not printed.
   
-@item tryAgain.option=@{bool@}
+@item tryAgain.option=@{boolean@}
 If set to true and ReRoot finds a non-monophyletic outgroup, it tries the next outgroup.
 Otherwise, if ReRoot finds a non-monophyletic outgroup, the analysis for this tree is interrupted.
 No more outgroup are analysed.
@@ -1045,16 +1045,16 @@ See below for a list of these operations.
 @end table
 
 @table @option
-@item complement |alphabet = DNA or RNA|
+@item complement [[alphabet = DNA or RNA]]
 Convert to the complementary sequence, keeping the original alphabet.
 
-@item transcript |alphabet = DNA or RNA|
+@item transcript [[alphabet = DNA or RNA]]
 Convert to the complementary sequence, switching the type of alphabet (DNA<->RNA).
 
-@item switch |alphabet = DNA or RNA|
+@item switch [[alphabet = DNA or RNA]]
 Change the alphabet type (DNA<->RNA).
 
-@item translate |alphabet = DNA or RNA|
+@item translate [[alphabet = DNA or RNA]]
 Convert to proteins. You have to specify a genetic code, see specific options.
 
 @item invert
@@ -1069,11 +1069,11 @@ Change gaps to fully unresolved characters, N for nucleotides and X for proteins
 @item unknown2gap
 Change (partially) unresolved characters to gaps.
 
-@item resolve_dotted |Aligned sequences|
+@item resolve_dotted [[Aligned sequences]]
 Convert a human-readable alignment to a machine-readable alignment.
 This manipulation must be first if it is used, and the data must be load with the @option{Generic} alphabet.
 
-@item keep_complete |Aligned sequences|
+@item keep_complete [[Aligned sequences]]
 Keep only complete sites, ie sites without any gap. Sites with unresolved characters are not removed.
 It is also possible to fix a maximum proportion of gaps, see specific options.
 
