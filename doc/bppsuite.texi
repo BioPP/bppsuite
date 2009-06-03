@@ -72,19 +72,20 @@ Bio++ Program Suite Reference
 @chapter Introduction
 
 The Bio++ Program Suite is a package of programs using the Bio++ libraries and dedicated to Phylogenetics and Molecular Evolution.
-All programs are independent, but can be combined to perform complex analysis.
+All programs are independent, but can be combined to perform rather complex analyses.
 These programs use the interface helper tools of the libraries, and hence share the same syntax.
 They also have several options in common, which may also be shared by third-party software.
 This manual was hence split into three parts: 
 @table @emph
 @item Bio++ option file syntax
-A general description about the language used to interact with the programs.
+A general description of the language used to interact with the programs.
 
-@item Common options
-A more detailed description about several options that are encountered in several programs. This include input/output of data and model specifications.
+@item Shared options
+A more detailed description about several options that are encountered in several programs.
+This includes input/output of data and model specifications.
 
 @item The Bio++ Program Suite reference
-Include a program per program reference of all available options.
+Include a reference of all available options for each program in the package.
 
 @end table
 
@@ -95,7 +96,8 @@ Include a program per program reference of all available options.
 
 @section Calling the programs and writing the option files.
 
-The programs in the Bio++ Program Suite are command line-driven. The arguments may be passed as parameter=value options, either directly to the command line or
+The programs in the Bio++ Program Suite are command line-driven.
+Arguments may be passed as @command{parameter=value} options, either directly to the command line or
 using an option file:
 @cartouche
 @example
@@ -109,11 +111,10 @@ or
 @end example
 @end cartouche
 where @{program@} is the name of the program to use (bppml, bppseqgen, etc.).
-Option files are a list of parameter=value lines, with only one
-parameter per line. They can be written from scratch using a regular text editor, but since these file can potentially turn to be quite complex, it is probably wiser to start with a sample provided along with the program (if any!).
+Option files contain @command{parameter=value} lines, with only one parameter per line.
+They can be written from scratch using a regular text editor, but since these files can potentially turn to be quite complex, it is probably wiser to start with a sample provided along with the program (if any!).
 
-Extra-space may be included between
-parameter name, equal sign and value:
+Extra-space may be included between parameter names, equal sign and value:
 @cartouche
 @example
 first_parameter   = value1
@@ -129,20 +130,20 @@ parameter = value1,\
 @end example
 @end cartouche
 
-Comment may also be included, in either script format
+Comment may be included, in either scripting format:
 @cartouche
 @example
 # This is a comment
 @end example
 @end cartouche
-or C format
+C format:
 @cartouche
 @example
 /* This is a comment
 */
 @end example
 @end cartouche
-or C++ format
+or C++ format:
 @cartouche
 @example
 // This is a comment
@@ -154,24 +155,22 @@ Command line and file options may be combined:
 @{program@} param=option_file parameterX=valueX
 @end example
 @end cartouche
-In case of parameterX is specified in both option file and command
-line, the command line value will be used.
-This allows to run the programs several time by changing a single option,
-like the name of the data set for instance.
+In case @command{parameterX} is specified in both option file and command line, the command line value will be used.
+This allows to run the programs several times by changing a single option, like the name of the data set for instance.
 
-Option files can be nested, by using param=optionfile within an option file, as with the command line.
+Option files can be nested, by using @command{param=nestedoptionfile} within an option file, as with the command line.
 It is possible to use this option as often as needed, this will load all the required option files.
 
 @section Different types of options
 
 The next chapters describe the whole set of options available in BppSuite.
-The type of parameter value expected is defined as:
+For each parameter, the type of parameter value expected is defined as:
 @table @command
 @item @{chars@}
 A character chain
 
 @item @{path@}
-A file path, may be absolute or related to the current directory
+A file path, which may be absolute or related to the current directory
 
 @item @{int@}
 An integer
@@ -184,7 +183,7 @@ integer falling between 2 and 10
 A real number, a positive real number, etc.
 
 @item @{boolean@}
-A Boolean value, may be one of 'yes', 'no', 'true' or 'false'
+A Boolean value, which may be one of 'yes', 'no', 'true' or 'false'
 
 @item @{xxx|yyy|zzz@}
 A set of allowed values
@@ -205,6 +204,19 @@ meaning that parameter2 is available only if parameter1 is set to 'zzz'.
 
 Any optional argument will be noted within hooks [].
 
+In some cases, the argument value is more complexe and follows the 'keyval'
+syntax.
+This syntax will be quite familiar for users using languages like R, Python, or
+certain LaTeX packages.
+A keyval procedure is a name that does no contain any space, together with some
+arguments within parentheses.
+The arguments take the form @command{key=value}, separated by comas:
+@cartouche
+@example
+parameter=Function(name1=value1, name2=value2)
+@end example
+@end cartouche
+Space characters are allowed around the '=' and ',' ponctuations.
 
 @section Variables
 
@@ -228,7 +240,7 @@ output.infos=$(data).infos
 
 Important note: it is not possible to use a macro with the 'param' option.
 This is because all nested option files are parsed before the variable resolution.
-Writing param=$(model1).bpp will not work, but this allows the user to override variables in nested files, as with the command line.
+Writing @command{param=$(model1).bpp} will not work, but this allows the user to override variables in nested files, as with the command line.
 For instance:
 @cartouche
 @example
@@ -269,7 +281,7 @@ data=LSU
 The alphabet to use when reading sequences.
 
 @item input.sequence.file=@{path@}
-The sequence file to use. Depending on the program, these sequences must or do not have to be aligned.
+The sequence file to use. Depending on the program, these sequences have or do not have to be aligned.
 
 @item input.sequence.format = @{sequence format description@}
 The sequence file format.
@@ -287,12 +299,15 @@ The fasta format.
 The Mase format (as read by Seaview and Phylo_win for instance), with an optional site selection name.
 
 @item Phylip(order=@{interleaved|sequential@}, type=@{classic|extended@}, split=@{spaces|tab@})
-The Phylip format, with various variation. The argument @command{order} distinguishes between sequential and interleaved format, while the option @command{type} distinguished between the plain old Phylip format and the more recent extension allowing for sequence names longer than 10 characters, as understood by PAML and PhyML.
-Finally, @command{split} specifies the type of character that separates the sequence name from the sequence content. The conventional option is to use one (classic) or more (extended) spaces, but tabs can also be used instead.
+The Phylip format, with several variations.
+The argument @command{order} distinguishes between sequential and interleaved format, while the option @command{type} distinguished between the plain old Phylip format and the more recent extension allowing for sequence names longer than 10 characters, as understood by PAML and PhyML.
+Finally, the @command{split} argument specifies the type of character that separates the sequence name from the sequence content.
+The conventional option is to use one (classic) or more (extended) spaces, but tabs can also be used instead.
 
 @item Clustal(extraSpaces=@{int@})
-The Clustal format. In its basic set up, sequence names do not have space characters, and one space splits the sequence content from its name.
-The parser can however be configured to allow for spaces in the sequence names, providing a minimum of space is used to split the content form the name.
+The Clustal format.
+In its basic set up, sequence names do not have space characters, and one space splits the sequence content from its name.
+The parser can however be configured to allow for spaces in the sequence names, providing a minimum number of space characters is used to split the content from the name.
 Setting @command{extraSpaces} to 5 for instance, the sequences are expected to be at least 6 spaces away for their names.
 
 @item Dcse()
@@ -304,7 +319,7 @@ Only very basic support is provided.
 
 @end table
 
-For programs that do not require the sequences to be aligned, the following format are also available:
+For programs that do not require the sequences to be aligned, the following formats are also available:
 @table @command
 
 @item GenBank()
@@ -323,12 +338,13 @@ The @option{nogap} option removes all sites containing at least one
 gap, and the @option{complete} option removes all sites containing at
 least one gap or one generic character, as 'X' for instance.
 
-@item input.sequence.max_gap_allowed=101%
+@item input.sequence.max_gap_allowed=100%
 This option only works if the program requires an alignment.
 Only works when the @option{all} option is selected.
-specify the maximum amount of gap allowed by site, given as a number
+It specifies the maximum amount of gap allowed per site, as a number
 of sequence or a percentage.
-Sites not matching the criterion will not be included in the analysis.
+Sites not matching the criterion will not be included in the analysis, but the
+original site numbering will be used in the output files (if relevent).
 
 @end table
  
@@ -368,36 +384,45 @@ The format of the input tree file.
 @item nonhomogeneous = @{no|one_per_branch_general@}
 Set the type of model. The @option{no} option is used for homogeneous models.
 The @option{one_per_branch} option is used as a short cut for setting Galtier and Gouy 97-like branch-specific models, and the @option{general} option for non-stationary and eventually non-homogeneous models.
-In either of the last two cases, the model is non-stationary, that is, possibly not at the equilibrium and hence includes the root frequencies as additional parameters. If the substitution model is not the same across the tree, then the model is also non-homogeneous.
+In either of the last two cases, the model is non-stationary, that is, possibly not at the equilibrium and hence includes the root frequencies as additional parameters.
+If the substitution model is not the same across the tree, then the model is also non-homogeneous.
 @end table
 
-@subsection Specifying the substitution model
+@subsection Setting up the substitution model
 
 @table @command
 
 @item model = @{model description@}
-A description of the substitution model to use, in the keyval syntax.
+A description of the substitution model to use, using the keyval syntax.
 
 @end table
-From version 0.4.0 of BppSuite, the model specification used a completely new syntax, based on the keyval (key = value) scheme. The old option files will hence not be compatible with new version of the software. The new syntax however is hopefully more intuitive, and more generalizable, so that few changes are expected when new models will be built. The substitution model is a function, potentially including parameters. The following table lists the set of usable functions, and their parameters.
+From version 0.4.0 of BppSuite, the model specification uses a completely new syntax, based on the keyval (key = value) scheme.
+The old option files will hence not be compatible with new version of the software.
+The new syntax however is hopefully more intuitive, and more generalizable, so that few changes are expected when new models will be built. The substitution model is a function, potentially including parameters. The following table lists the set of usable functions, and their parameters.
 
 @table @command
 
-@item JC69()
-The Jukes and Cantor model, for proteins or nucleotide alphabets. This model has no additional parameter.
+@item JC69
+The Jukes and Cantor model, for proteins or nucleotide alphabets.
+This model has no additional parameter.
 
 @item K80(kappa=@{real>0@})
 The Kimura 2 parameters model for nucleotides. @var{kappa} is the transition over transversion ratio.
 
 @item F84(kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Felsenstein's 1984 substitution model for nucleotides, with transition/transversion ratio and 4 distinct equilibrium frequencies. @var{theta} is the GC content, @var{theta1} is the proportion of G / (G + C) and @var{theta2} is the proportion of A / (A + T or U). The @var{useObservedFreqs} option set the @var{theta}s parameters according to the observed counts in the data set, and @var{useObservedFreqs.pseudoCount} is a quantity, defaulting to 0, that can be used in case some counts are zero, on small data sets for instance.
+Felsenstein's 1984 substitution model for nucleotides, with
+transition/transversion ratio and 4 distinct equilibrium frequencies, set using
+three independent parameters: @var{theta} is the GC content, @var{theta1} is the proportion of G / (G + C) and @var{theta2} is the proportion of A / (A + T or U).
+The @var{useObservedFreqs} option set the @var{theta}s parameters according to the observed counts in the data set, and @var{useObservedFreqs.pseudoCount} is a quantity, defaulting to 0, that can be used in case some counts are zero, on small data sets for instance.
 The corrected values are computed as:
 @tex
 $$\pi_i = {f_i + \psi \over 4\cdot\psi + \sum_j f_j}$$
 @end tex
 
 @item HKY85(kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Hasegawa, Kishino and Yano 1985's substitution model for nucleotides. Similar to @command{F84}, but with a different implementation. The @var{kappa} parameter used here is comparable to the one in @command{K80}.
+Hasegawa, Kishino and Yano 1985's substitution model for nucleotides.
+The model is similar to @command{F84}, but with a different implementation.
+The @var{kappa} parameter used here is comparable to the one in @command{K80}.
 
 @item T92(kappa=@{real>0@}, theta=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
 Tamura 1992's model for nucleotides, similar to @command{HKY85}, yet assuming that the frequencies of A = T/U and G = C.
@@ -406,23 +431,25 @@ Tamura 1992's model for nucleotides, similar to @command{HKY85}, yet assuming th
 Tamura and Nei 1993's model for nucleotides, similar to @command{HKY85}, but allowing for two distinct transition/transversion ratios.
 
 @item GTR(a=@{real>0@}, b=@{real>0@}, c=@{real>0@}, d=@{real>0@}, e=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-The General Time-Reversible substitution model for nucleotides. Parameters @var{a}, @var{b}, @var{c}, @var{d}, @var{e} are the entries of the matrix.
+The General Time-Reversible substitution model for nucleotides.
+Parameters @var{a}, @var{b}, @var{c}, @var{d}, @var{e} are the entries of the exchangeability matrix.
 
 @item L95(beta=@{real>0@}, gamma=@{real>0@}, delta=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
 The strand-symmetric model of Lobry 1995, for nucleotides.
 
-@item DSO78()
-Protein substitution model, using the dcmutt implementation of Kosiol and Goldamn 2005.
+@item DSO78
+Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005.
 
-@item JTT92()
-Protein substitution model, using the dcmutt implementation of Kosiol and Goldamn 2005.
+@item JTT92
+Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005.
 
 @item DSO78+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Protein substitution model, using the dcmutt implementation of Kosiol and Goldamn 2005 and free equilibrium frequencies. The @var{thetaX} are frequencies parameters, where X is 1 to 19.
+Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005 and free equilibrium frequencies.
+The @var{thetaX} are frequencies parameters, where X is 1 to 19.
 Parameter @var{theta1} is the proportion of A, @var{theta2} is the proportion of R over (1-A), @var{theta3} the proportion of N over (1-A-R), etc.
 
 @item JTT92+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Protein substitution model, using the dcmutt implementation of Kosiol and Goldamn 2005 and free equilibrium frequencies.
+Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005 and free equilibrium frequencies.
 
 @item Empirical(file=@{path@})
 Build a protein substitution model from a file in PAML format.
@@ -431,7 +458,8 @@ Build a protein substitution model from a file in PAML format.
 Build a protein substitution model from a file in PAML format, and use free equilibrium frequencies.
 
 @item TS98(model=@{model description@}, s1=@{real>0@}, s2=@{real>0@})
-Tuffley and Steel 1998's 'covarion' model, taking a nested substitution model as argument for @var{model}. the nested model can be any substitution model for any alphabet.
+Tuffley and Steel 1998's 'covarion' model, taking a nested substitution model as argument for @var{model}.
+The nested model can be any substitution model for any alphabet.
 
 @item G01(model=@{model description@}, rdist=@{rate distribution description@}, mu=@{real>0@})
 Galtier 2001's 'covarion' model, taking a nested substitution model as argument for @var{model} and a rate distribution for parameter @var{rdist} (see below).
@@ -445,7 +473,7 @@ Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rat
 
 It is possible to reduce the parameter space by putting extra constraints on parameters, using for instance
 @example
-model=TN93(kappa1=1.0,kapp2=kappa1,theta=0.5)
+model=TN93(kappa1=1.0, kappa2=kappa1, theta=0.5)
 @end example
 In that particular case the resulting model is strictly equivalent to the HKY85 model. This syntax however allows to define a larger set of models.
 
@@ -511,7 +539,7 @@ The use of that option will cause the program to exit just after producing the t
 
 @subsubsection Root frequencies
 
-As since version 0.4.0, BppSuite uses the keyval syntaxe to set up root frequencies,
+As since version 0.4.0, BppSuite uses the keyval syntax to set up root frequencies,
 @table @command
 @item nonhomogeneous.root_freq=@{description of frequency set@}
 @end table
@@ -542,7 +570,7 @@ Allows you to set the GC content by hand.
 
 @subsection Rate across site distribution
 
-From version 0.4.0, BppSuite uses the keyval syntax for specifying rate distributions.
+From version 0.4.0, BppSuite uses the keyval syntax for specifying the distributions of substitution rate across sites.
 
 @table @command
 
@@ -551,18 +579,18 @@ Specify the rate across sites distribution.
 
 @end table
 
-the following distributions are currently available:
+The following distributions are currently available:
 
 @table @command
 
-@item Uniform()
+@item Uniform
 Uses a constant rate across sites.
 
 @item Gamma(n=@{int>=2@}, alpha=@{float>0@})
-A gamma discretized distribution of rates, with @var{n} classes, and a given shape.
+A discretized gamma distribution of rates, with @var{n} classes, and a given shape.
 
 @item Invariant(dist=@{rate distribution description@}, p=@{real[0,1]@})
-A composite distribution llowing a special class of invariant site, with a probability @var{p}.
+A composite distribution allowing a special class of invariant site, with a probability @var{p}.
 
 @end table
 
@@ -577,11 +605,10 @@ Some programs allow you to (re-)estimate numerical parameters, including
 Branch lengths
 
 @item
-Entries of the substitution matrices, included base frequencies.
-values)
+Entries of the substitution matrices, included base frequencies values)
 
 @item
-Parameters of the rate distribution (shape parameter of the gamma law, proportion of invariant sites).
+Parameters of the rate distribution (currently shape parameter of the gamma law, proportion of invariant sites).
 
 @end itemize
 
@@ -589,7 +616,7 @@ Parameters of the rate distribution (shape parameter of the gamma law, proportio
 
 @item optimization = @{boolean@}
 Tells if numerical parameters should be estimated.
-Topology estimation is not supported.
+Only numerical parameters will be estimated using this procedure.
 
 @item optimization.method=@{DB|fullD@}
 The optimization method to use.
@@ -598,9 +625,9 @@ other parameters, and the fullD options uses derivatives for all parameters, wit
 
 @item optimization_DB.nstep=@{int>=1@}
 Number of progressive steps to perform during optimization.
-If @option{nstep=3} and @option{precision=E-6}, a first optimization with @option{precision = E-2}, will be performed, then a round with @option{precision} set to E-4 and
-finally @option{precision} will be set to E-6. This approach generally saves
-significant computation time.
+If @option{nstep=3} and @option{precision=E-6}, a first optimization with @option{precision=E-2}, will be performed, then a round with @option{precision} set to E-4 and
+finally @option{precision} will be set to E-6.
+This approach generally saves a significant amount of computation time.
 
 @item optimization.method.derivatives = @{newton|gradient@}
 Derivatives-based algorithm to use.
@@ -619,11 +646,14 @@ standard output or none for no output).
 A file where to dump warning messages.
 
 @item optimization.max_number_f_eval = @{int<0@}
-The maximum number of likelihood evaluation to perform.
+The maximum number of likelihood evaluations to perform.
 
 @item optimization.ignore_parameter = @{list<chars>@}
-A list of parameters to ignore during the estimation process. The parameter name should include there "namespace", that is their model name, for instance K80.kappa, TN93.theta, GTR.a, Gamma.alpha, etc.
-For nested model, the syntax is the following: G01.Gamma.alpha, TS98.T92.kappa, RE08.lamba, RE08.G01.GTR.a, etc. 'Ancient' will ignore all parameters in the ancestral frequency set (non-homogeneous models), and 'BrLen' will ignore all branch lengths.
+A list of parameters to ignore during the estimation process.
+The parameter name should include there "namespace", that is their model name, for instance K80.kappa, TN93.theta, GTR.a, Gamma.alpha, etc.
+For nested models, the syntax is the following: @command{G01.rdist_Gamma.alpha},
+    @command{TS98.model_T92.kappa}, @command{RE08.lamba},
+    @command{RE08.model_G01.model_GTR.a}, etc. 'Ancient' will ignore all parameters in the ancestral frequency set (non-homogeneous models), and 'BrLen' will ignore all branch lengths.
 
 @item optimization.tolerance = @{float>0@}
 The precision on the log-likelihood to reach.
@@ -634,8 +664,7 @@ File path where to write the optimized tree.
 @item output.infos = @{@{path@}|none@}
 A text file containing several statistics for each site in the
 alignment.
-These statistics include posterior rate, rate class with maximum
-posterior probability and whether the site is conserved or not.
+These statistics include the posterior rate, rate class with maximum posterior probability and whether the site is conserved or not.
 
 @end table
 
@@ -650,7 +679,7 @@ posterior probability and whether the site is conserved or not.
 The output file where to write the sequences.
 
 @item output.sequence.format = @{sequence format description@}
-The output file format, using the same syntaxe as for reading (@pxref{Sequences}).
+The output file format, using the same syntax as for reading (@pxref{Sequences}).
 Only formats Fasta, Mase and Phylip are supported for writing.
 In addition, most of the formats support the @command{length} argument, that specifies the maximum number of sequence characters to output on each line (default set to 100).
 
@@ -691,7 +720,11 @@ The BppML program allows you to optimize tree topologies and perform a bootstrap
 @table @command
 
 @item init.tree = @{user|random@}
-Set the method for the initial tree to use. @option{user} allows you to use an existing file using the method described in the Common options section. This file may have been built using another method like neighbor joining or parsimony for instance. @option{random} picks a random tree, which is handy to test convergence. This may however slows down significantly the optimization process.
+Set the method for the initial tree to use.
+The @option{user} option allows you to use an existing file using the method described in the Common options section.
+This file may have been built using another method like neighbor joining or parsimony for instance.
+The @option{random} option picks a random tree, which is handy to test convergence.
+This may however slows down significantly the optimization process.
 
 @item init.brlen.method = @{method description@}
 Set how to initialize the branch lengths.
@@ -728,7 +761,9 @@ Algorithm to use for topology estimation: only NNI available for now.
 Set the NNI method to use.
 @option{fast}: test sequentially all NNI, if a NNI improving the likelihood is found, it is performed.
 @option{better}: test all possible NNIs, do the one with the biggest likelihood increase.
-@option{phyml}: test all possible NNIs, try doing all the improving ones. If the final likelihoods is better, perform all NNIs. Otherwise, try to do half of them, and so on. 
+@option{phyml}: test all possible NNIs, try doing all the improving ones.
+If the final likelihoods is better, perform all NNIs.
+Otherwise, try to do half of them, and so on. 
 In most cases the @option{phyml} option shows the best performance.
 
 @item optimization.topology.nstep = @{int>0@}
@@ -791,13 +826,18 @@ Theses options are mainly for debugging or testing purpose, in most case you wil
 
 @item likelihood.recursion = @{simple|double@}
 Set the type of likelihood recursion to use.
-@option{simple}: derivatives take more time to compute, but likelihood computation is faster. For big data sets, it can save a lot of memory usage too, particularly when the data are compressed.
-@option{double}: uses more memory and need more time to compute likelihood, due to the double recursion. Analytical derivatives are however faster to compute. This option has no effect in the following cases: (i) topology estimation: this requires a double recursive algorithm, (ii) optimization with a molecular clock: a simple recursion with data compression is used in this case, due to the impossibility of computing analytical derivatives.
+@option{simple}: derivatives take more time to compute, but likelihood computation is faster.
+For big data sets, it can save a lot of memory usage too, particularly when the data are compressed.
+@option{double}: uses more memory and need more time to compute likelihood, due to the double recursion.
+Analytical derivatives are however faster to compute.
+
+This command has no effect in the following cases: (i) topology estimation: this requires a double recursive algorithm, (ii) optimization with a molecular clock: a simple recursion with data compression is used in this case, due to the impossibility of computing analytical derivatives.
 
 @item likelihood.recursion_simple.compression = @{simple|recursive@}
 
 Site compression for the simple recursion:
-@option{simple}: identical sites are not computed twice, @option{recursive}: look for site patterns to save computation time during optimization, but requires extra time for building the patterns. This is usually the best option, particularly for nucleotide data sets.
+@option{simple}: identical sites are not computed twice, @option{recursive}: look for site patterns to save computation time during optimization, but requires extra time for building the patterns.
+This is usually the best option, particularly for nucleotide data sets.
 
 @end table
 
@@ -814,7 +854,8 @@ The BppSeqGen program uses the common syntax introduced in the previous section 
 The number of site positions to simulate.
 
 @item input.infos = @{path@}
-A info file like the one output by bppML. The estimated site-specific rates will then be used to simulate the same number of sites as found in the info file, with the corresponding rates.
+A info file like the one output by bppML.
+The estimated site-specific rates will then be used to simulate the same number of sites as found in the info file, with the corresponding rates.
 
 @end table
  
@@ -862,9 +903,10 @@ Where to write the matrix file (only philip format supported for now).
 The algorithm to use to build the tree.
 
 @item optimization.method = @{init|pairwise|iterations@}
-There are several way to optimize substitution parameters.
-The @option{init} option corresponds to the standard behavior, that is keep them to their initial, user-provided value.
-The @option{pairwise} option estimate those parameters in a pairwise manner. This should be avoided, particularly with parameter-rich models.
+There are several ways to optimize substitution parameters.
+The @option{init} option corresponds to the standard behavior, that is, keeping them to their initial, user-provided value.
+The @option{pairwise} option estimate those parameters in a pairwise manner.
+This should be avoided, particularly with parameter-rich models.
 Finally the @option{iterations} option corresponds to Ninio et al, Bioinformatics (2007) recursive algorithm:
 After each distance tree, a global ML estimation of the substitution parameters is performed.
 The estimated values are then used to rebuild a distance matrix and a tree.
@@ -918,7 +960,8 @@ The method to use for getting the reference tree.
 If @option{input} is chosend, then the tree is loaded using the single-tree reading options (@pxref{Tree}). 
 
 @item tree_consensus.threshold = @{int[0,1]@} (tree = consensus)
-The threshold to use for the consensus method. 0 will output a fully resolved tree, 0.5 corresponds to the majority rule and 1 to the strict consensus, but any intermediate value can be specified.
+The threshold to use for the consensus method.
+0 will output a fully resolved tree, 0.5 corresponds to the majority rule and 1 to the strict consensus, but any intermediate value can be specified.
 
 @end table
 
