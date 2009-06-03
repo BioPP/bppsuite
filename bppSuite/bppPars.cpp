@@ -82,7 +82,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*             Bio++ Parsimony Methods, version 0.1.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 05/05/07 *" << endl;
+  cout << "*                                           Last Modif. 02/06/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -111,7 +111,7 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 	
   // Get the initial tree
-  TreeTemplate<Node> * tree = NULL;
+  Tree* tree = 0;
   string initTree = ApplicationTools::getStringParameter("init.tree", params, "user", "", false, false);
   ApplicationTools::displayResult("Input tree", initTree);
   if(initTree == "user")

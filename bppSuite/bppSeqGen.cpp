@@ -73,7 +73,7 @@ using namespace bpp;
 /**
  * @brief Read trees from an input file, with segment annotations.
  */
-void readTrees(ifstream& file, vector<TreeTemplate<Node> *>& trees, vector<double>& pos) throw (Exception)
+void readTrees(ifstream& file, vector<Tree*>& trees, vector<double>& pos) throw (Exception)
 {
   string line = "";
   double begin, end;
@@ -150,7 +150,7 @@ int main(int args, char ** argv)
 
   Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
 
-  vector<TreeTemplate<Node> *> trees;
+  vector<Tree*> trees;
   vector<double> positions;
   string inputTrees = ApplicationTools::getStringParameter("input.tree.method", params, "single", "", true, false);
   if(inputTrees == "single")
@@ -159,11 +159,12 @@ int main(int args, char ** argv)
     positions.push_back(0);
     positions.push_back(1);
     ApplicationTools::displayResult("Number of leaves", TextTools::toString(trees[0]->getNumberOfLeaves()));
-    ApplicationTools::displayResult("Number of sons at root", TextTools::toString(trees[0]->getRootNode()->getNumberOfSons()));
-    string treeWIdPath = ApplicationTools::getAFilePath("output.tree.path", params, false, false);
+    //ApplicationTools::displayResult("Number of sons at root", TextTools::toString(trees[0]->getRootNode()->getNumberOfSons()));
+    string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", params, false, false);
     if(treeWIdPath != "none")
     {
-      vector<Node *> nodes = trees[0]->getNodes();
+      TreeTemplate<Node> ttree(*trees[0]);
+      vector<Node *> nodes = ttree.getNodes();
       for(unsigned int i = 0; i < nodes.size(); i++)
       {
         if(nodes[i]->isLeaf())
@@ -174,7 +175,7 @@ int main(int args, char ** argv)
       Newick treeWriter;
       treeWriter.enableExtendedBootstrapProperty("NodeId");
       ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
-      treeWriter.write(*trees[0], treeWIdPath);
+      treeWriter.write(ttree, treeWIdPath);
       delete trees[0];
       cout << "BppSegGen's done." << endl;
       exit(0);

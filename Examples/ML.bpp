@@ -29,17 +29,7 @@ init.tree = user
 input.tree.file = $(DATA).dnd
 input.tree.format = Newick
 
-#input: keep initial branch lengths
-#equal: put all branch lengths to the same value
-#clock: coerce to a clock tree
-#grafen: uses Grafen's method to compute branch lengths
-init.brlen.method = input
-#The value for the equal option:
-init.brlen.method_equal.value = 0.1
-#The height of the tree for Grafen's method (input for using the current height of the tree)
-init.brlen.method_grafen.height = input
-#Grafen's power parameter:
-init.brlen.method_grafen.rho = 1.0
+init.brlen.method = Input
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
@@ -147,7 +137,7 @@ optimization.scale_first = no
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
-output.tree.format = Newick
+output.tree.format = Nexus
 
 # Alignment information log file (site specific rates, etc):
 output.infos = $(DATA).infos

@@ -109,7 +109,7 @@ int main(int args, char ** argv)
   DistanceMatrix* dist = NULL;
   if(inputMethod == "tree")
   {
-    TreeTemplate<Node>* tree = PhylogeneticsApplicationTools::getTree(params);
+    Tree* tree = PhylogeneticsApplicationTools::getTree(params);
     dist = TreeTemplateTools::getDistanceMatrix(*tree);
   }
   else if(inputMethod == "matrix")

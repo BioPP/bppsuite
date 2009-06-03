@@ -1,11 +1,14 @@
-input.list.file = treeList.dnd
+input.trees.file = treeList.dnd
+input.trees.format = Newick
 # [input|consensus]
 tree = input
-tree_input.file = tree.dnd
+input.tree.file = tree.dnd
+input.tree.format = Newick
 # 0 = fully resolved
 # 0.5 = majority rule
 # 1 = strict
 # or any intermediate value...
 tree_consensus.threshold = 0.5
-output.tree.file = boot.dnd
+output.tree.file = boot.nx
+output.tree.format = Nexus
 

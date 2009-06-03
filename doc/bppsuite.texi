@@ -340,12 +340,24 @@ Sites not matching the criterion will not be included in the analysis.
 @table @command
 @item input.tree.file = @{path@}
 The phylogenetic tree file to use.
-Branch lengths are optional.
 
 @item input.tree.format = [Newick|Nexus]
 The format of the input tree file.
 
 @end table
+
+Some programs may require that your file contains several trees.
+The corresponding options are then:
+
+@table @command
+@item input.trees.file = @{path@}
+The file containing multiple trees.
+
+@item input.trees.format = [Newick|Nexus]
+The format of the input tree file.
+
+@end table
+
 
 @c ------------------------------------------------------------------------------------------------------------------
 
@@ -681,17 +693,30 @@ The BppML program allows you to optimize tree topologies and perform a bootstrap
 @item init.tree = @{user|random@}
 Set the method for the initial tree to use. @option{user} allows you to use an existing file using the method described in the Common options section. This file may have been built using another method like neighbor joining or parsimony for instance. @option{random} picks a random tree, which is handy to test convergence. This may however slows down significantly the optimization process.
 
-@item init.brlen.method = @{input|equal|clock|grafen@}
-Set how to initialize the branch lengths. @option{input}: keep initial branch lengths as is. @option{equal}: put all branch lengths to the same value. @option{clock}: coerce to a clock tree. @option{grafen}: uses Grafen's method to compute branch lengths.
-In Grafen's method, all node is given a weight equal to the number of underlying leaves. The length of each branch is then computed as the difference of the weights of the connected nodes, and further divided by the number of leaves in the tree. The height of all nodes are then raised to the power of 'rho', a user specified value. The tree is finally scaled to match a given total height. A value of rho=0 provides a star tree, and the greater the value of rho, the more recent the inner nodes. 
+@item init.brlen.method = @{method description@}
+Set how to initialize the branch lengths.
+Available methods include:
 
-@item init.brlen.method_equal.value = @{real@} (init.brlen.method = equal)
-The value for the @option{equal} option.
+@table @command
 
-@item init.brlen.method_grafen.height = @{@{real>0@}|input@} (init.brlen.method = grafen)
-The height of the tree for Grafen's method (input for using the current height of the tree)
-@item init.brlen.method_grafen.rho = @{real>0@}
-Grafen's power parameter.
+@item Input
+Keep initial branch lengths as is.
+
+@item Equal(value=@{float>0@})
+Set all branch lengths to the same value, provided as argumet.
+
+@item Clock
+Coerce to a clock tree.
+
+@item Grafen(height=@{@{real>0@}|input@}, rho = @{real>0@})
+Uses Grafen's method to compute branch lengths.
+In Grafen's method, each node is given a weight equal to the number of underlying leaves.
+The length of each branch is then computed as the difference of the weights of the connected nodes, and further divided by the number of leaves in the tree.
+The height of all nodes are then raised to the power of 'rho', a user specified value.
+The tree is finally scaled to match a given total height, which can be the original one (@option{height=input}), or fixed to a certain value (usually @option{height=1}).
+A value of rho=0 provides a star tree, and the greater the value of rho, the more recent the inner nodes. 
+
+@end table
 
 @item optimization.topology = @{boolean@}
 Enable the tree topology estimation.
@@ -883,24 +908,17 @@ Where to write bootstrap trees.
 @section BppConsense: Bio++ Consensus Trees
 
 Probably one of the simplest program to use in the suite, just takes a list of trees (for instance produced by BppML, BppDist or BppPars with the bootstrap option enabled) and compute bootstrap values for a reference tree, provided as input, or constructed using a consensus method.
+The program uses the multiple-trees reading options for input (@pxref{Tree}) and single-tree writing options for output.
 
 There are only specific options here:
 @table @command
 
-@item input.list.file = @{path@}
-The trees file in multi-newick format.
-
 @item tree = @{input|consensus@}
 The method to use for getting the reference tree.
-
-@item tree_input.file = @{path@} (tree = input)
-The input file for the reference tree, in simple-newick format.
+If @option{input} is chosend, then the tree is loaded using the single-tree reading options (@pxref{Tree}). 
 
 @item tree_consensus.threshold = @{int[0,1]@} (tree = consensus)
 The threshold to use for the consensus method. 0 will output a fully resolved tree, 0.5 corresponds to the majority rule and 1 to the strict consensus, but any intermediate value can be specified.
-
-@item output.tree.file = @{path@}
-The output file for the tree (in simple newick format).
 
 @end table
 

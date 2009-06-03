@@ -70,9 +70,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Consensus and Bootstrap Methods, version 0.2.0     *" << endl;
+  cout << "*       Bio++ Consensus and Bootstrap Methods, version 0.3.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created     06/06/07 *" << endl;
-  cout << "*          N. Galtier                       Last Modif. 02/02/09 *" << endl;
+  cout << "*          N. Galtier                       Last Modif. 02/06/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -89,24 +89,14 @@ int main(int args, char ** argv)
   cout << "Parsing options:" << endl;
   
   map<string, string> params = AttributesTools::parseOptions(args, argv);
+ 
+  vector<Tree*> list = PhylogeneticsApplicationTools::getTrees(params);
 
-  Newick newick;
-  string listPath = ApplicationTools::getAFilePath("input.list.file", params);
-  ApplicationTools::displayResult("Input list file", listPath);
-  if(listPath == "none") throw Exception("You must provide an input tree list file.");
-  
-  vector<Tree *> list;
-  newick.read(listPath, list);
-  ApplicationTools::displayResult("Number of trees found", TextTools::toString(list.size()));
-
-  Tree * tree = NULL;
+  Tree* tree = 0;
   string treeMethod = ApplicationTools::getStringParameter("tree", params, "consensus");
   if(treeMethod == "input")
   {
-    string treePath = ApplicationTools::getAFilePath("tree_input.file", params);
-    if(treePath == "none") throw Exception("You must provide a file name for 'tree_input.file'.");
-    ApplicationTools::displayResult("Input tree file", treePath);
-    tree = newick.read(treePath);
+    tree = PhylogeneticsApplicationTools::getTree(params);
     ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
   }
   else if(treeMethod == "consensus")

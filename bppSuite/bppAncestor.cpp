@@ -127,13 +127,14 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
   
   // Get the initial tree
-  TreeTemplate<Node> * tree = PhylogeneticsApplicationTools::getTree(params);
+  Tree* tree = PhylogeneticsApplicationTools::getTree(params);
   ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   
   string treeWIdPath = ApplicationTools::getAFilePath("output.tree.path", params, false, false);
   if(treeWIdPath != "none")
   {
-    vector<Node *> nodes = tree->getNodes();
+    TreeTemplate<Node> ttree(*tree);
+    vector<Node *> nodes = ttree.getNodes();
     for(unsigned int i = 0; i < nodes.size(); i++)
     {
       if(nodes[i]->isLeaf())
@@ -144,7 +145,7 @@ int main(int args, char ** argv)
     Newick treeWriter;
     treeWriter.enableExtendedBootstrapProperty("NodeId");
     ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
-    treeWriter.write(*tree, treeWIdPath);
+    treeWriter.write(ttree, treeWIdPath);
     delete tree;
     cout << "BppML's done." << endl;
     exit(0);
@@ -296,7 +297,8 @@ int main(int args, char ** argv)
   {
     ApplicationTools::displayResult("Output file", outputFile);
     ofstream out(outputFile.c_str(), ios::out);
-    vector<Node *> nodes = tree->getInnerNodes();
+    TreeTemplate<Node> ttree(*tree);
+    vector<Node *> nodes = ttree.getInnerNodes();
     unsigned int nbNodes = nodes.size();
     
     // Get the rate class with maximum posterior probability:
