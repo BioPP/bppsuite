@@ -71,9 +71,10 @@ using namespace bpp;
 void help()
 {
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "bppphysamp arg1=value1 arg2=value2 etc" << endl;
-  *ApplicationTools::message << "or" << endl;
-  *ApplicationTools::message << "bppphylosamp param=optionfile" << endl;
+  *ApplicationTools::message << "bppphysamp parameter1_name=parameter1_value"    << endl;
+  *ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file" << endl;
+  *ApplicationTools::message << endl;
+  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
   *ApplicationTools::message << "__________________________________________________________________________" << endl;
 }
 
@@ -88,7 +89,7 @@ int main(int args, char ** argv)
   if(args == 1)
   {
     help();
-    exit(0);
+    return 0;
   }
   
   try {
@@ -188,9 +189,9 @@ int main(int args, char ** argv)
     cout << "_____________________________________________________" << endl;
     cout << "ERROR!!!" << endl;
     cout << e.what() << endl;
-    exit(-1);
+    return 1;
   }
 
-  return (0);
+  return 0;
 }
 

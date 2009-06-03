@@ -973,17 +973,15 @@ The threshold to use for the consensus method.
 The Bio++ Phylogenetic Sampler samples sequences from a file according to phylogenetic information.
 The goal is to clean a big data set by removing redundant sequences, bringing only few additional information for evolutionary analyses.
 
-The BppPhySamp programs uses the common options for setting the alphabet, loading the sequences (@pxref{Sequences}) and writing the resulting data set (@pxref{WritingSequences}).
+The BppPhySamp programs uses the common options for setting the alphabet, loading the sequences (@pxref{Sequences}) and (@pxref{Tree}) and writing the resulting data set (@pxref{WritingSequences}).
 
 @table @command
 
 @item input.method = @{tree|matrix@}
 The method to provide phylogenetic information, either by a tree or a matrix.
+If the @option{tree} option is used, then the options for reading trees are used (@pxref{Tree}).
 
-@item tree.file = @{path@} (input.method = tree)
-The input tree file.
-
-@item input.matrix = @{path@}
+@item input.matrix = @{path@} (input.method = matrix)
 The input matrix file.
 
 @item threshold = @{float>0@}
@@ -999,7 +997,26 @@ How to chose between closely related sequences? @option{length} takes the longes
 @node bppreroot, bppseqman, bppphysamp, Reference
 @section BppReroot: Bio++ Serial Tree Re-rooting
  
-[todo]
+@table @command
+
+@item input.trees.file=@{path@}
+A path toward multi-trees file (newick).
+
+@item outgroups.file=@{path@}
+A path toward a file containing the different levels of outgroups.
+
+@item print.option=@{bool@}
+If set to true, the unrootable trees are printed as unrooted in the output file, otherwise the unrootable trees are not printed.
+  
+@item tryAgain.option=@{bool@}
+If set to true and ReRoot finds a non-monophyletic outgroup, it tries the next outgroup.
+Otherwise, if ReRoot finds a non-monophyletic outgroup, the analysis for this tree is interrupted.
+No more outgroup are analysed.
+
+@item output.trees.file=@{path@}
+File where to write the rerooted trees.
+
+@end table
 
 @c ------------------------------------------------------------------------------------------------------------------
 

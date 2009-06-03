@@ -86,7 +86,7 @@ int main(int args, char ** argv)
   if(args == 1)
   {
     help();
-    exit(0);
+    return 0;
   }
   
   try {
@@ -350,9 +350,9 @@ int main(int args, char ** argv)
 
   } catch(exception & e) {
     cout << e.what() << endl;
-    exit(-1);
+    return 1;
   }
 
-  return (0);
+  return 0;
 }
 

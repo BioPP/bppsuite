@@ -69,21 +69,12 @@ typedef TreeTemplate<Node> MyTree;
 
 void help()
 {
-  *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "input.list.file            | [path] toward multi-trees file (newick)      " << endl;
-  *ApplicationTools::message << "outgroups.file             | [path] toward file containing the different levels of outgroups. " << endl;
-  *ApplicationTools::message << "print.option               | [false|rue]         " << endl;
-  *ApplicationTools::message << "                           | true = the unrootable trees are printed as unrooted in the output.tree.file. " << endl;
-  *ApplicationTools::message << "                           | false = the unrootable trees are not printed in the output.tree.file. " << endl;
-  *ApplicationTools::message << "tryAgain.option            | [false|rue] " << endl;
-  *ApplicationTools::message << "                           | true = if ReRoot finds a non-monophyletic outgroup, it tries the next outgroup. " << endl;
-  *ApplicationTools::message << "                           | false = if ReRoot finds a non-monophyletic outgroup, the analysis for this tree is interrupted." << endl;
-  *ApplicationTools::message << "                           |         No more outgroup are analysed" << endl;
-  *ApplicationTools::message << "___________________________|______________________________________________" << endl;
-  *ApplicationTools::message << "Output tree parameters:" << endl;
-  *ApplicationTools::message << "output.tree.file              | file where to write the rerooted trees" << endl;
-  *ApplicationTools::message << "______________________________|___________________________________________" << endl;
+  *ApplicationTools::message << "bppreroot parameter1_name=parameter1_value"    << endl;
+  *ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file" << endl;
+  *ApplicationTools::message << endl;
+  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
 }
+
 
 
 
@@ -93,14 +84,14 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*                  Bio++ ReRoot, version 0.1.3                   *" << endl;
   cout << "* Author: C. Scornavacca                    Created     15/01/08 *" << endl;
-  cout << "*                                           Last Modif. 14/02/08 *" << endl;
+  cout << "*                                           Last Modif. 03/06/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
   if(args == 1)
   {
     help();
-    exit(0);
+    return 0;
   }
   
   try {
@@ -120,15 +111,15 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Outgroups file", outgroupsPath);
   if(outgroupsPath == "none") throw Exception("You must provide an outgroup list file.");
        
-  string outputPath = ApplicationTools::getAFilePath("output.tree.file", params, true, false);
+  string outputPath = ApplicationTools::getAFilePath("output.trees.file", params, true, false);
   ApplicationTools::displayResult("Output file", outputPath);
   if(outputPath == "none") throw Exception("You must provide an output file.");
      
   bool printOption = ApplicationTools::getBooleanParameter("print.option", params, false);
   bool tryAgain = ApplicationTools::getBooleanParameter("tryAgain.option", params, true);
           
-  vector<Tree *> tempTrees;
-  vector<MyTree *> trees;
+  vector<Tree*> tempTrees;
+  vector<MyTree*> trees;
 
   //ApplicationTools::displayResult("Number of trees found", TextTools::toString(trees.size()));
             
@@ -144,7 +135,7 @@ int main(int args, char ** argv)
     vector <string> tempTaxa;
     getline(file, temp, '\n');  
     StringTokenizer line = StringTokenizer::StringTokenizer(temp, " ,"); 
-    while(line.hasMoreToken())
+    while (line.hasMoreToken())
     {
       tempTaxa.push_back(line.nextToken());  
     }
@@ -336,7 +327,7 @@ int main(int args, char ** argv)
   catch(exception & e)
   {
     cout << e.what() << endl;
-    exit(-1);
+    return 1;
   }
 
   return 0;
