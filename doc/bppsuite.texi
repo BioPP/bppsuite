@@ -530,7 +530,7 @@ Finally, you may find useful the following options:
 
 @table @command
 
-@item output.tree.path = @{@{path@}|none@}
+@item output.tree_ids.file = @{@{path@}|none@}
 A tree file in newick format, with node ids instead of bootstrap
 values, and leaf names with their id as suffix.
 The use of that option will cause the program to exit just after producing the tagged tree.
@@ -713,9 +713,9 @@ This section now details the specific options for each program in the Bio++ Prog
 
 The BppML program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}), specifying the model (@pxref{Model}), and estimating parameters (@pxref{Estimation}).
 
-The BppML program allows you to optimize tree topologies and perform a bootstrap analysis.
+The BppML program allows you to optimize tree topologies and model parameters and perform a bootstrap analysis.
 
-@subsection Topology optimization
+@subsection Branch lengths initial values
 
 @table @command
 
@@ -750,6 +750,11 @@ The tree is finally scaled to match a given total height, which can be the origi
 A value of rho=0 provides a star tree, and the greater the value of rho, the more recent the inner nodes. 
 
 @end table
+@end table
+
+@subsection Topology optimization
+
+@table @command
 
 @item optimization.topology = @{boolean@}
 Enable the tree topology estimation.
@@ -785,12 +790,23 @@ Shall we first scale the tree before optimizing parameters? [deprecated]
 
 @end table
 
-@subsection Output results
+
+@subsection Molecular clock
+
+BppML can also optimize branch lengths with a molecular clock:
 
 @table @command
 
-@item output.tree.file = @{@{path@}|none@}
-Should we write the resulting tree? none or file name.
+@item optimize.clock=@{no|global@}
+Tell if a molecular clock should be assumed.
+Topology estimation is not possible with a clock constraint.
+
+@end table
+
+
+@subsection Output results
+
+@table @command
 
 @item output.infos = @{@{path@}|none@}
 Alignment information log file (site specific rates, etc):
@@ -1045,56 +1061,44 @@ See below for a list of these operations.
 @end table
 
 @table @option
-@item complement [[alphabet = DNA or RNA]]
+@item Complement [[alphabet = DNA or RNA]]
 Convert to the complementary sequence, keeping the original alphabet.
 
-@item transcript [[alphabet = DNA or RNA]]
+@item Transcript [[alphabet = DNA or RNA]]
 Convert to the complementary sequence, switching the type of alphabet (DNA<->RNA).
 
-@item switch [[alphabet = DNA or RNA]]
+@item Switch [[alphabet = DNA or RNA]]
 Change the alphabet type (DNA<->RNA).
 
-@item translate [[alphabet = DNA or RNA]]
+@item Translate(code = @{Standard|VerMito|InvMito|EchMito@}) [[alphabet = DNA or RNA]]
 Convert to proteins. You have to specify a genetic code, see specific options.
+@option{code}: The genetic code to use for the translation.
 
-@item invert
+@item Invert
 Invert the sequence 5' <-> 3' or N <-> C
 
-@item remove_gaps
+@item RemoveGaps
 Remove all gaps in sequences (ie, 'unalign')
 
-@item gap2unknown
+@item GapToUnknown
 Change gaps to fully unresolved characters, N for nucleotides and X for proteins.
 
-@item unknown2gap
+@item UnknownToGap
 Change (partially) unresolved characters to gaps.
 
-@item resolve_dotted [[Aligned sequences]]
+@item ResolveDotted(alphabet=@{RNA|DNA|Proteins@}) [[Aligned sequences]]
 Convert a human-readable alignment to a machine-readable alignment.
 This manipulation must be first if it is used, and the data must be load with the @option{Generic} alphabet.
+@option{alphabet}: The alphabet to use in order to resolve a dotted alignment.
 
-@item keep_complete [[Aligned sequences]]
+@item KeepComplete(maxGapAllowed=@{int>0@} or @{float[0,100]@}+%) [[Aligned sequences]]
 Keep only complete sites, ie sites without any gap. Sites with unresolved characters are not removed.
 It is also possible to fix a maximum proportion of gaps, see specific options.
-
-
-@end table
-
-Here are some manipulation-specific options:
-@table @command
- 
-@item sequence.manip_translate.code = @{Standard|VerMito|InvMito|EchMito@}
-The genetic code to use for translation.
-
-@item sequence.manip_keep_complete.max_gap_allowed = @{int>0@} or @{float[0,100]@}+% 
-Set the maximum proportion of gaps allowed.
-
-@item sequence.manip_resolve_dotted.alphabet = @{RNA|DNA|Proteins@}
-The alphabet to use in order to resolve a dotted alignment.
+@option{maxGapAllowed}: The maximum proportion of gaps allowed.
 
 @end table
 
-Examples of usage:
+Examples of use:
 
 @table @bullet
 
@@ -1105,24 +1109,22 @@ sequence.manip=
 
 @item Change DNA to RNA:
 @example
-sequence.manip=switch
+sequence.manip=Switch
 @end example
 
 @item Unalign sequences, perform transcription and translate to proteins:
 @example
-sequence.manip=remove_gaps,transcript,translate
+sequence.manip=RemoveGaps,Transcript,Translate
 @end example
 
 @item Change all unresolved characters to gaps and keep only positions with less than 5 gaps:
 @example
-sequence.manip=unknown2gap,keep_complete
-sequence.manip_keep_complete.max_gap_allowed=5
+sequence.manip=UnknownToGap,KeepComplete(maxGapAllowed=5)
 @end example
 
 @item Keep only positions with less than 30% of gaps, and change them to unresolved characters:
 @example
-sequence.manip=keep_complete,gap2unknown
-sequence.manip_keep_complete.max_gap_allowed=30%
+sequence.manip=KeepComplete(maxGapAllowed=30%),GapToUnknown
 @end example
 
 @end table

@@ -62,6 +62,7 @@ using namespace std;
 #include <Utils/AttributesTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/ApplicationTools.h>
+#include <Utils/KeyvalTools.h>
 
 using namespace bpp;
 
@@ -78,12 +79,12 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Sequence Manipulator, version 0.1              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 02/03/09 *" << endl;
+  cout << "*           Bio++ Sequence Manipulator, version 0.2              *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 06/06/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
-  if(args == 1)
+  if (args == 1)
   {
     help();
     return 0;
@@ -107,19 +108,22 @@ int main(int args, char ** argv)
   
   vector<string> actions = ApplicationTools::getVectorParameter<string>("sequence.manip", params, ',', "", "", false, false);
   
-  for(unsigned int i = 0; i < actions.size(); i++)
+  for (unsigned int i = 0; i < actions.size(); i++)
   {
-    ApplicationTools::displayResult("Performing action", actions[i]);
+    string cmdName;
+    map<string, string> cmdArgs;
+    KeyvalTools::parseProcedure(actions[i], cmdName, cmdArgs);
+    ApplicationTools::displayResult("Performing action", cmdName);
 
     // +-----------------+
     // | Complementation |
     // +-----------------+
-    if(actions[i] == "complement")
+    if (cmdName == "Complement")
     {
-      VectorSequenceContainer * vsc = new VectorSequenceContainer(sequences->getAlphabet());
-      for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
+      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence * tmp = SequenceTools::complement(* sequences->getSequence(i));
+        Sequence* tmp = SequenceTools::complement(*sequences->getSequence(i));
         vsc->addSequence(*tmp);
         delete tmp;
       }
@@ -129,26 +133,26 @@ int main(int args, char ** argv)
     // +------------------------+
     // | (Reverse)Transcription |
     // +------------------------+
-    else if(actions[i] == "transcript")
+    else if (cmdName == "Transcript")
     {
-      if(sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET.getAlphabetType())
+      if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET.getAlphabetType())
       {
-        VectorSequenceContainer * vsc = new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET);
-        for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+        VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET);
+        for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
-          Sequence * tmp = SequenceTools::transcript(* sequences->getSequence(i));
+          Sequence* tmp = SequenceTools::transcript(* sequences->getSequence(i));
           vsc->addSequence(*tmp);
           delete tmp;
         }
         delete sequences;
         sequences = vsc;
       }
-      else if(sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET.getAlphabetType())
+      else if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET.getAlphabetType())
       {
-        VectorSequenceContainer * vsc = new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET);
-        for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+        VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET);
+        for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
-          Sequence * tmp = SequenceTools::reverseTranscript(* sequences->getSequence(i));
+          Sequence* tmp = SequenceTools::reverseTranscript(*sequences->getSequence(i));
           vsc->addSequence(*tmp);
           delete tmp;
         }
@@ -160,23 +164,23 @@ int main(int args, char ** argv)
     // +-------------------------------+
     // | Switching nucleotide alphabet |
     // +-------------------------------+
-    else if(actions[i] == "switch")
+    else if (cmdName == "Switch")
     {
-      const Alphabet * alpha = NULL;
-      if(sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET.getAlphabetType())
+      const Alphabet* alpha = NULL;
+      if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET.getAlphabetType())
       {
         alpha = &AlphabetTools::RNA_ALPHABET;
       }
-      else if(sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET.getAlphabetType())
+      else if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET.getAlphabetType())
       {
         alpha = &AlphabetTools::DNA_ALPHABET;
       }
       else throw Exception("Cannot switch alphabet type, alphabet is not of type 'nucleic'.");
-      VectorSequenceContainer * vsc = new VectorSequenceContainer(alpha);
-      for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      VectorSequenceContainer* vsc = new VectorSequenceContainer(alpha);
+      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        const Sequence * old = sequences->getSequence(i);
-        Sequence * tmp = new Sequence(old->getName(), old->getContent(), old->getComments(), alpha);
+        const Sequence* old = sequences->getSequence(i);
+        Sequence* tmp = new Sequence(old->getName(), old->getContent(), old->getComments(), alpha);
         vsc->addSequence(*tmp);
         delete tmp;
       }
@@ -186,26 +190,26 @@ int main(int args, char ** argv)
     // +-------------+
     // | Translation |
     // +-------------+
-    else if(actions[i] == "translate")
+    else if (cmdName == "Translate")
     {
-      if(!AlphabetTools::isNucleicAlphabet(sequences->getAlphabet()))
+      if (!AlphabetTools::isNucleicAlphabet(sequences->getAlphabet()))
         throw Exception("Error in translation: alphabet is not of type 'nucleic'.");
-      GeneticCode * gc = NULL;
-      string gcstr = ApplicationTools::getStringParameter("sequence.manip_translate.code", params, "Standard");
-      if(gcstr == "Standard")
+      GeneticCode* gc = NULL;
+      string gcstr = ApplicationTools::getStringParameter("code", cmdArgs, "Standard");
+      if (gcstr == "Standard")
         gc = new StandardGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()));
-      else if(gcstr == "VerMito")
+      else if (gcstr == "VerMito")
         gc = new VertebrateMitochondrialGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()));
-      else if(gcstr == "InvMito")
+      else if (gcstr == "InvMito")
         gc = new InvertebrateMitochondrialGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()));
-      else if(gcstr == "EchMito")
+      else if (gcstr == "EchMito")
         gc = new EchinodermMitochondrialGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()));
       else throw Exception("Unknown genetic code: " + gcstr);
 
-      VectorSequenceContainer * vsc = new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET);
-      for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET);
+      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence * tmp = gc->translate(*sequences->getSequence(i));
+        Sequence* tmp = gc->translate(*sequences->getSequence(i));
         vsc->addSequence(*tmp);
         delete tmp;
       }
@@ -215,12 +219,12 @@ int main(int args, char ** argv)
     // +-------------+
     // | Remove gaps |
     // +-------------+
-    else if(actions[i] == "remove_gaps")
+    else if (cmdName == "RemoveGaps")
     {
-      VectorSequenceContainer * vsc = new VectorSequenceContainer(sequences->getAlphabet());
-      for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
+      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence * tmp = SequenceTools::removeGaps(* sequences->getSequence(i));
+        Sequence* tmp = SequenceTools::removeGaps(*sequences->getSequence(i));
         vsc->addSequence(*tmp);
         delete tmp;
       }
@@ -230,12 +234,12 @@ int main(int args, char ** argv)
     // +---------------------------+
     // | Change gaps to unresolved |
     // +---------------------------+
-    else if(actions[i] == "gap2unknown")
+    else if (cmdName == "GapToUnknown")
     {
-      VectorSequenceContainer * vsc = new VectorSequenceContainer(sequences->getAlphabet());
-      for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
+      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence * tmp = new Sequence(* sequences->getSequence(i));
+        Sequence* tmp = new Sequence(*sequences->getSequence(i));
         SymbolListTools::changeGapsToUnknownCharacters(*tmp);
         vsc->addSequence(*tmp);
         delete tmp;
@@ -246,12 +250,12 @@ int main(int args, char ** argv)
     // +---------------------------+
     // | Change unresolved to gaps |
     // +---------------------------+
-    else if(actions[i] == "unknown2gap")
+    else if (cmdName == "UnknownToGap")
     {
-      VectorSequenceContainer * vsc = new VectorSequenceContainer(sequences->getAlphabet());
-      for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
+      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence * tmp = new Sequence(* sequences->getSequence(i));
+        Sequence* tmp = new Sequence(*sequences->getSequence(i));
         SymbolListTools::changeUnresolvedCharactersToGaps(*tmp);
         vsc->addSequence(*tmp);
         delete tmp;
@@ -262,9 +266,9 @@ int main(int args, char ** argv)
     // +--------------------------+
     // | Resolve dotted alignment |
     // +--------------------------+
-    else if(actions[i] == "resolved_dotted")
+    else if (actions[i] == "ResolvedDotted")
     {
-      SiteContainer * sites = NULL;
+      SiteContainer* sites = NULL;
       try { sites = dynamic_cast<SiteContainer *>(sequences); }
       catch(exception & e)
       {
@@ -273,11 +277,11 @@ int main(int args, char ** argv)
         sequences = sites;
       }
 
-      const Alphabet * alpha = NULL;
-      string alphastr = ApplicationTools::getStringParameter("sequence.manip_resolve_dotted.alphabet", params, "DNA");
-      if(alphastr == "DNA") alpha = &AlphabetTools::DNA_ALPHABET;
-      else if(alphastr == "RNA") alpha = &AlphabetTools::RNA_ALPHABET;
-      else if(alphastr == "Protein") alpha = &AlphabetTools::PROTEIN_ALPHABET;
+      const Alphabet* alpha = NULL;
+      string alphastr = ApplicationTools::getStringParameter("alphabet", cmdArgs, "DNA");
+      if (alphastr == "DNA") alpha = &AlphabetTools::DNA_ALPHABET;
+      else if (alphastr == "RNA") alpha = &AlphabetTools::RNA_ALPHABET;
+      else if (alphastr == "Protein") alpha = &AlphabetTools::PROTEIN_ALPHABET;
       else throw Exception("Resolved alphabet must be one of [DNA|RNA|Protein] for solving dotted alignment.");
       OrderedSequenceContainer * tmp = SiteContainerTools::resolveDottedAlignment(*sites, alpha);
       delete sequences;
@@ -286,13 +290,13 @@ int main(int args, char ** argv)
     // +---------------------+
     // | Keep complete sites |
     // +---------------------+
-    else if(actions[i] == "keep_complete")
+    else if (cmdName == "KeepComplete")
     {
-      SiteContainer * sites = NULL;
+      SiteContainer* sites = NULL;
       try
       {
         sites = dynamic_cast<SiteContainer *>(sequences);
-        if(!sites) throw exception();
+        if (!sites) throw exception();
       }
       catch(exception & e)
       {
@@ -300,46 +304,46 @@ int main(int args, char ** argv)
         delete sequences;
         sequences = sites;
       }
-      string maxGapOption = ApplicationTools::getStringParameter("sequence.manip_keep_complete.max_gap_allowed", params, "100%");
-      if(maxGapOption[maxGapOption.size()-1] == '%')
+      string maxGapOption = ApplicationTools::getStringParameter("maxGapAllowed", cmdArgs, "100%");
+      if (maxGapOption[maxGapOption.size()-1] == '%')
       {
         double gapFreq = TextTools::toDouble(maxGapOption.substr(0, maxGapOption.size()-1)) / 100.;
-        for(unsigned int i = sites->getNumberOfSites(); i > 0; i--)
+        for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, double> freqs;
           SiteTools::getFrequencies(*sites->getSite(i-1), freqs);
-          if(freqs[-1] >= gapFreq) sites->deleteSite(i-1);
+          if (freqs[-1] >= gapFreq) sites->deleteSite(i-1);
         }
       }
       else
       {
         unsigned int gapNum=TextTools::to<unsigned int>(maxGapOption);
-        for(unsigned int i = sites->getNumberOfSites(); i > 0; i--)
+        for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, unsigned int> counts;
           SiteTools::getCounts(*sites->getSite(i-1), counts);
           counts[-1]; //Needed in case this entry does not exist in the map. This will set it to 0.
-          if(counts[-1] > gapNum) sites->deleteSite(i-1);
+          if (counts[-1] > gapNum) sites->deleteSite(i-1);
         }
       }
     }
     // +-----------------+
     // | Invert sequence |
     // +-----------------+
-    else if(actions[i] == "invert")
+    else if (cmdName == "Invert")
     {
-      VectorSequenceContainer * vsc = new VectorSequenceContainer(sequences->getAlphabet());
-      for(unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
+      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        const Sequence * old = sequences->getSequence(i);
-        Sequence * tmp = SequenceTools::invert(*old);
+        const Sequence* old = sequences->getSequence(i);
+        Sequence* tmp = SequenceTools::invert(*old);
         vsc->addSequence(*tmp);
         delete tmp;
       }
       delete sequences;
       sequences = vsc;
     }
-    else throw Exception("Unknown action: " + actions[i]);
+    else throw Exception("Unknown action: " + cmdName);
   }
   
   // Write sequences

@@ -130,7 +130,7 @@ int main(int args, char ** argv)
   Tree* tree = PhylogeneticsApplicationTools::getTree(params);
   ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   
-  string treeWIdPath = ApplicationTools::getAFilePath("output.tree.path", params, false, false);
+  string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", params, false, false);
   if(treeWIdPath != "none")
   {
     TreeTemplate<Node> ttree(*tree);

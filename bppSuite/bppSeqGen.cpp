@@ -159,7 +159,6 @@ int main(int args, char ** argv)
     positions.push_back(0);
     positions.push_back(1);
     ApplicationTools::displayResult("Number of leaves", TextTools::toString(trees[0]->getNumberOfLeaves()));
-    //ApplicationTools::displayResult("Number of sons at root", TextTools::toString(trees[0]->getRootNode()->getNumberOfSons()));
     string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", params, false, false);
     if(treeWIdPath != "none")
     {
