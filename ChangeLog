@@ -1,9 +1,9 @@
+10/06/09 -*- Version 0.4.0 -*-
+
 22/05/09 Julien Dutheil
 * Keyval syntax for sequence format description.
 * Documentation and example update.
 * SeqMan now uses the SequenceApplicationTools method.
-
-15/05/09 -*- Version 0.4.0 -*-
 
 15/05/09 Julien Dutheil
 * Compatibility update with the libs, new keyval syntax for model

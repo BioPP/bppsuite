@@ -1,4 +1,4 @@
-#Copyright or © or Copr. CNRS, (November 16, 2004-2008)
+#Copyright or © or Copr. CNRS, (November 16, 2004-2009)
 #
 #This software is a computer program whose purpose is to provide tools
 #for sequence analysis, phylogenetics and molecular evolution.
@@ -31,6 +31,7 @@
 
 SUBDIRS = bppSuite doc
 EXTRA_DIST = Examples debian bppSuite.spec
+ACLOCAL_AMFLAGS=-I m4
 
 dist-hook:
 	rm -rf `find $(distdir)/debian -name .svn`

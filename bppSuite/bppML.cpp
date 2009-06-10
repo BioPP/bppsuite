@@ -167,8 +167,7 @@ int main(int args, char ** argv)
   }
   
   // Setting branch lengths?
-  string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", params, "input", "", true, false);
-  ApplicationTools::displayResult("Branch lengths", TextTools::toString(initBrLenMethod));
+  string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", params, "Input", "", true, false);
   string cmdName;
   map<string, string> cmdArgs;
   KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
@@ -190,7 +189,7 @@ int main(int args, char ** argv)
   }
   else if (cmdName == "Grafen")
   {
-    string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "input", "", true, false);
+    string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "Input", "", true, false);
     double h;
     if (grafenHeight == "input")
     {
@@ -210,6 +209,7 @@ int main(int args, char ** argv)
     tree->scaleTree(h/nh);
   }
   else throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
+  ApplicationTools::displayResult("Branch lengths", cmdName);
 
   string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", params, false, false);
   if (treeWIdPath != "none")

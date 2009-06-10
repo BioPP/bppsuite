@@ -1,15 +1,15 @@
-This package was debianized by Julien Dutheil <jdutheil@daimi.au.dk> on
-Thu, 11 Dec 2008 12:21:37 +0100.
+This package was debianized by Julien Dutheil <jdutheil@birc.au.dk> on
+Wed, 10 Jun 2009 11:28:58 +0100.
 
 It was downloaded from <http://download.gna.org/bppsuite/source>
 
 Upstream Author(s): 
 
-    Julien Dutheil <jdutheil@daimi.au.dk>
+    Julien Dutheil <jdutheil@birc.au.dk>
 
 Copyright: 
 
-    Copyright (C) 2008 Julien Dutheil
+    Copyright (C) 2009 Julien Dutheil
 
 License:
 
@@ -27,7 +27,7 @@ License:
     along with this package; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-The Debian packaging is (C) 2008, Julien Dutheil <jdutheil@daimi.au.dk> and
+The Debian packaging is (C) 2009, Julien Dutheil <jdutheil@birc.au.dk> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
 
 The provided software is distributed under the CeCILL license:

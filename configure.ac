@@ -1,4 +1,4 @@
-#Copyright or © or Copr. CNRS, (November 16, 2004-2008)
+#Copyright or © or Copr. CNRS, (November 16, 2004-2009)
 #
 #This software is a computer program whose purpose is to provide tools
 #for sequence analysis, phylogenetics and molecular evolution.
@@ -31,7 +31,9 @@
 
 AC_INIT(bppSuite, 0.4.0, jdutheil@birc.au.dk, bppsuite)
 AC_CONFIG_SRCDIR(bppSuite/bppML.cpp)
+AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE()
+LT_INIT
 
 AC_PROG_CC
 dnl This is C++ program:

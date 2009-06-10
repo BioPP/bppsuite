@@ -1,12 +1,19 @@
+bppsuite (0.4.0-1) unstable; urgency=low
+
+  * Major syntax update, using keyvals.
+  * Compatibility update with Bio++ 1.8.0.
+
+ -- Julien Dutheil <jdutheil@birc.au.dk>  Wed, 10 Jun 2009 11:28:58 +0100
+
 bppsuite (0.3.1-1) unstable; urgency=low
 
   * Several bug fixed.
 
- -- Julien Dutheil <jdutheil@daimi.au.dk>  Thu, 11 Dec 2008 12:21:37 +0100
+ -- Julien Dutheil <jdutheil@birc.au.dk>  Thu, 11 Dec 2008 12:21:37 +0100
 
 bppsuite (0.3.0-1) unstable; urgency=low
 
   * Initial release
 
- -- Julien Dutheil <jdutheil@daimi.au.dk>  Fri, 25 Sep 2008 14:28:21 +0200
+ -- Julien Dutheil <jdutheil@birc.au.dk>  Fri, 25 Sep 2008 14:28:21 +0200
 

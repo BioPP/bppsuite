@@ -1,4 +1,4 @@
-#Copyright or © or Copr. CNRS, (November 16, 2004-2008)
+#Copyright or © or Copr. CNRS, (November 16, 2004-2009)
 #
 #This software is a computer program whose purpose is to provide tools
 #for sequence analysis, phylogenetics and molecular evolution.
