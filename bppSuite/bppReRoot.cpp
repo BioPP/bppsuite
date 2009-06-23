@@ -211,7 +211,7 @@ int main(int args, char ** argv)
           VectorTools::diff(leavesTree, outGroup, remainingTaxa);
           if(remainingTaxa.size() > 0)
           {
-            tree->newOutGroup(* tree->getNode(remainingTaxa[0]));
+            tree->newOutGroup(tree->getNode(remainingTaxa[0]));
             Node * newRoot = tree->getNode(outGroup[0]);
             vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
            
@@ -226,7 +226,7 @@ int main(int args, char ** argv)
       
             if(tempLeaves.size() == outGroup.size())
             {
-              tree->newOutGroup(* newRoot);
+              tree->newOutGroup(newRoot);
               found = true;
               analyseOutgroupLevel = false;
             }
@@ -256,7 +256,7 @@ int main(int args, char ** argv)
                 if(tempLeaves.size() != leavesTree.size())
                 {
                   MyTree * low = new MyTree(* TreeTemplateTools::cloneSubtree<Node>(* newRoot));
-                  tree->newOutGroup(* newRoot);
+                  tree->newOutGroup(newRoot);
                   Node * sonUpper;
                   vector<string>  tempLeaves2 = TreeTemplateTools::getLeavesNames(* (tree->getRootNode())->getSon(0));
                   std::sort(tempLeaves2.begin(), tempLeaves2.end());
@@ -272,7 +272,7 @@ int main(int args, char ** argv)
                   vector <Node *> nodesTemp= TreeTemplateTools::getNodes( * sonUpper);
                   for(unsigned int F = 0; F < nodesTemp.size(); F++)
                     ( * nodesTemp[F]).setId(ident + F + 1);
-                  low->getRootNode()->addSon(* sonUpper);
+                  low->getRootNode()->addSon(sonUpper);
                   tree = low;
                 }
                 //A good outgroup was found
