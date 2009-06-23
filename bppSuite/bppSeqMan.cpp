@@ -123,7 +123,7 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = SequenceTools::complement(*sequences->getSequence(i));
+        Sequence* tmp = SequenceTools::complement(sequences->getSequence(i));
         vsc->addSequence(*tmp);
         delete tmp;
       }
@@ -140,7 +140,7 @@ int main(int args, char ** argv)
         VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET);
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
-          Sequence* tmp = SequenceTools::transcript(* sequences->getSequence(i));
+          Sequence* tmp = SequenceTools::transcript(sequences->getSequence(i));
           vsc->addSequence(*tmp);
           delete tmp;
         }
@@ -152,7 +152,7 @@ int main(int args, char ** argv)
         VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET);
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
-          Sequence* tmp = SequenceTools::reverseTranscript(*sequences->getSequence(i));
+          Sequence* tmp = SequenceTools::reverseTranscript(sequences->getSequence(i));
           vsc->addSequence(*tmp);
           delete tmp;
         }
@@ -179,7 +179,7 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(alpha);
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        const Sequence* old = sequences->getSequence(i);
+        const Sequence* old = &sequences->getSequence(i);
         Sequence* tmp = new Sequence(old->getName(), old->getContent(), old->getComments(), alpha);
         vsc->addSequence(*tmp);
         delete tmp;
@@ -209,7 +209,7 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET);
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = gc->translate(*sequences->getSequence(i));
+        Sequence* tmp = gc->translate(sequences->getSequence(i));
         vsc->addSequence(*tmp);
         delete tmp;
       }
@@ -224,7 +224,7 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = SequenceTools::removeGaps(*sequences->getSequence(i));
+        Sequence* tmp = SequenceTools::removeGaps(sequences->getSequence(i));
         vsc->addSequence(*tmp);
         delete tmp;
       }
@@ -239,7 +239,7 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = new Sequence(*sequences->getSequence(i));
+        Sequence* tmp = new Sequence(sequences->getSequence(i));
         SymbolListTools::changeGapsToUnknownCharacters(*tmp);
         vsc->addSequence(*tmp);
         delete tmp;
@@ -255,7 +255,7 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = new Sequence(*sequences->getSequence(i));
+        Sequence* tmp = new Sequence(sequences->getSequence(i));
         SymbolListTools::changeUnresolvedCharactersToGaps(*tmp);
         vsc->addSequence(*tmp);
         delete tmp;
@@ -311,8 +311,8 @@ int main(int args, char ** argv)
         for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, double> freqs;
-          SiteTools::getFrequencies(*sites->getSite(i-1), freqs);
-          if (freqs[-1] >= gapFreq) sites->deleteSite(i-1);
+          SiteTools::getFrequencies(sites->getSite(i - 1), freqs);
+          if (freqs[-1] >= gapFreq) sites->deleteSite(i - 1);
         }
       }
       else
@@ -321,7 +321,7 @@ int main(int args, char ** argv)
         for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, unsigned int> counts;
-          SiteTools::getCounts(*sites->getSite(i-1), counts);
+          SiteTools::getCounts(sites->getSite(i - 1), counts);
           counts[-1]; //Needed in case this entry does not exist in the map. This will set it to 0.
           if (counts[-1] > gapNum) sites->deleteSite(i-1);
         }
@@ -335,7 +335,7 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        const Sequence* old = sequences->getSequence(i);
+        const Sequence* old = &sequences->getSequence(i);
         Sequence* tmp = SequenceTools::invert(*old);
         vsc->addSequence(*tmp);
         delete tmp;

@@ -33,9 +33,9 @@ MAINTAINERCLEANFILES    = Makefile.in
 info_TEXINFOS           = bppsuite.texi
 
 #We override this macro to include a nicer css style (dynamicly linked):
-#MAKEINFO = makeinfo --css-ref=http://www.w3.org/StyleSheets/Core/Steely
+MAKEINFO = makeinfo --css-ref=http://www.w3.org/StyleSheets/Core/Steely
 #If you have an older version of texinfo, you can try instead:
-MAKEINFO = makeinfo --css-include=Steely
+#MAKEINFO = makeinfo --css-include=Steely
 # after having downloaded the file using
 # wget http://www.w3.org/StyleSheets/Core/Steely
 # Alternatively, you can ignore these lines and comment them. The HTML outpu will just be less nice.

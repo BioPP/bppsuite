@@ -393,7 +393,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayError("!!! Looking at each site:");
     for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
     {
-      *ApplicationTools::error << "Site " << sites->getSite(i)->getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i) << endl;
+      *ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i) << endl;
     }
     ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
     exit(-1);
@@ -483,7 +483,7 @@ int main(int args, char ** argv)
     for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = tl->getLogLikelihoodForASite(i);
-      const Site * currentSite = sites->getSite(i);
+      const Site* currentSite = &sites->getSite(i);
       int currentSitePosition = currentSite->getPosition();
       int isCompl = (SiteTools::isComplete(* currentSite) ? 1 : 0);
       int isConst = (SiteTools::isConstant(* currentSite) ? 1 : 0);

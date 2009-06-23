@@ -135,9 +135,9 @@ int main(int args, char ** argv)
   {
     name = dist->getName(i);
     if(critMeth == "length.complete")
-      seqLen[i] = SequenceTools::getNumberOfCompleteSites(*seqs->getSequence(name));
+      seqLen[i] = SequenceTools::getNumberOfCompleteSites(seqs->getSequence(name));
     else
-      seqLen[i] = SequenceTools::getNumberOfSites(*seqs->getSequence(name));
+      seqLen[i] = SequenceTools::getNumberOfSites(seqs->getSequence(name));
     seqNames.push_back(name);
   }
 
@@ -176,7 +176,7 @@ int main(int args, char ** argv)
   //Write sequences to file:
   VectorSequenceContainer vsc(alphabet);
   for(unsigned int i = 0; i < seqNames.size(); i++)
-    vsc.addSequence(* seqs->getSequence(seqNames[i]));
+    vsc.addSequence(seqs->getSequence(seqNames[i]));
    
   SequenceApplicationTools::writeSequenceFile(vsc, params);
   cout << "Bio++ PhyloSampler's done. Bye." << endl;
