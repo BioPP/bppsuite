@@ -241,9 +241,9 @@ int main(int args, char ** argv)
   bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, "", true, false);
   unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0, "", true, false);
   
-  SubstitutionModel    * model    = NULL;
-  SubstitutionModelSet * modelSet = NULL;
-  DiscreteDistribution * rDist    = NULL;
+  SubstitutionModel    * model    = 0;
+  SubstitutionModelSet * modelSet = 0;
+  DiscreteDistribution * rDist    = 0;
 
   if (optimizeClock == "global")
   {
@@ -264,6 +264,8 @@ int main(int args, char ** argv)
   {
     if (optimizeTopo || nbBS > 0)
     {
+      if (nhOpt != "no")
+        throw Exception("Topology estimation with NH model not supported yet, sorry :(");
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
@@ -332,7 +334,7 @@ int main(int args, char ** argv)
       FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, params, rateFreqs);
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
       modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
-      model = NULL;
+      model = 0;
       
       string recursion = ApplicationTools::getStringParameter("likelihood.recursion", params, "simple", "", true, false);
       ApplicationTools::displayResult("Likelihood recursion", recursion);
@@ -528,7 +530,7 @@ int main(int args, char ** argv)
     }
     
     string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", params, false, false);
-    ofstream *out = NULL;
+    ofstream *out = 0;
     if (bsTreesPath != "none")
     {
       ApplicationTools::displayResult("Bootstrap trees stored in file", bsTreesPath);
