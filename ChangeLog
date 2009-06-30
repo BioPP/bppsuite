@@ -1,5 +1,6 @@
 30/06/09 Julien Dutheil
 * BppAncestor: now output expected ancestral states frequencies.
+* BppAncestor: new method to compute EB estimates of ancestral states frequencies.
 
 10/06/09 -*- Version 0.4.0 -*-
 

@@ -61,6 +61,7 @@ using namespace std;
 #include <Phyl/OptimizationTools.h>
 #include <Phyl/RASTools.h>
 #include <Phyl/TreeLikelihoodTools.h>
+#include <Phyl/DRTreeLikelihoodTools.h>
 #include <Phyl/MarkovModulatedSubstitutionModel.h>
 #include <Phyl/SubstitutionModelSet.h>
 #include <Phyl/SubstitutionModelSetTools.h>
@@ -340,7 +341,7 @@ int main(int args, char ** argv)
 
     //Now fill the table:
     vector<string> row(colNames.size());
-    DataTable * infos = new DataTable(colNames);
+    DataTable* infos = new DataTable(colNames);
     
     for(unsigned int i = 0; i < sites->getNumberOfSites(); i++)
     {
@@ -388,14 +389,13 @@ int main(int args, char ** argv)
 
     map<int, vector<double> > frequencies;
     TreeLikelihoodTools::getAncestralFrequencies(*tl, frequencies, false);
-    //TreeTemplate<Node> ttree(*tree);
-    //vector<Node *> nodes = ttree.getInnerNodes();
-    //unsigned int nbNodes = nodes.size();
     
     vector<string> colNames;
     colNames.push_back("Nodes");
     for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
       colNames.push_back("exp" + TextTools::toString(i));
+    for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
+      colNames.push_back("eb" + TextTools::toString(i));
 
     //Now fill the table:
     vector<string> row(colNames.size());
@@ -404,9 +404,14 @@ int main(int args, char ** argv)
     for (map<int, vector<double> >::iterator it = frequencies.begin(); it != frequencies.end(); it++)
     {
       row[0] = TextTools::toString(it->first);
-      for (unsigned int i = 1; i < colNames.size(); i++)
+      Vdouble ebFreqs = DRTreeLikelihoodTools::getPosteriorStateFrequencies(*tl, it->first);
+      for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
       {
-        row[i] = TextTools::toString(it->second[i-1]);
+        row[i + 1] = TextTools::toString(it->second[i]);
+      }
+      for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
+      {
+        row[i + tl->getNumberOfStates() + 1] = TextTools::toString(ebFreqs[i]);
       }
       infos->addRow(row);
     }
