@@ -137,7 +137,7 @@ optimization.scale_first = no
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
-output.tree.format = Nexus
+output.tree.format = Newick
 
 # Alignment information log file (site specific rates, etc):
 output.infos = $(DATA).infos

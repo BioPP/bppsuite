@@ -897,8 +897,11 @@ Tell if we should sample from the posterior distribution instead of using the ma
 @item asr.sample.number = 10 [[asr.sample=yes]]
 Number of sample sequences to output.
 
-@item output.file = @{@{path@}|none@}
+@item output.sites.file = @{@{path@}|none@}
 Alignment information log file (site specific rates, probabilities, etc).
+
+@item output.nodes.file = @{@{path@}|none@}
+Ancestral nodes information: expected frequencies of ancestral states.
 
 @end table
 

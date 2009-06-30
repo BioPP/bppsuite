@@ -412,7 +412,7 @@ int main(int args, char ** argv)
         PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), params));
   }
   
-  tree = new TreeTemplate<Node>(*tl->getTree());
+  tree = new TreeTemplate<Node>(tl->getTree());
   PhylogeneticsApplicationTools::writeTree(* tree, params);
   
   // Write parameters to screen:
@@ -517,7 +517,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
     bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
     
-    const Tree * initTree = tree;
+    const Tree* initTree = tree;
     if (!bootstrapVerbose) params["optimization.verbose"] = "0";
     params["optimization.profiler"] = "none";
     params["optimization.messageHandler"] = "none";
@@ -526,7 +526,7 @@ int main(int args, char ** argv)
       params["optimization.topology"] = "yes";
       tl = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
           PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), params, "", true, false));
-      initTree = tl->getTree();
+      initTree = &tl->getTree();
     }
     
     string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", params, false, false);
@@ -559,7 +559,7 @@ int main(int args, char ** argv)
       }
       tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
           PhylogeneticsApplicationTools::optimizeParameters(tlrep, parameters, params, "", true, false));
-      bsTrees[i] = new TreeTemplate<Node>(*tlrep->getTree());
+      bsTrees[i] = new TreeTemplate<Node>(tlrep->getTree());
       if (out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
       if (out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);
       delete tlrep;

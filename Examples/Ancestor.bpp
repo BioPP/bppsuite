@@ -11,29 +11,19 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-sequence.file=$(DATA).phy
+input.sequence.file=$(DATA).phy
 
 # The alignment format:
-# Must be one of Mase, Fasta, Phylip, Clustal, DCSE 
-sequence.format=Phylip
-
-# Mase format option:
-sequence.format_mase.site_selection =
-
-# Phylip format options:
-# interleaved or sequential:
-sequence.format_phylip.order = sequential
-
-# classic or extended (PAML):
-sequence.format_phylip.ext = extended
+input.sequence.format=Phylip(order=sequential, type=extended)
 
 #Sites to use:
 # all, nogap or complete (=only resolved chars)
-sequence.sites_to_use = complete
+input.sequence.sites_to_use = complete
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
-sequence.max_gap_allowed = 100%
+input.sequence.max_gap_allowed = 100%
 
-tree.file = $(DATA).ML.dnd
+input.tree.file = $(DATA).ML.dnd
+input.tree.format = Newick
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
@@ -59,9 +49,12 @@ asr.sample = yes
 asr.sample.number = 10
 
 # Alignment information log file (site specific rates, probabilities, etc):
-output.file = $(DATA).asr.csv
+output.sites.file = $(DATA).sites.csv
 
-# Write numerical parameter estimated values:
+# Nodes information log file
+output.nodes.file = $(DATA).nodes.csv
+
+# Write sequences:
 output.sequence.file = $(DATA).ancestors.fasta
 output.sequence.format = Fasta
 

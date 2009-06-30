@@ -60,10 +60,11 @@ using namespace std;
 #include <Phyl/MarginalAncestralStateReconstruction.h>
 #include <Phyl/OptimizationTools.h>
 #include <Phyl/RASTools.h>
-#include <Phyl/Newick.h>
+#include <Phyl/TreeLikelihoodTools.h>
 #include <Phyl/MarkovModulatedSubstitutionModel.h>
 #include <Phyl/SubstitutionModelSet.h>
 #include <Phyl/SubstitutionModelSetTools.h>
+#include <Phyl/Newick.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -96,9 +97,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.2.0     *" << endl;
+  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.3.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
-  cout << "*          B. Boussau                       Last Modif: 10/09/08 *" << endl;
+  cout << "*          B. Boussau                       Last Modif: 30/06/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -155,9 +156,9 @@ int main(int args, char ** argv)
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-  SubstitutionModel    * model    = NULL;
-  SubstitutionModelSet * modelSet = NULL;
-  DiscreteDistribution * rDist    = NULL;
+  SubstitutionModel    *model    = 0;
+  SubstitutionModelSet *modelSet = 0;
+  DiscreteDistribution *rDist    = 0;
   unsigned int nbStates;
 
   if(nhOpt == "no")
@@ -198,7 +199,7 @@ int main(int args, char ** argv)
     FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, params, rateFreqs);
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
-    model = NULL;
+    model = 0;
     tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
     nbStates = modelSet->getNumberOfStates();
   }
@@ -248,7 +249,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
     exit(-1);
   }
-  tree = new TreeTemplate<Node>(*tl->getTree());
+  tree = new TreeTemplate<Node>(tl->getTree());
 
   // Write parameters to screen:
   ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
@@ -279,7 +280,7 @@ int main(int args, char ** argv)
   bool probMethod = false;
   if(reconstruction == "marginal")
   {
-    asr = new MarginalAncestralStateReconstruction(*tl);
+    asr = new MarginalAncestralStateReconstruction(tl);
     probMethod = true;
   }
   else
@@ -292,10 +293,10 @@ int main(int args, char ** argv)
   }
 
   // Write infos to file:
-  string outputFile = ApplicationTools::getAFilePath("output.file", params, false, false);
+  string outputFile = ApplicationTools::getAFilePath("output.sites.file", params, false, false);
   if(outputFile != "none")
   {
-    ApplicationTools::displayResult("Output file", outputFile);
+    ApplicationTools::displayResult("Output file for sites", outputFile);
     ofstream out(outputFile.c_str(), ios::out);
     TreeTemplate<Node> ttree(*tree);
     vector<Node *> nodes = ttree.getInnerNodes();
@@ -378,7 +379,46 @@ int main(int args, char ** argv)
     delete infos;
   }
  
-  SequenceContainer *asSites = NULL;
+
+  outputFile = ApplicationTools::getAFilePath("output.nodes.file", params, false, false);
+  if(outputFile != "none")
+  {
+    ApplicationTools::displayResult("Output file for nodes", outputFile);
+    ofstream out(outputFile.c_str(), ios::out);
+
+    map<int, vector<double> > frequencies;
+    TreeLikelihoodTools::getAncestralFrequencies(*tl, frequencies, false);
+    //TreeTemplate<Node> ttree(*tree);
+    //vector<Node *> nodes = ttree.getInnerNodes();
+    //unsigned int nbNodes = nodes.size();
+    
+    vector<string> colNames;
+    colNames.push_back("Nodes");
+    for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
+      colNames.push_back("exp" + TextTools::toString(i));
+
+    //Now fill the table:
+    vector<string> row(colNames.size());
+    DataTable* infos = new DataTable(colNames);
+    
+    for (map<int, vector<double> >::iterator it = frequencies.begin(); it != frequencies.end(); it++)
+    {
+      row[0] = TextTools::toString(it->first);
+      for (unsigned int i = 1; i < colNames.size(); i++)
+      {
+        row[i] = TextTools::toString(it->second[i-1]);
+      }
+      infos->addRow(row);
+    }
+    
+    DataTable::write(*infos, out, "\t");
+
+    delete infos;
+  }
+
+
+
+  SequenceContainer *asSites = 0;
   if(probMethod)
   {
     bool sample = ApplicationTools::getBooleanParameter("asr.sample", params, false, "", true, false);
