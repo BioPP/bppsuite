@@ -29,54 +29,9 @@
 #The fact that you are presently reading this means that you have had
 #knowledge of the CeCILL license and that you accept its terms.
 
-ML_H_FILES = 
-
-ML_CPP_FILES = \
-bppML.cpp
-
-DIST_H_FILES =
-
-DIST_CPP_FILES = \
-bppDist.cpp
-
-PARS_H_FILES = 
-
-PARS_CPP_FILES = \
-bppPars.cpp
-
-SEQGEN_H_FILES = 
-
-SEQGEN_CPP_FILES = \
-bppSeqGen.cpp
-
-CONSENSE_H_FILES = 
-
-CONSENSE_CPP_FILES = \
-bppConsense.cpp
-
-SEQMAN_H_FILES = 
-
-SEQMAN_CPP_FILES = \
-bppSeqMan.cpp
-
-PHYSAMP_H_FILES = 
-
-PHYSAMP_CPP_FILES = \
-bppPhyloSampler.cpp
-
-REROOT_H_FILES = 
-
-REROOT_CPP_FILES = \
-bppReRoot.cpp
-
-ANCESTOR_H_FILES = 
-
-ANCESTOR_CPP_FILES = \
-bppAncestor.cpp
-
 AUTOMAKE_OPTIONS = gnu
 
-bin_PROGRAMS = bppml bpppars bppdist bppseqgen bppconsense bppseqman bppphysamp bppreroot bppancestor
+bin_PROGRAMS = bppml bpppars bppdist bppseqgen bppconsense bppseqman bppphysamp bppreroot bppancestor bpptreedraw
 if STATIC
 bppml_LDFLAGS = -static
 bpppars_LDFLAGS = -static
@@ -87,6 +42,7 @@ bppseqman_LDFLAGS = -static
 bppphysamp_LDFLAGS = -static
 bppreroot_LDFLAGS = -static
 bppancestor_LDFLAGS = -static
+bpptreedraw_LDFLAGS = -static
 else
 bppml_LDFLAGS = 
 bpppars_LDFLAGS = 
@@ -97,23 +53,28 @@ bppseqman_LDFLAGS =
 bppphysamp_LDFLAGS =
 bppreroot_LDFLAGS =
 bppancestor_LDFLAGS =
+bpptreedraw_LDFLAGS =
 endif
 bppml_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
-bppml_SOURCES = $(ML_H_FILES) $(ML_CPP_FILES)
+bppml_SOURCES = bppML.cpp
 bpppars_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
-bpppars_SOURCES = $(PARS_H_FILES) $(PARS_CPP_FILES)
+bpppars_SOURCES = bppPars.cpp
 bppdist_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
-bppdist_SOURCES = $(DIST_H_FILES) $(DIST_CPP_FILES)
+bppdist_SOURCES = bppDist.cpp
 bppseqgen_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
-bppseqgen_SOURCES = $(SEQGEN_H_FILES) $(SEQGEN_CPP_FILES)
+bppseqgen_SOURCES = bppSeqGen.cpp
 bppconsense_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
-bppconsense_SOURCES = $(CONSENSE_H_FILES) $(CONSENSE_CPP_FILES)
+bppconsense_SOURCES = bppConsense.cpp
 bppseqman_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq
-bppseqman_SOURCES = $(SEQMAN_H_FILES) $(SEQMAN_CPP_FILES)
+bppseqman_SOURCES = bppSeqMan.cpp
 bppphysamp_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
-bppphysamp_SOURCES = $(PHYSAMP_H_FILES) $(PHYSAMP_CPP_FILES)
+bppphysamp_SOURCES = bppPhyloSampler.cpp
 bppreroot_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
-bppreroot_SOURCES = $(REROOT_H_FILES) $(REROOT_CPP_FILES)
+bppreroot_SOURCES = bppReRoot.cpp
 bppancestor_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
-bppancestor_SOURCES = $(ANCESTOR_H_FILES) $(ANCESTOR_CPP_FILES)
+bppancestor_SOURCES = bppAncestor.cpp
+bpptreedraw_LDADD = -lbpp-utils -lbpp-numcalc -lbpp-seq -lbpp-phyl
+bpptreedraw_SOURCES = bppTreeDraw.cpp
+
+
 
