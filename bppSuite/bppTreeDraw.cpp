@@ -98,21 +98,34 @@ int main(int args, char ** argv)
   GraphicDevice* gd = 0;
 	string outputPath = ApplicationTools::getAFilePath("output.drawing.file", params, true, false, "", false);
   ofstream file(outputPath.c_str(), ios::out);
-  string graphicType = ApplicationTools::getStringParameter("output.drawing.format", params, "svg");
-  if (graphicType == "svg")
+  string graphicTypeCmd = ApplicationTools::getStringParameter("output.drawing.format", params, "svg");
+  string graphicType;
+  map<string, string> graphicTypeArgs;
+  KeyvalTools::parseProcedure(graphicTypeCmd, graphicType, graphicTypeArgs);
+  if (graphicType == "Svg")
   {
     gd = new SVGGraphicDevice(file);
+    double bottom = ApplicationTools::getDoubleParameter("bottom", graphicTypeArgs, 0);
+    double left   = ApplicationTools::getDoubleParameter("left"  , graphicTypeArgs, 0);
+    double top    = ApplicationTools::getDoubleParameter("top"   , graphicTypeArgs, 0);
+    double right  = ApplicationTools::getDoubleParameter("right" , graphicTypeArgs, 0);
+    dynamic_cast<SVGGraphicDevice*>(gd)->setMargins(bottom, left, top, right);
   }
-  else if (graphicType == "inkscape")
+  else if (graphicType == "Inkscape")
   {
     gd = new SVGGraphicDevice(file, true);
+    double bottom = ApplicationTools::getDoubleParameter("bottom", graphicTypeArgs, 0);
+    double left   = ApplicationTools::getDoubleParameter("left"  , graphicTypeArgs, 0);
+    double top    = ApplicationTools::getDoubleParameter("top"   , graphicTypeArgs, 0);
+    double right  = ApplicationTools::getDoubleParameter("right" , graphicTypeArgs, 0);
+    dynamic_cast<SVGGraphicDevice*>(gd)->setMargins(bottom, left, top, right);
   }
-  else if (graphicType == "xfig")
+  else if (graphicType == "Xfig")
   {
     gd = new XFigGraphicDevice(file);
     dynamic_cast<XFigGraphicDevice *>(gd)->setFontFlag(XFigGraphicDevice::FONTFLAG_POSTSCRIPT);
   }
-  else if (graphicType == "pgf")
+  else if (graphicType == "Pgf")
   {
     gd = new PGFGraphicDevice(file, 0.045);
   }
@@ -120,25 +133,45 @@ int main(int args, char ** argv)
 
   // Get the tree plotter:
   TreeDrawing* td = 0;
-  string plotType = ApplicationTools::getStringParameter("output.drawing.plot", params, "cladogram");
-  string name;
-  map<string, string> args;
-  KeyvalTools::parseProcedure(plotType, name, args);
-  if(name == "cladogram")
+  string plotTypeCmd = ApplicationTools::getStringParameter("output.drawing.plot", params, "cladogram");
+  string plotType;
+  map<string, string> plotTypeArgs;
+  KeyvalTools::parseProcedure(plotTypeCmd, plotType, plotTypeArgs);
+  if (plotType == "Cladogram")
   {
     td = new CladogramPlot(tree);
   }
-  else if(name == "phylogram")
+  else if (plotType == "Phylogram")
   {
     td = new PhylogramPlot(tree);
   }
   else throw Exception("Unknown output format: " + plotType);
-  ApplicationTools::displayResult("Plot type", name);
-  double xunit = ApplicationTools::getDoubleParameter("xu", args, 10);
-  double yunit = ApplicationTools::getDoubleParameter("yu", args, 10);
+  ApplicationTools::displayResult("Plot type", plotType);
+  double xunit = ApplicationTools::getDoubleParameter("xu", plotTypeArgs, 10);
+  double yunit = ApplicationTools::getDoubleParameter("yu", plotTypeArgs, 10);
   td->setXUnit(xunit);
   td->setYUnit(yunit);
-
+  string hOrientation = ApplicationTools::getStringParameter("direction.h", plotTypeArgs, "left2right");
+  if (hOrientation == "left2right")
+  {
+    dynamic_cast<AbstractDendrogramPlot*>(td)->setHorizontalOrientation(AbstractDendrogramPlot::ORIENTATION_LEFT_TO_RIGHT);
+  }
+  else if (hOrientation == "right2left")
+  {
+    dynamic_cast<AbstractDendrogramPlot*>(td)->setHorizontalOrientation(AbstractDendrogramPlot::ORIENTATION_RIGHT_TO_LEFT);
+  }
+  else throw Exception("Unknown orientation option: " + hOrientation);
+  string vOrientation = ApplicationTools::getStringParameter("direction.v", plotTypeArgs, "top2bottom");
+  if (vOrientation == "top2bottom")
+  {
+    dynamic_cast<AbstractDendrogramPlot*>(td)->setVerticalOrientation(AbstractDendrogramPlot::ORIENTATION_TOP_TO_BOTTOM);
+  }
+  else if (vOrientation == "bottom2top")
+  {
+    dynamic_cast<AbstractDendrogramPlot*>(td)->setVerticalOrientation(AbstractDendrogramPlot::ORIENTATION_BOTTOM_TO_TOP);
+  }
+  else throw Exception("Unknown orientation option: " + vOrientation);
+ 
   //Now draw the tree:
   gd->begin();
   td->plot(*gd);

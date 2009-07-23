@@ -2,7 +2,8 @@ input.tree.file=LSU.dnd
 input.tree.format=Newick
 
 output.drawing.file=LSU.svg
-output.drawing.format=svg
-output.drawing.plot=phylogram(xu=300, yu=12)
+output.drawing.format=Svg(bottom=30,left=30,top=30,right=150)
+output.drawing.plot=Phylogram(xu=300, yu=12, direction.h=left2right, direction.v=bottom2top)
+//output.drawing.plot=Phylogram(xu=300, yu=12, direction.h=left2right, direction.v=top2bottom)
 
 
