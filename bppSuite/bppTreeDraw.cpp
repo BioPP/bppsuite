@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace std;
 
 // From Utils:
-#include <Utils/AttributesTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
 #include <Utils/KeyvalTools.h>
 #include <Utils/graphics>
@@ -72,7 +72,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Tree Drawing program, version 0.1.0                *" << endl;
   cout << "*                                                                *" << endl; 
-  cout << "* Authors: J. Dutheil                       Last Modif. 21/07/09 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -84,21 +84,18 @@ int main(int args, char ** argv)
   
   try {
 
-  ApplicationTools::startTimer();
-
-  cout << "Parsing options:" << endl;
-  
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
+  BppApplication bpptreedraw(args, argv, "BppTreeDraw");
+  bpptreedraw.startTimer();
 
   // Get the tree to plot:
-  Tree* tree = PhylogeneticsApplicationTools::getTree(params);
+  Tree* tree = PhylogeneticsApplicationTools::getTree(bpptreedraw.getParams());
   ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   
   // Get the graphic device:
   GraphicDevice* gd = 0;
-	string outputPath = ApplicationTools::getAFilePath("output.drawing.file", params, true, false, "", false);
+	string outputPath = ApplicationTools::getAFilePath("output.drawing.file", bpptreedraw.getParams(), true, false, "", false);
   ofstream file(outputPath.c_str(), ios::out);
-  string graphicTypeCmd = ApplicationTools::getStringParameter("output.drawing.format", params, "svg");
+  string graphicTypeCmd = ApplicationTools::getStringParameter("output.drawing.format", bpptreedraw.getParams(), "svg");
   string graphicType;
   map<string, string> graphicTypeArgs;
   KeyvalTools::parseProcedure(graphicTypeCmd, graphicType, graphicTypeArgs);
@@ -133,19 +130,20 @@ int main(int args, char ** argv)
 
   // Get the tree plotter:
   TreeDrawing* td = 0;
-  string plotTypeCmd = ApplicationTools::getStringParameter("output.drawing.plot", params, "cladogram");
+  string plotTypeCmd = ApplicationTools::getStringParameter("output.drawing.plot", bpptreedraw.getParams(), "cladogram");
   string plotType;
   map<string, string> plotTypeArgs;
   KeyvalTools::parseProcedure(plotTypeCmd, plotType, plotTypeArgs);
   if (plotType == "Cladogram")
   {
-    td = new CladogramPlot(tree);
+    td = new CladogramPlot();
   }
   else if (plotType == "Phylogram")
   {
-    td = new PhylogramPlot(tree);
+    td = new PhylogramPlot();
   }
   else throw Exception("Unknown output format: " + plotType);
+  td->setTree(tree);
   ApplicationTools::displayResult("Plot type", plotType);
   double xunit = ApplicationTools::getDoubleParameter("xu", plotTypeArgs, 10);
   double yunit = ApplicationTools::getDoubleParameter("yu", plotTypeArgs, 10);
@@ -183,9 +181,7 @@ int main(int args, char ** argv)
   delete td;
   delete gd;
 
-  cout << "BppTreeDraw's done. Bye." << endl;
-  ApplicationTools::displayTime("Total execution time:");
- 
+  bpptreedraw.done(); 
   }
   catch(exception & e)
   {

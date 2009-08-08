@@ -59,9 +59,9 @@ using namespace std;
 #include <Seq/SiteTools.h>
 
 // From Utils:
-#include <Utils/AttributesTools.h>
-#include <Utils/FileTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
+#include <Utils/FileTools.h>
 #include <Utils/KeyvalTools.h>
 
 using namespace bpp;
@@ -80,7 +80,7 @@ int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*           Bio++ Sequence Manipulator, version 0.2              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 06/06/09 *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -92,21 +92,20 @@ int main(int args, char ** argv)
   
   try {
 
-  cout << "Parsing options:" << endl;
+  BppApplication bppseqman(args, argv, "BppSeqMan");
+  bppseqman.startTimer();
   
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
-
   // Get alphabet
-  Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
+  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqman.getParams(), "", false);
 
   // Get sequences:
-  SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, params, "", true, true);
+  SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);
   OrderedSequenceContainer* sequences = new VectorSequenceContainer(*tmp);
   delete tmp;
   
   // Perform manipulations
   
-  vector<string> actions = ApplicationTools::getVectorParameter<string>("sequence.manip", params, ',', "", "", false, false);
+  vector<string> actions = ApplicationTools::getVectorParameter<string>("sequence.manip", bppseqman.getParams(), ',', "", "", false, false);
   
   for (unsigned int i = 0; i < actions.size(); i++)
   {
@@ -347,10 +346,12 @@ int main(int args, char ** argv)
   }
   
   // Write sequences
-  SequenceApplicationTools::writeSequenceFile(*sequences, params, "", true);
+  SequenceApplicationTools::writeSequenceFile(*sequences, bppseqman.getParams(), "", true);
 
   delete alphabet;
   delete sequences;
+
+  bppseqman.done();
 
   } catch(exception & e) {
     cout << e.what() << endl;

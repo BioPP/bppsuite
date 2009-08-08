@@ -69,7 +69,7 @@ using namespace std;
 #include <NumCalc/ConstantDistribution.h>
 
 // From Utils:
-#include <Utils/AttributesTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
@@ -91,7 +91,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*              Bio++ Distance Methods, version 0.3.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 08/05/09 *" << endl;
+  cout << "*                                           Last Modif. 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -103,25 +103,22 @@ int main(int args, char ** argv)
   
   try {
 
-  ApplicationTools::startTimer();
+  BppApplication bppdist(args, argv, "BppDist");
+  bppdist.startTimer();
 
-  cout << "Parsing options:" << endl;
+  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppdist.getParams(), "", false);
+
+  VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppdist.getParams());
   
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
-
-  Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
-
-  VectorSiteContainer * allSites = SequenceApplicationTools::getSiteContainer(alphabet, params);
-  
-  VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, params);
+  VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppdist.getParams());
   delete allSites;
 
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
   
-  SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+  SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppdist.getParams());
   
-	DiscreteDistribution * rDist = NULL;
+	DiscreteDistribution* rDist = 0;
   if(model->getNumberOfStates() > model->getAlphabet()->getSize())
   {
     //Markov-modulated Markov model!
@@ -129,12 +126,12 @@ int main(int args, char ** argv)
   }
   else
   {
-	  rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+	  rDist = PhylogeneticsApplicationTools::getRateDistribution(bppdist.getParams());
   }
    
   DistanceEstimation distEstimation(model, rDist, sites, 1, false);
  
-  string method = ApplicationTools::getStringParameter("method", params, "nj");
+  string method = ApplicationTools::getStringParameter("method", bppdist.getParams(), "nj");
   ApplicationTools::displayResult("Tree reconstruction method", method);
   TreeTemplate<Node> * tree;
   AgglomerativeDistanceMethod * distMethod = NULL;
@@ -162,23 +159,23 @@ int main(int args, char ** argv)
   }
   else throw Exception("Unknown tree reconstruction method.");
   
-  string type = ApplicationTools::getStringParameter("optimization.method", params, "init");
+  string type = ApplicationTools::getStringParameter("optimization.method", bppdist.getParams(), "init");
   ApplicationTools::displayResult("Model parameters estimation method", type);
   if(type == "init") type = OptimizationTools::DISTANCEMETHOD_INIT;
   else if(type == "pairwise") type = OptimizationTools::DISTANCEMETHOD_PAIRWISE;
   else if(type == "iterations") type = OptimizationTools::DISTANCEMETHOD_ITERATIONS;
   else throw Exception("Unknown parameter estimation procedure '" + type + "'.");
   
-	unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", params, 2);
+	unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", bppdist.getParams(), 2);
 	
-	string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false);
+	string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", bppdist.getParams(), false, false);
 	ostream * messenger = 
 		(mhPath == "none") ? NULL :
 			(mhPath == "std") ? &cout :
 				new ofstream(mhPath.c_str(), ios::out);
 	ApplicationTools::displayResult("Message handler", mhPath);
 
-	string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false);
+	string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
 	ostream * profiler = 
 		(prPath == "none") ? NULL :
 			(prPath == "std") ? &cout :
@@ -190,7 +187,7 @@ int main(int args, char ** argv)
   ParameterList allParameters = model->getParameters();
   allParameters.addParameters(rDist->getParameters());
 	ParameterList parametersToIgnore;
-  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", "", true, false);
+  string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", bppdist.getParams(), "", "", true, false);
 	bool ignoreBrLen = false;
   StringTokenizer st(paramListDesc, ",");
 	while(st.hasMoreToken())
@@ -216,10 +213,10 @@ int main(int args, char ** argv)
 		}
 	}
 	
-	unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000);
+	unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", bppdist.getParams(), 1000000);
 	ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
 	
-	double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", params, .000001);
+	double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", bppdist.getParams(), .000001);
 	ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 	
   //Here it is:
@@ -228,7 +225,7 @@ int main(int args, char ** argv)
   tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, false, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
   ApplicationTools::warning = &cout;
 
-  string matrixPath = ApplicationTools::getAFilePath("output.matrix.file", params, false, false, "", false);
+  string matrixPath = ApplicationTools::getAFilePath("output.matrix.file", bppdist.getParams(), false, false, "", false);
   if(matrixPath != "none")
   {
     ApplicationTools::displayResult("Output matrix file", matrixPath);
@@ -237,7 +234,7 @@ int main(int args, char ** argv)
     delete odm;
   }
 
-  PhylogeneticsApplicationTools::writeTree(*tree, params);
+  PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
   
   //Output some parameters:
   if(type == OptimizationTools::DISTANCEMETHOD_ITERATIONS)
@@ -254,7 +251,7 @@ int main(int args, char ** argv)
 		  ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
     }
     // Write parameters to file:
-	  string parametersFile = ApplicationTools::getAFilePath("output.estimates", params, false, false);
+	  string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppdist.getParams(), false, false);
     if(parametersFile != "none")
     {
 		  ofstream out(parametersFile.c_str(), ios::out);
@@ -273,11 +270,11 @@ int main(int args, char ** argv)
   }
  
   //Bootstrap:
-  unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0);
+  unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppdist.getParams(), 0);
   if(nbBS > 0)
   {
     ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
-    bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", params, true);
+    bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", bppdist.getParams(), true);
     ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
     if(approx)
     {
@@ -285,9 +282,9 @@ int main(int args, char ** argv)
       parametersToIgnore = allParameters;
       ignoreBrLen = true;
     }
-    bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
+    bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppdist.getParams(), false, "", true, false);
  
-    string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", params, false, false);
+    string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bppdist.getParams(), false, false);
     ofstream *out = NULL;
     if(bsTreesPath != "none")
     {
@@ -330,7 +327,7 @@ int main(int args, char ** argv)
     for(unsigned int i = 0; i < nbBS; i++) delete bsTrees[i];
 
     //Write resulting tree:
-    PhylogeneticsApplicationTools::writeTree(*tree, params);
+    PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
   }
     
   delete alphabet;
@@ -339,8 +336,8 @@ int main(int args, char ** argv)
   delete rDist;
   delete distMethod;
   delete tree;
-  cout << "BppDist's done. Bye." << endl;
-  ApplicationTools::displayTime("Total execution time:");
+
+  bppdist.done();
 
   }
   catch(exception & e)

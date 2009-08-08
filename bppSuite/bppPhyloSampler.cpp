@@ -56,7 +56,7 @@ using namespace std;
 #include <Seq/SequenceApplicationTools.h>
 
 // From Utils:
-#include <Utils/AttributesTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
@@ -82,7 +82,7 @@ int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*           Bio++ Phylogenetic Sampler, version 0.1              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 02/03/09 *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -94,37 +94,34 @@ int main(int args, char ** argv)
   
   try {
 
-  ApplicationTools::startTimer();
-
-  cout << "Parsing options:" << endl;
-  
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
+  BppApplication bppphysamp(args, argv, "BppPhySamp");
+  bppphysamp.startTimer();
 
   //Get sequences:
-  Alphabet* alphabet      = SequenceApplicationTools::getAlphabet(params);
-  SequenceContainer* seqs = SequenceApplicationTools::getSequenceContainer(alphabet, params);
+  Alphabet* alphabet      = SequenceApplicationTools::getAlphabet(bppphysamp.getParams());
+  SequenceContainer* seqs = SequenceApplicationTools::getSequenceContainer(alphabet, bppphysamp.getParams());
 
-  string inputMethod = ApplicationTools::getStringParameter("input.method", params, "tree");
+  string inputMethod = ApplicationTools::getStringParameter("input.method", bppphysamp.getParams(), "tree");
   ApplicationTools::displayResult("Input method", inputMethod);
 
   DistanceMatrix* dist = NULL;
   if(inputMethod == "tree")
   {
-    Tree* tree = PhylogeneticsApplicationTools::getTree(params);
+    Tree* tree = PhylogeneticsApplicationTools::getTree(bppphysamp.getParams());
     dist = TreeTemplateTools::getDistanceMatrix(*tree);
   }
   else if(inputMethod == "matrix")
   {
-    string distPath = ApplicationTools::getAFilePath("input.matrix", params, true, true);
+    string distPath = ApplicationTools::getAFilePath("input.matrix", bppphysamp.getParams(), true, true);
     PhylipDistanceMatrixFormat matIO;
     dist = matIO.read(distPath);
   }
   else throw Exception("Unknown input method: " + inputMethod);
 
-  string critMeth = ApplicationTools::getStringParameter("choice_criterion", params, "length");
+  string critMeth = ApplicationTools::getStringParameter("choice_criterion", bppphysamp.getParams(), "length");
   ApplicationTools::displayResult("Sequence choice criterion", critMeth);
 
-  double threshold = ApplicationTools::getDoubleParameter("threshold", params, 0.01);
+  double threshold = ApplicationTools::getDoubleParameter("threshold", bppphysamp.getParams(), 0.01);
   ApplicationTools::displayResult("Distance threshold", threshold);
 
   //Compute lengths:
@@ -178,10 +175,9 @@ int main(int args, char ** argv)
   for(unsigned int i = 0; i < seqNames.size(); i++)
     vsc.addSequence(seqs->getSequence(seqNames[i]));
    
-  SequenceApplicationTools::writeSequenceFile(vsc, params);
-  cout << "Bio++ PhyloSampler's done. Bye." << endl;
-  ApplicationTools::displayTime("Total execution time:");
+  SequenceApplicationTools::writeSequenceFile(vsc, bppphysamp.getParams());
 
+  bppphysamp.done();
   }
   catch(exception & e)
   {

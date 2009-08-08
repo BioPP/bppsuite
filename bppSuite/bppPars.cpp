@@ -60,7 +60,7 @@ using namespace std;
 #include <Phyl/Newick.h>
 
 // From Utils:
-#include <Utils/AttributesTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
@@ -82,7 +82,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*             Bio++ Parsimony Methods, version 0.1.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 02/06/09 *" << endl;
+  cout << "*                                           Last Modif. 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -93,18 +93,15 @@ int main(int args, char ** argv)
   }
   
   try {
-  
-  ApplicationTools::startTimer();
+ 
+  BppApplication bpppars(args, argv, "BppPars");
+  bpppars.startTimer();
 
-  cout << "Parsing options:" << endl;
-  
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
+	Alphabet * alphabet = SequenceApplicationTools::getAlphabet(bpppars.getParams(), "", false);
 
-	Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
-
-	VectorSiteContainer * allSites = SequenceApplicationTools::getSiteContainer(alphabet, params);
+	VectorSiteContainer * allSites = SequenceApplicationTools::getSiteContainer(alphabet, bpppars.getParams());
 	
-	VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, params);
+	VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bpppars.getParams());
 	delete allSites;
 
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
@@ -112,11 +109,11 @@ int main(int args, char ** argv)
 	
   // Get the initial tree
   Tree* tree = 0;
-  string initTree = ApplicationTools::getStringParameter("init.tree", params, "user", "", false, false);
+  string initTree = ApplicationTools::getStringParameter("init.tree", bpppars.getParams(), "user", "", false, false);
   ApplicationTools::displayResult("Input tree", initTree);
   if(initTree == "user")
   {
-    tree = PhylogeneticsApplicationTools::getTree(params);
+    tree = PhylogeneticsApplicationTools::getTree(bpppars.getParams());
     ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   }
   else if(initTree == "random")
@@ -133,7 +130,7 @@ int main(int args, char ** argv)
   ApplicationTools::displayTaskDone();
   double score = tp->getScore();
   ApplicationTools::displayResult("Initial parsimony score", TextTools::toString(score, 15));
-  bool optTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false);
+  bool optTopo = ApplicationTools::getBooleanParameter("optimization.topology", bpppars.getParams(), false);
   ApplicationTools::displayResult("Optimize topology", optTopo ? "yes" : "no");
   if(optTopo)
   {
@@ -143,10 +140,10 @@ int main(int args, char ** argv)
   }
   tree = new TreeTemplate<Node>(*tp->getTree());
   
-	PhylogeneticsApplicationTools::writeTree(*tree, params);
+	PhylogeneticsApplicationTools::writeTree(*tree, bpppars.getParams());
   
   //Bootstrap:
-  unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0);
+  unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bpppars.getParams(), 0);
   if(nbBS > 0)
   {
     ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
@@ -158,7 +155,7 @@ int main(int args, char ** argv)
     }
 
     
-    string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", params, false, false);
+    string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bpppars.getParams(), false, false);
     ofstream *out = NULL;
     if(bsTreesPath != "none")
     {
@@ -192,16 +189,14 @@ int main(int args, char ** argv)
     for(unsigned int i = 0; i < nbBS; i++) delete bsTrees[i];
 
     //Write resulting tree:
-    PhylogeneticsApplicationTools::writeTree(*tree, params);
+    PhylogeneticsApplicationTools::writeTree(*tree, bpppars.getParams());
   }
 
 	delete sites;
   delete tp;
 	delete alphabet;
 
-  cout << "BppPars's done. Bye." << endl;
-  ApplicationTools::displayTime("Total execution time:");
-
+  bpppars.done();
 	}
   catch(exception & e)
   {

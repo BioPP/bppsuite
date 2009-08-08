@@ -63,9 +63,9 @@ using namespace std;
 #include <NumCalc/DataTable.h>
 
 // From Utils:
-#include <Utils/AttributesTools.h>
-#include <Utils/FileTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
+#include <Utils/FileTools.h>
 #include <Utils/Number.h>
 
 using namespace bpp;
@@ -132,7 +132,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*            Bio++ Sequence Generator, version 1.1.0             *" << endl;
   cout << "* Author: J. Dutheil                                             *" << endl;
-  cout << "*         B. Boussau                        Last Modif. 08/05/09 *" << endl;
+  cout << "*         B. Boussau                        Last Modif. 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -144,22 +144,21 @@ int main(int args, char ** argv)
   
   try {
 
-  cout << "Parsing options:" << endl;
-  
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
+  BppApplication bppseqgen(args, argv, "BppSeqGen");
+  bppseqgen.startTimer();
 
-  Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
+  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqgen.getParams(), "", false);
 
   vector<Tree*> trees;
   vector<double> positions;
-  string inputTrees = ApplicationTools::getStringParameter("input.tree.method", params, "single", "", true, false);
-  if(inputTrees == "single")
+  string inputTrees = ApplicationTools::getStringParameter("input.tree.method", bppseqgen.getParams(), "single", "", true, false);
+  if (inputTrees == "single")
   {
-    trees.push_back(PhylogeneticsApplicationTools::getTree(params));
+    trees.push_back(PhylogeneticsApplicationTools::getTree(bppseqgen.getParams()));
     positions.push_back(0);
     positions.push_back(1);
     ApplicationTools::displayResult("Number of leaves", TextTools::toString(trees[0]->getNumberOfLeaves()));
-    string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", params, false, false);
+    string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppseqgen.getParams(), false, false);
     if(treeWIdPath != "none")
     {
       TreeTemplate<Node> ttree(*trees[0]);
@@ -180,37 +179,37 @@ int main(int args, char ** argv)
       exit(0);
     }
   }
-  else if(inputTrees == "multiple")
+  else if (inputTrees == "multiple")
   {
-    string treesPath = ApplicationTools::getAFilePath("input.tree.file", params, false, true);
+    string treesPath = ApplicationTools::getAFilePath("input.tree.file", bppseqgen.getParams(), false, true);
     ApplicationTools::displayResult("Trees file", treesPath);
     ifstream treesFile(treesPath.c_str(), ios::in);
     readTrees(treesFile, trees, positions);
   }
   else throw Exception("Unknown input.tree.method option: " + inputTrees);
 
-  string infosFile = ApplicationTools::getAFilePath("input.infos", params, false, true);
+  string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
   ApplicationTools::displayResult("Site information", infosFile);
 
-  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
+  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppseqgen.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
   SubstitutionModelSet * modelSet = NULL;
 
   //Homogeneous case:
-  if(nhOpt == "no")
+  if (nhOpt == "no")
   {
-    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet,NULL, params);
+    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet,NULL, bppseqgen.getParams());
     FrequenciesSet* fSet = new FixedFrequenciesSet(model->getAlphabet(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
   //Galtier-Gouy case:
-  else if(nhOpt == "one_per_branch")
+  else if (nhOpt == "one_per_branch")
   {
     if(inputTrees == "multiple")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
-    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, NULL, params);
-    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
+    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, NULL, bppseqgen.getParams());
+    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
     vector<double> rateFreqs;
     if(model->getNumberOfStates() != alphabet->getSize())
     {
@@ -219,22 +218,22 @@ int main(int args, char ** argv)
       rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
                                                    // we should assume a rate distribution for the root also!!!  
     }
-    FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, NULL, params, rateFreqs);
+    FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, NULL, bppseqgen.getParams(), rateFreqs);
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, trees[0], globalParameters); 
   }
   //General case:
-  else if(nhOpt == "general")
+  else if (nhOpt == "general")
   {
     if(inputTrees == "multiple")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
-    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, NULL, params);
+    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, NULL, bppseqgen.getParams());
   }
   else throw Exception("Unknown non-homogeneous option: " + nhOpt);
 
 	DiscreteDistribution * rDist = NULL;
   NonHomogeneousSequenceSimulator * seqsim = NULL;
   SiteContainer * sites = NULL;
-  if(infosFile != "none")
+  if (infosFile != "none")
   {
     ifstream in(infosFile.c_str());
     DataTable * infos = DataTable::read(in, "\t");
@@ -296,10 +295,10 @@ int main(int args, char ** argv)
     }
     else
     {
-	    rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+	    rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
     }
 
-    unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", params, 100);
+    unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", bppseqgen.getParams(), 100);
     if(trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
@@ -340,21 +339,21 @@ int main(int args, char ** argv)
   }
   
   // Write to file:
-  SequenceApplicationTools::writeSequenceFile(*sites, params);
+  SequenceApplicationTools::writeSequenceFile(*sites, bppseqgen.getParams());
 
   delete alphabet;
-  for(unsigned int i = 0; i < trees.size(); i++)
+  for (unsigned int i = 0; i < trees.size(); i++)
     delete trees[i];
   delete rDist;
 
+  bppseqgen.done();
+
   }
-  catch(exception & e)
+  catch (exception & e)
   {
     cout << e.what() << endl;
     return 1;
   }
-
-  cout << "BppSeqGen's done." << endl;
 
   return 0;
 }

@@ -50,7 +50,7 @@ using namespace std;
 #include <Phyl/PhylogeneticsApplicationTools.h>
 
 // From Utils:
-#include <Utils/AttributesTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
@@ -73,7 +73,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Consensus and Bootstrap Methods, version 0.3.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created     06/06/07 *" << endl;
-  cout << "*          N. Galtier                       Last Modif. 02/06/09 *" << endl;
+  cout << "*          N. Galtier                       Last Modif. 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -85,22 +85,19 @@ int main(int args, char ** argv)
   
   try {
   
-  ApplicationTools::startTimer();
+  BppApplication bppconsense(args, argv, "BppConsense");
+  bppconsense.startTimer();
 
-  cout << "Parsing options:" << endl;
-  
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
- 
-  vector<Tree*> list = PhylogeneticsApplicationTools::getTrees(params);
+  vector<Tree*> list = PhylogeneticsApplicationTools::getTrees(bppconsense.getParams());
 
   Tree* tree = 0;
-  string treeMethod = ApplicationTools::getStringParameter("tree", params, "consensus");
+  string treeMethod = ApplicationTools::getStringParameter("tree", bppconsense.getParams(), "consensus");
   string cmdName;
   map<string, string> cmdArgs;
   KeyvalTools::parseProcedure(treeMethod, cmdName, cmdArgs);
   if(cmdName == "Input")
   {
-    tree = PhylogeneticsApplicationTools::getTree(params);
+    tree = PhylogeneticsApplicationTools::getTree(bppconsense.getParams());
     ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
   }
   else if(cmdName == "Consensus")
@@ -118,13 +115,12 @@ int main(int args, char ** argv)
   ApplicationTools::displayTaskDone();
 
   //Write resulting tree:
-  PhylogeneticsApplicationTools::writeTree(*tree, params);
+  PhylogeneticsApplicationTools::writeTree(*tree, bppconsense.getParams());
   for (unsigned int i = 0; i < list.size(); i++)
     delete list[i];
   delete tree;
 
-  cout << "BppConsense's done. Bye." << endl;
-  ApplicationTools::displayTime("Total execution time:");
+  bppconsense.done();
 
 	}
   catch(exception & e)

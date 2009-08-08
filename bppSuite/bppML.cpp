@@ -80,7 +80,7 @@ using namespace std;
 #include <NumCalc/AutoParameter.h>
 
 // From Utils:
-#include <Utils/AttributesTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
@@ -105,7 +105,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Maximum Likelihood Computation, version 1.3.0      *" << endl;
   cout << "*                                                                *" << endl; 
-  cout << "* Authors: J. Dutheil                       Last Modif. 02/06/09 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. 08/08/09 *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
   cout << "*          L. Gueguen                                            *" << endl;
   cout << "******************************************************************" << endl;
@@ -119,17 +119,14 @@ int main(int args, char ** argv)
   
   try {
 
-  ApplicationTools::startTimer();
+  BppApplication bppml(args, argv, "BppML");
+  bppml.startTimer();
 
-  cout << "Parsing options:" << endl;
+  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppml.getParams(), "", false);
+
+  VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppml.getParams());
   
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
-
-  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
-
-  VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, params);
-  
-  VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, params, "", true, false);
+  VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppml.getParams(), "", true, false);
   delete allSites;
 
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
@@ -137,11 +134,11 @@ int main(int args, char ** argv)
   
   // Get the initial tree
   Tree* tree = 0;
-  string initTree = ApplicationTools::getStringParameter("init.tree", params, "user", "", false, false);
+  string initTree = ApplicationTools::getStringParameter("init.tree", bppml.getParams(), "user", "", false, false);
   ApplicationTools::displayResult("Input tree", initTree);
   if (initTree == "user")
   {
-    tree = PhylogeneticsApplicationTools::getTree(params);
+    tree = PhylogeneticsApplicationTools::getTree(bppml.getParams());
     ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   }
   else if (initTree == "random")
@@ -154,9 +151,9 @@ int main(int args, char ** argv)
   
   // Try to write the current tree to file. This will be overwritten by the optimized tree,
   // but allow to check file existence before running optimization!
-  PhylogeneticsApplicationTools::writeTree(*tree, params);
+  PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
   
-  bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", params, true, "", false, false);
+  bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", bppml.getParams(), true, "", false, false);
   if (!computeLikelihood)
   {
     delete alphabet;
@@ -167,7 +164,7 @@ int main(int args, char ** argv)
   }
   
   // Setting branch lengths?
-  string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", params, "Input", "", true, false);
+  string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", bppml.getParams(), "Input", "", true, false);
   string cmdName;
   map<string, string> cmdArgs;
   KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
@@ -211,7 +208,7 @@ int main(int args, char ** argv)
   else throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
   ApplicationTools::displayResult("Branch lengths", cmdName);
 
-  string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", params, false, false);
+  string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false);
   if (treeWIdPath != "none")
   {
     TreeTemplate<Node> ttree(*tree);
@@ -233,21 +230,21 @@ int main(int args, char ** argv)
   }
 
   DiscreteRatesAcrossSitesTreeLikelihood *tl;
-  string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", params, "no", "", true, false);
+  string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", bppml.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Clock", optimizeClock);
-  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
+  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-  bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, "", true, false);
-  unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", params, 0, "", true, false);
+  bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, false);
+  unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppml.getParams(), 0, "", true, false);
   
-  SubstitutionModel    * model    = 0;
-  SubstitutionModelSet * modelSet = 0;
-  DiscreteDistribution * rDist    = 0;
+  SubstitutionModel*    model    = 0;
+  SubstitutionModelSet* modelSet = 0;
+  DiscreteDistribution* rDist    = 0;
 
   if (optimizeClock == "global")
   {
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
     if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if (model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
     {
@@ -256,7 +253,7 @@ int main(int args, char ** argv)
     }
     else
     {
-      rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
     }
     tl = new RHomogeneousClockTreeLikelihood(*tree, *sites, model, rDist, true, true);
   }
@@ -266,7 +263,7 @@ int main(int args, char ** argv)
     {
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
       {
@@ -275,13 +272,13 @@ int main(int args, char ** argv)
       }
       else
       {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
       tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
     }
     else if (nhOpt == "no")
     { 
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
       {
@@ -290,13 +287,13 @@ int main(int args, char ** argv)
       }
       else
       {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
-      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", params, "simple", "", true, false);
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
       ApplicationTools::displayResult("Likelihood recursion", recursion);
       if (recursion == "simple")
       {
-        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", params, "recursive", "", true, false);
+        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
         ApplicationTools::displayResult("Likelihood data compression", compression);
         if (compression == "simple")
           tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
@@ -312,7 +309,7 @@ int main(int args, char ** argv)
     }
     else if (nhOpt == "one_per_branch")
     {
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2*model->getAlphabet()->getSize())
       {
@@ -321,7 +318,7 @@ int main(int args, char ** argv)
       }
       else
       {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
       vector<double> rateFreqs;
       if (model->getNumberOfStates() != alphabet->getSize())
@@ -331,12 +328,12 @@ int main(int args, char ** argv)
         rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
                                                      // we should assume a rate distribution for the root also!!!  
       }
-      FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, params, rateFreqs);
-      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
+      FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, bppml.getParams(), rateFreqs);
+      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
       modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
       model = 0;
       
-      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", params, "simple", "", true, false);
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
       ApplicationTools::displayResult("Likelihood recursion", recursion);
       if (recursion == "simple")
         tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
@@ -346,7 +343,7 @@ int main(int args, char ** argv)
     }
     else if (nhOpt == "general")
     {
-      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, params);
+      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, bppml.getParams());
       if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (modelSet->getNumberOfStates() >= 2*modelSet->getAlphabet()->getSize())
       {
@@ -355,10 +352,10 @@ int main(int args, char ** argv)
       }
       else
       {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
 
-      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", params, "simple", "", true, false);
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
       ApplicationTools::displayResult("Likelihood recursion", recursion);
       if (recursion == "simple")
         tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
@@ -404,16 +401,16 @@ int main(int args, char ** argv)
   if (optimizeClock == "global")
   {
     PhylogeneticsApplicationTools::optimizeParameters(
-        dynamic_cast<DiscreteRatesAcrossSitesClockTreeLikelihood *>(tl), tl->getParameters(), params);
+        dynamic_cast<DiscreteRatesAcrossSitesClockTreeLikelihood *>(tl), tl->getParameters(), bppml.getParams());
   }
   else
   {
     tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(
-        PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), params));
+        PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams()));
   }
   
   tree = new TreeTemplate<Node>(tl->getTree());
-  PhylogeneticsApplicationTools::writeTree(* tree, params);
+  PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
   
   // Write parameters to screen:
   ApplicationTools::displayResult("Log likelihood", TextTools::toString(- tl->getValue(), 15));
@@ -428,7 +425,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
   }
   // Write parameters to file:
-  string parametersFile = ApplicationTools::getAFilePath("output.estimates", params, false, false);
+  string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
   ApplicationTools::displayResult("Output estimates to file", parametersFile);
   if (parametersFile != "none")
   {
@@ -461,7 +458,7 @@ int main(int args, char ** argv)
   delete prDist;
  
   // Write infos to file:
-  string infosFile = ApplicationTools::getAFilePath("output.infos", params, false, false);
+  string infosFile = ApplicationTools::getAFilePath("output.infos", bppml.getParams(), false, false);
   if (infosFile != "none")
   {
     ApplicationTools::displayResult("Alignment information logfile", infosFile);
@@ -513,23 +510,23 @@ int main(int args, char ** argv)
   if (nbBS > 0 && optimizeClock == "no")
   {
     ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
-    bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", params, true);
+    bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", bppml.getParams(), true);
     ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
-    bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", params, false, "", true, false);
+    bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppml.getParams(), false, "", true, false);
     
     const Tree* initTree = tree;
-    if (!bootstrapVerbose) params["optimization.verbose"] = "0";
-    params["optimization.profiler"] = "none";
-    params["optimization.messageHandler"] = "none";
+    if (!bootstrapVerbose) bppml.getParam("optimization.verbose") = "0";
+    bppml.getParam("optimization.profiler") = "none";
+    bppml.getParam("optimization.messageHandler") = "none";
     if (!optimizeTopo)
     {
-      params["optimization.topology"] = "yes";
+      bppml.getParam("optimization.topology") = "yes";
       tl = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
-          PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), params, "", true, false));
+          PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams(), "", true, false));
       initTree = &tl->getTree();
     }
     
-    string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", params, false, false);
+    string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bppml.getParams(), false, false);
     ofstream *out = 0;
     if (bsTreesPath != "none")
     {
@@ -558,7 +555,7 @@ int main(int args, char ** argv)
         parameters.deleteParameters(paramsToIgnore.getParameterNames());
       }
       tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood *>(
-          PhylogeneticsApplicationTools::optimizeParameters(tlrep, parameters, params, "", true, false));
+          PhylogeneticsApplicationTools::optimizeParameters(tlrep, parameters, bppml.getParams(), "", true, false));
       bsTrees[i] = new TreeTemplate<Node>(tlrep->getTree());
       if (out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
       if (out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);
@@ -576,7 +573,7 @@ int main(int args, char ** argv)
     for (unsigned int i = 0; i < nbBS; i++) delete bsTrees[i];
 
     //Write resulting tree:
-    PhylogeneticsApplicationTools::writeTree(*tree, params);
+    PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
   }
 
 
@@ -587,8 +584,7 @@ int main(int args, char ** argv)
   delete rDist;
   delete tl;
   delete tree;
-  cout << "BppML's done. Bye." << endl;
-  ApplicationTools::displayTime("Total execution time:");
+  bppml.done();
  
   }
   catch(exception & e)

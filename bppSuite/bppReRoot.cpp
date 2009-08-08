@@ -59,8 +59,8 @@ using namespace std;
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
 #include <Utils/StringTokenizer.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
-#include <Utils/AttributesTools.h>
 
 using namespace bpp;
 
@@ -84,7 +84,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*                  Bio++ ReRoot, version 0.1.3                   *" << endl;
   cout << "* Author: C. Scornavacca                    Created     15/01/08 *" << endl;
-  cout << "*                                           Last Modif. 03/06/09 *" << endl;
+  cout << "*                                           Last Modif. 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -96,27 +96,24 @@ int main(int args, char ** argv)
   
   try {
   
-  ApplicationTools::startTimer();
-
-  cout << "Parsing options:" << endl;
-  
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
+  BppApplication bppreroot(args, argv, "BppReRoot");
+  bppreroot.startTimer();
 
   Newick newick;
-  string listPath = ApplicationTools::getAFilePath("input.list.file", params);
+  string listPath = ApplicationTools::getAFilePath("input.list.file", bppreroot.getParams());
   ApplicationTools::displayResult("Input list file", listPath);
   if(listPath == "none") throw Exception("You must provide an input tree list file.");
      
-  string outgroupsPath = ApplicationTools::getAFilePath("outgroups.file", params);
+  string outgroupsPath = ApplicationTools::getAFilePath("outgroups.file", bppreroot.getParams());
   ApplicationTools::displayResult("Outgroups file", outgroupsPath);
   if(outgroupsPath == "none") throw Exception("You must provide an outgroup list file.");
        
-  string outputPath = ApplicationTools::getAFilePath("output.trees.file", params, true, false);
+  string outputPath = ApplicationTools::getAFilePath("output.trees.file", bppreroot.getParams(), true, false);
   ApplicationTools::displayResult("Output file", outputPath);
   if(outputPath == "none") throw Exception("You must provide an output file.");
      
-  bool printOption = ApplicationTools::getBooleanParameter("print.option", params, false);
-  bool tryAgain = ApplicationTools::getBooleanParameter("tryAgain.option", params, true);
+  bool printOption = ApplicationTools::getBooleanParameter("print.option", bppreroot.getParams(), false);
+  bool tryAgain = ApplicationTools::getBooleanParameter("tryAgain.option", bppreroot.getParams(), true);
           
   vector<Tree*> tempTrees;
   vector<MyTree*> trees;
@@ -146,14 +143,14 @@ int main(int args, char ** argv)
   const string path2 = listPath;  
   ifstream treePath(path2.c_str(), ios::in);  
 
-  if(! treePath) { throw IOException ("Newick::read: failed to read from stream"); }
+  if (!treePath) { throw IOException ("Newick::read: failed to read from stream"); }
 
   string temp2, description2;// Initialization
   string::size_type index;  
   
   int k = 0;
   
-  while(!treePath.eof())
+  while (!treePath.eof())
   {
     k++;
     bool printOrNot =true;
@@ -162,9 +159,9 @@ int main(int args, char ** argv)
     getline(treePath, temp2, '\n');  // Copy current line in temporary string
    
     index = temp2.find(";");
-    if(temp2 != "")
+    if (temp2 != "")
     {
-      if(index != string::npos)
+      if (index != string::npos)
       {
         description2 += temp2.substr(0, index + 1);
         tempTree = TreeTemplateTools::parenthesisToTree(description2);    
@@ -172,21 +169,21 @@ int main(int args, char ** argv)
       }
       else description2 += temp;
 
-      MyTree * tree = dynamic_cast <MyTree* >(tempTree);
+      MyTree* tree = dynamic_cast <MyTree* >(tempTree);
       //ApplicationTools::displayGauge(tr, trees.size() - 1, '=');
 
       vector<string> leavesTree;      
-      leavesTree = (* tree).getLeavesNames();  
+      leavesTree = (*tree).getLeavesNames();  
   
       unsigned int numNodes = tree->getNumberOfNodes() - 1;
       unsigned int numNodeWithBranchLength = 0;
       vector<Node *>  nodes = tree->getNodes();
-      for(unsigned int i = 0; i < nodes.size(); i++)
+      for (unsigned int i = 0; i < nodes.size(); i++)
       {
         if(nodes[i]->hasDistanceToFather())
           numNodeWithBranchLength++;
       }
-      if((numNodes != numNodeWithBranchLength) && (numNodeWithBranchLength != 0))\
+      if ((numNodes != numNodeWithBranchLength) && (numNodeWithBranchLength != 0))\
       {
         cout << "Could not execute due to a source tree with missing branch lengths \n(reminder: a source tree must either have no branch length, either length for all branches\n";
         exit(-1);
@@ -255,9 +252,9 @@ int main(int args, char ** argv)
                 std::sort(tempLeaves.begin(), tempLeaves.end());      
                 if(tempLeaves.size() != leavesTree.size())
                 {
-                  MyTree * low = new MyTree(* TreeTemplateTools::cloneSubtree<Node>(* newRoot));
+                  MyTree* low = new MyTree(TreeTemplateTools::cloneSubtree<Node>(* newRoot));
                   tree->newOutGroup(newRoot);
-                  Node * sonUpper;
+                  Node* sonUpper;
                   vector<string>  tempLeaves2 = TreeTemplateTools::getLeavesNames(* (tree->getRootNode())->getSon(0));
                   std::sort(tempLeaves2.begin(), tempLeaves2.end());
                   if((VectorTools::vectorIntersection(tempLeaves2,outGroup).size()) !=0)
@@ -286,7 +283,7 @@ int main(int args, char ** argv)
             analyseOutgroupLevel = false;
         }    
       }
-      if(!found)
+      if (!found)
       {  
         if(!printOption)
           printOrNot = false;
@@ -299,7 +296,7 @@ int main(int args, char ** argv)
         printOrNot = (true);
         tree->resetNodesId();
       }
-      if(printOrNot)
+      if (printOrNot)
       {
         if(k == 1)
           newick.write(* tree, outputPath, true);
@@ -317,12 +314,9 @@ int main(int args, char ** argv)
   //Write rooted trees:  
 
      
-  for(unsigned int i = 0; i < trees.size(); i++) delete trees[i];
+  for (unsigned int i = 0; i < trees.size(); i++) delete trees[i];
     
-  cout << "Bio++ ReRoot's done. Bye." << endl;
-      
-  ApplicationTools::displayTime("Total execution time:");
-
+  bppreroot.done();
   }
   catch(exception & e)
   {

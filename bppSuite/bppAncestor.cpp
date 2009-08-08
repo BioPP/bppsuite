@@ -76,7 +76,7 @@ using namespace std;
 #include <NumCalc/AutoParameter.h>
 
 // From Utils:
-#include <Utils/AttributesTools.h>
+#include <Utils/BppApplication.h>
 #include <Utils/ApplicationTools.h>
 #include <Utils/FileTools.h>
 #include <Utils/TextTools.h>
@@ -100,7 +100,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.3.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
-  cout << "*          B. Boussau                       Last Modif: 30/06/09 *" << endl;
+  cout << "*          B. Boussau                       Last Modif: 08/08/09 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -112,27 +112,24 @@ int main(int args, char ** argv)
   
   try {
 
-  ApplicationTools::startTimer();
+  BppApplication bppancestor(args, argv, "BppAncestor");
+  bppancestor.startTimer();
 
-  cout << "Parsing options:" << endl;
+  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppancestor.getParams(), "", false);
+
+  VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppancestor.getParams());
   
-  map<string, string> params = AttributesTools::parseOptions(args, argv);
-
-  Alphabet * alphabet = SequenceApplicationTools::getAlphabet(params, "", false);
-
-  VectorSiteContainer * allSites = SequenceApplicationTools::getSiteContainer(alphabet, params);
-  
-  VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, params);
+  VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppancestor.getParams());
   delete allSites;
 
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
   
   // Get the initial tree
-  Tree* tree = PhylogeneticsApplicationTools::getTree(params);
+  Tree* tree = PhylogeneticsApplicationTools::getTree(bppancestor.getParams());
   ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   
-  string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", params, false, false);
+  string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppancestor.getParams(), false, false);
   if(treeWIdPath != "none")
   {
     TreeTemplate<Node> ttree(*tree);
@@ -154,7 +151,7 @@ int main(int args, char ** argv)
   }
 
   DRTreeLikelihood *tl;
-  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, false);
+  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppancestor.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
   SubstitutionModel    *model    = 0;
@@ -164,7 +161,7 @@ int main(int args, char ** argv)
 
   if(nhOpt == "no")
   {  
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
     if(model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
@@ -172,14 +169,14 @@ int main(int args, char ** argv)
     }
     else
     {
-      rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
     }
     tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true);
     nbStates = model->getNumberOfStates();
   }
   else if(nhOpt == "one_per_branch")
   {
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, params);
+    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
     if(model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
@@ -187,7 +184,7 @@ int main(int args, char ** argv)
     }
     else
     {
-      rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
     }
     vector<double> rateFreqs;
     if(model->getNumberOfStates() != alphabet->getSize())
@@ -197,8 +194,8 @@ int main(int args, char ** argv)
       rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
                                                    // we should assume a rate distribution for the root also!!!  
     }
-    FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, params, rateFreqs);
-    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
+    FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, sites, bppancestor.getParams(), rateFreqs);
+    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppancestor.getParams(), ',', "");
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
     model = 0;
     tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
@@ -206,7 +203,7 @@ int main(int args, char ** argv)
   }
   else if(nhOpt == "general")
   {
-    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, params);
+    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, bppancestor.getParams());
     if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
@@ -214,7 +211,7 @@ int main(int args, char ** argv)
     }
     else
     {
-      rDist = PhylogeneticsApplicationTools::getRateDistribution(params);
+      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
     }
     tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
     nbStates = modelSet->getNumberOfStates();
@@ -273,7 +270,7 @@ int main(int args, char ** argv)
   delete prDist;
 
   // Reconstruct ancestral sequences:
-  string reconstruction = ApplicationTools::getStringParameter("asr.method", params, "marginal", "", true, false);
+  string reconstruction = ApplicationTools::getStringParameter("asr.method", bppancestor.getParams(), "marginal", "", true, false);
   ApplicationTools::displayResult("Ancestral state reconstruction method", reconstruction);
   bool probs = false;
 
@@ -289,12 +286,12 @@ int main(int args, char ** argv)
 
   if(probMethod)
   {
-    probs = ApplicationTools::getBooleanParameter("asr.probabilities", params, false, "", true, false);
+    probs = ApplicationTools::getBooleanParameter("asr.probabilities", bppancestor.getParams(), false, "", true, false);
     ApplicationTools::displayResult("Output probabilities", probs ? "yes" : "no");
   }
 
   // Write infos to file:
-  string outputFile = ApplicationTools::getAFilePath("output.sites.file", params, false, false);
+  string outputFile = ApplicationTools::getAFilePath("output.sites.file", bppancestor.getParams(), false, false);
   if(outputFile != "none")
   {
     ApplicationTools::displayResult("Output file for sites", outputFile);
@@ -381,7 +378,7 @@ int main(int args, char ** argv)
   }
  
 
-  outputFile = ApplicationTools::getAFilePath("output.nodes.file", params, false, false);
+  outputFile = ApplicationTools::getAFilePath("output.nodes.file", bppancestor.getParams(), false, false);
   if(outputFile != "none")
   {
     ApplicationTools::displayResult("Output file for nodes", outputFile);
@@ -426,11 +423,11 @@ int main(int args, char ** argv)
   SequenceContainer *asSites = 0;
   if(probMethod)
   {
-    bool sample = ApplicationTools::getBooleanParameter("asr.sample", params, false, "", true, false);
+    bool sample = ApplicationTools::getBooleanParameter("asr.sample", bppancestor.getParams(), false, "", true, false);
     ApplicationTools::displayResult("Sample from posterior distribution", sample ? "yes" : "no");
     if(sample)
     {
-      unsigned int nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", params, 1, "", true, false);
+      unsigned int nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", bppancestor.getParams(), 1, "", true, false);
       asSites = new AlignedSequenceContainer(alphabet);
       for(unsigned int i = 0; i < nbSamples; i++)
       {
@@ -454,7 +451,7 @@ int main(int args, char ** argv)
   {
     asSites = asr->getAncestralSequences();
   }
-  SequenceApplicationTools::writeSequenceFile(*asSites, params);
+  SequenceApplicationTools::writeSequenceFile(*asSites, bppancestor.getParams());
   delete asSites;
 
   delete asr;
@@ -465,9 +462,8 @@ int main(int args, char ** argv)
   delete rDist;
   delete tl;
   delete tree;
-  cout << "BppAncestor's done. Bye." << endl;
-  ApplicationTools::displayTime("Total execution time:");
- 
+  bppancestor.done();
+
   }
   catch(exception & e)
   {
