@@ -3,7 +3,8 @@
 alphabet = DNA
 
 # Input tree to use:
-tree.file = LSUrooted.dnd
+input.tree.file = LSUrooted.dnd
+input.tree.Format=Newick
 
 # Print a tree with ids as bootstrap values.
 # This is helpful when setting up complexe non-homogeneous models.
