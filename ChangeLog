@@ -1,3 +1,7 @@
+22/08/09 Julien Dutheil
+* Added CMake configuration files, with twick for building the manual (assumes
+		texinfo is installed).
+
 22/07/09 Julien Dutheil
 * Added program bppTreeDraw.
 
