@@ -96,7 +96,7 @@ int main(int args, char ** argv)
   bppseqman.startTimer();
   
   // Get alphabet
-  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqman.getParams(), "", false);
+  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqman.getParams(), "", false, true);
 
   // Get sequences:
   SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);
