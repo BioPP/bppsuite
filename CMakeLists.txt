@@ -5,6 +5,7 @@
 # Global parameters
 cmake_minimum_required(VERSION 2.6)
 project(bppsuite CXX)
+set(CMAKE_BUILD_TYPE "Release")
 
 # Set the CMAKE_PREFIX_PATH for the find_library fonction when using non
 # standard install location
