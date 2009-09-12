@@ -243,12 +243,12 @@ int main(int args, char ** argv)
     ParameterList parameters = model->getParameters();
     for(unsigned int i = 0; i < parameters.size(); i++)
     {
-		  ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
+		  ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
     parameters = rDist->getParameters();
     for(unsigned int i = 0; i < parameters.size(); i++)
     {
-		  ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
+		  ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
     // Write parameters to file:
 	  string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppdist.getParams(), false, false);
@@ -258,12 +258,12 @@ int main(int args, char ** argv)
       parameters = model->getParameters();
       for(unsigned int i = 0; i < parameters.size(); i++)
       {
-        out << parameters[i]->getName() << " = " << parameters[i]->getValue() << endl;
+        out << parameters[i].getName() << " = " << parameters[i].getValue() << endl;
       }
       parameters = rDist->getParameters();
       for(unsigned int i = 0; i < parameters.size(); i++)
       {
-        out << parameters[i]->getName() << " = " << parameters[i]->getValue() << endl;
+        out << parameters[i].getName() << " = " << parameters[i].getValue() << endl;
       }
       out.close();
     }

@@ -380,7 +380,7 @@ int main(int args, char ** argv)
     ParameterList pl = tl->getBranchLengthsParameters();
     for (unsigned int i = 0; i < pl.size(); i++)
     {
-      if (pl[i]->getValue() < 0.000001) pl[i]->setValue(0.000001);
+      if (pl[i].getValue() < 0.000001) pl[i].setValue(0.000001);
     }
     tl->matchParametersValues(pl);
     logL = tl->getValue();
@@ -417,12 +417,12 @@ int main(int args, char ** argv)
   ParameterList parameters = tl->getSubstitutionModelParameters();
   for (unsigned int i = 0; i < parameters.size(); i++)
   {
-    ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
+    ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
   }
   parameters = tl->getRateDistributionParameters();
   for (unsigned int i = 0; i < parameters.size(); i++)
   {
-    ApplicationTools::displayResult(parameters[i]->getName(), TextTools::toString(parameters[i]->getValue()));
+    ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
   }
   // Write parameters to file:
   string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
