@@ -437,7 +437,7 @@ int main(int args, char ** argv)
         for(unsigned int j = 0; j < names.size(); j++)
           names[j] += "_" + TextTools::toString(i+1);
         sampleSites->setSequencesNames(names, false);
-        SequenceContainerTools::append<AlignedSequenceContainer>(* dynamic_cast<AlignedSequenceContainer *>(asSites), *sampleSites);
+        SequenceContainerTools::append(*asSites, *sampleSites);
         delete sampleSites;
       }
       *ApplicationTools::message << endl;
