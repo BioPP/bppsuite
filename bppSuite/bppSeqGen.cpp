@@ -194,12 +194,12 @@ int main(int args, char ** argv)
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppseqgen.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-  SubstitutionModelSet * modelSet = NULL;
+  SubstitutionModelSet* modelSet = 0;
 
   //Homogeneous case:
   if (nhOpt == "no")
   {
-    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet,NULL, bppseqgen.getParams());
+    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
     FrequenciesSet* fSet = new FixedFrequenciesSet(model->getAlphabet(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
@@ -226,13 +226,13 @@ int main(int args, char ** argv)
   {
     if(inputTrees == "multiple")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
-    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, NULL, bppseqgen.getParams());
+    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, 0, bppseqgen.getParams());
   }
   else throw Exception("Unknown non-homogeneous option: " + nhOpt);
 
-	DiscreteDistribution * rDist = NULL;
-  NonHomogeneousSequenceSimulator * seqsim = NULL;
-  SiteContainer * sites = NULL;
+	DiscreteDistribution* rDist = 0;
+  NonHomogeneousSequenceSimulator* seqsim = 0;
+  SiteContainer* sites = 0;
   if (infosFile != "none")
   {
     ifstream in(infosFile.c_str());
@@ -349,7 +349,7 @@ int main(int args, char ** argv)
   bppseqgen.done();
 
   }
-  catch (exception & e)
+  catch (exception& e)
   {
     cout << e.what() << endl;
     return 1;
