@@ -208,7 +208,7 @@ int main(int args, char ** argv)
   {
     if(inputTrees == "multiple")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
-    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, NULL, bppseqgen.getParams());
+    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
     vector<double> rateFreqs;
     if(model->getNumberOfStates() != alphabet->getSize())
@@ -218,7 +218,7 @@ int main(int args, char ** argv)
       rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
                                                    // we should assume a rate distribution for the root also!!!  
     }
-    FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getFrequenciesSet(alphabet, NULL, bppseqgen.getParams(), rateFreqs);
+    FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, 0, bppseqgen.getParams(), rateFreqs);
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, trees[0], globalParameters); 
   }
   //General case:
