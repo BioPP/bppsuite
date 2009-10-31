@@ -1,3 +1,13 @@
+#Initial log likelihood.................: -71011.8177084265
+#Log likelihood.........................: -65343.8442233959
+#GC.theta...............................: 0.483464
+#T92.kappa_1............................: 2.63716
+#T92.theta_1............................: 0.576654
+#T92.theta_2............................: 0.445837
+#Gamma.alpha............................: 0.439279
+#111.83user 0.07system 1:52.90elapsed 99%CPU
+
+
 # Global variables:
 DATA = LSU
 
@@ -41,7 +51,7 @@ init.brlen.method = Input
 # general => Specify the model by hand.
 nonhomogeneous = general
 
-nonhomogeneous.root_freq=BalancedGC
+nonhomogeneous.root_freq=GC(init=balanced)
 
 rate_distribution = Gamma(n=4, alpha=0.358)
 

@@ -1,3 +1,13 @@
+#Initial log likelihood.................: -65639.1410465442
+#Log likelihood.........................: -64547.3493038365
+#GC.theta...............................: 0.486755
+#T92.theta_1............................: 0.438231
+#T92.theta_2............................: 0.778319
+#etc
+#Gamma.alpha............................: 0.43608
+#1566.56user 0.36system 26:13.49elapsed 99%CPU
+
+
 # Global variables:
 DATA = LSU
 
@@ -51,7 +61,7 @@ model = T92(kappa=2.843, theta=0.5)
 # Other parameters will be considered branch specific.
 nonhomogeneous_one_per_branch.shared_parameters = T92.kappa
 
-nonhomogeneous.root_freq=BalancedGC()
+nonhomogeneous.root_freq=GC(init=balanced)
 
 rate_distribution = Gamma(n=4, alpha=0.358)
 

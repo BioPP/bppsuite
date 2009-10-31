@@ -547,25 +547,29 @@ The following functions are available:
 
 @table @command
 
-@item Balanced()
-Set all the frequencies to 1/size of the alphabet.
+@item Fixed()
+All frequencies are fixed to their initial value and are not estimated.
 
-@item BalancedGC()
-For nucleotides only, set the G content equal to the C content equal to 0.5.
+@item GC(theta=@{real]0,1[@})
+For nucleotides only, set the G content equal to the C content.
 
-@item Observed()
-Set frequencies equal to their values in the data set.
-
-@item ObservedGC()
-Does the same as @command{Observed} for the GC content.
-
-@item Init(ancA=@{real]0,1[@}, ancC=@{real]0,1[@}, ..., ancA=@{real]0,1[@}, ancR=@{real]0,1[@}, ancN=@{real]0,1[@})
-Allows you to set the values of the frequencies by hand.
-
-@item Init(ancTheta=@{real]0,1[@})
-Allows you to set the GC content by hand.
+@item Full(theta_1=@{real]0,1[@}, theta_2=@{real]0,1[@}, ..., theta_N=@{real]0,1[@})
+Full parametrization. Contains N free parameters, where N is equal to the size of the alphabet - 1. For codon models, N is the size of the alphabet - 1 - the number of stop codons, whose frequencies are set to 0.
+For nucleotide sequences, theta is the GC content, theta_1 is the proportion of A over A+T, and theta_2 is the proportion of G over G+C.
 
 @end table
+
+All functions accept the following arguments, that take priority over the parameter specification:
+@table @command
+
+@item init=@{balanced,observed@}
+Set all frequencies to the same value, or to their observed counts.
+
+@item values=(@{vector<double>@})
+Explicitly set all frequencies manually. The size of the input vector should equal the number of resolved states in the alphabet, be in alphabetical order of states, and sum to one.
+
+@end table
+
 
 
 @subsection Rate across site distribution

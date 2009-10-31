@@ -68,6 +68,10 @@ add_custom_target(info
   COMMAND makeinfo bppsuite.texi
   WORKING_DIRECTORY doc
   )
+add_custom_target(pdf
+  COMMAND pdftex bppsuite.texi
+  WORKING_DIRECTORY doc
+  )
 add_custom_target(html
   COMMAND makeinfo --html --css-ref=http://www.w3.org/StyleSheets/Core/Steely bppsuite.texi
   WORKING_DIRECTORY doc
