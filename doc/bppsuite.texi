@@ -884,6 +884,26 @@ length of the words in the alphabet must be @var{n}, and all single
 site frequency sets are independent. In that case, all single site
 frequency set parameters are position dependent.
 
+@example
+alphabet=Word(letter=DNA,length=4)
+IndependentWord(frequency=GC())
+@end example
+builds a frequency set on 4 bases words, such that all sites
+frequencies follow the same GC frequency set model. The parameter
+name is @var{IndependentWord.0123_GC.theta}.
+
+@example
+alphabet=Word(letter=DNA,length=4)
+IndependentWord(frequency0=GC(),frequency1=GC(),frequency2=Fixed(),frequency3=Full())
+@end example
+builds a frequency set on 4 bases words, such first and second sites
+follow independent GC frequency sets, third site follows a Fixed
+frequency set, and fourth site follows a Full frequency set. Then the
+parameters names are @var{IndependentWord.0_GC.theta},
+@var{IndependentWord.1_GC.theta}, @var{IndependentWord.3_Full.theta_1},
+@var{IndependentWord.3_Full.theta_2},
+@var{IndependentWord.3_Full.theta_3}.
+
 @end table
 
 All functions accept the following arguments, that take priority over the parameter specification:
