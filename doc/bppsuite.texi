@@ -689,8 +689,8 @@ alphabet= CodonNeutralFrequencies(letter=DNA)
 model=CodonNeutralFrequencies(frequencies=Full())
 @end example
 has parameters @var{CodonNeutralFrequencies.012_T92.kappa},
-@var{CodonNeutralFrequencies.Full.theta_AAA}, ...,
-@var{CodonNeutralFrequencies.Full.theta_TTT},
+@var{CodonNeutralFrequencies.Full.theta_1}, ...,
+@var{CodonNeutralFrequencies.Full.theta_60},
 @var{CodonNeutralFrequencies.relrate0},
 @var{CodonNeutralFrequencies.relrate1}.
 
@@ -720,8 +720,8 @@ alphabet= CodonAsynonymousFrequencies(letter=DNA)
 model=CodonAsynonymousFrequencies(frequencies=Full())
 @end example
 has parameters @var{CodonAsynonymousFrequencies.012_T92.kappa},
-@var{CodonAsynonymousFrequencies.Full.theta_AAA}, ...,
-@var{CodonAsynonymousFrequencies.Full.theta_TTT},
+@var{CodonAsynonymousFrequencies.Full.theta_1}, ...,
+@var{CodonAsynonymousFrequencies.Full.theta_60},
 @var{CodonAsynonymousFrequencies.beta}.
 
 
