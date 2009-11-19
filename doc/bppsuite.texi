@@ -863,6 +863,26 @@ For nucleotides only, set the G content equal to the C content.
 Full parametrization. Contains N free parameters, where N is equal to the size of the alphabet - 1. For codon models, N is the size of the alphabet - 1 - the number of stop codons, whose frequencies are set to 0.
 For nucleotide sequences, theta is the GC content, theta_1 is the proportion of A over A+T, and theta_2 is the proportion of G over G+C.
 
+@item IndependentWord(frequency=@{frequency set description@})
+
+or 
+
+@item IndependentWord(frequency0=@{frequency set description@}, frequency1=@{frequency set description@}, ..., frequencyn=@{frequency set description@})
+
+frequencies on words computed as the product of frequencies on the
+letters. The arguments @var{frequency} and @var{frequency@{i@}} are for
+descriptions of frequency sets on single sites such as nucleotides or
+proteins. The alphabet must be a Word alphabet.
+
+If the argument is @var{frequency}, the number of multiplied single
+site frequencies is the length of the words in the alphabet, and the
+@emph{same} single site frequency set is used (ie the parameters are
+shared between all positions).
+
+If the arguments are @var{frequency0}, ..., @var{frequency@{n@}}, the
+length of the words in the alphabet must be @var{n}, and all single
+site frequency sets are independent. In that case, all single site
+frequency set parameters are position dependent.
 
 @end table
 
