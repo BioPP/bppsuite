@@ -277,8 +277,16 @@ data=LSU
 @section Setting alphabet and reading sequences
 
 @table @command
-@item alphabet = @{DNA|RNA|Protein@}
-The alphabet to use when reading sequences.
+@item alphabet = @{DNA|RNA|Protein|
+Word(letter=@{DNA|RNA|Protein@},length=@{int@})| codonalphabet(letter=@{DNA|RNA@})@}
+
+with 
+
+codonalphabet= @{EchinodermMitochondrialCodonAlphabet|
+InvertebrateMitochondrialCodonAlphabet| StandardCodonAlphabet|
+VertebrateMitochondrialCodonAlphabet@} 
+
+The alphabet to use when reading sequences. 
 
 @item input.sequence.file=@{path@}
 The sequence file to use. Depending on the program, these sequences have or do not have to be aligned.
@@ -400,6 +408,8 @@ From version 0.4.0 of BppSuite, the model specification uses a completely new sy
 The old option files will hence not be compatible with new version of the software.
 The new syntax however is hopefully more intuitive, and more generalizable, so that few changes are expected when new models will be built. The substitution model is a function, potentially including parameters. The following table lists the set of usable functions, and their parameters.
 
+@subsubsection{Single site models}
+
 @table @command
 
 @item JC69
@@ -457,6 +467,281 @@ Build a protein substitution model from a file in PAML format.
 @item Empirical(file=@{path@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
 Build a protein substitution model from a file in PAML format, and use free equilibrium frequencies.
 
+@end table
+
+@subsubsection{Multiple site models}
+
+@table @command
+
+@item Word(model=@{model description@} [,relrate0=@{real>0@},..,relrate@{n-1@}=@{real>0@}]) 
+or 
+@item Word(model0=@{model description@}, model1=@{model description@}, ..., modeln=@{model description@}[, relrate0=@{real>0@}, .., relrate@{n-1@}=@{real>0@}])
+
+substitution model on words. The arguments @var{model} and
+@var{model@{i@}} are for descriptions of models on single sites such
+as nucleotides or proteins. The alphabet must be a Word alphabet.
+
+If the argument is @var{model}, the length of the words in the
+substitution model is determined by the length of the words in the
+alphabet, and the @emph{same} single site model is used (ie the
+parameters are shared between all positions).
+
+If the arguments are @var{model0}, ..., @var{model@{n@}}, the length
+of the words in the alphabet must be @var{n}, and each single site
+model stands for a single-site substitution model. In that case, all
+single site models parameters are position dependent.
+
+Each single site model is normalized and the substitution rates
+between words that differ on more than one letter are null.
+
+Arguments @var{relrate@{i@}} stands for the relative substitution rates
+of the sites. Default: @var{relrate@{i@}=1/@{n-i@}}, such that the rate
+of each site is 1/n.
+
+@example
+alphabet=Word(letter=DNA,length=4)
+model=Word(model=T92())
+@end example
+builds a model on 4 bases words, such all sites follow the same T92
+model. The parameters names are @var{Word.0123_T92.kappa},
+@var{Word.relrate0}, @var{Word.relrate1}, @var{Word.relrate2}.
+
+@example
+alphabet=Word(letter=DNA,length=4)
+model=Word(model0=T92(), model1=T92(), model2=JC69(), model3=HKY85())
+@end example
+builds a model on 4 bases words, such first and second sites follow
+independent T92 models, third site follows a JC69 model, and fourth
+site follows a HKY85 model. Then the parameters names are
+@var{Word.0_T92.kappa}, @var{Word.1_T92.kappa},
+@var{Word.3_HKY85.kappa}, @var{Word.3_HKY85.theta},
+@var{Word.3_HKY85.theta1}, @var{Word.3_HKY85.theta2},
+@var{Word.relrate0}, @var{Word.relrate1}, @var{Word.relrate2}.
+
+@item Triplet(model=@{model description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+or 
+@item Triplet(model0=@{model description@}, model1=@{model description@}, model2=@{model description@}[, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+
+substitution model on 3 letters words. The arguments @var{model} and
+@var{model@{i@}} are for descriptions of models on single sites such as
+nucleotides or proteins. The alphabet must be a 3-letters word
+alphabet or a codon alphabet.
+
+If the argument is @var{model}, the @emph{same} single site model is
+used on all positions (ie the parameters are shared between all
+positions).
+
+If the arguments are @var{model0}, @var{model1}, @var{model2}, each
+single site model stands for a single-site substitution model. In that
+case, all single site models parameters are position dependent.
+
+Each single site model is normalized and the substitution rates
+between triplets that differ on more than one letter are null.
+
+Arguments @var{relrate@{i@}} stands for the relative substitution rates
+of the sites. Default: @var{relrate@{i@}=1/@{3-i@}}, such that the rate
+of each site is 1/3.
+
+@example
+alphabet= StandardCodonAlphabet(letter=DNA)
+model=Word(model=T92())
+@end example
+builds a model on codons, such all sites follow the same T92 model.
+The parameters names are @var{Triplet.0123_T92.kappa},
+@var{Triplet.relrate0}, @var{Triplet.relrate1}.
+
+@example
+alphabet=Word(letter=DNA,length=3)
+model=Triplet(model0=T92(), model1=T92(), model2=JC69())
+@end example
+builds a model on 3 bases words, such first and second sites follow
+independent T92 models, and third site follows a JC69 model. Then the
+parameters names are @var{Triplet.0_T92.kappa},
+@var{Triplet.1_T92.kappa}, @var{Triplet.relrate0},
+@var{Triplet.relrate1}.
+
+@item CodonNeutral(model=@{model description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+or 
+@item CodonNeutral(model0=@{model description@}, model1=@{model description@}, model2=@{model description@}[, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+
+substitution model on codons. The arguments @var{model} and
+@var{model@{i@}} are for descriptions of models on bases. The alphabet
+must be a codon alphabet.
+
+If the argument is @var{model}, the @emph{same} single site model is
+used on all positions (ie the parameters are shared between all
+positions).
+
+If the arguments are @var{model0}, @var{model1}, @var{model2}, each
+single site model stands for a single-site substitution model. In that
+case, all single site models parameters are position dependent.
+
+Each single site model is normalized and the substitution rates
+between codons that differ on more than one letter are null.
+
+Arguments @var{relrate@{i@}} stands for the relative substitution rates
+of the sites. Default: @var{relrate@{i@}=1/@{3-i@}}, such that the rate
+of each site is 1/3.
+
+The generator is first computed with these models and parameters on
+the whole triplet alphabet, and then the substitution rates to and
+from stop codons are set to zero and the generator is normalized with
+this modification.
+
+@example
+alphabet= StandardCodonAlphabet(letter=DNA)
+model=CodonNeutral(model=T92())
+@end example
+builds a model on codons, such all sites follow the same T92 model.
+The parameters names are @var{CodonNeutral.0123_T92.kappa},
+@var{CodonNeutral.relrate0}, @var{CodonNeutral.relrate1}.
+
+@example
+alphabet= StandardCodonAlphabet(letter=DNA)
+model=CodonNeutral(model0=T92(), model1=T92(), model2=JC69())
+@end example
+builds a model on codons, such that first and second sites follow
+independent T92 models, and third site follows a JC69 model. Then the
+parameters names are @var{CodonNeutral.0_T92.kappa},
+@var{CodonNeutral.1_T92.kappa}, @var{CodonNeutral.relrate0},
+@var{CodonNeutral.relrate1}.
+
+@item CodonAsynonymous(geneticcode=@{genetic code description@}, model=@{model description@} [, beta=@{real>0@}])
+
+or
+
+@item CodonAsynonymous(geneticcode=@{genetic code description@}, model0=@{model description@}, model1=@{model description@}, model2=@{model description@}[, beta=@{real>0@}]) 
+
+substitution model on codons. 
+
+The arguments @var{model} and @var{model@{i@}} are for descriptions of
+models on bases. The alphabet must be a codon alphabet.
+
+If the argument is @var{model}, the @emph{same} single site model is
+used on all positions (ie the parameters are shared between all
+positions).
+
+If the arguments are @var{model0}, @var{model1}, @var{model2}, each
+single site model stands for a single-site substitution model. In that
+case, all single site models parameters are position dependent.
+
+Each single site model is normalized and the substitution rates
+between codons that differ on more than one letter are null.
+
+In addition to these models, the @var{geneticcode} argument is
+compulsory. The several values available are described below.
+
+Optional argument @var{beta} is the ratio between non-synonymous
+substitution rate and synonymous substitution rate. Default value: 1.
+
+@example
+alphabet= StandardCodonAlphabet(letter=DNA)
+model= CodonAsynonymous(model=T92())
+@end example
+builds a model on codons, such all sites follow the same T92 model.
+The parameters names are @var{CodonAsynonymous.0123_T92.kappa} and 
+@var{CodonAsynonymous.beta}.
+
+@example
+alphabet= StandardCodonAlphabet(letter=DNA)
+model= CodonNeutral(model0=T92(), model1=T92(), model2=JC69())
+@end example
+builds a model on codons, such that first and second sites follow
+independent T92 models, and third site follows a JC69 model. Then the
+parameters names are @var{CodonAsynonymous.0_T92.kappa},
+@var{CodonAsynonymous.1_T92.kappa}, @var{CodonAsynonymous.beta}.
+
+@item CodonNeutralFrequencies(frequencies=@{frequencies set description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+
+substitution model on codons. The exchangeability model on each site
+is the same K80 model, and the equilibrium distribution of the model
+is description by the @var{frequencies} argument. See the description
+of the Frequencies Set below.
+
+Each single site model is normalized and the substitution rates
+between codons that differ on more than one letter are null.
+
+Arguments @var{relrate@{i@}} stands for the relative substitution rates
+of the sites. Default: @var{relrate@{i@}=1/@{3-i@}}, such that the rate
+of each site is 1/3.
+
+The generator is first computed with these model and distribution on
+the whole triplet alphabet, and then the substitution rates to and
+from stop codons are set to zero and the generator is normalized with
+this modification.
+
+@example
+alphabet= CodonNeutralFrequencies(letter=DNA)
+model=CodonNeutralFrequencies(frequencies=Full())
+@end example
+has parameters @var{CodonNeutralFrequencies.012_T92.kappa},
+@var{CodonNeutralFrequencies.Full.theta_AAA}, ...,
+@var{CodonNeutralFrequencies.Full.theta_TTT},
+@var{CodonNeutralFrequencies.relrate0},
+@var{CodonNeutralFrequencies.relrate1}.
+
+@item CodonAsynonymousFrequencies(geneticcode=@{genetic code description@}, frequencies=@{frequencies set description@} [, beta=@{real>0@}])
+
+substitution model on codons. The exchangeability model on each site
+is the same K80 model, and the equilibrium distribution of the model
+is description by the @var{frequencies} argument. See the description
+of the Frequencies Set below.
+
+Each single site model is normalized and the substitution rates
+between codons that differ on more than one letter are null.
+
+In addition to these models, the @var{geneticcode} argument is
+compulsory. The several values available are described below.
+
+Optional argument @var{beta} is the ratio between non-synonymous
+substitution rate and synonymous substitution rate. Default value: 1.
+
+The generator is first computed with these model and distribution on
+the whole triplet alphabet, and then the substitution rates to and
+from stop codons are set to zero and the generator is normalized with
+this modification.
+
+@example
+alphabet= CodonAsynonymousFrequencies(letter=DNA)
+model=CodonAsynonymousFrequencies(frequencies=Full())
+@end example
+has parameters @var{CodonAsynonymousFrequencies.012_T92.kappa},
+@var{CodonAsynonymousFrequencies.Full.theta_AAA}, ...,
+@var{CodonAsynonymousFrequencies.Full.theta_TTT},
+@var{CodonAsynonymousFrequencies.beta}.
+
+
+@item GY94(geneticcode=@{genetic code description@} [, kappa=@{real>0@}, V=@{real>0@}])
+Goldman and Yang (1994) substitution model for codons (default values:
+@var{kappa}=1 and @var{V}=10000).
+
+The @var{geneticcode} describes the genetic code, see below.
+
+@item YN98(geneticcode=@{genetic code description@} [, kappa=@{real>0@}, omega=@{real>0@}])
+Yang and Nielsen (1998) substitution model for codons (default values:
+@var{kappa}=1 and @var{omega}=1).
+
+The @var{geneticcode} describes the genetic code, see below.
+
+@end table
+
+
+
+The several @var{geneticcode} values available are:
+
+@itemize
+@item EchinodermMitochondrialGeneticCode
+@item InvertebrateMitochondrialGeneticCode
+@item StandardGeneticCode
+@item VertebrateMitochondrialGeneticCode
+@end itemize 
+
+
+
+@subsubsection{Meta models}
+
+@table @command
+
 @item TS98(model=@{model description@}, s1=@{real>0@}, s2=@{real>0@})
 Tuffley and Steel 1998's 'covarion' model, taking a nested substitution model as argument for @var{model}.
 The nested model can be any substitution model for any alphabet.
@@ -470,6 +755,8 @@ Rivas and Eddy 2008's substitution model with gaps, taking a nested substitution
 Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rate.
 
 @end table
+
+@subsubsection{Linking parameters}
 
 It is possible to reduce the parameter space by putting extra constraints on parameters, using for instance
 @example
@@ -543,6 +830,11 @@ As since version 0.4.0, BppSuite uses the keyval syntax to set up root frequenci
 @table @command
 @item nonhomogeneous.root_freq=@{description of frequency set@}
 @end table
+
+The Frequencies set declaration are described below.
+
+@subsection Frequencies Set
+
 The following functions are available:
 
 @table @command
@@ -556,6 +848,7 @@ For nucleotides only, set the G content equal to the C content.
 @item Full(theta_1=@{real]0,1[@}, theta_2=@{real]0,1[@}, ..., theta_N=@{real]0,1[@})
 Full parametrization. Contains N free parameters, where N is equal to the size of the alphabet - 1. For codon models, N is the size of the alphabet - 1 - the number of stop codons, whose frequencies are set to 0.
 For nucleotide sequences, theta is the GC content, theta_1 is the proportion of A over A+T, and theta_2 is the proportion of G over G+C.
+
 
 @end table
 
