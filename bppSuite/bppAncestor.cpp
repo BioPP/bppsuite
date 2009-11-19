@@ -139,7 +139,7 @@ int main(int args, char ** argv)
       if(nodes[i]->isLeaf())
         nodes[i]->setName(TextTools::toString(nodes[i]->getId()) + "_" + nodes[i]->getName());
       else
-        nodes[i]->setBranchProperty("NodeId", String(TextTools::toString(nodes[i]->getId())));
+        nodes[i]->setBranchProperty("NodeId", BppString(TextTools::toString(nodes[i]->getId())));
     }
     Newick treeWriter;
     treeWriter.enableExtendedBootstrapProperty("NodeId");
