@@ -390,10 +390,15 @@ The format of the input tree file.
 
 @table @command
 @item nonhomogeneous = @{no|one_per_branch_general@}
-Set the type of model. The @option{no} option is used for homogeneous models.
-The @option{one_per_branch} option is used as a short cut for setting Galtier and Gouy 97-like branch-specific models, and the @option{general} option for non-stationary and eventually non-homogeneous models.
-In either of the last two cases, the model is non-stationary, that is, possibly not at the equilibrium and hence includes the root frequencies as additional parameters.
-If the substitution model is not the same across the tree, then the model is also non-homogeneous.
+Set the type of model. The @option{no} option is used for homogeneous
+models. The @option{one_per_branch} option is used as a short cut for
+setting Galtier and Gouy 97-like branch-specific models, and the
+@option{general} option for non-stationary and eventually
+non-homogeneous models. In either of the last two cases, the model is
+non-stationary, that is, possibly not at the equilibrium and hence
+includes the root frequencies as additional parameters. If the
+substitution model is not the same across the tree, then the model is
+also non-homogeneous.
 @end table
 
 @subsection Setting up the substitution model
@@ -404,27 +409,36 @@ If the substitution model is not the same across the tree, then the model is als
 A description of the substitution model to use, using the keyval syntax.
 
 @end table
-From version 0.4.0 of BppSuite, the model specification uses a completely new syntax, based on the keyval (key = value) scheme.
-The old option files will hence not be compatible with new version of the software.
-The new syntax however is hopefully more intuitive, and more generalizable, so that few changes are expected when new models will be built. The substitution model is a function, potentially including parameters. The following table lists the set of usable functions, and their parameters.
+From version 0.4.0 of BppSuite, the model specification uses a
+completely new syntax, based on the keyval (key = value) scheme. The
+old option files will hence not be compatible with new version of the
+software. The new syntax however is hopefully more intuitive, and more
+generalizable, so that few changes are expected when new models will
+be built. The substitution model is a function, potentially including
+parameters. The following table lists the set of usable functions, and
+their parameters.
 
-@subsubsection{Single site models}
-
+@subsubsection Single site models
 @table @command
 
 @item JC69
-The Jukes and Cantor model, for proteins or nucleotide alphabets.
-This model has no additional parameter.
+The Jukes and Cantor model, for proteins or nucleotide alphabets. This
+model has no additional parameter.
 
 @item K80(kappa=@{real>0@})
-The Kimura 2 parameters model for nucleotides. @var{kappa} is the transition over transversion ratio.
+The Kimura 2 parameters model for nucleotides. @var{kappa} is the
+transition over transversion ratio.
 
 @item F84(kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
 Felsenstein's 1984 substitution model for nucleotides, with
-transition/transversion ratio and 4 distinct equilibrium frequencies, set using
-three independent parameters: @var{theta} is the GC content, @var{theta1} is the proportion of G / (G + C) and @var{theta2} is the proportion of A / (A + T or U).
-The @var{useObservedFreqs} option set the @var{theta}s parameters according to the observed counts in the data set, and @var{useObservedFreqs.pseudoCount} is a quantity, defaulting to 0, that can be used in case some counts are zero, on small data sets for instance.
-The corrected values are computed as:
+transition/transversion ratio and 4 distinct equilibrium frequencies,
+set using three independent parameters: @var{theta} is the GC content,
+@var{theta1} is the proportion of G / (G + C) and @var{theta2} is the
+proportion of A / (A + T or U). The @var{useObservedFreqs} option set
+the @var{theta}s parameters according to the observed counts in the
+data set, and @var{useObservedFreqs.pseudoCount} is a quantity,
+defaulting to 0, that can be used in case some counts are zero, on
+small data sets for instance. The corrected values are computed as:
 @tex
 $$\pi_i = {f_i + \psi \over 4\cdot\psi + \sum_j f_j}$$
 @end tex
@@ -469,7 +483,7 @@ Build a protein substitution model from a file in PAML format, and use free equi
 
 @end table
 
-@subsubsection{Multiple site models}
+@subsubsection Multiple site models
 
 @table @command
 
@@ -738,7 +752,7 @@ The several @var{geneticcode} values available are:
 
 
 
-@subsubsection{Meta models}
+@subsubsection Meta models
 
 @table @command
 
@@ -756,7 +770,7 @@ Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rat
 
 @end table
 
-@subsubsection{Linking parameters}
+@subsubsection Linking parameters
 
 It is possible to reduce the parameter space by putting extra constraints on parameters, using for instance
 @example
