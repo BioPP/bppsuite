@@ -53,12 +53,7 @@ using namespace std;
 // From PhylLib:
 #include <Phyl/Tree.h>
 #include <Phyl/DiscreteRatesAcrossSitesTreeLikelihood.h>
-#include <Phyl/RHomogeneousTreeLikelihood.h>
-#include <Phyl/DRHomogeneousTreeLikelihood.h>
-#include <Phyl/NNIHomogeneousTreeLikelihood.h>
-#include <Phyl/RHomogeneousClockTreeLikelihood.h>
-#include <Phyl/RNonHomogeneousTreeLikelihood.h>
-#include <Phyl/DRNonHomogeneousTreeLikelihood.h>
+#include <Phyl/treelikelihoods>
 #include <Phyl/PatternTools.h>
 #include <Phyl/PhylogeneticsApplicationTools.h>
 #include <Phyl/MarginalAncestralStateReconstruction.h>
@@ -296,9 +291,17 @@ int main(int args, char ** argv)
         string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
         ApplicationTools::displayResult("Likelihood data compression", compression);
         if (compression == "simple")
-          tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
+          if (dynamic_cast<MixedModel*>(model)==NULL)
+            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
+          else
+            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
+            
         else if (compression == "recursive")
-          tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
+          if (dynamic_cast<MixedModel*>(model)==NULL)
+            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
+          else
+            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
+        
         else throw Exception("Unknown likelihood data compression method: " + compression);
       }
       else if (recursion == "double")
@@ -357,8 +360,9 @@ int main(int args, char ** argv)
 
       string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
       ApplicationTools::displayResult("Likelihood recursion", recursion);
-      if (recursion == "simple")
+      if (recursion == "simple"){
         tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+      }
       else if (recursion == "double")
         tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
       else throw Exception("Unknown recursion option: " + recursion);
@@ -366,6 +370,7 @@ int main(int args, char ** argv)
     else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
   }
   else throw Exception("Unknown option for optimization.clock: " + optimizeClock);
+
   tl->initialize();
  
   delete tree;
@@ -406,7 +411,8 @@ int main(int args, char ** argv)
   else
   {
     tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood *>(
-        PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams()));
+                                                                PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams()));
+  
   }
   
   tree = new TreeTemplate<Node>(tl->getTree());
