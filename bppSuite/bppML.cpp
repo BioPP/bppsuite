@@ -291,13 +291,13 @@ int main(int args, char ** argv)
         string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
         ApplicationTools::displayResult("Likelihood data compression", compression);
         if (compression == "simple")
-          if (dynamic_cast<MixedModel*>(model)==NULL)
+          if (dynamic_cast<MixedSubstitutionModel*>(model)==NULL)
             tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
           else
             tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
             
         else if (compression == "recursive")
-          if (dynamic_cast<MixedModel*>(model)==NULL)
+          if (dynamic_cast<MixedSubstitutionModel*>(model)==NULL)
             tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
           else
             tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
