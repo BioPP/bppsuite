@@ -338,8 +338,12 @@ int main(int args, char ** argv)
       
       string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
       ApplicationTools::displayResult("Likelihood recursion", recursion);
-      if (recursion == "simple")
-        tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+      if (recursion == "simple"){
+        if (modelSet->hasMixedSubstitutionModel())
+          tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+        else
+          tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+      }
       else if (recursion == "double")
         tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
       else throw Exception("Unknown recursion option: " + recursion);
@@ -361,7 +365,10 @@ int main(int args, char ** argv)
       string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
       ApplicationTools::displayResult("Likelihood recursion", recursion);
       if (recursion == "simple"){
-        tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+        if (modelSet->hasMixedSubstitutionModel())
+          tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+        else
+          tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
       }
       else if (recursion == "double")
         tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
