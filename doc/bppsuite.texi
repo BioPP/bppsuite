@@ -768,6 +768,21 @@ The nested model can be any substitution model for any alphabet.
 Rivas and Eddy 2008's substitution model with gaps, taking a nested substitution model as argument for @var{model}.
 Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rate.
 
+@item MixedModel(model=@{model description@})
+Mixture model from a given @var{model} in which some parameters follow
+a probabilistic given below.distribution. The description of the parameters
+distributions is described below.
+
+@example
+model=MixedModel(model=TN93(kappa1=Gamma(n=4,alpha=3,beta=1),
+                            kappa2=Exponential(lambda=2),
+                            theta=0.5,theta1=0.2,theta2=0.1))
+@end example
+has parameters @var{MixedModel.TN93.kappa1.Gamma.alpha},
+@var{MixedModel.TN93.kappa1.Gamma.beta},
+@var{MixedModel.TN93.kappa2.Exponential.lamba},
+@var{MixedModel.TN93.theta}, @var{MixedModel.TN93.theta1},
+@var{MixedModel.TN93.theta2}.
 @end table
 
 @subsubsection Linking parameters
@@ -849,7 +864,7 @@ The Frequencies set declaration are described below.
 
 @subsection Frequencies Set
 
-The following functions are available:
+The following frequencies distributions are available:
 
 @table @command
 
@@ -938,13 +953,37 @@ The following distributions are currently available:
 Uses a constant rate across sites.
 
 @item Gamma(n=@{int>=2@}, alpha=@{float>0@})
-A discretized gamma distribution of rates, with @var{n} classes, and a given shape.
+A discretized gamma distribution of rates, with @var{n} classes, and a
+given shape, with mean 1 (scale=shape).
 
 @item Invariant(dist=@{rate distribution description@}, p=@{real[0,1]@})
-A composite distribution allowing a special class of invariant site, with a probability @var{p}.
+A composite distribution allowing a special class of invariant site,
+with a probability @var{p}.
 
 @end table
 
+@subsection Discrete distributions
+
+The followind discrete distributions are available:
+
+@table @command
+
+@item Constant(value=@{float@})
+a Dirac distribution on @var{value}.
+
+@item Gamma(n=@{int>=2@}, alpha=@{float>0@}, beta=@{float>0@}) 
+a discretized gamma distribution, with @var{n} classes, a shape
+@var{alpha} and a scale @var{beta}.
+
+@item Exponential(n=@{int>=2@}, lambda=@{float>0@})
+a discretized exponential distribution, with @var{n} classes and
+parameter @var{lambda}.
+
+@item TruncExponential(n=@{int>=2@}, lambda=@{float>0@}, tp=@{float>0@})
+a discretized truncated exponential distribution, with @var{n}
+classes, parameter @var{lambda} and a truncation point @var{tp}.
+
+@end table
 @c ------------------------------------------------------------------------------------------------------------------
 
 @node Estimation, WritingSequences, Model, Common
