@@ -69,10 +69,10 @@ typedef TreeTemplate<Node> MyTree;
 
 void help()
 {
-  *ApplicationTools::message << "bppreroot parameter1_name=parameter1_value"    << endl;
-  *ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file" << endl;
-  *ApplicationTools::message << endl;
-  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
+  (*ApplicationTools::message << "bppreroot parameter1_name=parameter1_value").endLine();
+  (*ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file").endLine();
+  (*ApplicationTools::message).endLine();
+  (*ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options.").endLine();
 }
 
 

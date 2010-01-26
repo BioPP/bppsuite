@@ -87,12 +87,12 @@ using namespace bpp;
 
 void help()
 {
-  *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "bppml parameter1_name=parameter1_value parameter2_name=parameter2_value"    << endl;
-  *ApplicationTools::message << "      ... param=option_file" << endl;
-  *ApplicationTools::message << endl;
-  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
-  *ApplicationTools::message << "__________________________________________________________________________" << endl;
+  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
+  (*ApplicationTools::message << "bppml parameter1_name=parameter1_value parameter2_name=parameter2_value").endLine();
+  (*ApplicationTools::message << "      ... param=option_file").endLine();
+  (*ApplicationTools::message).endLine();
+  (*ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options.").endLine();
+  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
 }
 
 int main(int args, char** argv)
@@ -138,7 +138,7 @@ int main(int args, char** argv)
     }
     else if (initTree == "random")
     {
-   vector<string> names = sites->getSequencesNames();
+      vector<string> names = sites->getSequencesNames();
       tree = TreeTemplateTools::getRandomTree(names);
       tree->setBranchLengths(1.);
     }
@@ -169,7 +169,7 @@ int main(int args, char** argv)
     }
     else if (cmdName == "Equal")
     {
-   double value = ApplicationTools::getDoubleParameter("value", cmdArgs, 0.1, "", true, false);
+      double value = ApplicationTools::getDoubleParameter("value", cmdArgs, 0.1, "", true, false);
       if (value <= 0)
         throw Exception("Value for branch length must be superior to 0");
       ApplicationTools::displayResult("Branch lengths set to", value);
@@ -177,12 +177,12 @@ int main(int args, char** argv)
     }
     else if (cmdName == "Clock")
     {
-   TreeTools::convertToClockTree(*tree, tree->getRootId(), true);
+      TreeTools::convertToClockTree(*tree, tree->getRootId(), true);
     }
     else if (cmdName == "Grafen")
     {
-   string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "Input", "", true, false);
-   double h;
+      string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "Input", "", true, false);
+      double h;
       if (grafenHeight == "input")
       {
         h = TreeTools::getHeight(*tree, tree->getRootId());
@@ -206,8 +206,8 @@ int main(int args, char** argv)
     string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false);
     if (treeWIdPath != "none")
     {
-   TreeTemplate<Node> ttree(*tree);
-   vector<Node*> nodes = ttree.getNodes();
+      TreeTemplate<Node> ttree(*tree);
+      vector<Node*> nodes = ttree.getNodes();
       for (unsigned int i = 0; i < nodes.size(); i++)
       {
         if (nodes[i]->isLeaf())
@@ -294,8 +294,8 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Likelihood recursion", recursion);
         if (recursion == "simple")
         {
-   string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
-   ApplicationTools::displayResult("Likelihood data compression", compression);
+          string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
+          ApplicationTools::displayResult("Likelihood data compression", compression);
           if (compression == "simple")
             if (dynamic_cast<MixedSubstitutionModel*>(model) == NULL)
               tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
@@ -417,11 +417,11 @@ int main(int args, char** argv)
     ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
     if (isinf(logL))
     {
-   ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
-   ApplicationTools::displayError("!!! Looking at each site:");
+      ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
+      ApplicationTools::displayError("!!! Looking at each site:");
       for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
       {
-        *ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i) << endl;
+        (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
       }
       ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
       exit(-1);
@@ -429,7 +429,7 @@ int main(int args, char** argv)
 
     if (optimizeClock == "global")
     {
-   PhylogeneticsApplicationTools::optimizeParameters(
+      PhylogeneticsApplicationTools::optimizeParameters(
         dynamic_cast<DiscreteRatesAcrossSitesClockTreeLikelihood*>(tl), tl->getParameters(), bppml.getParams());
     }
     else
@@ -446,37 +446,39 @@ int main(int args, char** argv)
     ParameterList parameters = tl->getSubstitutionModelParameters();
     for (unsigned int i = 0; i < parameters.size(); i++)
     {
-   ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
     parameters = tl->getRateDistributionParameters();
     for (unsigned int i = 0; i < parameters.size(); i++)
     {
-   ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
     // Write parameters to file:
     string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
     ApplicationTools::displayResult("Output estimates to file", parametersFile);
     if (parametersFile != "none")
     {
-      ofstream out(parametersFile.c_str(), ios::out);
-      out << "# Log likelihood = " << (-tl->getValue()) << endl;
-      out << endl;
-      out << "# Substitution model parameters:" << endl;
+      StlOutputStream out(auto_ptr<ostream>(new ofstream(parametersFile.c_str(), ios::out)));
+      out << "# Log likelihood = ";
+      out.setPrecision(20) << (-tl->getValue());
+      out.endLine();
+      out.endLine();
+      out << "# Substitution model parameters:";
+      out.endLine();
       if (modelSet)
       {
-   modelSet->matchParametersValues(tl->getParameters());
-   PhylogeneticsApplicationTools::printParameters(modelSet, out);
+        modelSet->matchParametersValues(tl->getParameters());
+        PhylogeneticsApplicationTools::printParameters(modelSet, out);
       }
       else
       {
-   model->matchParametersValues(tl->getParameters());
-   PhylogeneticsApplicationTools::printParameters(model, out);
+        model->matchParametersValues(tl->getParameters());
+        PhylogeneticsApplicationTools::printParameters(model, out);
       }
-      out << endl;
-      out << "# Rate distribution parameters:" << endl;
+      out.endLine();
+      (out << "# Rate distribution parameters:").endLine();
       rDist->matchParametersValues(tl->getParameters());
       PhylogeneticsApplicationTools::printParameters(rDist, out);
-      out.close();
     }
 
     // Getting posterior rate class distribution:
@@ -490,7 +492,7 @@ int main(int args, char** argv)
     string infosFile = ApplicationTools::getAFilePath("output.infos", bppml.getParams(), false, false);
     if (infosFile != "none")
     {
-   ApplicationTools::displayResult("Alignment information logfile", infosFile);
+      ApplicationTools::displayResult("Alignment information logfile", infosFile);
       ofstream out(infosFile.c_str(), ios::out);
 
       // Get the rate class with maximum posterior probability:
@@ -510,9 +512,9 @@ int main(int args, char** argv)
 
       for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
       {
-   double lnL = tl->getLogLikelihoodForASite(i);
-   const Site* currentSite = &sites->getSite(i);
-   int currentSitePosition = currentSite->getPosition();
+        double lnL = tl->getLogLikelihoodForASite(i);
+        const Site* currentSite = &sites->getSite(i);
+        int currentSitePosition = currentSite->getPosition();
    int isCompl = (SiteTools::isComplete(*currentSite) ? 1 : 0);
    int isConst = (SiteTools::isConstant(*currentSite) ? 1 : 0);
         row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));

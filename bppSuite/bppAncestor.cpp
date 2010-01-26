@@ -87,12 +87,12 @@ using namespace bpp;
 
 void help()
 {
-  *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "bppancestor parameter1_name=parameter1_value " << endl;
-  *ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file" << endl;
-  *ApplicationTools::message << endl;
-  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
-  *ApplicationTools::message << "__________________________________________________________________________" << endl;
+  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
+  (*ApplicationTools::message << "bppancestor parameter1_name=parameter1_value ").endLine();
+  (*ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file").endLine();
+  (*ApplicationTools::message).endLine();
+  (*ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options.").endLine();
+  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
 }
 
 int main(int args, char ** argv)
@@ -242,7 +242,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayError("!!! Looking at each site:");
     for(unsigned int i = 0; i < sites->getNumberOfSites(); i++)
     {
-      *ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i) << endl;
+      (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
     }
     ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
     exit(-1);
@@ -263,9 +263,9 @@ int main(int args, char ** argv)
   }
 
   // Getting posterior rate class distribution:
-  DiscreteDistribution * prDist = RASTools::getPosteriorRateDistribution(* tl);
+  DiscreteDistribution* prDist = RASTools::getPosteriorRateDistribution(*tl);
   ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
-  if(ApplicationTools::message) prDist->print(*ApplicationTools::message);
+  if (ApplicationTools::message) prDist->print(*ApplicationTools::message);
   ApplicationTools::displayMessage("\n");
   delete prDist;
 
@@ -340,7 +340,7 @@ int main(int args, char ** argv)
     vector<string> row(colNames.size());
     DataTable* infos = new DataTable(colNames);
     
-    for(unsigned int i = 0; i < sites->getNumberOfSites(); i++)
+    for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = tl->getLogLikelihoodForASite(i);
       const Site* currentSite = &sites->getSite(i);
@@ -379,7 +379,7 @@ int main(int args, char ** argv)
  
 
   outputFile = ApplicationTools::getAFilePath("output.nodes.file", bppancestor.getParams(), false, false);
-  if(outputFile != "none")
+  if (outputFile != "none")
   {
     ApplicationTools::displayResult("Output file for nodes", outputFile);
     ofstream out(outputFile.c_str(), ios::out);
@@ -440,7 +440,7 @@ int main(int args, char ** argv)
         SequenceContainerTools::append(*asSites, *sampleSites);
         delete sampleSites;
       }
-      *ApplicationTools::message << endl;
+      ApplicationTools::message->endLine();
     }
     else
     {

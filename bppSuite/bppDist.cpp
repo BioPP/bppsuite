@@ -78,12 +78,12 @@ using namespace bpp;
 
 void help()
 {
-  *ApplicationTools::message << "__________________________________________________________________________" << endl;
-  *ApplicationTools::message << "bppdist parameter1_name=parameter1_value parameter2_name=parameter2_value" << endl;
-  *ApplicationTools::message << "      ... param=option_file" << endl;
-  *ApplicationTools::message << endl;
-  *ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options." << endl;
-  *ApplicationTools::message << "__________________________________________________________________________" << endl;
+  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
+  (*ApplicationTools::message << "bppdist parameter1_name=parameter1_value parameter2_name=parameter2_value").endLine();
+  (*ApplicationTools::message << "      ... param=option_file").endLine();
+  (*ApplicationTools::message).endLine();
+  (*ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options.").endLine();
+  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
 }
 
 int main(int args, char ** argv)
@@ -169,18 +169,18 @@ int main(int args, char ** argv)
 	unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", bppdist.getParams(), 2);
 	
 	string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", bppdist.getParams(), false, false);
-	ostream * messenger = 
+	OutputStream* messenger = 
 		(mhPath == "none") ? NULL :
-			(mhPath == "std") ? &cout :
-				new ofstream(mhPath.c_str(), ios::out);
+			(mhPath == "std") ? ApplicationTools::message :
+				new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
 	ApplicationTools::displayResult("Message handler", mhPath);
 
 	string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
-	ostream * profiler = 
+	OutputStream* profiler = 
 		(prPath == "none") ? NULL :
-			(prPath == "std") ? &cout :
-				new ofstream(prPath.c_str(), ios::out);
-	if(profiler != NULL) (*profiler) << setprecision(20);
+			(prPath == "std") ? ApplicationTools::message :
+				new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
+	if(profiler) profiler->setPrecision(20);
 	ApplicationTools::displayResult("Profiler", prPath);
 
 	// Should I ignore some parameters?
@@ -221,9 +221,11 @@ int main(int args, char ** argv)
 	
   //Here it is:
   ofstream out("warnings", ios::out);
-  ApplicationTools::warning = &out;
+  ApplicationTools::warning = new StlOutputStreamWrapper(&out);
   tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, false, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
-  ApplicationTools::warning = &cout;
+  out.close();
+  delete ApplicationTools::warning;
+  ApplicationTools::warning = ApplicationTools::message;
 
   string matrixPath = ApplicationTools::getAFilePath("output.matrix.file", bppdist.getParams(), false, false, "", false);
   if(matrixPath != "none")
