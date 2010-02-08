@@ -19,7 +19,7 @@ input.sequence.sites_to_use = complete
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
 input.sequence.max_gap_allowed = 100%
 
-input.tree.file = $(DATA)dnd
+input.tree.file = $(DATA).dnd
 input.tree.format = Newick
 
 optimization.topology = yes

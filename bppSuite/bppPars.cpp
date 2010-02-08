@@ -125,7 +125,7 @@ int main(int args, char ** argv)
   else throw Exception("Unknown init tree method.");
 	
   ApplicationTools::displayTask("Initializing parsimony");
-  DRTreeParsimonyScore * tp = new DRTreeParsimonyScore(*tree, *sites, false);
+  DRTreeParsimonyScore* tp = new DRTreeParsimonyScore(*tree, *sites, false);
   delete tree;
   ApplicationTools::displayTaskDone();
   double score = tp->getScore();
@@ -138,7 +138,7 @@ int main(int args, char ** argv)
     score = tp->getScore();
     ApplicationTools::displayResult("Final parsimony score", TextTools::toString(score, 15));
   }
-  tree = new TreeTemplate<Node>(*tp->getTree());
+  tree = new TreeTemplate<Node>(tp->getTree());
   
 	PhylogeneticsApplicationTools::writeTree(*tree, bpppars.getParams());
   
@@ -147,16 +147,16 @@ int main(int args, char ** argv)
   if(nbBS > 0)
   {
     ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
-    const Tree * initTree = tree;
+    const Tree* initTree = tree;
     if(!optTopo)
     {
       tp = OptimizationTools::optimizeTreeNNI(tp, 1);
-      initTree = tp->getTree();
+      initTree = &tp->getTree();
     }
 
     
     string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bpppars.getParams(), false, false);
-    ofstream *out = NULL;
+    ofstream *out = 0;
     if(bsTreesPath != "none")
     {
       ApplicationTools::displayResult("Bootstrap trees stored in file", bsTreesPath);
@@ -165,14 +165,14 @@ int main(int args, char ** argv)
     Newick newick;
 
     ApplicationTools::displayTask("Bootstrapping", true);
-    vector<Tree *> bsTrees(nbBS);
-    for(unsigned int i = 0; i < nbBS; i++)
+    vector<Tree*> bsTrees(nbBS);
+    for (unsigned int i = 0; i < nbBS; i++)
     {
       ApplicationTools::displayGauge(i, nbBS-1, '=');
-      VectorSiteContainer * sample = SiteContainerTools::bootstrapSites(*sites);
-      DRTreeParsimonyScore * tp = new DRTreeParsimonyScore(*initTree, *sample, false);
+      VectorSiteContainer* sample = SiteContainerTools::bootstrapSites(*sites);
+      DRTreeParsimonyScore* tp = new DRTreeParsimonyScore(*initTree, *sample, false);
       tp = OptimizationTools::optimizeTreeNNI(tp, 0);
-      bsTrees[i] = new TreeTemplate<Node>(*tp->getTree());
+      bsTrees[i] = new TreeTemplate<Node>(tp->getTree());
       if(out && i==0) newick.write(*bsTrees[i], bsTreesPath, true);
       if(out && i>0) newick.write(*bsTrees[i], bsTreesPath, false);
       delete tp;
@@ -183,7 +183,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayTaskDone();
     
 
-    ApplicationTools::displayTask("Compute bootstrap values");
+    ApplicationTools::displayTask("Compute bootstrap values", true);
     TreeTools::computeBootstrapValues(*tree, bsTrees);
     ApplicationTools::displayTaskDone();
     for(unsigned int i = 0; i < nbBS; i++) delete bsTrees[i];
