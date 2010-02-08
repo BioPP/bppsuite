@@ -64,7 +64,6 @@ using namespace std;
 #include <Phyl/SubstitutionModelSet.h>
 #include <Phyl/SubstitutionModelSetTools.h>
 #include <Phyl/UserProteinSubstitutionModel.h>
-#include <Phyl/UserProteinSubstitutionModelF.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
