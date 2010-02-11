@@ -417,11 +417,29 @@ int main(int args, char** argv)
     if (isinf(logL))
     {
       ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
+      CodonAlphabet *pca=dynamic_cast<CodonAlphabet*>(alphabet);
+      if (pca){
+        bool f=false;
+        unsigned int  s;
+        for (unsigned int i = 0; i < sites->getNumberOfSites(); i++){
+          if (isinf(tl->getLogLikelihoodForASite(i))){
+            const Site& site=sites->getSite(i);
+            s=site.size();
+            for (unsigned int j=0;j<s;j++)
+              if (pca->isStop(site.getValue(j))){
+                (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << sites->getSequence(j).getName()).endLine();
+                f=true;
+              }
+          }
+        }
+        if (f)
+          exit(-1);
+      }
       ApplicationTools::displayError("!!! Looking at each site:");
       for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
-      {
-        (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
-      }
+        {
+          (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
+        }
       ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
       exit(-1);
     }
