@@ -620,11 +620,11 @@ parameters names are @var{CodonNeutral.0_T92.kappa},
 @var{CodonNeutral.1_T92.kappa}, @var{CodonNeutral.relrate0},
 @var{CodonNeutral.relrate1}.
 
-@item CodonAsynonymous(geneticcode=@{genetic code description@}, model=@{model description@} [, beta=@{real>0@}])
+@item CodonAsynonymous(model=@{model description@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
 or
 
-@item CodonAsynonymous(geneticcode=@{genetic code description@}, model0=@{model description@}, model1=@{model description@}, model2=@{model description@}[, beta=@{real>0@}]) 
+@item CodonAsynonymous(model0=@{model description@}, model1=@{model description@}, model2=@{model description@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}]) 
 
 substitution model on codons. 
 
@@ -642,8 +642,10 @@ case, all single site models parameters are position dependent.
 Each single site model is normalized and the substitution rates
 between codons that differ on more than one letter are null.
 
-In addition to these models, the @var{geneticcode} argument is
-compulsory. The several values available are described below.
+In addition to these models, the optional @var{geneticcode} argument
+describes the genetic code. If it is not given, the one related with
+the alphabet is used. The several values available are described
+below.
 
 Optional argument @var{beta} is the ratio between non-synonymous
 substitution rate and synonymous substitution rate. Default value: 1.
@@ -694,7 +696,7 @@ has parameters @var{CodonNeutralFrequencies.012_T92.kappa},
 @var{CodonNeutralFrequencies.relrate0},
 @var{CodonNeutralFrequencies.relrate1}.
 
-@item CodonAsynonymousFrequencies(geneticcode=@{genetic code description@}, frequencies=@{frequencies set description@} [, beta=@{real>0@}])
+@item CodonAsynonymousFrequencies(frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
 substitution model on codons. The exchangeability model on each site
 is the same K80 model, and the equilibrium distribution of the model
@@ -704,8 +706,10 @@ of the Frequencies Set below.
 Each single site model is normalized and the substitution rates
 between codons that differ on more than one letter are null.
 
-In addition to these models, the @var{geneticcode} argument is
-compulsory. The several values available are described below.
+In addition to these models, the optional @var{geneticcode} argument
+describes the genetic code. If it is not given, the one related with
+the alphabet is used. The several values available are described
+below.
 
 Optional argument @var{beta} is the ratio between non-synonymous
 substitution rate and synonymous substitution rate. Default value: 1.
@@ -725,17 +729,22 @@ has parameters @var{CodonAsynonymousFrequencies.012_T92.kappa},
 @var{CodonAsynonymousFrequencies.beta}.
 
 
-@item GY94(geneticcode=@{genetic code description@} [, kappa=@{real>0@}, V=@{real>0@}])
+@item GY94([geneticcode=@{genetic code description@} , kappa=@{real>0@}, V=@{real>0@}])
 Goldman and Yang (1994) substitution model for codons (default values:
 @var{kappa}=1 and @var{V}=10000).
 
-The @var{geneticcode} describes the genetic code, see below.
 
-@item YN98(geneticcode=@{genetic code description@} [, kappa=@{real>0@}, omega=@{real>0@}])
+The optional @var{geneticcode} argument describes the genetic code. If
+it is not given, the one related with the alphabet is used. The
+several values available are described below.
+
+@item YN98([geneticcode=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}])
 Yang and Nielsen (1998) substitution model for codons (default values:
 @var{kappa}=1 and @var{omega}=1).
 
-The @var{geneticcode} describes the genetic code, see below.
+The optional @var{geneticcode} argument describes the genetic code. If
+it is not given, the one related with the alphabet is used. The
+several values available are described below.
 
 @end table
 
