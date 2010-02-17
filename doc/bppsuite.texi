@@ -346,6 +346,10 @@ The @option{nogap} option removes all sites containing at least one
 gap, and the @option{complete} option removes all sites containing at
 least one gap or one generic character, as 'X' for instance.
 
+@item input.sequence.removeStopCodons = @{coucou@}
+This option only works if the alphabet is a codon alphabet.
+Removes the sites where there is a stop codon.
+
 @item input.sequence.max_gap_allowed=100%
 This option only works if the program requires an alignment.
 Only works when the @option{all} option is selected.
