@@ -493,7 +493,7 @@ Build a protein substitution model from a file in PAML format, and use free equi
 
 @item Word(model=@{model description@} [,relrate0=@{real>0@},..,relrate@{n-1@}=@{real>0@}]) 
 or 
-@item Word(model0=@{model description@}, model1=@{model description@}, ..., modeln=@{model description@}[, relrate0=@{real>0@}, .., relrate@{n-1@}=@{real>0@}])
+@item Word(model1=@{model description@}, model2=@{model description@}, ..., modeln=@{model description@}[, relrate0=@{real>0@}, .., relrate@{n-1@}=@{real>0@}])
 
 substitution model on words. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on single sites such
@@ -504,7 +504,7 @@ substitution model is determined by the length of the words in the
 alphabet, and the @emph{same} single site model is used (ie the
 parameters are shared between all positions).
 
-If the arguments are @var{model0}, ..., @var{model@{n@}}, the length
+If the arguments are @var{model1}, ..., @var{model@{n@}}, the length
 of the words in the alphabet must be @var{n}, and each single site
 model stands for a single-site substitution model. In that case, all
 single site models parameters are position dependent.
@@ -521,24 +521,24 @@ alphabet=Word(letter=DNA,length=4)
 model=Word(model=T92())
 @end example
 builds a model on 4 bases words, such all sites follow the same T92
-model. The parameters names are @var{Word.0123_T92.kappa},
+model. The parameters names are @var{Word.1234_T92.kappa},
 @var{Word.relrate0}, @var{Word.relrate1}, @var{Word.relrate2}.
 
 @example
 alphabet=Word(letter=DNA,length=4)
-model=Word(model0=T92(), model1=T92(), model2=JC69(), model3=HKY85())
+model=Word(model1=T92(), model2=T92(), model3=JC69(), model4=HKY85())
 @end example
 builds a model on 4 bases words, such first and second sites follow
 independent T92 models, third site follows a JC69 model, and fourth
 site follows a HKY85 model. Then the parameters names are
-@var{Word.0_T92.kappa}, @var{Word.1_T92.kappa},
-@var{Word.3_HKY85.kappa}, @var{Word.3_HKY85.theta},
-@var{Word.3_HKY85.theta1}, @var{Word.3_HKY85.theta2},
+@var{Word.1_T92.kappa}, @var{Word.2_T92.kappa},
+@var{Word.4_HKY85.kappa}, @var{Word.4_HKY85.theta},
+@var{Word.4_HKY85.theta1}, @var{Word.4_HKY85.theta2},
 @var{Word.relrate0}, @var{Word.relrate1}, @var{Word.relrate2}.
 
 @item Triplet(model=@{model description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 or 
-@item Triplet(model0=@{model description@}, model1=@{model description@}, model2=@{model description@}[, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item Triplet(model1=@{model description@}, model2=@{model description@}, model3=@{model description@}[, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 
 substitution model on 3 letters words. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on single sites such as
@@ -549,7 +549,7 @@ If the argument is @var{model}, the @emph{same} single site model is
 used on all positions (ie the parameters are shared between all
 positions).
 
-If the arguments are @var{model0}, @var{model1}, @var{model2}, each
+If the arguments are @var{model1}, @var{model2}, @var{model3}, each
 single site model stands for a single-site substitution model. In that
 case, all single site models parameters are position dependent.
 
@@ -565,22 +565,22 @@ alphabet= StandardCodonAlphabet(letter=DNA)
 model=Word(model=T92())
 @end example
 builds a model on codons, such all sites follow the same T92 model.
-The parameters names are @var{Triplet.0123_T92.kappa},
+The parameters names are @var{Triplet.123_T92.kappa},
 @var{Triplet.relrate0}, @var{Triplet.relrate1}.
 
 @example
 alphabet=Word(letter=DNA,length=3)
-model=Triplet(model0=T92(), model1=T92(), model2=JC69())
+model=Triplet(model1=T92(), model2=T92(), model3=JC69())
 @end example
 builds a model on 3 bases words, such first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
-parameters names are @var{Triplet.0_T92.kappa},
-@var{Triplet.1_T92.kappa}, @var{Triplet.relrate0},
+parameters names are @var{Triplet.1_T92.kappa},
+@var{Triplet.2_T92.kappa}, @var{Triplet.relrate0},
 @var{Triplet.relrate1}.
 
 @item CodonNeutral(model=@{model description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 or 
-@item CodonNeutral(model0=@{model description@}, model1=@{model description@}, model2=@{model description@}[, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item CodonNeutral(model1=@{model description@}, model2=@{model description@}, model3=@{model description@}[, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 
 substitution model on codons. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on bases. The alphabet
@@ -590,7 +590,7 @@ If the argument is @var{model}, the @emph{same} single site model is
 used on all positions (ie the parameters are shared between all
 positions).
 
-If the arguments are @var{model0}, @var{model1}, @var{model2}, each
+If the arguments are @var{model1}, @var{model2}, @var{model3}, each
 single site model stands for a single-site substitution model. In that
 case, all single site models parameters are position dependent.
 
@@ -611,24 +611,24 @@ alphabet= StandardCodonAlphabet(letter=DNA)
 model=CodonNeutral(model=T92())
 @end example
 builds a model on codons, such all sites follow the same T92 model.
-The parameters names are @var{CodonNeutral.0123_T92.kappa},
+The parameters names are @var{CodonNeutral.123_T92.kappa},
 @var{CodonNeutral.relrate0}, @var{CodonNeutral.relrate1}.
 
 @example
 alphabet= StandardCodonAlphabet(letter=DNA)
-model=CodonNeutral(model0=T92(), model1=T92(), model2=JC69())
+model=CodonNeutral(model1=T92(), model2=T92(), model3=JC69())
 @end example
 builds a model on codons, such that first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
-parameters names are @var{CodonNeutral.0_T92.kappa},
-@var{CodonNeutral.1_T92.kappa}, @var{CodonNeutral.relrate0},
+parameters names are @var{CodonNeutral.1_T92.kappa},
+@var{CodonNeutral.2_T92.kappa}, @var{CodonNeutral.relrate0},
 @var{CodonNeutral.relrate1}.
 
 @item CodonAsynonymous(model=@{model description@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
 or
 
-@item CodonAsynonymous(model0=@{model description@}, model1=@{model description@}, model2=@{model description@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}]) 
+@item CodonAsynonymous(model1=@{model description@}, model2=@{model description@}, model3=@{model description@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}]) 
 
 substitution model on codons. 
 
@@ -639,7 +639,7 @@ If the argument is @var{model}, the @emph{same} single site model is
 used on all positions (ie the parameters are shared between all
 positions).
 
-If the arguments are @var{model0}, @var{model1}, @var{model2}, each
+If the arguments are @var{model1}, @var{model2}, @var{model3}, each
 single site model stands for a single-site substitution model. In that
 case, all single site models parameters are position dependent.
 
@@ -659,17 +659,17 @@ alphabet= StandardCodonAlphabet(letter=DNA)
 model= CodonAsynonymous(model=T92())
 @end example
 builds a model on codons, such all sites follow the same T92 model.
-The parameters names are @var{CodonAsynonymous.0123_T92.kappa} and 
+The parameters names are @var{CodonAsynonymous.123_T92.kappa} and 
 @var{CodonAsynonymous.beta}.
 
 @example
 alphabet= StandardCodonAlphabet(letter=DNA)
-model= CodonNeutral(model0=T92(), model1=T92(), model2=JC69())
+model= CodonNeutral(model1=T92(), model2=T92(), model3=JC69())
 @end example
 builds a model on codons, such that first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
-parameters names are @var{CodonAsynonymous.0_T92.kappa},
-@var{CodonAsynonymous.1_T92.kappa}, @var{CodonAsynonymous.beta}.
+parameters names are @var{CodonAsynonymous.1_T92.kappa},
+@var{CodonAsynonymous.2_T92.kappa}, @var{CodonAsynonymous.beta}.
 
 @item CodonNeutralFrequencies(frequencies=@{frequencies set description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 
@@ -694,7 +694,7 @@ this modification.
 alphabet= CodonNeutralFrequencies(letter=DNA)
 model=CodonNeutralFrequencies(frequencies=Full())
 @end example
-has parameters @var{CodonNeutralFrequencies.012_T92.kappa},
+has parameters @var{CodonNeutralFrequencies.123_K80.kappa},
 @var{CodonNeutralFrequencies.Full.theta_1}, ...,
 @var{CodonNeutralFrequencies.Full.theta_60},
 @var{CodonNeutralFrequencies.relrate0},
