@@ -491,9 +491,9 @@ Build a protein substitution model from a file in PAML format, and use free equi
 
 @table @command
 
-@item Word(model=@{model description@} [,relrate0=@{real>0@},..,relrate@{n-1@}=@{real>0@}]) 
+@item Word(model=@{model description@} [,relrate1=@{real>0@},..,relrate@{n-1@}=@{real>0@}]) 
 or 
-@item Word(model1=@{model description@}, model2=@{model description@}, ..., modeln=@{model description@}[, relrate0=@{real>0@}, .., relrate@{n-1@}=@{real>0@}])
+@item Word(model1=@{model description@}, model2=@{model description@}, ..., modeln=@{model description@}[, relrate1=@{real>0@}, .., relrate@{n-1@}=@{real>0@}])
 
 substitution model on words. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on single sites such
@@ -513,7 +513,7 @@ Each single site model is normalized and the substitution rates
 between words that differ on more than one letter are null.
 
 Arguments @var{relrate@{i@}} stands for the relative substitution rates
-of the sites. Default: @var{relrate@{i@}=1/@{n-i@}}, such that the rate
+of the sites. Default: @var{relrate@{i@}=1/@{n-i+1@}}, such that the rate
 of each site is 1/n.
 
 @example
@@ -522,7 +522,7 @@ model=Word(model=T92())
 @end example
 builds a model on 4 bases words, such all sites follow the same T92
 model. The parameters names are @var{Word.1234_T92.kappa},
-@var{Word.relrate0}, @var{Word.relrate1}, @var{Word.relrate2}.
+@var{Word.relrate1}, @var{Word.relrate2}, @var{Word.relrate3}.
 
 @example
 alphabet=Word(letter=DNA,length=4)
@@ -534,11 +534,11 @@ site follows a HKY85 model. Then the parameters names are
 @var{Word.1_T92.kappa}, @var{Word.2_T92.kappa},
 @var{Word.4_HKY85.kappa}, @var{Word.4_HKY85.theta},
 @var{Word.4_HKY85.theta1}, @var{Word.4_HKY85.theta2},
-@var{Word.relrate0}, @var{Word.relrate1}, @var{Word.relrate2}.
+@var{Word.relrate1}, @var{Word.relrate2}, @var{Word.relrate3}.
 
-@item Triplet(model=@{model description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item Triplet(model=@{model description@} [, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 or 
-@item Triplet(model1=@{model description@}, model2=@{model description@}, model3=@{model description@}[, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item Triplet(model1=@{model description@}, model2=@{model description@}, model3=@{model description@}[, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 
 substitution model on 3 letters words. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on single sites such as
@@ -557,7 +557,7 @@ Each single site model is normalized and the substitution rates
 between triplets that differ on more than one letter are null.
 
 Arguments @var{relrate@{i@}} stands for the relative substitution rates
-of the sites. Default: @var{relrate@{i@}=1/@{3-i@}}, such that the rate
+of the sites. Default: @var{relrate@{i@}=1/@{4-i@}}, such that the rate
 of each site is 1/3.
 
 @example
@@ -566,7 +566,7 @@ model=Word(model=T92())
 @end example
 builds a model on codons, such all sites follow the same T92 model.
 The parameters names are @var{Triplet.123_T92.kappa},
-@var{Triplet.relrate0}, @var{Triplet.relrate1}.
+@var{Triplet.relrate1}, @var{Triplet.relrate2}.
 
 @example
 alphabet=Word(letter=DNA,length=3)
@@ -575,12 +575,12 @@ model=Triplet(model1=T92(), model2=T92(), model3=JC69())
 builds a model on 3 bases words, such first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
 parameters names are @var{Triplet.1_T92.kappa},
-@var{Triplet.2_T92.kappa}, @var{Triplet.relrate0},
-@var{Triplet.relrate1}.
+@var{Triplet.2_T92.kappa}, @var{Triplet.relrate1},
+@var{Triplet.relrate2}.
 
-@item CodonNeutral(model=@{model description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item CodonNeutral(model=@{model description@} [, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 or 
-@item CodonNeutral(model1=@{model description@}, model2=@{model description@}, model3=@{model description@}[, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item CodonNeutral(model1=@{model description@}, model2=@{model description@}, model3=@{model description@}[, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 
 substitution model on codons. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on bases. The alphabet
@@ -598,7 +598,7 @@ Each single site model is normalized and the substitution rates
 between codons that differ on more than one letter are null.
 
 Arguments @var{relrate@{i@}} stands for the relative substitution rates
-of the sites. Default: @var{relrate@{i@}=1/@{3-i@}}, such that the rate
+of the sites. Default: @var{relrate@{i@}=1/@{4-i@}}, such that the rate
 of each site is 1/3.
 
 The generator is first computed with these models and parameters on
@@ -612,7 +612,7 @@ model=CodonNeutral(model=T92())
 @end example
 builds a model on codons, such all sites follow the same T92 model.
 The parameters names are @var{CodonNeutral.123_T92.kappa},
-@var{CodonNeutral.relrate0}, @var{CodonNeutral.relrate1}.
+@var{CodonNeutral.relrate1}, @var{CodonNeutral.relrate2}.
 
 @example
 alphabet= StandardCodonAlphabet(letter=DNA)
@@ -621,8 +621,8 @@ model=CodonNeutral(model1=T92(), model2=T92(), model3=JC69())
 builds a model on codons, such that first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
 parameters names are @var{CodonNeutral.1_T92.kappa},
-@var{CodonNeutral.2_T92.kappa}, @var{CodonNeutral.relrate0},
-@var{CodonNeutral.relrate1}.
+@var{CodonNeutral.2_T92.kappa}, @var{CodonNeutral.relrate1},
+@var{CodonNeutral.relrate2}.
 
 @item CodonAsynonymous(model=@{model description@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
@@ -671,7 +671,7 @@ independent T92 models, and third site follows a JC69 model. Then the
 parameters names are @var{CodonAsynonymous.1_T92.kappa},
 @var{CodonAsynonymous.2_T92.kappa}, @var{CodonAsynonymous.beta}.
 
-@item CodonNeutralFrequencies(frequencies=@{frequencies set description@} [, relrate0=@{real>0@}, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item CodonNeutralFrequencies(frequencies=@{frequencies set description@} [, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 
 substitution model on codons. The exchangeability model on each site
 is the same K80 model, and the equilibrium distribution of the model
@@ -682,7 +682,7 @@ Each single site model is normalized and the substitution rates
 between codons that differ on more than one letter are null.
 
 Arguments @var{relrate@{i@}} stands for the relative substitution rates
-of the sites. Default: @var{relrate@{i@}=1/@{3-i@}}, such that the rate
+of the sites. Default: @var{relrate@{i@}=1/@{4-i@}}, such that the rate
 of each site is 1/3.
 
 The generator is first computed with these model and distribution on
@@ -697,8 +697,8 @@ model=CodonNeutralFrequencies(frequencies=Full())
 has parameters @var{CodonNeutralFrequencies.123_K80.kappa},
 @var{CodonNeutralFrequencies.Full.theta_1}, ...,
 @var{CodonNeutralFrequencies.Full.theta_60},
-@var{CodonNeutralFrequencies.relrate0},
-@var{CodonNeutralFrequencies.relrate1}.
+@var{CodonNeutralFrequencies.relrate1},
+@var{CodonNeutralFrequencies.relrate2}.
 
 @item CodonAsynonymousFrequencies(frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
@@ -791,11 +791,11 @@ model=MixedModel(model=TN93(kappa1=Gamma(n=4,alpha=3,beta=1),
                             kappa2=Exponential(lambda=2),
                             theta=0.5,theta1=0.2,theta2=0.1))
 @end example
-has parameters @var{MixedModel.TN93.kappa1.Gamma.alpha},
-@var{MixedModel.TN93.kappa1.Gamma.beta},
-@var{MixedModel.TN93.kappa2.Exponential.lamba},
-@var{MixedModel.TN93.theta}, @var{MixedModel.TN93.theta1},
-@var{MixedModel.TN93.theta2}.
+has parameters @var{TN93.kappa1_Gamma.alpha},
+@var{TN93.kappa1_Gamma.beta},
+@var{TN93.kappa2_Exponential.lamba},
+@var{TN93.theta}, @var{MixedModel.TN93.theta1},
+@var{TN93.theta2}.
 @end table
 
 @subsubsection Linking parameters
