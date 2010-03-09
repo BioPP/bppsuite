@@ -1,3 +1,5 @@
+#logL = 65442.80353609310986939818
+
 # Global variables:
 DATA = LSU
 
@@ -66,10 +68,14 @@ likelihood.recursion_simple.compression = recursive
 # (recommanded)
 optimization = yes
 
+# Tell if the parameter should be transformed in order to remove constraints.
+# This can improves the optimization, but might be a bit slower.
+optimization.reparametrization = yes
+
 # Method to use for optimizing numerical parameters:
 # -DB (default) derivatives for branch lengths + Brent for other parameters
 # -fullD derivatives for all parameters, using numerical derivatives for non-branch lengths parameters.
-optimization.method = DB
+optimization.method = fullD
 
 # Number of progressive steps to use in DB optimization (a value of 5 is often fine).
 # 1 means no progressive optimization.
@@ -103,7 +109,7 @@ optimization.message_handler = $(DATA).messages
 optimization.profiler = $(DATA).profile
 
 # Shall we optimize tree topology as well?
-optimization.topology = yes
+optimization.topology = no
 
 # Algorithm to use for topology estimation: only NNI for now
 optimization.topology.algorithm = NNI

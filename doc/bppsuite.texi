@@ -1021,6 +1021,13 @@ Parameters of the rate distribution (currently shape parameter of the gamma law,
 Tells if numerical parameters should be estimated.
 Only numerical parameters will be estimated using this procedure.
 
+@item optimization.reparametrization = @{boolean@}
+Tells if parameters should be transformed in order to remove constraints
+(for instance positivie-only parameters will be log transformed in order to obtain
+ parameters defined from -inf to +inf).
+This may improve the optimization, particularly for parameter-rich models,
+but the likelihood calculations will take a bit more time.
+
 @item optimization.method=@{DB|fullD@}
 The optimization method to use.
 DB (default) uses derivatives-based optimization for branch lengths + Brent for
