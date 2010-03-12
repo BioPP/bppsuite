@@ -1,9 +1,9 @@
-input.trees.file = treeList.dnd
+input.trees.file = ../Data/treeList.dnd
 input.trees.format = Newick
 # [input|consensus]
 tree = Input
-input.tree.file = tree.dnd
-input.tree.format = Newick
+input.tree.file = boot.nx #../Data/tree.dnd
+input.tree.format = Nexus #Newick
 # Alternatively:
 # tree = Consensus(threshold=0.5)
 # 0 = fully resolved

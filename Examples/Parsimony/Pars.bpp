@@ -8,7 +8,7 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=$(DATA).phy
+input.sequence.file=../Data/$(DATA).phy
 
 # The alignment format:
 input.sequence.format=Phylip(order=sequential, type=extended)
@@ -19,7 +19,7 @@ input.sequence.sites_to_use = complete
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
 input.sequence.max_gap_allowed = 100%
 
-input.tree.file = $(DATA).dnd
+input.tree.file = ../Data/$(DATA).dnd
 input.tree.format = Newick
 
 optimization.topology = yes

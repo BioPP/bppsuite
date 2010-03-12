@@ -1,7 +1,7 @@
-input.trees.file = treeList2.dnd
+input.list.file = ../Data/treeList2.dnd
 # [input|consensus]
 tree = input
-outgroups.file = OutGroup.txt
+outgroups.file = ../Data/OutGroup.txt
 # yes = the unrootable trees are printed as unrooted in the output.tree.file
 # no = the unrootable trees are not printed in the output.tree.file
 print.option = no

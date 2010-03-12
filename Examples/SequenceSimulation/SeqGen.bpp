@@ -3,7 +3,7 @@
 alphabet = DNA
 
 # Input tree to use:
-input.tree.file = LSUrooted.dnd
+input.tree.file = ../Data/LSUrooted.dnd
 input.tree.Format=Newick
 
 # Print a tree with ids as bootstrap values.

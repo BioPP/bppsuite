@@ -1,11 +1,11 @@
-#Initial log likelihood.................: -71011.8177084265
-#Log likelihood.........................: -65343.8442233959
-#GC.theta...............................: 0.483464
-#T92.kappa_1............................: 2.63716
-#T92.theta_1............................: 0.576654
-#T92.theta_2............................: 0.445837
-#Gamma.alpha............................: 0.439279
-#111.83user 0.07system 1:52.90elapsed 99%CPU
+#Initial log likelihood.................: -65639.1410465442
+#Log likelihood.........................: -64547.3493038365
+#GC.theta...............................: 0.486755
+#T92.theta_1............................: 0.438231
+#T92.theta_2............................: 0.778319
+#etc
+#Gamma.alpha............................: 0.43608
+#1566.56user 0.36system 26:13.49elapsed 99%CPU
 
 
 # Global variables:
@@ -18,7 +18,7 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=$(DATA).phy
+input.sequence.file=../../../Data/$(DATA).phy
 
 # The alignment format:
 input.sequence.format=Phylip(order=sequential, type=extended)
@@ -36,7 +36,7 @@ input.sequence.max_gap_allowed = 100%
 # user or random
 init.tree = user
 
-input.tree.file = $(DATA).dnd
+input.tree.file = ../../../Data/$(DATA).dnd
 input.tree.format = Newick
 
 init.brlen.method = Input
@@ -44,27 +44,26 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
 # ----------------------------------------------------------------------------------------
+# See the manual for a description of the syntax and available options.
+#
 
 # Homogeneous model?
 # no => Homogeneous case
 # one_per_branch => Galtier & Gouy 97 series of NH models
 # general => Specify the model by hand.
-nonhomogeneous = general
+nonhomogeneous = one_per_branch
+
+# Options for non-homogeneous one-per_branch models:
+model = T92(kappa=2.843, theta=0.5)
+
+# For one_per_branch heterogeneous models.
+# Tell which parameters are common to all branches.
+# Other parameters will be considered branch specific.
+nonhomogeneous_one_per_branch.shared_parameters = T92.kappa
 
 nonhomogeneous.root_freq=GC(init=balanced)
 
 rate_distribution = Gamma(n=4, alpha=0.358)
-
-# Now the general heterogeneous case:
-# Specify the number of distincts models.
-nonhomogeneous.number_of_models = 2
-
-# Set up each model:
-model1 = T92(kappa=2, theta=0.5, useObservedFreqs=no)
-model1.nodes_id=0:62 # The Ids of the nodes to which this model should be assigned.
-
-model2 = T92(kappa=model1.T92.kappa, theta=0.9, useObservedFreqs=no)
-model2.nodes_id=63:154
 
 # Likelihood recursion option:
 # - simple: derivatives takes more time to compute, but likelihooh computation is faster.
@@ -84,8 +83,8 @@ likelihood.recursion_simple.compression = recursive
 #                                     Optimization
 # ----------------------------------------------------------------------------------------
 
-
 optimization=yes
+optimization.reparametrization=no
 optimization.verbose = 1
 optimization.ignore_parameter =
 optimization.max_number_f_eval = 10000
@@ -99,9 +98,10 @@ optimization.topology.numfirst=no
 optimization.topology.tolerance.before=100
 optimization.topology.tolerance.during=100
 optimization.method=fullD //[DB|fullD]
-optimization.method_DB.nstep=5
+optimization.method_DB.nstep=15
 optimization.scale_first=no
 optimization.verbose=3
+optimization.ignore_parameter=
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd

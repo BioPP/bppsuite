@@ -1,25 +1,29 @@
+#Example data set adapted from PAML
+#
 #logL = 65442.80353609310986939818
 
 # Global variables:
-DATA = LSU
+DATA = lysozymeLarge
 
 # Sequences:
 
 # The alphabet to use:
-# DNA, RNA or Protein
-alphabet=DNA
+# DNA, RNA or Protein...
+alphabet=Codon(letter=DNA, type=Standard)
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=$(DATA).phy
+input.sequence.file=../../../Data/$(DATA).fasta
 
 # The alignment format:
-input.sequence.format=Phylip(order=sequential, type=extended, split=spaces)
+input.sequence.format=Fasta
 
 #Sites to use:
 # all, nogap or complete (=only resolved chars)
 input.sequence.sites_to_use = all
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
 input.sequence.max_gap_allowed = 50%
+
+input.sequence.remove_stop_codons = yes
 
 # ----------------------------------------------------------------------------------------
 #                                     Input tree file
@@ -28,7 +32,7 @@ input.sequence.max_gap_allowed = 50%
 # user or random
 init.tree = user
 
-input.tree.file = $(DATA).dnd
+input.tree.file = ../../../Data/$(DATA).dnd
 input.tree.format = Newick
 
 init.brlen.method = Input
@@ -38,9 +42,15 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = HKY85(kappa=2.843, theta=0.5, theta1=0.5, theta2=0.5, useObservedFrequencies=yes)
+nonhomogeneous=one_per_branch
+nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa,\
+  YN98.freq_IndependentWord.1_Full.theta, YN98.freq_IndependentWord.1_Full.theta_1, YN98.freq_IndependentWord.1_Full.theta_2, \
+  YN98.freq_IndependentWord.2_Full.theta, YN98.freq_IndependentWord.2_Full.theta_1, YN98.freq_IndependentWord.2_Full.theta_2, \
+  YN98.freq_IndependentWord.3_Full.theta, YN98.freq_IndependentWord.3_Full.theta_1, YN98.freq_IndependentWord.3_Full.theta_2
+nonhomogeneous.stationarity=yes
+model = YN98(kappa=1, omega=1, codon_freqs=F3X4)
 
-rate_distribution = Gamma(n=4, alpha=0.358)
+rate_distribution = Uniform //Gamma(n=4, alpha=0.358)
 
 # Likelihood recursion option:
 # - simple: derivatives takes more time to compute, but likelihood computation is faster.
@@ -70,7 +80,7 @@ optimization = yes
 
 # Tell if the parameter should be transformed in order to remove constraints.
 # This can improves the optimization, but might be a bit slower.
-optimization.reparametrization = yes
+optimization.reparametrization = no
 
 # Method to use for optimizing numerical parameters:
 # -DB (default) derivatives for branch lengths + Brent for other parameters

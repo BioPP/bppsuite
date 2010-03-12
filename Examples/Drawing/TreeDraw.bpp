@@ -1,4 +1,4 @@
-input.tree.file=LSU.dnd
+input.tree.file=../Data/LSU.dnd
 input.tree.format=Newick
 
 output.drawing.file=LSU.svg

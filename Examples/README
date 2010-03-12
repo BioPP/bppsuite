@@ -1,26 +1,28 @@
                      ..:: Data files ::..
 
-LSU.phy                        Sequence file in phylip format.
-LSU.dnd                        Unrooted tree in newick format.
-LSUrooted.dnd                  Rooted tree in newick format.
-tree.dnd                       A candidate tree.
-treeList.dnd                   A list of trees in newick format.
-treeList2.dnd                  Another list of trees in newick format.
-OutGroup.txt                   A list of taxons to be used with BppReRoot.
+Data/
+  LSU.phy                        Sequence file in phylip format.
+  LSU.dnd                        Unrooted tree in newick format.
+  LSUrooted.dnd                  Rooted tree in newick format.
+  tree.dnd                       A candidate tree.
+  treeList.dnd                   A list of trees in newick format.
+  treeList2.dnd                  Another list of trees in newick format.
+  OutGroup.txt                   A list of taxons to be used with BppReRoot.
 
 
                    ..:: Options files ::..
 
-Dist.bpp                       BppDist option file.
-Pars.bpp                       BppPars option file.
-ML.bpp                         BppML option file. Homogeneous model. 
-MLNHGG.bpp                     BppML option file. Galtier & Gouy non-homogeneous model, like in the MHNL package.
-MLNH.bpp                       BppML option file. Gemeral non-homogeneous models.
-SeqGen.bpp                     BppSeqGen option file.
-SeqGenHomogeneousModel.bpp     File included by SeqGen.bpp. Not to be used directly.
-SeqGenNonHomogeneousModel.bpp  File included by SeqGen.bpp. Not to be used directly.
-Consense.bpp                   BppConsense option file.
-SeqMan.bpp                     BppSeqMan option file.
-PhySamp.bpp                    BppPhyloSampler option file.
-ReRoot.bpp                     BppReRoot option file.
+These option files are split in their respective program directory:
+  Dist.bpp                       BppDist option file.
+  Pars.bpp                       BppPars option file.
+  ML.bpp                         BppML option file. Homogeneous model. 
+  MLNHGG.bpp                     BppML option file. Galtier & Gouy non-homogeneous model, like in the MHNL package.
+  MLNH.bpp                       BppML option file. Gemeral non-homogeneous models.
+  SeqGen.bpp                     BppSeqGen option file.
+  SeqGenHomogeneousModel.bpp     File included by SeqGen.bpp. Not to be used directly.
+  SeqGenNonHomogeneousModel.bpp  File included by SeqGen.bpp. Not to be used directly.
+  Consense.bpp                   BppConsense option file.
+  SeqMan.bpp                     BppSeqMan option file.
+  PhySamp.bpp                    BppPhyloSampler option file.
+  ReRoot.bpp                     BppReRoot option file.
 

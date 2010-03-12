@@ -8,7 +8,7 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=$(DATA).phy
+input.sequence.file=../Data/$(DATA).phy
 
 # The alignment format:
 # Must be one of Mase, Fasta, Phylip, Clustal, DCSE or GenBank 
@@ -18,7 +18,8 @@ input.sequence.format=Phylip(order=sequential, type=extended)
 input.method=tree
 
 # Tree file if the tree method has been selected:
-tree.file=$(DATA).dnd
+input.tree.file=../Data/$(DATA).dnd
+input.tree.format=Newick
 
 # Matrix file if the matrix method has been selected:
 input.matrix=

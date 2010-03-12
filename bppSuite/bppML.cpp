@@ -339,7 +339,16 @@ int main(int args, char** argv)
           rateFreqs = vector<double>(n, 1. / (double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
                                                          // we should assume a rate distribution for the root also!!!
         }
-        FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, sites, bppml.getParams(), rateFreqs);
+
+        bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), "false", "", false, false);
+        FrequenciesSet* rootFreqs = 0;
+        if (!stationarity)
+        {
+          rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, sites, bppml.getParams(), rateFreqs);
+          stationarity = !rootFreqs;
+        }
+        ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
+   
         vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
         modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters);
         model = 0;

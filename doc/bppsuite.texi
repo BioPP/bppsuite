@@ -277,15 +277,7 @@ data=LSU
 @section Setting alphabet and reading sequences
 
 @table @command
-@item alphabet = @{DNA|RNA|Protein|
-Word(letter=@{DNA|RNA|Protein@},length=@{int@})| codonalphabet(letter=@{DNA|RNA@})@}
-
-with 
-
-codonalphabet= @{EchinodermMitochondrialCodonAlphabet|
-InvertebrateMitochondrialCodonAlphabet| StandardCodonAlphabet|
-VertebrateMitochondrialCodonAlphabet@} 
-
+@item alphabet = @{DNA|RNA|Protein|Word(letter=@{DNA|RNA|Protein@},length=@{int@})| Codon(letter=@{DNA|RNA@}, type=@{Standard|EchinodermMitochondrial|InvertebrateMitochondrial|VertebrateMitochondrial@})@}
 The alphabet to use when reading sequences. 
 
 @item input.sequence.file=@{path@}
@@ -393,7 +385,7 @@ The format of the input tree file.
 @section Model specification
 
 @table @command
-@item nonhomogeneous = @{no|one_per_branch_general@}
+@item nonhomogeneous = @{no|one_per_branch|general@}
 Set the type of model. The @option{no} option is used for homogeneous
 models. The @option{one_per_branch} option is used as a short cut for
 setting Galtier and Gouy 97-like branch-specific models, and the
