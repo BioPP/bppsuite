@@ -883,11 +883,11 @@ For nucleotides only, set the G content equal to the C content.
 Full parametrization. Contains N free parameters, where N is equal to the size of the alphabet - 1. For codon models, N is the size of the alphabet - 1 - the number of stop codons, whose frequencies are set to 0.
 For nucleotide sequences, theta is the GC content, theta_1 is the proportion of A over A+T, and theta_2 is the proportion of G over G+C.
 
-@item IndependentWord(frequency=@{frequency set description@})
+@item Word(frequency=@{frequency set description@})
 
 or 
 
-@item IndependentWord(frequency0=@{frequency set description@}, frequency1=@{frequency set description@}, ..., frequencyn=@{frequency set description@})
+@item Word(frequency1=@{frequency set description@}, frequency2=@{frequency set description@}, ..., frequencyn=@{frequency set description@})
 
 frequencies on words computed as the product of frequencies on the
 letters. The arguments @var{frequency} and @var{frequency@{i@}} are for
@@ -899,30 +899,29 @@ site frequencies is the length of the words in the alphabet, and the
 @emph{same} single site frequency set is used (ie the parameters are
 shared between all positions).
 
-If the arguments are @var{frequency0}, ..., @var{frequency@{n@}}, the
+If the arguments are @var{frequency1}, ..., @var{frequency@{n@}}, the
 length of the words in the alphabet must be @var{n}, and all single
 site frequency sets are independent. In that case, all single site
 frequency set parameters are position dependent.
 
 @example
 alphabet=Word(letter=DNA,length=4)
-IndependentWord(frequency=GC())
+Word(frequency=GC())
 @end example
 builds a frequency set on 4 bases words, such that all sites
 frequencies follow the same GC frequency set model. The parameter
-name is @var{IndependentWord.0123_GC.theta}.
+name is @var{Word.1234_GC.theta}.
 
 @example
 alphabet=Word(letter=DNA,length=4)
-IndependentWord(frequency0=GC(),frequency1=GC(),frequency2=Fixed(),frequency3=Full())
+Word(frequency1=GC(),frequency2=GC(),frequency3=Fixed(),frequency4=Full())
 @end example
 builds a frequency set on 4 bases words, such first and second sites
 follow independent GC frequency sets, third site follows a Fixed
 frequency set, and fourth site follows a Full frequency set. Then the
-parameters names are @var{IndependentWord.0_GC.theta},
-@var{IndependentWord.1_GC.theta}, @var{IndependentWord.3_Full.theta_1},
-@var{IndependentWord.3_Full.theta_2},
-@var{IndependentWord.3_Full.theta_3}.
+parameters names are @var{Word.1_GC.theta},
+@var{Word.2_GC.theta}, @var{Word.4_Full.theta_1},
+@var{Word.4_Full.theta_2}, @var{Word.4_Full.theta_3}.
 
 @end table
 
