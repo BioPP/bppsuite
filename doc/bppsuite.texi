@@ -10,13 +10,13 @@
 @copying
 This is the manual of the Bio++ Program Suite, version @value{VERSION}, @value{UPDATED}.
 
-Copyright @copyright{} 2007, 2008, 2009 Julien Dutheil
+Copyright @copyright{} 2007, 2008, 2009, 2010 Bio++ development team
 @end copying
 
 @titlepage
 @title BppSuite Manual
-@author Julien Dutheil
-@author @email{jdutheil@@birc.au.dk}
+@author Julien Dutheil, Laurent Gueguen
+@author @email{julien.dutheil@@univ-montp2.fr}
 
 @c The following two commands start the copyright page.
 @page
@@ -483,9 +483,9 @@ Build a protein substitution model from a file in PAML format, and use free equi
 
 @table @command
 
-@item Word(model=@{model description@} [,relrate1=@{real>0@},..,relrate@{n-1@}=@{real>0@}]) 
+@item Word(model=@{model description@} [,relrate0=@{real>0@}, ..., relrate@{n-1@}=@{real>0@}]) 
 or 
-@item Word(model1=@{model description@}, model2=@{model description@}, ..., modeln=@{model description@}[, relrate1=@{real>0@}, .., relrate@{n-1@}=@{real>0@}])
+@item Word(model0=@{model description@}, model1=@{model description@}, ..., modeln=@{model description@}[, relrate0=@{real>0@}, ;.., relrate@{n-1@}=@{real>0@}])
 
 substitution model on words. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on single sites such

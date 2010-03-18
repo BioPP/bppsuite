@@ -59,11 +59,11 @@ using namespace std;
 #include <Phyl/MarginalAncestralStateReconstruction.h>
 #include <Phyl/OptimizationTools.h>
 #include <Phyl/RASTools.h>
-#include <Phyl/Newick.h>
 #include <Phyl/MarkovModulatedSubstitutionModel.h>
 #include <Phyl/SubstitutionModelSet.h>
 #include <Phyl/SubstitutionModelSetTools.h>
 #include <Phyl/UserProteinSubstitutionModel.h>
+#include <Phyl/Newick.h>
 
 // From NumCalc:
 #include <NumCalc/DiscreteDistribution.h>
@@ -350,6 +350,8 @@ int main(int args, char** argv)
         ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
    
         vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
+        for (unsigned int i = 0; i < globalParameters.size(); i++)
+          ApplicationTools::displayResult("Global parameter", globalParameters[i]);
         modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters);
         model = 0;
 
@@ -363,10 +365,12 @@ int main(int args, char** argv)
             tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
         }
         else if (recursion == "double")
+        {
           if (modelSet->hasMixedSubstitutionModel())
             tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
           else
             tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+        }
         else throw Exception("Unknown recursion option: " + recursion);
       }
       else if (nhOpt == "general")
@@ -541,8 +545,8 @@ int main(int args, char** argv)
         double lnL = tl->getLogLikelihoodForASite(i);
         const Site* currentSite = &sites->getSite(i);
         int currentSitePosition = currentSite->getPosition();
-   int isCompl = (SiteTools::isComplete(*currentSite) ? 1 : 0);
-   int isConst = (SiteTools::isConstant(*currentSite) ? 1 : 0);
+        int isCompl = (SiteTools::isComplete(*currentSite) ? 1 : 0);
+        int isConst = (SiteTools::isConstant(*currentSite) ? 1 : 0);
         row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
         row[1] = TextTools::toString(isCompl);
         row[2] = TextTools::toString(isConst);
@@ -561,24 +565,24 @@ int main(int args, char** argv)
     // Bootstrap:
     if (nbBS > 0 && optimizeClock != "no")
     {
-   ApplicationTools::displayError("Bootstrap is not supported with clock trees.");
+      ApplicationTools::displayError("Bootstrap is not supported with clock trees.");
     }
     if (nbBS > 0 && optimizeClock == "no")
     {
-   ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
-   bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", bppml.getParams(), true);
-   ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
-   bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppml.getParams(), false, "", true, false);
+      ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
+      bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", bppml.getParams(), true);
+      ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
+      bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppml.getParams(), false, "", true, false);
 
-   const Tree* initTree = tree;
+      const Tree* initTree = tree;
       if (!bootstrapVerbose) bppml.getParam("optimization.verbose") = "0";
       bppml.getParam("optimization.profiler") = "none";
       bppml.getParam("optimization.messageHandler") = "none";
       if (!optimizeTopo)
       {
-   bppml.getParam("optimization.topology") = "yes";
+        bppml.getParam("optimization.topology") = "yes";
         tl = dynamic_cast<NNIHomogeneousTreeLikelihood*>(
-          PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams(), "", true, false));
+            PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams(), "", true, false));
         initTree = &tl->getTree();
       }
 
@@ -586,7 +590,7 @@ int main(int args, char** argv)
       ofstream* out = 0;
       if (bsTreesPath != "none")
       {
-   ApplicationTools::displayResult("Bootstrap trees stored in file", bsTreesPath);
+        ApplicationTools::displayResult("Bootstrap trees stored in file", bsTreesPath);
         out = new ofstream(bsTreesPath.c_str(), ios::out);
       }
       Newick newick;
@@ -597,11 +601,11 @@ int main(int args, char** argv)
       vector<Tree*> bsTrees(nbBS);
       for (unsigned int i = 0; i < nbBS; i++)
       {
-   ApplicationTools::displayGauge(i, nbBS - 1, '=');
-   VectorSiteContainer* sample = SiteContainerTools::bootstrapSites(*sites);
+        ApplicationTools::displayGauge(i, nbBS - 1, '=');
+        VectorSiteContainer* sample = SiteContainerTools::bootstrapSites(*sites);
         if (!approx)
         {
-   model->setFreqFromData(*sample);
+          model->setFreqFromData(*sample);
         }
 
         if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
@@ -612,7 +616,7 @@ int main(int args, char** argv)
         ParameterList parameters = tlrep->getParameters();
         if (approx)
         {
-   parameters.deleteParameters(paramsToIgnore.getParameterNames());
+          parameters.deleteParameters(paramsToIgnore.getParameterNames());
         }
         tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood*>(
           PhylogeneticsApplicationTools::optimizeParameters(tlrep, parameters, bppml.getParams(), "", true, false));
