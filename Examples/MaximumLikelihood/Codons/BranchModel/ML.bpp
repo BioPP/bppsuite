@@ -42,13 +42,16 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = YN98(kappa=1, omega=1, codon_freqs=F1X4)
+model = YN98(kappa=1, omega=1, codon_freqs=F3X4)
 nonhomogeneous=one_per_branch
+#These lines are for the F1X4 option:
+#nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa,\
+#  YN98.freq_Word.123_Full.theta, YN98.freq_Word.123_Full.theta1, YN98.freq_Word.123_Full.theta2
+#These lines are for the F3X4 option:
 nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa,\
-  YN98.freq_Word.123_Full.theta, YN98.freq_Word.123_Full.theta1, YN98.freq_Word.123_Full.theta2
-#  YN98.freq_IndependentWord.1_Full.theta, YN98.freq_IndependentWord.1_Full.theta1, YN98.freq_IndependentWord.1_Full.theta2, \
-#  YN98.freq_IndependentWord.2_Full.theta, YN98.freq_IndependentWord.2_Full.theta1, YN98.freq_IndependentWord.2_Full.theta2, \
-#  YN98.freq_IndependentWord.3_Full.theta, YN98.freq_IndependentWord.3_Full.theta1, YN98.freq_IndependentWord.3_Full.theta2
+  YN98.freq_Word.1_Full.theta, YN98.freq_Word.1_Full.theta1, YN98.freq_Word.1_Full.theta2, \
+  YN98.freq_Word.2_Full.theta, YN98.freq_Word.2_Full.theta1, YN98.freq_Word.2_Full.theta2, \
+  YN98.freq_Word.3_Full.theta, YN98.freq_Word.3_Full.theta1, YN98.freq_Word.3_Full.theta2
 nonhomogeneous.stationarity=yes
 #Only if stationarity is set to false:
 nonhomogeneous.root_freq=
@@ -88,7 +91,7 @@ optimization.reparametrization = no
 # Method to use for optimizing numerical parameters:
 # -DB (default) derivatives for branch lengths + Brent for other parameters
 # -fullD derivatives for all parameters, using numerical derivatives for non-branch lengths parameters.
-optimization.method = DB //fullD
+optimization.method = fullD
 
 # Number of progressive steps to use in DB optimization (a value of 5 is often fine).
 # 1 means no progressive optimization.
