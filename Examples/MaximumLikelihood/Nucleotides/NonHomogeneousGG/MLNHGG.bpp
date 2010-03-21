@@ -61,7 +61,7 @@ model = T92(kappa=2.843, theta=0.5)
 # Other parameters will be considered branch specific.
 nonhomogeneous_one_per_branch.shared_parameters = T92.kappa
 
-nonhomogeneous.root_freq=GC(init=balanced)
+nonhomogeneous.root_freq = GC(init=balanced)
 
 rate_distribution = Gamma(n=4, alpha=0.358)
 
@@ -83,7 +83,7 @@ likelihood.recursion_simple.compression = recursive
 #                                     Optimization
 # ----------------------------------------------------------------------------------------
 
-optimization=yes
+optimization=FullD(derivatives=Newton)
 optimization.reparametrization=no
 optimization.verbose = 1
 optimization.ignore_parameter =
@@ -97,8 +97,6 @@ optimization.topology.nstep=4
 optimization.topology.numfirst=no
 optimization.topology.tolerance.before=100
 optimization.topology.tolerance.during=100
-optimization.method=fullD //[DB|fullD]
-optimization.method_DB.nstep=15
 optimization.scale_first=no
 optimization.verbose=3
 optimization.ignore_parameter=

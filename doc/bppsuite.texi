@@ -491,7 +491,7 @@ Build a protein substitution model from a file in PAML format, and use free equi
 
 @subsubsection Codon models
 
-Standard codon models: the optional @var{geneticcode} argument describes the genetic code. If
+Standard codon models: the optional @var{genetic_code} argument describes the genetic code. If
 it is not given, the one related with the alphabet is used. The several values available are described below.
 
 @itemize
@@ -511,17 +511,17 @@ The three models also take as argument a @var{codon_freq} specifying the equilir
 
 @table @command
 
-@item GY94([geneticcode=@{genetic code description@} , kappa=@{real>0@}, V=@{real>0@}])
+@item GY94([genetic_code=@{genetic code description@} , kappa=@{real>0@}, V=@{real>0@}])
 Goldman and Yang (1994) substitution model for codons (default values:
 @var{kappa}=1 and @var{V}=10000).
 
 
-@item YN98([geneticcode=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}])
+@item YN98([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}])
 Yang and Nielsen (1998) substitution model for codons (default values:
 @var{kappa}=1 and @var{omega}=1).
 
 
-@item MG94([geneticcode=@{genetic code description@}, rho=@{real>0@}])
+@item MG94([genetic_code=@{genetic code description@}, rho=@{real>0@}])
 Muse and Gaut (1994) substitution model for codons (default values:
 @var{rho}=1).
 
@@ -582,7 +582,7 @@ parameters names are @var{CodonNeutral.1_T92.kappa},
 model=CodonNeutral(model1=T92, model2=T92, model3=JC69, 1_T92.theta=0.5, 1_T92.kappa=2.0, 2_T92.theta=0.4, 2_T92.kappa=2.0)
 @end example
 
-@item CodonAsynonymous(model=@{model name@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}])
+@item CodonAsynonymous(model=@{model name@}[, genetic_code=@{genetic code description@}, beta=@{real>0@}])
 
 or
 
@@ -1068,9 +1068,27 @@ Parameters of the rate distribution (currently shape parameter of the gamma law,
 
 @table @command
 
-@item optimization = @{boolean@}
-Tells if numerical parameters should be estimated.
-Only numerical parameters will be estimated using this procedure.
+@item optimization = @{method@}
+where ``method'' can be one of
+
+@table @command
+@item None
+  (no optimization is performed, initial values are kept ``as is''.
+
+@item FullD(derivatives=@{Newton|Gradient@})
+Full-derivatives method.
+Branch length derivatives are computed analytically, others numerically. The @var{derivatives} 
+arguments specifies if first or second order derivatives should be used.
+In the first case, the optimization method used is the so-called conjugate gradient method, otherwise the Newton-Raphson method will be used.
+
+@item DB(derivatives=@{Newton|Gradient@}, nstep=@{int>0@})
+This method do not compute numerical derivatives. Branch lengths parameters are optmized using either the conjuate gradent or the Newton-Raphson method,
+other parameters are estimated using the Brent method in one dimension. The algorithm then loop over all parameters until convergence.
+The @var{nstep} arguments allow to specify a number of progressive steps to perform during optimization.
+If @option{nstep=3} and @option{precision=E-6}, a first optimization with @option{precision=E-2}, will be performed, then a round with @option{precision} set to E-4 and
+finally @option{precision} will be set to E-6.
+This approach generally increases convergence time.
+@end table
 
 @item optimization.reparametrization = @{boolean@}
 Tells if parameters should be transformed in order to remove constraints
@@ -1078,22 +1096,6 @@ Tells if parameters should be transformed in order to remove constraints
  parameters defined from -inf to +inf).
 This may improve the optimization, particularly for parameter-rich models,
 but the likelihood calculations will take a bit more time.
-
-@item optimization.method=@{DB|fullD@}
-The optimization method to use.
-DB (default) uses derivatives-based optimization for branch lengths + Brent for
-other parameters, and the fullD options uses derivatives for all parameters, with numerical derivatives for non-branch lengths parameters.
-
-@item optimization_DB.nstep=@{int>=1@}
-Number of progressive steps to perform during optimization.
-If @option{nstep=3} and @option{precision=E-6}, a first optimization with @option{precision=E-2}, will be performed, then a round with @option{precision} set to E-4 and
-finally @option{precision} will be set to E-6.
-This approach generally saves a significant amount of computation time.
-
-@item optimization.method.derivatives = @{newton|gradient@}
-Derivatives-based algorithm to use.
-The Newton algorithm uses derivatives up to the second order, and is the recommended choice.
-The gradient algorithm uses only first order derivatives and can also be used.
 
 @item optimization.final = @{powell|simplex@}
 Optional final optimization step, useful if numerical derivatives are to be used.
