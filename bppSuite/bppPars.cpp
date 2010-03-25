@@ -109,14 +109,14 @@ int main(int args, char ** argv)
 	
   // Get the initial tree
   Tree* tree = 0;
-  string initTree = ApplicationTools::getStringParameter("init.tree", bpppars.getParams(), "user", "", false, false);
-  ApplicationTools::displayResult("Input tree", initTree);
-  if(initTree == "user")
+  string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bpppars.getParams(), "user", "", false, false);
+  ApplicationTools::displayResult("Input tree", initTreeOpt);
+  if (initTreeOpt == "user")
   {
     tree = PhylogeneticsApplicationTools::getTree(bpppars.getParams());
     ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   }
-  else if(initTree == "random")
+  else if (initTreeOpt == "random")
   {
     vector<string> names = sites->getSequencesNames();
     tree = TreeTemplateTools::getRandomTree(names);
@@ -148,7 +148,7 @@ int main(int args, char ** argv)
   {
     ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
     const Tree* initTree = tree;
-    if(!optTopo)
+    if (!optTopo)
     {
       tp = OptimizationTools::optimizeTreeNNI(tp, 1);
       initTree = &tp->getTree();
@@ -168,14 +168,14 @@ int main(int args, char ** argv)
     vector<Tree*> bsTrees(nbBS);
     for (unsigned int i = 0; i < nbBS; i++)
     {
-      ApplicationTools::displayGauge(i, nbBS-1, '=');
+      ApplicationTools::displayGauge(i, nbBS - 1, '=');
       VectorSiteContainer* sample = SiteContainerTools::bootstrapSites(*sites);
-      DRTreeParsimonyScore* tp = new DRTreeParsimonyScore(*initTree, *sample, false);
-      tp = OptimizationTools::optimizeTreeNNI(tp, 0);
-      bsTrees[i] = new TreeTemplate<Node>(tp->getTree());
-      if(out && i==0) newick.write(*bsTrees[i], bsTreesPath, true);
-      if(out && i>0) newick.write(*bsTrees[i], bsTreesPath, false);
-      delete tp;
+      DRTreeParsimonyScore* tpRep = new DRTreeParsimonyScore(*initTree, *sample, false);
+      tpRep = OptimizationTools::optimizeTreeNNI(tpRep, 0);
+      bsTrees[i] = new TreeTemplate<Node>(tpRep->getTree());
+      if (out && i==0) newick.write(*bsTrees[i], bsTreesPath, true);
+      if (out && i>0) newick.write(*bsTrees[i], bsTreesPath, false);
+      delete tpRep;
       delete sample;
     }
     if(out) out->close();

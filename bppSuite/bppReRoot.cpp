@@ -233,24 +233,24 @@ int main(int args, char ** argv)
 
               for(unsigned f = 0; f < newRoot->getNumberOfSons() && monophylOk; f++)
               {
-                vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot->getSon(f));
+                tempLeaves = TreeTemplateTools::getLeavesNames(*newRoot->getSon(f));
                 vector<string> diff;
                 VectorTools::diff(outGroup, tempLeaves, diff);
 
                 unsigned int difference = diff.size();
-                if(!( (difference == 0) || (difference == tempLeaves.size()) ) )
+                if (!( (difference == 0) || (difference == tempLeaves.size()) ) )
                 {
                   //The proposed outgroup is not monophyletic. The analysis for this tree is interrupted
                   //No more outgroup are analysed
                   monophylOk = false;
                 }
               }
-              if(monophylOk)
+              if (monophylOk)
               {
-                vector<string>  tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
+                tempLeaves = TreeTemplateTools::getLeavesNames(* newRoot);
 
                 std::sort(tempLeaves.begin(), tempLeaves.end());      
-                if(tempLeaves.size() != leavesTree.size())
+                if (tempLeaves.size() != leavesTree.size())
                 {
                   MyTree* low = new MyTree(TreeTemplateTools::cloneSubtree<Node>(* newRoot));
                   tree->newOutGroup(newRoot);
@@ -303,10 +303,8 @@ int main(int args, char ** argv)
         else
           newick.write(* tree, outputPath, false);
       }  
-    
 
       delete tree;
-      //delete(tempTree);
     }
   }
   ApplicationTools::displayTaskDone();

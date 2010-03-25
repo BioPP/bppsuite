@@ -107,11 +107,11 @@ int main(int args, char ** argv)
   
   vector<string> actions = ApplicationTools::getVectorParameter<string>("sequence.manip", bppseqman.getParams(), ',', "", "", false, false);
   
-  for (unsigned int i = 0; i < actions.size(); i++)
+  for (unsigned int a = 0; a < actions.size(); a++)
   {
     string cmdName;
     map<string, string> cmdArgs;
-    KeyvalTools::parseProcedure(actions[i], cmdName, cmdArgs);
+    KeyvalTools::parseProcedure(actions[a], cmdName, cmdArgs);
     ApplicationTools::displayResult("Performing action", cmdName);
 
     // +-----------------+
@@ -122,9 +122,9 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = SequenceTools::complement(sequences->getSequence(i));
-        vsc->addSequence(*tmp);
-        delete tmp;
+        Sequence* seq = SequenceTools::complement(sequences->getSequence(i));
+        vsc->addSequence(*seq);
+        delete seq;
       }
       delete sequences;
       sequences = vsc;
@@ -139,9 +139,9 @@ int main(int args, char ** argv)
         VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET);
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
-          Sequence* tmp = SequenceTools::transcript(sequences->getSequence(i));
-          vsc->addSequence(*tmp);
-          delete tmp;
+          Sequence* seq = SequenceTools::transcript(sequences->getSequence(i));
+          vsc->addSequence(*seq);
+          delete seq;
         }
         delete sequences;
         sequences = vsc;
@@ -151,9 +151,9 @@ int main(int args, char ** argv)
         VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET);
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
-          Sequence* tmp = SequenceTools::reverseTranscript(sequences->getSequence(i));
-          vsc->addSequence(*tmp);
-          delete tmp;
+          Sequence* seq = SequenceTools::reverseTranscript(sequences->getSequence(i));
+          vsc->addSequence(*seq);
+          delete seq;
         }
         delete sequences;
         sequences = vsc;
@@ -179,9 +179,9 @@ int main(int args, char ** argv)
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);
-        Sequence* tmp = new Sequence(old->getName(), old->getContent(), old->getComments(), alpha);
-        vsc->addSequence(*tmp);
-        delete tmp;
+        Sequence* seq = new Sequence(old->getName(), old->getContent(), old->getComments(), alpha);
+        vsc->addSequence(*seq);
+        delete seq;
       }
       delete sequences;
       sequences = vsc;
@@ -208,9 +208,9 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET);
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = gc->translate(sequences->getSequence(i));
-        vsc->addSequence(*tmp);
-        delete tmp;
+        Sequence* seq = gc->translate(sequences->getSequence(i));
+        vsc->addSequence(*seq);
+        delete seq;
       }
       delete sequences;
       sequences = vsc;      
@@ -223,9 +223,9 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = SequenceTools::removeGaps(sequences->getSequence(i));
-        vsc->addSequence(*tmp);
-        delete tmp;
+        Sequence* seq = SequenceTools::removeGaps(sequences->getSequence(i));
+        vsc->addSequence(*seq);
+        delete seq;
       }
       delete sequences;
       sequences = vsc;
@@ -238,10 +238,10 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = new Sequence(sequences->getSequence(i));
-        SymbolListTools::changeGapsToUnknownCharacters(*tmp);
-        vsc->addSequence(*tmp);
-        delete tmp;
+        Sequence* seq = new Sequence(sequences->getSequence(i));
+        SymbolListTools::changeGapsToUnknownCharacters(*seq);
+        vsc->addSequence(*seq);
+        delete seq;
       }
       delete sequences;
       sequences = vsc;
@@ -254,10 +254,10 @@ int main(int args, char ** argv)
       VectorSequenceContainer* vsc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* tmp = new Sequence(sequences->getSequence(i));
-        SymbolListTools::changeUnresolvedCharactersToGaps(*tmp);
-        vsc->addSequence(*tmp);
-        delete tmp;
+        Sequence* seq = new Sequence(sequences->getSequence(i));
+        SymbolListTools::changeUnresolvedCharactersToGaps(*seq);
+        vsc->addSequence(*seq);
+        delete seq;
       }
       delete sequences;
       sequences = vsc;
@@ -265,26 +265,26 @@ int main(int args, char ** argv)
     // +--------------------------+
     // | Resolve dotted alignment |
     // +--------------------------+
-    else if (actions[i] == "ResolvedDotted")
+    else if (actions[a] == "ResolvedDotted")
     {
-      SiteContainer* sites = NULL;
+      SiteContainer* sites = 0;
       try { sites = dynamic_cast<SiteContainer *>(sequences); }
-      catch(exception & e)
+      catch (exception & e)
       {
         sites = new VectorSiteContainer(*sequences);
         delete sequences;
         sequences = sites;
       }
 
-      const Alphabet* alpha = NULL;
+      const Alphabet* alpha = 0;
       string alphastr = ApplicationTools::getStringParameter("alphabet", cmdArgs, "DNA");
       if (alphastr == "DNA") alpha = &AlphabetTools::DNA_ALPHABET;
       else if (alphastr == "RNA") alpha = &AlphabetTools::RNA_ALPHABET;
       else if (alphastr == "Protein") alpha = &AlphabetTools::PROTEIN_ALPHABET;
       else throw Exception("Resolved alphabet must be one of [DNA|RNA|Protein] for solving dotted alignment.");
-      OrderedSequenceContainer * tmp = SiteContainerTools::resolveDottedAlignment(*sites, alpha);
+      OrderedSequenceContainer* resolvedCont = SiteContainerTools::resolveDottedAlignment(*sites, alpha);
       delete sequences;
-      sequences = tmp;
+      sequences = resolvedCont;
     }
     // +---------------------+
     // | Keep complete sites |
@@ -335,9 +335,9 @@ int main(int args, char ** argv)
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);
-        Sequence* tmp = SequenceTools::invert(*old);
-        vsc->addSequence(*tmp);
-        delete tmp;
+        Sequence* seq = SequenceTools::invert(*old);
+        vsc->addSequence(*seq);
+        delete seq;
       }
       delete sequences;
       sequences = vsc;

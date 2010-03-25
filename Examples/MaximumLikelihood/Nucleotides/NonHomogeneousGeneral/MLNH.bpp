@@ -88,7 +88,7 @@ likelihood.recursion_simple.compression = recursive
 optimization=FullD(derivatives=Newton)
 optimization.reparametrization=no
 optimization.verbose = 1
-optimization.ignore_parameter =
+optimization.ignore_parameter = RootPosition
 optimization.max_number_f_eval = 10000
 optimization.tolerance = 0.000001
 optimization.message_handler = $(DATA).messages

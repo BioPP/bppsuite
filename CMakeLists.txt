@@ -11,7 +11,7 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF()
 
-SET(CMAKE_CXX_FLAGS "-Wall")
+SET(CMAKE_CXX_FLAGS "-Wall -Weffc++ -Wshadow")
 IF(NOT NO_VIRTUAL_COV)
   SET(NO_VIRTUAL_COV FALSE CACHE BOOL
       "Disable covariant return type with virtual inheritance, for compilers that do not support it."
@@ -96,5 +96,43 @@ ADD_SUBDIRECTORY(bppSuite)
 ADD_SUBDIRECTORY(doc)
 
 # Packager
-INCLUDE(CPack)
+set(CPACK_PACKAGE_NAME "bppsuite")
+set(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
+set(CPACK_PACKAGE_VERSION "0.5.0")
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "5")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Remote Acnuc Access library")
+set(CPACK_RESOURCE_FILE_LICENSE "COPYING")
+set(CPACK_RESOURCE_FILE_AUTHORS "AUTHORS")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+SET(CPACK_SOURCE_IGNORE_FILES
+ "CMakeFiles"
+ "Makefile"
+ "_CPack_Packages"
+ "CMakeCache.txt"
+ ".*\\\\.cmake"
+ "/CVS/"
+ ".*\\\\.gz"
+ ".*\\\\.deb"
+ ".*\\\\.rpm"
+ "\\\\..*\\\\.swp"
+ "bppSuite/\\\\..*"
+ ${CPACK_SOURCE_IGNORE_FILES}
+)
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+include(CPack)
+
+#This adds the 'dist' target
+add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+IF (UNIX)
+#This creates deb packages:
+ADD_CUSTOM_TARGET(deb fakeroot debian/rules binary)
+ADD_DEPENDENCIES(deb dist)
+
+#This creates rpm packages:
+ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)
+ADD_DEPENDENCIES(rpm dist)
+
+ENDIF()
 

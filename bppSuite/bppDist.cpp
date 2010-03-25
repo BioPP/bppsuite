@@ -220,10 +220,10 @@ int main(int args, char ** argv)
 	ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 	
   //Here it is:
-  ofstream out("warnings", ios::out);
-  ApplicationTools::warning = new StlOutputStreamWrapper(&out);
+  ofstream warn("warnings", ios::out);
+  ApplicationTools::warning = new StlOutputStreamWrapper(&warn);
   tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, false, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
-  out.close();
+  warn.close();
   delete ApplicationTools::warning;
   ApplicationTools::warning = ApplicationTools::message;
 
@@ -254,7 +254,7 @@ int main(int args, char ** argv)
     }
     // Write parameters to file:
 	  string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppdist.getParams(), false, false);
-    if(parametersFile != "none")
+    if (parametersFile != "none")
     {
 		  ofstream out(parametersFile.c_str(), ios::out);
       parameters = model->getParameters();

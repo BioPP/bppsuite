@@ -97,7 +97,7 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 1.3.0      *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 1.4.0      *" << endl;
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                       Last Modif. 08/08/09 *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
@@ -128,14 +128,14 @@ int main(int args, char** argv)
 
     // Get the initial tree
     Tree* tree = 0;
-    string initTree = ApplicationTools::getStringParameter("init.tree", bppml.getParams(), "user", "", false, false);
-    ApplicationTools::displayResult("Input tree", initTree);
-    if (initTree == "user")
+    string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bppml.getParams(), "user", "", false, false);
+    ApplicationTools::displayResult("Input tree", initTreeOpt);
+    if (initTreeOpt == "user")
     {
       tree = PhylogeneticsApplicationTools::getTree(bppml.getParams());
       ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
     }
-    else if (initTree == "random")
+    else if (initTreeOpt == "random")
     {
       vector<string> names = sites->getSequencesNames();
       tree = TreeTemplateTools::getRandomTree(names);
@@ -611,19 +611,19 @@ int main(int args, char** argv)
         if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
           throw Exception("Bootstrap estimation with Mixed model not supported yet, sorry :(");
 
-        NNIHomogeneousTreeLikelihood* tlrep = new NNIHomogeneousTreeLikelihood(*initTree, *sample, model, rDist, true, false);
-        tlrep->initialize();
-        ParameterList parameters = tlrep->getParameters();
+        NNIHomogeneousTreeLikelihood* tlRep = new NNIHomogeneousTreeLikelihood(*initTree, *sample, model, rDist, true, false);
+        tlRep->initialize();
+        ParameterList parametersRep = tlRep->getParameters();
         if (approx)
         {
-          parameters.deleteParameters(paramsToIgnore.getParameterNames());
+          parametersRep.deleteParameters(paramsToIgnore.getParameterNames());
         }
-        tlrep = dynamic_cast<NNIHomogeneousTreeLikelihood*>(
-          PhylogeneticsApplicationTools::optimizeParameters(tlrep, parameters, bppml.getParams(), "", true, false));
-        bsTrees[i] = new TreeTemplate<Node>(tlrep->getTree());
+        tlRep = dynamic_cast<NNIHomogeneousTreeLikelihood*>(
+          PhylogeneticsApplicationTools::optimizeParameters(tlRep, parametersRep, bppml.getParams(), "", true, false));
+        bsTrees[i] = new TreeTemplate<Node>(tlRep->getTree());
         if (out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
         if (out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);
-        delete tlrep;
+        delete tlRep;
         delete sample;
       }
       if (out) out->close();

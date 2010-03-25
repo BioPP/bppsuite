@@ -270,18 +270,18 @@ int main(int args, char ** argv)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
-        unsigned int currentPos = (unsigned int)round(positions[i+1]*(double)nbSites);
+        currentPos = static_cast<unsigned int>(round(positions[i+1]) * static_cast<double>(nbSites));
         tmpRates = vector<double>(rates.begin() + previousPos + 1, rates.begin() + currentPos);
         SequenceContainer* tmpCont2 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates);
         previousPos = currentPos;
         delete seqsim;
         VectorSequenceContainer* mergedCont = new VectorSequenceContainer(alphabet);
-        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *mergedCont);
+        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *reinterpret_cast<SequenceContainer*>(mergedCont));
         delete tmpCont1;
         delete tmpCont2;
         tmpCont1 = mergedCont;
       }
-      sites = new VectorSiteContainer(* tmpCont1);
+      sites = new VectorSiteContainer(*tmpCont1);
       delete tmpCont1;
     }
     ApplicationTools::displayTaskDone();
@@ -322,12 +322,12 @@ int main(int args, char ** argv)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
-        unsigned int currentPos = (unsigned int)round(positions[i+1]*(double)nbSites);
+        currentPos = static_cast<unsigned int>(round(positions[i+1]) * static_cast<double>(nbSites));
         SequenceContainer* tmpCont2 = seqsim->simulate(currentPos - previousPos);
         previousPos = currentPos;
         delete seqsim;
         VectorSequenceContainer* mergedCont = new VectorSequenceContainer(alphabet);
-        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *mergedCont);
+        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, * reinterpret_cast<SequenceContainer*>(mergedCont));
         delete tmpCont1;
         delete tmpCont2;
         tmpCont1 = mergedCont;
