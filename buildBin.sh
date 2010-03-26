@@ -1,6 +1,6 @@
 #! /bin/sh
-arch=linux32
-version=0.4.0
+arch=i386
+version=0.5.0
 
 strip bppSuite/bppdist
 strip bppSuite/bpppars
@@ -11,5 +11,6 @@ strip bppSuite/bppseqman
 strip bppSuite/bppphysamp
 strip bppSuite/bppreroot
 strip bppSuite/bppancestor
-tar cvzf bppSuite-${arch}-bin-static-${version}.tar.gz bppSuite/bppdist bppSuite/bpppars bppSuite/bppml bppSuite/bppseqgen bppSuite/bppconsense bppSuite/bppseqman bppSuite/bppphysamp bppSuite/bppreroot bppSuite/bppancestor
+strip bppSuite/bpptreedraw
+tar cvzf bppSuite-${arch}-bin-static-${version}.tar.gz bppSuite/bppdist bppSuite/bpppars bppSuite/bppml bppSuite/bppseqgen bppSuite/bppconsense bppSuite/bppseqman bppSuite/bppphysamp bppSuite/bppreroot bppSuite/bppancestor bppSuite/bpptreedraw
 

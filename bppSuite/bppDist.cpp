@@ -133,27 +133,27 @@ int main(int args, char ** argv)
  
   string method = ApplicationTools::getStringParameter("method", bppdist.getParams(), "nj");
   ApplicationTools::displayResult("Tree reconstruction method", method);
-  TreeTemplate<Node> * tree;
-  AgglomerativeDistanceMethod * distMethod = NULL;
+  TreeTemplate<Node>* tree;
+  AgglomerativeDistanceMethod* distMethod = 0;
   if(method == "wpgma")
   {
-    PGMA * wpgma = new PGMA(true);
+    PGMA* wpgma = new PGMA(true);
     distMethod = wpgma;
   }
   else if(method == "upgma")
   {
-    PGMA * upgma = new PGMA(false);
+    PGMA* upgma = new PGMA(false);
     distMethod = upgma;
   }
   else if(method == "nj")
   {
-    NeighborJoining * nj = new NeighborJoining();
+    NeighborJoining* nj = new NeighborJoining();
     nj->outputPositiveLengths(true);
     distMethod = nj;
   }
   else if(method == "bionj")
   {
-    BioNJ * bionj = new BioNJ();
+    BioNJ* bionj = new BioNJ();
     bionj->outputPositiveLengths(true);
     distMethod = bionj;
   }
@@ -161,23 +161,23 @@ int main(int args, char ** argv)
   
   string type = ApplicationTools::getStringParameter("optimization.method", bppdist.getParams(), "init");
   ApplicationTools::displayResult("Model parameters estimation method", type);
-  if(type == "init") type = OptimizationTools::DISTANCEMETHOD_INIT;
-  else if(type == "pairwise") type = OptimizationTools::DISTANCEMETHOD_PAIRWISE;
-  else if(type == "iterations") type = OptimizationTools::DISTANCEMETHOD_ITERATIONS;
+  if (type == "init") type = OptimizationTools::DISTANCEMETHOD_INIT;
+  else if (type == "pairwise") type = OptimizationTools::DISTANCEMETHOD_PAIRWISE;
+  else if (type == "iterations") type = OptimizationTools::DISTANCEMETHOD_ITERATIONS;
   else throw Exception("Unknown parameter estimation procedure '" + type + "'.");
   
 	unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", bppdist.getParams(), 2);
 	
 	string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", bppdist.getParams(), false, false);
 	OutputStream* messenger = 
-		(mhPath == "none") ? NULL :
+		(mhPath == "none") ? 0 :
 			(mhPath == "std") ? ApplicationTools::message :
 				new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
 	ApplicationTools::displayResult("Message handler", mhPath);
 
 	string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
 	OutputStream* profiler = 
-		(prPath == "none") ? NULL :
+		(prPath == "none") ? 0 :
 			(prPath == "std") ? ApplicationTools::message :
 				new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
 	if(profiler) profiler->setPrecision(20);
@@ -190,12 +190,12 @@ int main(int args, char ** argv)
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", bppdist.getParams(), "", "", true, false);
 	bool ignoreBrLen = false;
   StringTokenizer st(paramListDesc, ",");
-	while(st.hasMoreToken())
+	while (st.hasMoreToken())
   {
 		try
     {
       string param = st.nextToken();
-      if(param == "BrLen")
+      if (param == "BrLen")
         ignoreBrLen = true;
       else
       {
@@ -207,7 +207,7 @@ int main(int args, char ** argv)
         else ApplicationTools::displayWarning("Parameter '" + param + "' not found."); 
       }
 		} 
-    catch(ParameterNotFoundException pnfe)
+    catch (ParameterNotFoundException& pnfe)
     {
 			ApplicationTools::displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
 		}
@@ -228,10 +228,10 @@ int main(int args, char ** argv)
   ApplicationTools::warning = ApplicationTools::message;
 
   string matrixPath = ApplicationTools::getAFilePath("output.matrix.file", bppdist.getParams(), false, false, "", false);
-  if(matrixPath != "none")
+  if (matrixPath != "none")
   {
     ApplicationTools::displayResult("Output matrix file", matrixPath);
-    ODistanceMatrix * odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT);
+    ODistanceMatrix* odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT);
     odm->write(*distEstimation.getMatrix(), matrixPath, true);
     delete odm;
   }
@@ -239,16 +239,16 @@ int main(int args, char ** argv)
   PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
   
   //Output some parameters:
-  if(type == OptimizationTools::DISTANCEMETHOD_ITERATIONS)
+  if (type == OptimizationTools::DISTANCEMETHOD_ITERATIONS)
   {
     // Write parameters to screen:
     ParameterList parameters = model->getParameters();
-    for(unsigned int i = 0; i < parameters.size(); i++)
+    for (unsigned int i = 0; i < parameters.size(); i++)
     {
 		  ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
     parameters = rDist->getParameters();
-    for(unsigned int i = 0; i < parameters.size(); i++)
+    for (unsigned int i = 0; i < parameters.size(); i++)
     {
 		  ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
@@ -258,12 +258,12 @@ int main(int args, char ** argv)
     {
 		  ofstream out(parametersFile.c_str(), ios::out);
       parameters = model->getParameters();
-      for(unsigned int i = 0; i < parameters.size(); i++)
+      for (unsigned int i = 0; i < parameters.size(); i++)
       {
         out << parameters[i].getName() << " = " << parameters[i].getValue() << endl;
       }
       parameters = rDist->getParameters();
-      for(unsigned int i = 0; i < parameters.size(); i++)
+      for (unsigned int i = 0; i < parameters.size(); i++)
       {
         out << parameters[i].getName() << " = " << parameters[i].getValue() << endl;
       }
