@@ -6,7 +6,7 @@
 # balancedGC: ancestral GC set to 0.5
 # observedGC: use observed GC content
 # initGC    : manually set the ancestral GC content.
-nonhomogeneous.root_freq = InitGC(ancTheta=0.9)
+nonhomogeneous.root_freq = GC(theta=0.9)
 
 # Now the general heterogeneous case:
 # Specify the number of distincts models.

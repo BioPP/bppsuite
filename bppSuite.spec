@@ -1,7 +1,7 @@
 %define name bppsuite
 %define version 0.5.0
 %define release 1
-%define _prefix /usr/local
+%define _prefix /usr
 
 Summary: The Bio++ Program Suite.
 Name: %{name}
@@ -14,10 +14,10 @@ Group: System Environment/Libraries
 BuildRoot: %{_builddir}/%{name}-root
 Packager: Julien Dutheil
 Prefix: %{_prefix}
-Requires: Bpp-Utils = 1.5.0
-Requires: Bpp-NumCalc = 1.8.0
-Requires: Bpp-Seq = 1.7.0
-Requires: Bpp-Phyl = 1.9.0
+Requires: bpp-utils = 1.5.0
+Requires: bpp-numcalc = 1.8.0
+Requires: bpp-seq = 1.7.0
+Requires: bpp-phyl = 1.9.0
 
 %description
 Bio++ program suite includes programs:
@@ -64,7 +64,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/bin/bppphysamp
 %{_prefix}/bin/bppreroot
 %{_prefix}/bin/bpptreedraw
-%{_prefix}/share/info/bppsuite.info
+%{_prefix}/share/info/bppsuite.info.gz
 
 %changelog
 * Thu Mar 25 2010 Julien Dutheil <julien.dutheil@univ-montp2.fr>
