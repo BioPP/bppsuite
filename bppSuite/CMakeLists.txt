@@ -2,38 +2,38 @@
 # Author: Julien Dutheil
 # Created: 22/08/2009
 
-add_executable(bppml bppML.cpp)
-target_link_libraries(bppml ${LIBS})
+ADD_EXECUTABLE(bppml bppML.cpp)
+TARGET_LINK_LIBRARIES(bppml ${LIBS})
 
-add_executable(bppseqgen bppSeqGen.cpp)
-target_link_libraries(bppseqgen ${LIBS})
+ADD_EXECUTABLE(bppseqgen bppSeqGen.cpp)
+TARGET_LINK_LIBRARIES(bppseqgen ${LIBS})
 
-add_executable(bppdist bppDist.cpp)
-target_link_libraries(bppdist ${LIBS})
+ADD_EXECUTABLE(bppdist bppDist.cpp)
+TARGET_LINK_LIBRARIES(bppdist ${LIBS})
 
-add_executable(bpppars bppPars.cpp)
-target_link_libraries(bpppars ${LIBS})
+ADD_EXECUTABLE(bpppars bppPars.cpp)
+TARGET_LINK_LIBRARIES(bpppars ${LIBS})
 
-add_executable(bppseqman bppSeqMan.cpp)
-target_link_libraries(bppseqman ${LIBS})
+ADD_EXECUTABLE(bppseqman bppSeqMan.cpp)
+TARGET_LINK_LIBRARIES(bppseqman ${LIBS})
 
-add_executable(bppconsense bppConsense.cpp)
-target_link_libraries(bppconsense ${LIBS})
+ADD_EXECUTABLE(bppconsense bppConsense.cpp)
+TARGET_LINK_LIBRARIES(bppconsense ${LIBS})
 
-add_executable(bppancestor bppAncestor.cpp)
-target_link_libraries(bppancestor ${LIBS})
+ADD_EXECUTABLE(bppancestor bppAncestor.cpp)
+TARGET_LINK_LIBRARIES(bppancestor ${LIBS})
 
-add_executable(bppreroot bppReRoot.cpp)
-target_link_libraries(bppreroot ${LIBS})
+ADD_EXECUTABLE(bppreroot bppReRoot.cpp)
+TARGET_LINK_LIBRARIES(bppreroot ${LIBS})
 
-add_executable(bppphysamp bppPhyloSampler.cpp)
-target_link_libraries(bppphysamp ${LIBS})
+ADD_EXECUTABLE(bppphysamp bppPhyloSampler.cpp)
+TARGET_LINK_LIBRARIES(bppphysamp ${LIBS})
 
-add_executable(bpptreedraw bppTreeDraw.cpp)
-target_link_libraries(bpptreedraw ${LIBS})
+ADD_EXECUTABLE(bpptreedraw bppTreeDraw.cpp)
+TARGET_LINK_LIBRARIES(bpptreedraw ${LIBS})
 
 # Install libs
-install(TARGETS
+INSTALL(TARGETS
   bppml
   bppseqgen
   bppdist

@@ -14,10 +14,8 @@ Group: System Environment/Libraries
 BuildRoot: %{_builddir}/%{name}-root
 Packager: Julien Dutheil
 Prefix: %{_prefix}
-Requires: bpp-utils = 1.5.0
-Requires: bpp-numcalc = 1.8.0
-Requires: bpp-seq = 1.7.0
-Requires: bpp-phyl = 1.9.0
+AutoReq: yes
+AutoProv: yes
 
 %description
 Bio++ program suite includes programs:

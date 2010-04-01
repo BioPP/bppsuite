@@ -3,4 +3,4 @@
 # Created: 22/08/2009
 
 # Install docs
-install(FILES bppsuite.info DESTINATION share/info)
+INSTALL(FILES bppsuite.info DESTINATION share/info)
