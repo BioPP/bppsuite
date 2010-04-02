@@ -31,7 +31,7 @@ IF(NOT BUILD_STATIC)
 ENDIF()
 IF(BUILD_STATIC)
   MESSAGE("-- Static linkage requested.")
-  SET(CMAKE_CXX_FLAGS "-static ${CMAKE_CXX_FLAGS}")
+  SET(CMAKE_CXX_FLAGS "-static -static-libgcc ${CMAKE_CXX_FLAGS}")
 ENDIF()
 
 #here is a useful function:
@@ -112,12 +112,26 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "_CPack_Packages"
  "CMakeCache.txt"
  ".*\\\\.cmake"
- "/CVS/"
+ ".*\\\\.svn"
  ".*\\\\.gz"
  ".*\\\\.deb"
  ".*\\\\.rpm"
  "\\\\..*\\\\.swp"
  "bppSuite/\\\\..*"
+ "bppSuite/bppancestor"
+ "bppSuite/bppml"
+ "bppSuite/bppphysamp"
+ "bppSuite/bppseqman"
+ "bppSuite/bppconsense"
+ "bppSuite/bppreroot"
+ "bppSuite/bpppars"
+ "bppSuite/bpptreedraw"
+ "bppSuite/bppdist"
+ "bppSuite/bppseqgen"
+ "doc/bppsuite/"
+ "doc/bppsuite.info"
+ "debian/tmp"
+ "debian/bppsuite"
  ${CPACK_SOURCE_IGNORE_FILES}
 )
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
