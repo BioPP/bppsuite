@@ -1249,7 +1249,10 @@ The @option{optimization.tolerance} parameter will be used for the final optimiz
 Tolerance for the during-topology estimation
 
 @item optimization.scale_first = no
-Shall we first scale the tree before optimizing parameters? [deprecated]
+Shall we first scale the tree before optimizing parameters?
+
+@item optimization.scale_first.tolerance = @{double@}
+The convergence criterion to achieve in the optimization.
 
 @end table
 
