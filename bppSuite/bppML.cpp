@@ -340,7 +340,7 @@ int main(int args, char** argv)
                                                          // we should assume a rate distribution for the root also!!!
         }
 
-        bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), "false", "", false, false);
+        bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), false, "", false, false);
         FrequenciesSet* rootFreqs = 0;
         if (!stationarity)
         {
