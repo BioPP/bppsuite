@@ -34,6 +34,15 @@ IF(BUILD_STATIC)
   SET(CMAKE_CXX_FLAGS "-static -static-libgcc ${CMAKE_CXX_FLAGS}")
 ENDIF()
 
+#build info?
+IF(NOT DEFINED INFO)
+  SET(INFO UNIX)
+ENDIF(NOT DEFINED INFO)
+
+#find executables for documentation
+FIND_PROGRAM(MAKEINFO_EXE NAMES makeinfo)
+FIND_PROGRAM(PDFTEX_EXE NAMES pdftex)
+
 #here is a useful function:
 MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
   #start:
@@ -77,19 +86,36 @@ IMPROVED_FIND_LIBRARY(LIBS bpp-seq Seq/Alphabet.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-numcalc NumCalc/NumTools.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-utils Utils/Clonable.h)
 
-# We should check for the Texinfo dependecy, but no FindPackage is available here...
-ADD_CUSTOM_TARGET(info
-  COMMAND makeinfo bppsuite.texi
-  WORKING_DIRECTORY doc
-  )
-ADD_CUSTOM_TARGET(pdf
-  COMMAND pdftex bppsuite.texi
-  WORKING_DIRECTORY doc
-  )
-ADD_CUSTOM_TARGET(html
-  COMMAND makeinfo --html --css-ref=http://www.w3.org/StyleSheets/Core/Steely bppsuite.texi
-  WORKING_DIRECTORY doc
-  )
+IF(MAKEINFO_EXE)
+  MESSAGE("-- Found makeinfo here: ${MAKEINFO_EXE}")
+  MESSAGE("   Adding targets: info, html")
+
+  IF(INFO)
+    SET(ADD_INFO_TO "ALL")
+    MESSAGE("   Adding target info to target all")
+  ENDIF(INFO)
+
+  ADD_CUSTOM_TARGET(info
+    ${ADD_INFO_TO}
+    COMMAND ${MAKEINFO_EXE} bppsuite.texi
+    WORKING_DIRECTORY doc
+    )
+
+  ADD_CUSTOM_TARGET(html
+    COMMAND ${MAKEINFO_EXE} --html --css-ref=http://www.w3.org/StyleSheets/Core/Steely bppsuite.texi
+    WORKING_DIRECTORY doc
+    )
+ENDIF(MAKEINFO_EXE)
+
+IF(PDFTEX_EXE)
+  MESSAGE("-- Found pdftex here: ${PDFTEX_EXE}")
+  MESSAGE("   Adding target: pdf")
+
+  ADD_CUSTOM_TARGET(pdf
+    COMMAND ${PDFTEX_EXE} bppsuite.texi
+    WORKING_DIRECTORY doc
+    )
+ENDIF(PDFTEX_EXE)
 
 # Subdirectories
 ADD_SUBDIRECTORY(bppSuite)
@@ -148,5 +174,6 @@ ADD_DEPENDENCIES(deb dist info)
 ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)
 ADD_DEPENDENCIES(rpm dist info)
 
-ENDIF()
+#ADD_DEPENDENCIES(info install)
+ENDIF(UNIX)
 
