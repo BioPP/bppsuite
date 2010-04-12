@@ -98,12 +98,12 @@ IF(MAKEINFO_EXE)
   ADD_CUSTOM_TARGET(info
     ${ADD_INFO_TO}
     COMMAND ${MAKEINFO_EXE} bppsuite.texi
-    WORKING_DIRECTORY doc
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
     )
 
   ADD_CUSTOM_TARGET(html
     COMMAND ${MAKEINFO_EXE} --html --css-ref=http://www.w3.org/StyleSheets/Core/Steely bppsuite.texi
-    WORKING_DIRECTORY doc
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
     )
 ENDIF(MAKEINFO_EXE)
 
@@ -113,7 +113,7 @@ IF(PDFTEX_EXE)
 
   ADD_CUSTOM_TARGET(pdf
     COMMAND ${PDFTEX_EXE} bppsuite.texi
-    WORKING_DIRECTORY doc
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
     )
 ENDIF(PDFTEX_EXE)
 
