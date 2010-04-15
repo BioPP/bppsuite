@@ -28,5 +28,5 @@ output.sequence.format=Fasta()
 # Sequences manipulations
 # -----------------------
 #For example (see manual for a detailed list of available options):
-sequence.manip = Switch,Transcript,KeepComplete(maxGapAllowed=30%),GapToUnknown 
+sequence.manip = Switch,Transcript,CoerceToAlignment,KeepComplete(maxGapAllowed=30%),GapToUnknown 
 
