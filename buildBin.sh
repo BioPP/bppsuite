@@ -1,5 +1,5 @@
 #! /bin/sh
-arch=x86_64 #i386
+arch=i386
 version=0.5.0
 
 strip bppSuite/bppdist

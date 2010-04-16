@@ -1547,13 +1547,17 @@ Convert to proteins. You have to specify a genetic code, see specific options.
 Invert the sequence 5' <-> 3' or N <-> C
 
 @item RemoveGaps
-Remove all gaps in sequences (ie, 'unalign')
+Remove all gaps in sequences (ie, 'unalign').
 
 @item GapToUnknown
 Change gaps to fully unresolved characters, N for nucleotides and X for proteins.
 
 @item UnknownToGap
 Change (partially) unresolved characters to gaps.
+
+@item CoerceToAlignment
+Try to convert a set of sequence to an alignment. This will fail if sequences do not have the same length.
+This step is required before trying commands 'ResolveDotted' or 'KeepComplete'.
 
 @item ResolveDotted(alphabet=@{RNA|DNA|Proteins@}) [[Aligned sequences]]
 Convert a human-readable alignment to a machine-readable alignment.

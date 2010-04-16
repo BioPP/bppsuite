@@ -171,15 +171,15 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Number of sequences kept:", seqNames.size());
 
   //Write sequences to file:
-  VectorSequenceContainer vsc(alphabet);
+  AlignedSequenceContainer asc(alphabet);
   for(unsigned int i = 0; i < seqNames.size(); i++)
-    vsc.addSequence(seqs->getSequence(seqNames[i]));
+    asc.addSequence(seqs->getSequence(seqNames[i]));
    
-  SequenceApplicationTools::writeSequenceFile(vsc, bppphysamp.getParams());
+  SequenceApplicationTools::writeAlignmentFile(asc, bppphysamp.getParams());
 
   bppphysamp.done();
   }
-  catch(exception & e)
+  catch (exception& e)
   {
     cout << endl;
     cout << "_____________________________________________________" << endl;

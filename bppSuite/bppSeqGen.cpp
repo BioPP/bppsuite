@@ -339,7 +339,7 @@ int main(int args, char ** argv)
   }
   
   // Write to file:
-  SequenceApplicationTools::writeSequenceFile(*sites, bppseqgen.getParams());
+  SequenceApplicationTools::writeAlignmentFile(*sites, bppseqgen.getParams());
 
   delete alphabet;
   for (unsigned int i = 0; i < trees.size(); i++)

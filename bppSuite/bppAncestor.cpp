@@ -420,7 +420,7 @@ int main(int args, char ** argv)
 
 
 
-  SequenceContainer *asSites = 0;
+  SiteContainer* asSites = 0;
   if(probMethod)
   {
     bool sample = ApplicationTools::getBooleanParameter("asr.sample", bppancestor.getParams(), false, "", true, false);
@@ -451,7 +451,7 @@ int main(int args, char ** argv)
   {
     asSites = asr->getAncestralSequences();
   }
-  SequenceApplicationTools::writeSequenceFile(*asSites, bppancestor.getParams());
+  SequenceApplicationTools::writeAlignmentFile(*asSites, bppancestor.getParams());
   delete asSites;
 
   delete asr;
