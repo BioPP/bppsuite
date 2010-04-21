@@ -1038,6 +1038,10 @@ a Dirac distribution on @var{value}.
 a discretized gamma distribution, with @var{n} classes, a shape
 @var{alpha} and a scale @var{beta}.
 
+@item Gaussian(n=@{int>=2@}, mu=@{float@}, sigma=@{float>0@}) 
+a discretized gaussian distribution, with @var{n} classes, a mean
+@var{mu} and a standard deviation @var{beta}.
+
 @item Exponential(n=@{int>=2@}, lambda=@{float>0@})
 a discretized exponential distribution, with @var{n} classes and
 parameter @var{lambda}.
