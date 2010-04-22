@@ -127,7 +127,7 @@ int main(int args, char ** argv)
       else         sc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* seq = SequenceTools::complement(sequences->getSequence(i));
+        Sequence* seq = SequenceTools::getComplement(sequences->getSequence(i));
         sc->addSequence(*seq, false);
         delete seq;
       }
@@ -357,7 +357,7 @@ int main(int args, char ** argv)
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);
-        Sequence* seq = SequenceTools::invert(*old);
+        Sequence* seq = SequenceTools::getInvert(*old);
         sc->addSequence(*seq, false);
         delete seq;
       }
