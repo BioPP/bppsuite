@@ -815,13 +815,15 @@ Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rat
 
 @table @command
 
-Mixed models combine any sustitution models with a priori distribution of parameters.
-Such models are still experimental and have not been yet fully tested. They should hence be used wih extra care!
+Mixed models combine any sustitution models with a priori distribution
+of parameters. Such models are still experimental and have not been
+yet fully tested. They should hence be used wih extra care!
 
 @item MixedModel(model=@{model description@})
 Mixture model from a given @var{model} in which some parameters follow
-a probabilistic distribution. Any descrete distribtion available can be used @xref{Discrete distributions}. The description of the parameters
-distributions is described below.
+a probabilistic distribution. Any discrete distribution available can
+be used @xref{Discrete distributions}. The description of the
+parameters distributions is described below.
 
 @example
 model=MixedModel(model=TN93(kappa1=Gamma(n=4,alpha=3,beta=1),
@@ -1027,33 +1029,43 @@ with a probability @var{p}.
 @section Discrete distributions
 @anchor{Discrete distributions}
 
-Bio++ contains several probability distributions (currently only dicrete or discretized ones).
-These are:
+Bio++ contains several probability distributions (currently only
+dicrete or discretized ones). These are:
 
 @table @command
 
 @item Constant(value=@{float@})
-a Dirac distribution on @var{value}.
+a Dirac distribution on @var{value}, with parameter @var{value}.
 
 @item Gamma(n=@{int>=2@}, alpha=@{float>0@}, beta=@{float>0@}) 
 a discretized gamma distribution, with @var{n} classes, a shape
-@var{alpha} and a scale @var{beta}.
+@var{alpha} and a scale @var{beta}, with parameters @var{alpha} and
+@var{beta}.
 
 @item Gaussian(n=@{int>=1@}, mu=@{float@}, sigma=@{float>0@}) 
 a discretized gaussian distribution, with @var{n} classes, a mean
-@var{mu} and a standard deviation @var{sigma}.
+@var{mu} and a standard deviation @var{sigma}, with parameters
+@var{mu} and @var{sigma}.
 
 @item Exponential(n=@{int>=2@}, lambda=@{float>0@})
 a discretized exponential distribution, with @var{n} classes and
 parameter @var{lambda}.
 
+@item Simple(values=@{vector<double>@}, probas=@{vector<double>@})
+a discrete distribution with specific values (in @var{values}) and
+their respective non-negative probabibilities (in @var{probas}). The
+parameters are @var{V1}, @var{V2}, ..., @var{Vn} for all the values
+and the relative probabibility parameters are @var{theta1},
+@var{theta2}, ..., @var{thetan-1}.
+
 @item TruncExponential(n=@{int>=2@}, lambda=@{float>0@}, tp=@{float>0@})
 a discretized truncated exponential distribution, with @var{n}
-classes, parameter @var{lambda} and a truncation point @var{tp}.
+classes, parameter @var{lambda} and a truncation point @var{tp}. The
+parameters are @var{lambda} and @var{tp}.
 
 @item Uniform(n=@{int>=1@}, begin=@{float>0@}, end=@{float>0@})
 a uniform distribution, with @var{n} classes in interval
-[@var{begin,end}].
+[@var{begin},@var{end}]. There are no parameters.
 
 @end table
 
