@@ -102,20 +102,10 @@ int main(int args, char ** argv)
   if (graphicType == "Svg")
   {
     gd = new SVGGraphicDevice(file);
-    double bottom = ApplicationTools::getDoubleParameter("bottom", graphicTypeArgs, 0);
-    double left   = ApplicationTools::getDoubleParameter("left"  , graphicTypeArgs, 0);
-    double top    = ApplicationTools::getDoubleParameter("top"   , graphicTypeArgs, 0);
-    double right  = ApplicationTools::getDoubleParameter("right" , graphicTypeArgs, 0);
-    dynamic_cast<SVGGraphicDevice*>(gd)->setMargins(bottom, left, top, right);
   }
   else if (graphicType == "Inkscape")
   {
     gd = new SVGGraphicDevice(file, true);
-    double bottom = ApplicationTools::getDoubleParameter("bottom", graphicTypeArgs, 0);
-    double left   = ApplicationTools::getDoubleParameter("left"  , graphicTypeArgs, 0);
-    double top    = ApplicationTools::getDoubleParameter("top"   , graphicTypeArgs, 0);
-    double right  = ApplicationTools::getDoubleParameter("right" , graphicTypeArgs, 0);
-    dynamic_cast<SVGGraphicDevice*>(gd)->setMargins(bottom, left, top, right);
   }
   else if (graphicType == "Xfig")
   {
