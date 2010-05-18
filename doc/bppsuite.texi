@@ -63,6 +63,7 @@ Bio++ Program Suite Reference
 * bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
+* bpptreedraw::                 Bio++ Tree Drawing.
 
 @end detailmenu
 @end menu
@@ -1190,6 +1191,7 @@ This section now details the specific options for each program in the Bio++ Prog
 * bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
+* bpptreedraw::                 Bio++ Tree Drawing.
 @end menu
 
 @node bppml, bppseqgen, Reference, Reference
@@ -1533,7 +1535,7 @@ File where to write the rerooted trees.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bppseqman,  , bppreroot, Reference
+@node bppseqman, bpptreedraw, bppreroot, Reference
 @section BppSeqMan: Bio++ Sequence Manipulation
 
 The Bio++ Sequence Manipulator convert between various file formats, and can also perform various operations on sequences.
@@ -1620,6 +1622,42 @@ sequence.manip=UnknownToGap,KeepComplete(maxGapAllowed=5)
 @example
 sequence.manip=KeepComplete(maxGapAllowed=30%),GapToUnknown
 @end example
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bpptreedraw, , bppseqman, Reference
+@section BppTreeDraw: Bio++ Tree Drawing
+
+This is a simple program that outputs a tree in various vector formats.
+It takes as input a tree following the standard syntax.
+
+Specific options:
+@table @command
+
+@item output.drawing.file = @{path@}
+The file where to output the figure.
+
+@item output.drawing.format = @{Svg|Xfig|Inkscape|Pgf@}
+The file format.
+@item output.drawing.plot = @{plotting algorithm@}
+The plotting algorithm can be either Phylogram or Cladogram.
+They follow the keyval syntax, with the following arguments:
+@end table
+
+@table @option
+@item xu, yu @{float@}
+The scale units for x and y axis.
+
+@item direction.h @{left2right|right2left@}
+Horizontal orientation of the tree plot.
+
+@item direction.v @{top2bottom|bottom2top@}
+Vertical orientation of the tree plot.
+
+@item draw.leaves, draw.ids, draw.brlen, draw.bs @{boolean@}
+Tell if leaf names, node ids, branch lengths and/or bootstrap should be drawn.
 
 @end table
 

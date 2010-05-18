@@ -53,6 +53,7 @@ using namespace std;
 #include <Phyl/PhylogeneticsApplicationTools.h>
 #include <Phyl/CladogramPlot.h>
 #include <Phyl/PhylogramPlot.h>
+#include <Phyl/TreeDrawingDisplayControler.h>
 using namespace bpp;
 
 /******************************************************************************/
@@ -72,7 +73,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Tree Drawing program, version 0.1.0                *" << endl;
   cout << "*                                                                *" << endl; 
-  cout << "* Authors: J. Dutheil                       Last Modif. 08/08/09 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. 18/05/10 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -126,11 +127,11 @@ int main(int args, char ** argv)
   KeyvalTools::parseProcedure(plotTypeCmd, plotType, plotTypeArgs);
   if (plotType == "Cladogram")
   {
-    td = new CladogramPlot();
+    td = reinterpret_cast<TreeDrawing*>(new CladogramPlot());
   }
   else if (plotType == "Phylogram")
   {
-    td = new PhylogramPlot();
+    td = reinterpret_cast<TreeDrawing*>(new PhylogramPlot());
   }
   else throw Exception("Unknown output format: " + plotType);
   td->setTree(tree);
@@ -160,6 +161,26 @@ int main(int args, char ** argv)
   }
   else throw Exception("Unknown orientation option: " + vOrientation);
  
+  //Plotting option:
+  TreeDrawingSettings tds;
+  BasicTreeDrawingDisplayControler* controler = new BasicTreeDrawingDisplayControler(&tds);
+  controler->registerTreeDrawing(td);
+
+  bool drawLeafNames       = ApplicationTools::getBooleanParameter("draw.leaves", plotTypeArgs, true);
+  bool drawNodesId         = ApplicationTools::getBooleanParameter("draw.ids"   , plotTypeArgs, false);
+  bool drawBranchLengths   = ApplicationTools::getBooleanParameter("draw.brlen" , plotTypeArgs, false);
+  bool drawBootstrapValues = ApplicationTools::getBooleanParameter("draw.bs"    , plotTypeArgs, false);
+
+  controler->enableListener(controler->PROPERTY_LEAF_NAMES, drawLeafNames);
+  controler->enableListener(controler->PROPERTY_NODE_IDS, drawNodesId);
+  controler->enableListener(controler->PROPERTY_BRANCH_LENGTHS, drawBranchLengths);
+  controler->enableListener(controler->PROPERTY_BOOTSTRAP_VALUES, drawBootstrapValues);
+  
+  ApplicationTools::displayBooleanResult("Draw leaf names"      , drawLeafNames);
+  ApplicationTools::displayBooleanResult("Draw node ids"        , drawNodesId);
+  ApplicationTools::displayBooleanResult("Draw branch lengths"  , drawBranchLengths);
+  ApplicationTools::displayBooleanResult("Draw bootstrap values", drawBootstrapValues);
+  
   //Now draw the tree:
   gd->begin();
   td->plot(*gd);
@@ -167,6 +188,7 @@ int main(int args, char ** argv)
 
   //Finishing things:
   file.close();
+  delete controler;
   delete tree;
   delete td;
   delete gd;
