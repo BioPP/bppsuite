@@ -1,3 +1,6 @@
+03/06/10 Julien Dutheil
+* New method in bppPhySamp + new, faster, implementation.
+
 25/03/10 -*- Version 0.5.0 -*-
 
 22/08/09 Julien Dutheil

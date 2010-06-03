@@ -1499,9 +1499,15 @@ If the @option{tree} option is used, then the options for reading trees are used
 @item input.matrix = @{path@} [[input.method = matrix]]
 The input matrix file.
 
-@item threshold = @{float>0@}
+@item deletion_method = @{threshold|sample@}
+Method to use to remove sequence. 
+
+@item threshold = @{float>0@} [[deletion_method = threshold ]]
 The minimum distance separating two sequences in the sampled data set.
 Any sequences closer than this threshold in the original data set will be confronted so that only one is kept.
+
+@item sample_size = @{int>0@} [[deletion_method = sample ]]
+The number of sequences to keep in the final data set.
 
 @item choice_criterion = @{length|length.complete|random@}
 How to chose between closely related sequences? @option{length} takes the longest (maximum number of non-gap positions), @option{length.complete} takes the sequence with the maximum number of fully resolved positions and @option{random} picks one sequence at random.

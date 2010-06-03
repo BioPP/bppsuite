@@ -24,18 +24,24 @@ input.tree.format=Newick
 # Matrix file if the matrix method has been selected:
 input.matrix=
 
+#threshold or sample
+deletion_method=sample
+# Threshold to use (same unit as distances on the tree/matrix)
+TYPE=05
+threshold=0.$(TYPE)
+# OR sample size:
+TYPE=20
+sample_size=$(TYPE)
+
+
 # Criterion to choose between sequences:
 # - length: keep the sequence with the highest number of positions
 # - length.complete: keep the sequence with the highest number of complete positions
 # - random: Keep a sequence randomly
 choice_criterion=length.complete
 
-# Threshold to use (same unit as distances on the tree/matrix)
-THRESHOLD=05
-threshold=0.$(THRESHOLD)
-
 # Output sequence file
-output.sequence.file=$(DATA).$(THRESHOLD).fasta
+output.sequence.file=$(DATA).$(TYPE).fasta
 
 # Ouput format:
 output.sequence.format=Fasta()
