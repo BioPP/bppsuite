@@ -51,7 +51,6 @@ MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
 
   IF(BUILD_STATIC)
     SET(${lib_name}_NAMES lib${lib_name}.a)
-    message("${${lib_name}_NAMES}")
     FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES})
   ELSE(BUILD_STATIC)
     SET(${lib_name}_NAMES ${lib_name} ${lib_name}lib ${lib_name}dll)
