@@ -47,14 +47,12 @@ FIND_PROGRAM(PDFTEX_EXE NAMES pdftex)
 MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
   #start:
   FIND_PATH(${lib_name}_INCLUDE_DIR ${include_to_find})
+  UNSET(${lib_name}_LIBRARY CACHE) #Reset the cache.
 
   IF(BUILD_STATIC)
-    FIND_PATH(${lib_name}_LIBRARY_DIR lib${lib_name}.a HINTS ${CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH}/lib)
-    IF(${lib_name}_LIBRARY_DIR)
-      SET(${lib_name}_LIBRARY ${${lib_name}_LIBRARY_DIR}/lib${lib_name}.a)
-    ELSE(${lib_name}_LIBRARY_DIR)
-      MESSAGE(FATAL_ERROR "${lib_name} static library could not be found.")
-    ENDIF(${lib_name}_LIBRARY_DIR)
+    SET(${lib_name}_NAMES lib${lib_name}.a)
+    message("${${lib_name}_NAMES}")
+    FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES})
   ELSE(BUILD_STATIC)
     SET(${lib_name}_NAMES ${lib_name} ${lib_name}lib ${lib_name}dll)
     FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES})
