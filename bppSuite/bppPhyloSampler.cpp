@@ -178,8 +178,8 @@ int main(int args, char ** argv)
     seqNames = sample;
     
     double mini = -log(0.);
-    for (unsigned int i =  0; i < seqNames.size(); ++i)
-      for (unsigned int j =  0; i + 1 < seqNames.size(); ++j)
+    for (unsigned int i =  0; i < seqNames.size() - 1; ++i)
+      for (unsigned int j = i + 1; j < seqNames.size(); ++j)
       {
         double d = (*dist)(seqNames[i], seqNames[j]);
         if (d < mini) mini = d;
