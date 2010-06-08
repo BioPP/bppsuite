@@ -1499,14 +1499,14 @@ If the @option{tree} option is used, then the options for reading trees are used
 @item input.matrix = @{path@} [[input.method = matrix]]
 The input matrix file.
 
-@item deletion_method = @{threshold|sample@}
+@item deletion_method = @{random|threshold|sample@}
 Method to use to remove sequence. 
 
 @item threshold = @{float>0@} [[deletion_method = threshold ]]
 The minimum distance separating two sequences in the sampled data set.
 Any sequences closer than this threshold in the original data set will be confronted so that only one is kept.
 
-@item sample_size = @{int>0@} [[deletion_method = sample ]]
+@item sample_size = @{int>0@} [[deletion_method = sample|random ]]
 The number of sequences to keep in the final data set.
 
 @item choice_criterion = @{length|length.complete|random@}

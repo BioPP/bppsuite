@@ -169,7 +169,24 @@ int main(int args, char ** argv)
       distances.push_back(Index((*dist)(i, j), i , j));
   sort(distances.begin(), distances.end());
 
-  if (deleteMeth == "threshold")
+  if (deleteMeth == "random")
+  {
+    unsigned int sampleSize = ApplicationTools::getParameter<unsigned int>("sample_size", bppphysamp.getParams(), 10);
+    ApplicationTools::displayResult("Sample size", sampleSize);
+    vector<string> sample(sampleSize);
+    RandomTools::getSample(seqNames, sample, false);
+    seqNames = sample;
+    
+    double mini = -log(0.);
+    for (unsigned int i =  0; i < seqNames.size(); ++i)
+      for (unsigned int j =  0; i + 1 < seqNames.size(); ++j)
+      {
+        double d = (*dist)(seqNames[i], seqNames[j]);
+        if (d < mini) mini = d;
+      }
+    ApplicationTools::displayResult("Minimal distance in final data set:", mini);
+  }
+  else if (deleteMeth == "threshold")
   {
     double threshold = ApplicationTools::getDoubleParameter("threshold", bppphysamp.getParams(), 0.01);
     ApplicationTools::displayResult("Distance threshold", threshold);
