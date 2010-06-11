@@ -1033,14 +1033,20 @@ with a probability @var{p}.
 Bio++ contains several probability distributions (currently only
 dicrete or discretized ones). These are:
 
+@subsection Standard Distributions
+
 @table @command
 
 @item Constant(value=@{float@})
 a Dirac distribution on @var{value}, with parameter @var{value}.
 
+@item Beta(n=@{int>=2@}, alpha=@{float>0@}, beta=@{float>0@}) 
+a discretized beta distribution, with @var{n} classes, with standard
+parameters @var{alpha} and @var{beta}.
+
 @item Gamma(n=@{int>=2@}, alpha=@{float>0@}, beta=@{float>0@}) 
 a discretized gamma distribution, with @var{n} classes, a shape
-@var{alpha} and a scale @var{beta}, with parameters @var{alpha} and
+@var{alpha} and a rate @var{beta}, with parameters @var{alpha} and
 @var{beta}.
 
 @item Gaussian(n=@{int>=1@}, mu=@{float@}, sigma=@{float>0@}) 
@@ -1069,6 +1075,33 @@ a uniform distribution, with @var{n} classes in interval
 [@var{begin},@var{end}]. There are no parameters.
 
 @end table
+
+@subsection Mixture Distributions
+
+@table @command
+
+@item Mixture(probas=@{vector<double>@}, distribution1=@{distribution description@}, ..., distributionn=@{distribution description@}) 
+
+a Mixture of discrete distributions with specific probabilities (in
+@var{probas}) and their respective desccriptions. (in @var{probas}).
+The parameters are the relative probabibility parameters @var{theta1},
+@var{theta2}, ..., @var{thetan-1}, and the parameters of the included
+distributions prefixed by @var{Mixture.i_} where @var{i} is the order
+of the distribution.
+
+For example:
+@example
+Mixture(probas=(0.3,0.7),distribution1=Beta(n=5,alpha=2,beta=3),
+                       distribution2=Gamma(n=10,alpha=9,beta=2)) 
+@end example
+builds a mixture of a discrete beta distribution and of a discrete
+gamma distribution, with a total of 15 classes. The parameters names
+are @var{Mixture.theta1}, @var{Mixture.1_Beta.alpha},
+@var{Mixture.1_Beta.beta}, @var{Mixture.2_Gamma.alpha} and
+@var{Mixture.2_Gamma.beta}.
+
+@end table
+
 
 @c ------------------------------------------------------------------------------------------------------------------
 
