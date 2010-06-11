@@ -279,7 +279,10 @@ data=LSU
 @section Setting alphabet and reading sequences
 
 @table @command
-@item alphabet = @{DNA|RNA|Protein|Word(letter=@{DNA|RNA|Protein@},length=@{int@})| Codon(letter=@{DNA|RNA@}, type=@{Standard|EchinodermMitochondrial|InvertebrateMitochondrial|VertebrateMitochondrial@})@}
+@item alphabet =
+@{DNA|RNA|Protein|Word(letter=@{DNA|RNA|Protein@},length=@{int@})|
+Codon(letter=@{DNA|RNA@}, type=@{Standard|EchinodermMitochondrial|InvertebrateMitochondrial|\
+VertebrateMitochondrial@})@}
 The alphabet to use when reading sequences. 
 
 @item input.sequence.file=@{path@}
@@ -503,7 +506,9 @@ it is not given, the one related with the alphabet is used. The several values a
 @item VertebrateMitochondrialGeneticCode
 @end itemize
 
-The three models also take as argument a @var{codon_freq} specifying the equilirium frequencies of the model. The syntax refers to the one used in the PAML software, and possible values are
+The next codon models also take as argument a @var{codon_freq}
+specifying the equilirium frequencies of the model. The syntax refers
+to the one used in the PAML software, and possible values are
 @itemize
 @item F0: all frequencies are assumed to be fixed and equal to 1/61, 0 for stop codons.
 @item F1X4: 4 distinct frequencies are used, with parameters theta, theta1, theta2 (@xref{Frequencies sets}, ``Full'' method).
@@ -517,15 +522,49 @@ The three models also take as argument a @var{codon_freq} specifying the equilir
 Goldman and Yang (1994) substitution model for codons (default values:
 @var{kappa}=1 and @var{V}=10000).
 
+@item MG94([genetic_code=@{genetic code description@}, rho=@{real>0@}])
+Muse and Gaut (1994) substitution model for codons (default values:
+@var{rho}=1).
 
 @item YN98([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}])
 Yang and Nielsen (1998) substitution model for codons (default values:
 @var{kappa}=1 and @var{omega}=1).
 
+@item YNGKP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}])
+The M0 model of PAML, ie the same as YN98.
 
-@item MG94([genetic_code=@{genetic code description@}, rho=@{real>0@}])
-Muse and Gaut (1994) substitution model for codons (default values:
-@var{rho}=1).
+@item YNGKP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}])
+The M1a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
+K. Pedersen (2000) (default values: @var{kappa}=1, @var{p0}=0.5,
+@var{omega}=0.5).
+
+@item YNGKP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}])
+
+The M2a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
+K. Pedersen (2000), with  p0=theta1  and
+p1=(1-theta1)*theta2 (default values: @var{kappa}=1, @var{theta1}=0.33333,
+@var{theta2}=0.5, @var{omega0}=0.5, @var{omega2}=0.5).
+
+@item YNGKP_M3(genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}])
+
+The M3 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
+K. Pedersen (2000), with @var{n} discrete values, with p0=theta1
+and pk=(1-theta1)*...*(1-thetak)*theta(k+1), and
+omegak=omega0+delta1+....+deltak (default values: @var{n}=3,
+@var{kappa}=1, @var{thetak}=1/(n-k+1), @var{omega0}=0.5, @var{deltak}=0.5).
+
+@item YNGKP_M7(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}])
+
+The M7 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
+K. Pedersen (2000), with the Beta distribution discretized in @var{n}
+classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2).
+
+@item YNGKP_M7(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}])
+
+The M8 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
+K. Pedersen (2000), with the Beta distribution discretized in @var{n}
+classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
+@var{p0}=0.5, @var{omegas}=2).
 
 @end table
 
@@ -581,7 +620,8 @@ parameters names are @var{CodonNeutral.1_T92.kappa},
 @var{CodonNeutral.relrate2}, and can be initialized as is:
 
 @example
-model=CodonNeutral(model1=T92, model2=T92, model3=JC69, 1_T92.theta=0.5, 1_T92.kappa=2.0, 2_T92.theta=0.4, 2_T92.kappa=2.0)
+model=CodonNeutral(model1=T92, model2=T92, model3=JC69,\
+    1_T92.theta=0.5, 1_T92.kappa=2.0, 2_T92.theta=0.4, 2_T92.kappa=2.0)
 @end example
 
 @item CodonAsynonymous(model=@{model name@}[, genetic_code=@{genetic code description@}, beta=@{real>0@}])
@@ -827,8 +867,8 @@ be used @xref{Discrete distributions}. The description of the
 parameters distributions is described below.
 
 @example
-model=MixedModel(model=TN93(kappa1=Gamma(n=4,alpha=3,beta=1),
-                            kappa2=Exponential(lambda=2),
+model=MixedModel(model=TN93(kappa1=Gamma(n=4,alpha=3,beta=1),\
+                            kappa2=Exponential(lambda=2),\
                             theta=0.5,theta1=0.2,theta2=0.1))
 @end example
 has parameters @var{TN93.kappa1_Gamma.alpha},
@@ -973,7 +1013,8 @@ name is @var{Word.1234_GC.theta}.
 
 @example
 alphabet=Word(letter=DNA,length=4)
-Word(frequency1=GC(),frequency2=GC(),frequency3=Fixed(),frequency4=Full())
+Word(frequency1=GC(),frequency2=GC(),frequency3=Fixed(),\
+                      frequency4=Full())
 @end example
 builds a frequency set on 4 bases words, such first and second sites
 follow independent GC frequency sets, third site follows a Fixed
@@ -1091,7 +1132,7 @@ of the distribution.
 
 For example:
 @example
-Mixture(probas=(0.3,0.7),distribution1=Beta(n=5,alpha=2,beta=3),
+Mixture(probas=(0.3,0.7),distribution1=Beta(n=5,alpha=2,beta=3),\
                        distribution2=Gamma(n=10,alpha=9,beta=2)) 
 @end example
 builds a mixture of a discrete beta distribution and of a discrete
