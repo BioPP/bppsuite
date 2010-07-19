@@ -76,7 +76,7 @@ void help()
   (*ApplicationTools::message << "__________________________________________________________________________").endLine();
 }
 
-int main(int args, char ** argv)
+int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*           Bio++ Sequence Manipulator, version 0.3              *" << endl;
@@ -124,7 +124,7 @@ int main(int args, char ** argv)
     {
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = SequenceTools::getComplement(sequences->getSequence(i));
@@ -143,7 +143,7 @@ int main(int args, char ** argv)
       {
         OrderedSequenceContainer* sc = 0;
         if (aligned) sc = new VectorSiteContainer(&AlphabetTools::RNA_ALPHABET);
-        else         sc = new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET);
+        else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET));
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
           Sequence* seq = SequenceTools::transcript(sequences->getSequence(i));
@@ -157,7 +157,7 @@ int main(int args, char ** argv)
       {
         OrderedSequenceContainer* sc = 0;
         if (aligned) sc = new VectorSiteContainer(&AlphabetTools::DNA_ALPHABET);
-        else         sc = new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET);
+        else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET));
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
           Sequence* seq = SequenceTools::reverseTranscript(sequences->getSequence(i));
@@ -186,7 +186,7 @@ int main(int args, char ** argv)
       else throw Exception("Cannot switch alphabet type, alphabet is not of type 'nucleic'.");
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(alpha);
-      else         sc = new VectorSequenceContainer(alpha);
+      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(alpha));
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);
@@ -218,7 +218,7 @@ int main(int args, char ** argv)
 
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = gc->translate(sequences->getSequence(i));
@@ -251,7 +251,7 @@ int main(int args, char ** argv)
     {
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = new Sequence(sequences->getSequence(i));
@@ -280,6 +280,25 @@ int main(int args, char ** argv)
       delete sequences;
       sequences = sc;
     }
+    
+    // +--------------+
+    // | Remove stops |
+    // +--------------+
+    if (cmdName == "RemoveStops")
+    {
+      OrderedSequenceContainer* sc = 0;
+      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
+      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
+      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      {
+        Sequence seq = sequences->getSequence(i);
+        SequenceTools::getCDS(seq, false, true, true, false);
+        sc->addSequence(seq, false);
+      }
+      delete sequences;
+      sequences = sc;
+    }
+
     // +--------------------------+
     // | Resolve dotted alignment |
     // +--------------------------+
@@ -353,7 +372,7 @@ int main(int args, char ** argv)
     {
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);

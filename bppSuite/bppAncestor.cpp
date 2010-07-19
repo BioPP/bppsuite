@@ -274,7 +274,7 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Ancestral state reconstruction method", reconstruction);
   bool probs = false;
 
-  AncestralStateReconstruction *asr = NULL;
+  AncestralStateReconstruction *asr = 0;
   bool probMethod = false;
   if(reconstruction == "marginal")
   {
@@ -292,7 +292,7 @@ int main(int args, char ** argv)
 
   // Write infos to file:
   string outputFile = ApplicationTools::getAFilePath("output.sites.file", bppancestor.getParams(), false, false);
-  if(outputFile != "none")
+  if (outputFile != "none")
   {
     ApplicationTools::displayResult("Output file for sites", outputFile);
     ofstream out(outputFile.c_str(), ios::out);
@@ -305,8 +305,8 @@ int main(int args, char ** argv)
     // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
     Vdouble rates = tl->getPosteriorRateOfEachSite();
     // Get the ancestral sequences:
-    vector<Sequence *> sequences(nbNodes);
-    vector<VVdouble *> probabilities(nbNodes);
+    vector<Sequence*> sequences(nbNodes);
+    vector<VVdouble*> probabilities(nbNodes);
 
     vector<string> colNames;
     colNames.push_back("Sites");
