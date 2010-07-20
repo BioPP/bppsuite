@@ -190,7 +190,7 @@ int main(int args, char** argv)
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);
-        Sequence* seq = new Sequence(old->getName(), old->getContent(), old->getComments(), alpha);
+        Sequence* seq = new BasicSequence(old->getName(), old->getContent(), old->getComments(), alpha);
         sc->addSequence(*seq, false);
         delete seq;
       }
@@ -254,7 +254,7 @@ int main(int args, char** argv)
       else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* seq = new Sequence(sequences->getSequence(i));
+        Sequence* seq = new BasicSequence(sequences->getSequence(i));
         SymbolListTools::changeGapsToUnknownCharacters(*seq);
         sc->addSequence(*seq, false);
         delete seq;
@@ -272,7 +272,7 @@ int main(int args, char** argv)
       else         sc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* seq = new Sequence(sequences->getSequence(i));
+        Sequence* seq = new BasicSequence(sequences->getSequence(i));
         SymbolListTools::changeUnresolvedCharactersToGaps(*seq);
         sc->addSequence(*seq, false);
         delete seq;
@@ -284,14 +284,14 @@ int main(int args, char** argv)
     // +--------------+
     // | Remove stops |
     // +--------------+
-    if (cmdName == "RemoveStops")
+    else if (cmdName == "RemoveStops")
     {
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
       else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence seq = sequences->getSequence(i);
+        BasicSequence seq = sequences->getSequence(i);
         SequenceTools::getCDS(seq, false, true, true, false);
         sc->addSequence(seq, false);
       }
