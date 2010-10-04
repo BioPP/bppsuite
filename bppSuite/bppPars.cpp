@@ -45,25 +45,24 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+#include <Bpp/App/BppApplication.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/TextTools.h>
+
 // From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/VectorSiteContainer.h>
-#include <Seq/SiteTools.h>
-#include <Seq/SequenceApplicationTools.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
-#include <Phyl/Tree.h>
-#include <Phyl/PatternTools.h>
-#include <Phyl/PhylogeneticsApplicationTools.h>
-#include <Phyl/DRTreeParsimonyScore.h>
-#include <Phyl/OptimizationTools.h>
-#include <Phyl/Newick.h>
-
-// From Utils:
-#include <Utils/BppApplication.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/FileTools.h>
-#include <Utils/TextTools.h>
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/PatternTools.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Parsimony.all>
+#include <Bpp/Phyl/OptimizationTools.h>
+#include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
 

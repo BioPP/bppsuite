@@ -78,10 +78,9 @@ ENDIF(CMAKE_INSTALL_PREFIX)
 
 #Find the libraries. The order is very important for staitc linkage, it won't
 #link if you change it!
-IMPROVED_FIND_LIBRARY(LIBS bpp-phyl Phyl/Tree.h)
-IMPROVED_FIND_LIBRARY(LIBS bpp-seq Seq/Alphabet.h)
-IMPROVED_FIND_LIBRARY(LIBS bpp-numcalc NumCalc/NumTools.h)
-IMPROVED_FIND_LIBRARY(LIBS bpp-utils Utils/Clonable.h)
+IMPROVED_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree.h)
+IMPROVED_FIND_LIBRARY(LIBS bpp-seq Bpp/Seq/Alphabet/Alphabet.h)
+IMPROVED_FIND_LIBRARY(LIBS bpp-core Bpp/Clonable.h)
 
 IF(MAKEINFO_EXE)
   MESSAGE("-- Found makeinfo here: ${MAKEINFO_EXE}")

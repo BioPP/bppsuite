@@ -44,17 +44,16 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
-// From PhylLib:
-#include <Phyl/Tree.h>
-#include <Phyl/Newick.h>
-#include <Phyl/PhylogeneticsApplicationTools.h>
+#include <Bpp/App/BppApplication.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Text/KeyvalTools.h>
 
-// From Utils:
-#include <Utils/BppApplication.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/FileTools.h>
-#include <Utils/TextTools.h>
-#include <Utils/KeyvalTools.h>
+// From PhylLib:
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Io/Newick.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 using namespace bpp;
 

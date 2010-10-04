@@ -44,25 +44,20 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
-// From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/VectorSiteContainer.h>
-#include <Seq/SequenceApplicationTools.h>
-#include <Seq/ioseq>
-#include <Seq/containers>
-#include <Seq/SequenceTools.h>
-#include <Seq/GeneticCode.h>
-#include <Seq/StandardGeneticCode.h>
-#include <Seq/VertebrateMitochondrialGeneticCode.h>
-#include <Seq/InvertebrateMitochondrialGeneticCode.h>
-#include <Seq/EchinodermMitochondrialGeneticCode.h>
-#include <Seq/SiteTools.h>
+#include <Bpp/App/BppApplication.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/KeyvalTools.h>
 
-// From Utils:
-#include <Utils/BppApplication.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/FileTools.h>
-#include <Utils/KeyvalTools.h>
+// From SeqLib:
+#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Seq/Io.all>
+#include <Bpp/Seq/Container.all>
+#include <Bpp/Seq/SequenceTools.h>
+#include <Bpp/Seq/GeneticCode.all>
 
 using namespace bpp;
 

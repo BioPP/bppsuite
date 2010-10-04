@@ -44,27 +44,24 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
-// From NumCalc:
-#include <NumCalc/DataTable.h>
+#include <Bpp/App/BppApplication.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/DataTable.h>
 
 // From SeqLib:
-#include <Seq/alphabets>
-#include <Seq/containers>
-#include <Seq/ioseq>
-#include <Seq/SiteTools.h>
-#include <Seq/SequenceTools.h>
-#include <Seq/SequenceApplicationTools.h>
-
-// From Utils:
-#include <Utils/BppApplication.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/FileTools.h>
-#include <Utils/TextTools.h>
+#include <Bpp/Seq/Alphabet.all>
+#include <Bpp/Seq/Container.all>
+#include <Bpp/Seq/Io.all>
+#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/SequenceTools.h>
+#include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
-#include <Phyl/trees>
-#include <Phyl/PhylogeneticsApplicationTools.h>
-#include <Phyl/PhylipDistanceMatrixFormat.h>
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h>
 
 using namespace bpp;
 

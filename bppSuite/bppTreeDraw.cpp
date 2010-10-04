@@ -43,17 +43,19 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace std;
 
 // From Utils:
-#include <Utils/BppApplication.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/KeyvalTools.h>
-#include <Utils/graphics>
+#include <Bpp/App/BppApplication.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Text/KeyvalTools.h>
+#include <Bpp/Graphics.all>
+#include <Bpp/Graphics/Svg.all>
+#include <Bpp/Graphics/Latex.all>
+#include <Bpp/Graphics/Fig.all>
 
 // From PhylLib:
-#include <Phyl/Tree.h>
-#include <Phyl/PhylogeneticsApplicationTools.h>
-#include <Phyl/CladogramPlot.h>
-#include <Phyl/PhylogramPlot.h>
-#include <Phyl/TreeDrawingDisplayControler.h>
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Graphics.all>
+
 using namespace bpp;
 
 /******************************************************************************/
@@ -102,11 +104,11 @@ int main(int args, char ** argv)
   KeyvalTools::parseProcedure(graphicTypeCmd, graphicType, graphicTypeArgs);
   if (graphicType == "Svg")
   {
-    gd = new SVGGraphicDevice(file);
+    gd = new SvgGraphicDevice(file);
   }
   else if (graphicType == "Inkscape")
   {
-    gd = new SVGGraphicDevice(file, true);
+    gd = new SvgGraphicDevice(file, true);
   }
   else if (graphicType == "Xfig")
   {
@@ -115,7 +117,7 @@ int main(int args, char ** argv)
   }
   else if (graphicType == "Pgf")
   {
-    gd = new PGFGraphicDevice(file, 0.045);
+    gd = new PgfGraphicDevice(file, 0.045);
   }
   else throw Exception("Unknown output format: " + graphicType);
 

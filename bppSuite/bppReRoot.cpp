@@ -43,24 +43,20 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Text/StringTokenizer.h>
+#include <Bpp/App/BppApplication.h>
+#include <Bpp/App/ApplicationTools.h>
+
 // From PhylLib:
-#include <Phyl/IOTree.h>
-#include <Phyl/Newick.h>
-#include <Phyl/Tree.h>
-#include <Phyl/Node.h>
-#include <Phyl/TreeExceptions.h>
-#include <Phyl/TreeTemplateTools.h>
-#include <Phyl/PhylogeneticsApplicationTools.h>
-
-// From NumCalc:
-#include <NumCalc/VectorTools.h>
-
-// From Utils:
-#include <Utils/FileTools.h>
-#include <Utils/TextTools.h>
-#include <Utils/StringTokenizer.h>
-#include <Utils/BppApplication.h>
-#include <Utils/ApplicationTools.h>
+#include <Bpp/Phyl/Io.all>
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Node.h>
+#include <Bpp/Phyl/TreeExceptions.h>
+#include <Bpp/Phyl/TreeTemplateTools.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 using namespace bpp;
 

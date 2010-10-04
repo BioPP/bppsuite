@@ -44,42 +44,34 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+#include <Bpp/App/BppApplication.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+#include <Bpp/Numeric/DataTable.h>
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Numeric/AutoParameter.h>
+
 // From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/VectorSiteContainer.h>
-#include <Seq/SiteTools.h>
-#include <Seq/SequenceApplicationTools.h>
-#include <Seq/SequenceContainerTools.h>
+#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
+#include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
-#include <Phyl/Tree.h>
-#include <Phyl/DRHomogeneousTreeLikelihood.h>
-#include <Phyl/DRNonHomogeneousTreeLikelihood.h>
-#include <Phyl/PatternTools.h>
-#include <Phyl/PhylogeneticsApplicationTools.h>
-#include <Phyl/MarginalAncestralStateReconstruction.h>
-#include <Phyl/OptimizationTools.h>
-#include <Phyl/RASTools.h>
-#include <Phyl/TreeLikelihoodTools.h>
-#include <Phyl/DRTreeLikelihoodTools.h>
-#include <Phyl/MarkovModulatedSubstitutionModel.h>
-#include <Phyl/SubstitutionModelSet.h>
-#include <Phyl/SubstitutionModelSetTools.h>
-#include <Phyl/Newick.h>
-
-// From NumCalc:
-#include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/ConstantDistribution.h>
-#include <NumCalc/DataTable.h>
-#include <NumCalc/MatrixTools.h>
-#include <NumCalc/VectorTools.h>
-#include <NumCalc/AutoParameter.h>
-
-// From Utils:
-#include <Utils/BppApplication.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/FileTools.h>
-#include <Utils/TextTools.h>
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Likelihood.all>
+#include <Bpp/Phyl/PatternTools.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/OptimizationTools.h>
+#include <Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/SubstitutionModelSet.h>
+#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
 

@@ -44,29 +44,25 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+#include <Bpp/App/BppApplication.h>
+#include <Bpp/App/ApplicationTools.h>
+#include <Bpp/Io/FileTools.h>
+#include <Bpp/Numeric/Number.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
+#include <Bpp/Numeric/DataTable.h>
+
 // From SeqLib:
-#include <Seq/Alphabet.h>
-#include <Seq/VectorSiteContainer.h>
-#include <Seq/SequenceApplicationTools.h>
+#include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
-#include <Phyl/TreeTemplate.h>
-#include <Phyl/PhylogeneticsApplicationTools.h>
-#include <Phyl/NonHomogeneousSequenceSimulator.h>
-#include <Phyl/SequenceSimulationTools.h>
-#include <Phyl/SubstitutionModelSetTools.h>
-#include <Phyl/Newick.h>
-
-// From NumCalc:
-#include <NumCalc/DiscreteDistribution.h>
-#include <NumCalc/ConstantDistribution.h>
-#include <NumCalc/DataTable.h>
-
-// From Utils:
-#include <Utils/BppApplication.h>
-#include <Utils/ApplicationTools.h>
-#include <Utils/FileTools.h>
-#include <Utils/Number.h>
+#include <Bpp/Phyl/TreeTemplate.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Simulation.all>
+#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
 
