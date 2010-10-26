@@ -614,7 +614,7 @@ Model parameters names then take the form of CodonModel.<position set>_<position
 or 
 @item CodonNeutral(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}[, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 
-substitution model on codons. The arguments @var{model} and
+Substitution model on codons. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on bases. The alphabet
 must be a codon alphabet.
 
