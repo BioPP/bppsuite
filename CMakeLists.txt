@@ -76,7 +76,7 @@ IF(CMAKE_INSTALL_PREFIX)
   SET(CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
 ENDIF(CMAKE_INSTALL_PREFIX)
 
-#Find the libraries. The order is very important for staitc linkage, it won't
+#Find the libraries. The order is very important for static linkage, it won't
 #link if you change it!
 IMPROVED_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-seq Bpp/Seq/Alphabet/Alphabet.h)

@@ -343,9 +343,9 @@ The @option{nogap} option removes all sites containing at least one
 gap, and the @option{complete} option removes all sites containing at
 least one gap or one generic character, as 'X' for instance.
 
-@item input.sequence.removeStopCodons = @{coucou@}
-This option only works if the alphabet is a codon alphabet.
-Removes the sites where there is a stop codon.
+@item input.sequence.remove_stop_codons = @{boolean@}
+This option only works if the alphabet is a codon alphabet. Removes
+the sites where there is a stop codon (default: 'yes').
 
 @item input.sequence.max_gap_allowed=100%
 This option only works if the program requires an alignment.
@@ -353,7 +353,7 @@ Only works when the @option{all} option is selected.
 It specifies the maximum amount of gap allowed per site, as a number
 of sequence or a percentage.
 Sites not matching the criterion will not be included in the analysis, but the
-original site numbering will be used in the output files (if relevent).
+original site numbering will be used in the output files (if relevant).
 
 @end table
  
@@ -478,13 +478,50 @@ Protein substitution model, using the dcmutt implementation of Kosiol and Goldma
 @item JTT92
 Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005.
 
+@item WAG01
+Protein substitution model, from Whelan & Goldman 2001.
+
+@item LG08
+Protein substitution model, from Le & Gascuel 2008.
+
+@item LLG08_EX2(relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@})
+Protein substitution model, from Le, Lartillot & Gascuel 2008. See
+the meaning of the variables in the Mixture model below.
+
+@item LLG08_EX3(relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@})
+Protein substitution model, from Le, Lartillot & Gascuel 2008.  See
+the meaning of the variables in the Mixture model below.
+
+@item LLG08_EHO(relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@})
+Protein substitution model, from Le, Lartillot & Gascuel 2008. See
+the meaning of the variables in the Mixture model below.
+
+@item LLG08_UL2(relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@})
+Protein substitution model, from Le, Lartillot & Gascuel 2008. See
+the meaning of the variables in the Mixture model below.
+
+@item LLG08_UL3(relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@})
+Protein substitution model, from Le, Lartillot & Gascuel 2008. See
+the meaning of the variables in the Mixture model below.
+
 @item DSO78+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005 and free equilibrium frequencies.
-The @var{thetaX} are frequencies parameters, where X is 1 to 19.
-Parameter @var{theta1} is the proportion of A, @var{theta2} is the proportion of R over (1-A), @var{theta3} the proportion of N over (1-A-R), etc.
+Protein substitution model, using the dcmutt implementation of Kosiol
+and Goldman 2005 and free equilibrium frequencies. The @var{thetaX}
+are frequencies parameters, where X is 1 to 19. Parameter @var{theta1}
+is the proportion of A, @var{theta2} is the proportion of R over
+(1-A), @var{theta3} the proportion of N over (1-A-R), etc.
 
 @item JTT92+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005 and free equilibrium frequencies.
+Protein substitution model, using the dcmutt implementation of Kosiol
+and Goldman 2005 and free equilibrium frequencies.
+
+@item WAG01+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Protein substitution model, from Whelan & Goldman 2001, and free
+equilibrium frequencies.
+
+@item LG08+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Protein substitution model, from Le & Gascuel 2008, and free
+equilibrium frequencies.
 
 @item Empirical(file=@{path@})
 Build a protein substitution model from a file in PAML format.
@@ -741,9 +778,9 @@ has parameters @var{CodonAsynonymousFrequencies.012_T92.kappa},
 
 @table @command
 
-@item Word(model=@{model name@} [,relrate0=@{real>0@}, ..., relrate@{n-1@}=@{real>0@}]) 
+@item Word(model=@{model name@} [,relrate1=@{1>real>0@}, ..., relrate@{n-1@}=@{1>real>0@}]) 
 or 
-@item Word(model0=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[, relrate0=@{real>0@}, ..., relrate@{n-1@}=@{real>0@}])
+@item Word(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[, relrate1=@{1> real>0@}, ..., relrate@{n-1@}=@{1> real>0@}])
 
 substitution model on words. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on single sites such
@@ -852,7 +889,7 @@ Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rat
 
 @end table
 
-@subsubsection Mixed models (beta feature)
+@subsubsection Mixture of models (beta feature)
 
 @table @command
 
@@ -876,6 +913,23 @@ has parameters @var{TN93.kappa1_Gamma.alpha},
 @var{TN93.kappa2_Exponential.lamba},
 @var{TN93.theta}, @var{MixedModel.TN93.theta1},
 @var{TN93.theta2}.
+
+@item Mixture(model1=@{model description@},..., modeln=@{model description@} [, relrate1=@{1>real>0@},..., relrate@{n-1@}=@{1>real>0@}, relproba1=@{1>real>0@}, ..., relproba@{n-1@}=@{1>real>0@}])
+Mixture model built from several @var{models}: each model has its own
+probability and rate. 
+
+Arguments @var{relproba@{i@}} stands for the relative probability and
+@var{relrate@{i@}} stands for the relative rate of each model (in the
+order the models are given). Default: @var{relproba@{i@}=1/@{n-i+1@}},
+such that the probabilty of each site is 1/n, and
+@var{relrate@{i@}=1/@{n-i+1@}} such that the rate of each site is 1.
+
+@example
+model=Mixture(model1=GY94(), model2=YN98(), relrate1=0.1)
+@end example
+has parameters@var{Mixture.relrate1}, @var{Mixture.relproba1},
+@var{Mixture.1_GY94.kappa}, @var{Mixture.1_GY94.V},
+@var{Mixture.2_YN98.kappa}, @var{Mixture.2_YN98.omega}.
 @end table
 
 @subsubsection Linking parameters
@@ -1030,6 +1084,10 @@ All functions accept the following arguments, that take priority over the parame
 
 @item init=@{balanced,observed@}
 Set all frequencies to the same value, or to their observed counts.
+
+@item pseudoCount=@{integer@}
+If the frequencies are set from observed counts, a pseudoCount is
+added to all the counts.
 
 @item values=(@{vector<double>@})
 Explicitly set all frequencies manually. The size of the input vector should equal the number of resolved states in the alphabet, be in alphabetical order of states, and sum to one.
