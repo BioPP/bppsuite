@@ -402,6 +402,18 @@ int main(int args, char** argv)
 
     delete tree;
 
+    string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false);
+    if (paramNameFile != "none") {
+      ofstream pnfile(paramNameFile.c_str(), ios::out);
+      ParameterList pl = tl->getParameters();
+      for (unsigned int i = 0; i < pl.size(); ++i) {
+        pnfile << pl[i].getName() << endl;
+      }
+      pnfile.close();
+      cout << "BppML's done." << endl;
+      exit(0);
+    }
+
     double logL = tl->getValue();
     if (isinf(logL))
     {
@@ -422,28 +434,28 @@ int main(int args, char** argv)
     {
       ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
       CodonAlphabet *pca=dynamic_cast<CodonAlphabet*>(alphabet);
-      if (pca){
-        bool f=false;
+      if (pca) {
+        bool f = false;
         unsigned int  s;
-        for (unsigned int i = 0; i < sites->getNumberOfSites(); i++){
-          if (isinf(tl->getLogLikelihoodForASite(i))){
+        for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
+          if (isinf(tl->getLogLikelihoodForASite(i))) {
             const Site& site=sites->getSite(i);
-            s=site.size();
-            for (unsigned int j=0;j<s;j++)
-              if (pca->isStop(site.getValue(j))){
+            s = site.size();
+            for (unsigned int j = 0; j < s; j++) {
+              if (pca->isStop(site.getValue(j))) {
                 (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << sites->getSequence(j).getName()).endLine();
-                f=true;
+                f = true;
               }
+            }
           }
         }
         if (f)
           exit(-1);
       }
       ApplicationTools::displayError("!!! Looking at each site:");
-      for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
-        {
-          (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
-        }
+      for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
+        (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
+      }
       ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
       exit(-1);
     }
@@ -474,6 +486,10 @@ int main(int args, char** argv)
     {
       ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
+
+    // Checking convergence:
+    PhylogeneticsApplicationTools::checkEstimatedParameters(tl->getParameters());
+
     // Write parameters to file:
     string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
     ApplicationTools::displayResult("Output estimates to file", parametersFile);

@@ -1003,6 +1003,10 @@ A tree file in newick format, with node ids instead of bootstrap
 values, and leaf names with their id as suffix.
 The use of that option will cause the program to exit just after producing the tagged tree.
 
+@item output.parameter_names.file = @{@{path@}|none@}
+A text file listing all parameter names. This might come handy in order to specify the parameter that should not be optimized (see optimization.ignore_parameter).
+The use of that option will cause the program to exit just after producing the list file.
+
 @end table
 
 @subsubsection Root frequencies
