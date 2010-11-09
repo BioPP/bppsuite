@@ -127,7 +127,7 @@ int main(int args, char ** argv)
   {
     vector <string> tempTaxa;
     getline(file, temp, '\n');  
-    StringTokenizer line = StringTokenizer::StringTokenizer(temp, " ,"); 
+    StringTokenizer line = StringTokenizer(temp, " ,"); 
     while (line.hasMoreToken())
     {
       tempTaxa.push_back(line.nextToken());  
