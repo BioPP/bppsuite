@@ -5,6 +5,7 @@
 # Global parameters
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
 PROJECT(bppsuite CXX)
+
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
