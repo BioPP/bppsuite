@@ -1522,6 +1522,12 @@ Tell if we should sample from the posterior distribution instead of using the ma
 @item asr.sample.number = 10 [[asr.sample=yes]]
 Number of sample sequences to output.
 
+@item asr.add_extant = @{boolean@}
+Should extant (observed) sequences be added to the output sequence file?
+The sequences added are the ones which are used for the actual calculation.
+It they contained gaps for instance, and that these have been replaced by the unknown character (N or X for example),
+then the sequence with unknown characters will be used.
+
 @item output.sites.file = @{@{path@}|none@}
 Alignment information log file (site specific rates, probabilities, etc).
 

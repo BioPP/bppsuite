@@ -48,6 +48,9 @@ asr.sample = yes
 # How many samples should we use?
 asr.sample.number = 10
 
+# Shall we add extant sequences to output file?
+asr.add_extant = yes
+
 # Alignment information log file (site specific rates, probabilities, etc):
 output.sites.file = $(DATA).sites.csv
 

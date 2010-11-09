@@ -90,13 +90,13 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.3.0     *" << endl;
+  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.4.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
-  cout << "*          B. Boussau                       Last Modif: 08/08/09 *" << endl;
+  cout << "*          B. Boussau                       Last Modif: 09/11/10 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  if(args == 1)
+  if (args == 1)
   {
     help();
     return 0;
@@ -122,7 +122,7 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   
   string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppancestor.getParams(), false, false);
-  if(treeWIdPath != "none")
+  if (treeWIdPath != "none")
   {
     TreeTemplate<Node> ttree(*tree);
     vector<Node *> nodes = ttree.getNodes();
@@ -151,7 +151,7 @@ int main(int args, char ** argv)
   DiscreteDistribution *rDist    = 0;
   unsigned int nbStates;
 
-  if(nhOpt == "no")
+  if (nhOpt == "no")
   {  
     model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
     if(model->getNumberOfStates() > model->getAlphabet()->getSize())
@@ -166,7 +166,7 @@ int main(int args, char ** argv)
     tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true);
     nbStates = model->getNumberOfStates();
   }
-  else if(nhOpt == "one_per_branch")
+  else if (nhOpt == "one_per_branch")
   {
     model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
     if(model->getNumberOfStates() > model->getAlphabet()->getSize())
@@ -193,7 +193,7 @@ int main(int args, char ** argv)
     tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
     nbStates = modelSet->getNumberOfStates();
   }
-  else if(nhOpt == "general")
+  else if (nhOpt == "general")
   {
     modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, bppancestor.getParams());
     if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
@@ -214,7 +214,7 @@ int main(int args, char ** argv)
   delete tree;
     
   double logL = tl->getValue();
-  if(isinf(logL))
+  if (isinf(logL))
   {
     // This may be due to null branch lengths, leading to null likelihood!
     ApplicationTools::displayWarning("!!! Warning!!! Likelihood is zero.");
@@ -228,7 +228,7 @@ int main(int args, char ** argv)
     tl->matchParametersValues(pl);
     logL = tl->getValue();
   }
-  if(isinf(logL))
+  if (isinf(logL))
   {
     ApplicationTools::displayError("!!! Unexpected likelihood == 0.");
     ApplicationTools::displayError("!!! Looking at each site:");
@@ -244,12 +244,12 @@ int main(int args, char ** argv)
   // Write parameters to screen:
   ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
   ParameterList parameters = tl->getSubstitutionModelParameters();
-  for(unsigned int i = 0; i < parameters.size(); i++)
+  for (unsigned int i = 0; i < parameters.size(); i++)
   {
     ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
   }
   parameters = tl->getRateDistributionParameters();
-  for(unsigned int i = 0; i < parameters.size(); i++)
+  for (unsigned int i = 0; i < parameters.size(); i++)
   {
     ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
   }
@@ -268,7 +268,7 @@ int main(int args, char ** argv)
 
   AncestralStateReconstruction *asr = 0;
   bool probMethod = false;
-  if(reconstruction == "marginal")
+  if (reconstruction == "marginal")
   {
     asr = new MarginalAncestralStateReconstruction(tl);
     probMethod = true;
@@ -276,7 +276,7 @@ int main(int args, char ** argv)
   else
     throw Exception("Unknown ancestral state reconstruction method: " + reconstruction);
 
-  if(probMethod)
+  if (probMethod)
   {
     probs = ApplicationTools::getBooleanParameter("asr.probabilities", bppancestor.getParams(), false, "", true, false);
     ApplicationTools::displayResult("Output probabilities", probs ? "yes" : "no");
@@ -307,24 +307,25 @@ int main(int args, char ** argv)
     colNames.push_back("lnL");
     colNames.push_back("rc");
     colNames.push_back("pr");
-    for(unsigned int i = 0; i < nbNodes; i++)
-    {
+    for (unsigned int i = 0; i < nbNodes; i++) {
       Node *node = nodes[i];
       colNames.push_back("max." + TextTools::toString(node->getId()));
-      if(probs)
-      {
+      if (probs) {
         probabilities[i] = new VVdouble();
         //The cast will have to be updated when more probabilistic method will be available:
         sequences[i] = dynamic_cast<MarginalAncestralStateReconstruction *>(asr)->getAncestralSequenceForNode(node->getId(), probabilities[i], false);
 
-        for(unsigned int j = 0; j < nbStates; j++)
-        {
+        for (unsigned int j = 0; j < nbStates; j++) {
           colNames.push_back("prob." + TextTools::toString(node->getId()) + "." + alphabet->intToChar((int)j));
         }
       }
       else
       {
-        sequences[i] = asr->getAncestralSequenceForNode(node->getId());
+        if (node->isLeaf()) {
+
+        } else {
+          sequences[i] = asr->getAncestralSequenceForNode(node->getId());
+        }
       }
     }
 
@@ -347,14 +348,11 @@ int main(int args, char ** argv)
       row[5] = TextTools::toString(rates[i]);
 
       unsigned int k = 6;
-      for(unsigned int j = 0; j < nbNodes; j++)
-      {
+      for (unsigned int j = 0; j < nbNodes; j++) {
         row[k] = sequences[j]->getChar(i);
         k++;
-        if(probs)
-        {
-          for(unsigned int l = 0; l < nbStates; l++)
-          {
+        if (probs) {
+          for (unsigned int l = 0; l < nbStates; l++) {
             row[k] = TextTools::toString((*probabilities[j])[i][l]);
             k++;
           }
@@ -413,20 +411,20 @@ int main(int args, char ** argv)
 
 
   SiteContainer* asSites = 0;
-  if(probMethod)
+  if (probMethod)
   {
     bool sample = ApplicationTools::getBooleanParameter("asr.sample", bppancestor.getParams(), false, "", true, false);
     ApplicationTools::displayResult("Sample from posterior distribution", sample ? "yes" : "no");
-    if(sample)
+    if (sample)
     {
       unsigned int nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", bppancestor.getParams(), 1, "", true, false);
       asSites = new AlignedSequenceContainer(alphabet);
-      for(unsigned int i = 0; i < nbSamples; i++)
+      for (unsigned int i = 0; i < nbSamples; i++)
       {
         ApplicationTools::displayGauge(i, nbSamples-1, '=');
         SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralStateReconstruction *>(asr)->getAncestralSequences(true);
         vector<string> names = sampleSites->getSequencesNames();
-        for(unsigned int j = 0; j < names.size(); j++)
+        for (unsigned int j = 0; j < names.size(); j++)
           names[j] += "_" + TextTools::toString(i+1);
         sampleSites->setSequencesNames(names, false);
         SequenceContainerTools::append(*asSites, *sampleSites);
@@ -443,6 +441,14 @@ int main(int args, char ** argv)
   {
     asSites = asr->getAncestralSequences();
   }
+  
+  //Add existing sequence to output?
+  bool addExtant = ApplicationTools::getBooleanParameter("asr.add_extant", bppancestor.getParams(), false, "", true, false);
+  if (addExtant) {
+    SequenceContainerTools::append(*asSites, *sites);
+  }
+
+  //Write output:
   SequenceApplicationTools::writeAlignmentFile(*asSites, bppancestor.getParams());
   delete asSites;
 
@@ -457,7 +463,7 @@ int main(int args, char ** argv)
   bppancestor.done();
 
   }
-  catch(exception & e)
+  catch (exception & e)
   {
     cout << e.what() << endl;
     return 1;
