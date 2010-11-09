@@ -1,0 +1,60 @@
+# WARNING!!! You need to run bppml on the ML.bpp example file first to be able to run this example!
+
+
+# Global variables:
+DATA = LSU
+
+# Sequences:
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# The sequence file to use (sequences must be aligned!)
+input.sequence.file=../../../Data/$(DATA).phy
+
+# The alignment format:
+input.sequence.format=Phylip(order=sequential, type=extended)
+
+#Sites to use:
+# all, nogap or complete (=only resolved chars)
+input.sequence.sites_to_use = complete
+# Specify a maximum amount of gaps: may be an absolute number or a percentage.
+input.sequence.max_gap_allowed = 100%
+
+input.tree.file = $(DATA).ML.dnd
+input.tree.format = Newick
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+
+# the same syntax as in bppML!
+# Here we directly use the output file from example ML.bpp to load the model:
+param = LSU.params.txt
+
+# ----------------------------------------------------------------------------------------
+#                                     Ancestral Sequence Reconstruction
+# ----------------------------------------------------------------------------------------
+
+asr.method = marginal //only option for now
+
+# Shall we output the site specific probabilities in each case:
+asr.probabilities = yes
+
+# Should we sample from the posterior distribution instead of using the maximum probability?
+asr.sample = yes
+
+# How many samples should we use?
+asr.sample.number = 10
+
+# Alignment information log file (site specific rates, probabilities, etc):
+output.sites.file = $(DATA).sites.csv
+
+# Nodes information log file
+output.nodes.file = $(DATA).nodes.csv
+
+# Write sequences:
+output.sequence.file = $(DATA).ancestors.fasta
+output.sequence.format = Fasta
+
