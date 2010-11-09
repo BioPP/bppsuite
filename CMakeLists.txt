@@ -48,27 +48,34 @@ FIND_PROGRAM(PDFTEX_EXE NAMES pdftex)
 MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
   #start:
   FIND_PATH(${lib_name}_INCLUDE_DIR ${include_to_find})
-  UNSET(${lib_name}_LIBRARY CACHE) #Reset the cache.
+  INCLUDE_DIRECTORIES(${${lib_name}_INCLUDE_DIR})
 
   IF(BUILD_STATIC)
-    SET(${lib_name}_NAMES lib${lib_name}.a)
+    SET(${lib_name}_STATIC_NAMES lib${lib_name}.a)
+    FIND_LIBRARY(${lib_name}_STATIC_LIBRARY NAMES ${${lib_name}_STATIC_NAMES})
+    IF(${lib_name}_LIBRARY)
+      MESSAGE("-- Library ${lib_name} found here:")
+      MESSAGE("   includes: ${${lib_name}_INCLUDE_DIR}")
+      MESSAGE("   static libraries: ${${lib_name}_STATIC_LIBRARY}")
+    ELSE()
+      MESSAGE(FATAL_ERROR "${lib_name} required but not found.")
+    ENDIF()
+    #add the dependency:
+    SET(${OUTPUT_LIBS} ${${OUTPUT_LIBS}} ${${lib_name}_STATIC_LIBRARY})
+  ELSE()
+    SET(${lib_name}_NAMES ${lib_name} ${lib_name}.lib ${lib_name}.dll)
     FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES})
-  ELSE(BUILD_STATIC)
-    SET(${lib_name}_NAMES ${lib_name} ${lib_name}lib ${lib_name}dll)
-    FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES})
-  ENDIF(BUILD_STATIC)
-
-  IF(${lib_name}_LIBRARY)
-    MESSAGE("-- Library ${lib_name} found here:")
-    MESSAGE("   includes : ${${lib_name}_INCLUDE_DIR}")
-    MESSAGE("   libraries: ${${lib_name}_LIBRARY}")
-  ELSE(${lib_name}_LIBRARY)
-    MESSAGE(FATAL_ERROR "${lib_name} required but not found.")
-  ENDIF(${lib_name}_LIBRARY)
+    IF(${lib_name}_LIBRARY)
+      MESSAGE("-- Library ${lib_name} found here:")
+      MESSAGE("   includes: ${${lib_name}_INCLUDE_DIR}")
+      MESSAGE("   dynamic libraries: ${${lib_name}_LIBRARY}")
+    ELSE()
+      MESSAGE(FATAL_ERROR "${lib_name} required but not found.")
+    ENDIF()
+    #add the dependency:
+    SET(${OUTPUT_LIBS} ${${OUTPUT_LIBS}} ${${lib_name}_LIBRARY})
+  ENDIF()
   
-  #add the dependency:
-  INCLUDE_DIRECTORIES(${${lib_name}_INCLUDE_DIR})
-  SET(${OUTPUT_LIBS} ${${OUTPUT_LIBS}} ${${lib_name}_LIBRARY})
 ENDMACRO(IMPROVED_FIND_LIBRARY)
 
 # Set the CMAKE_PREFIX_PATH for the find_library fonction when using non
