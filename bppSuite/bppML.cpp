@@ -358,7 +358,8 @@ int main(int args, char** argv)
         else if (recursion == "double")
         {
           if (modelSet->hasMixedSubstitutionModel())
-            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+            throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
+              //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
           else
             tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
         }
@@ -389,7 +390,8 @@ int main(int args, char** argv)
         }
         else if (recursion == "double")
           if (modelSet->hasMixedSubstitutionModel())
-            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+            throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
+              //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
           else
             tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
         else throw Exception("Unknown recursion option: " + recursion);
