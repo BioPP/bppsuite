@@ -897,6 +897,14 @@ Mixed models combine any sustitution models with a priori distribution
 of parameters. Such models are still experimental and have not been
 yet fully tested. They should hence be used wih extra care!
 
+During the likelihood computation process, all the submodels of the
+mixture are successively applied on the branches, and the mean of all
+the likelihoods is computed. With nonhomogeneous reconstruction, since
+a mixed model is a random variable, affecting a mixed model to a set
+of branches means that all these branches are dependent, and in this
+case all the branches of the set have the same submodel at the same
+time.
+
 @item MixedModel(model=@{model description@})
 Mixture model from a given @var{model} in which some parameters follow
 a probabilistic distribution. Any discrete distribution available can
