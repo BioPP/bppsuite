@@ -118,7 +118,7 @@ int main(int args, char ** argv)
   else if (initTreeOpt == "random")
   {
     vector<string> names = sites->getSequencesNames();
-    tree = TreeTemplateTools::getRandomTree(names);
+    tree = TreeTemplateTools::getRandomTree(names, false);
     tree->setBranchLengths(1.);
   }
   else throw Exception("Unknown init tree method.");
@@ -131,7 +131,7 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Initial parsimony score", TextTools::toString(score, 15));
   bool optTopo = ApplicationTools::getBooleanParameter("optimization.topology", bpppars.getParams(), false);
   ApplicationTools::displayResult("Optimize topology", optTopo ? "yes" : "no");
-  if(optTopo)
+  if (optTopo)
   {
     tp = OptimizationTools::optimizeTreeNNI(tp, 1);
     score = tp->getScore();
