@@ -256,7 +256,7 @@ int main(int args, char ** argv)
       ApplicationTools::displayGauge(0, trees.size() - 1, '=');
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
       unsigned int previousPos = 0;
-      unsigned int currentPos = (unsigned int)round(positions[1]*(double)nbSites);
+      unsigned int currentPos = static_cast<unsigned int>(round(positions[1]*static_cast<double>(nbSites)));
       vector<double> tmpRates(rates.begin() + previousPos, rates.begin() + currentPos);
       SequenceContainer* tmpCont1 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates);
       previousPos = currentPos;
@@ -309,26 +309,26 @@ int main(int args, char ** argv)
       ApplicationTools::displayGauge(0, trees.size() - 1, '=');
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
       unsigned int previousPos = 0;
-      unsigned int currentPos = (unsigned int)round(positions[1]*(double)nbSites);
+      unsigned int currentPos = static_cast<unsigned int>(round(positions[1]*static_cast<double>(nbSites)));
       SequenceContainer* tmpCont1 = seqsim->simulate(currentPos - previousPos);
       previousPos = currentPos;
       delete seqsim;
  
-      for(unsigned int i = 1; i < trees.size(); i++)
+      for (unsigned int i = 1; i < trees.size(); i++)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
-        currentPos = static_cast<unsigned int>(round(positions[i+1]) * static_cast<double>(nbSites));
+        currentPos = static_cast<unsigned int>(round(positions[i+1] * static_cast<double>(nbSites)));
         SequenceContainer* tmpCont2 = seqsim->simulate(currentPos - previousPos);
         previousPos = currentPos;
         delete seqsim;
         VectorSequenceContainer* mergedCont = new VectorSequenceContainer(alphabet);
-        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, * reinterpret_cast<SequenceContainer*>(mergedCont));
+        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *reinterpret_cast<SequenceContainer*>(mergedCont));
         delete tmpCont1;
         delete tmpCont2;
         tmpCont1 = mergedCont;
       }
-      sites = new VectorSiteContainer(* tmpCont1);
+      sites = new VectorSiteContainer(*tmpCont1);
       ApplicationTools::displayTaskDone();
       delete tmpCont1;
     }
