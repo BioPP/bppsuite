@@ -49,6 +49,7 @@ using namespace std;
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Numeric/DataTable.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet.all>
