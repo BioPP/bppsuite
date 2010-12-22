@@ -553,6 +553,9 @@ to the one used in the PAML software, and possible values are
 @item F61: free equilibrium frequencies, stop codons set to 0.
 @end itemize
 
+The same words can be used to specify root frequencies for codon
+models, in the case of non reversibility.
+
 @table @command
 
 @item GY94([genetic_code=@{genetic code description@} , kappa=@{real>0@}, V=@{real>0@}])
@@ -967,6 +970,11 @@ This option share the same parameters as the homogeneous case, since the same ki
 List the names of the parameters that are shared by all branches.
 In Galtier & Gouy model, that would be @var{T92.kappa}, since only the theta parameter is branch-specific.
 
+The '*' wildcard can be used as a suffix, as in
+@command{YN98.freq_Word.1_*} for all the parameters whose names start
+with @command{YN98.freq_Word.1_}.
+
+
 @end table
 
 @subsubsection General non-homogeneous models
@@ -1242,18 +1250,33 @@ where ``method'' can be one of
   (no optimization is performed, initial values are kept ``as is''.
 
 @item FullD(derivatives=@{Newton|Gradient@})
-Full-derivatives method.
-Branch length derivatives are computed analytically, others numerically. The @var{derivatives} 
-arguments specifies if first or second order derivatives should be used.
-In the first case, the optimization method used is the so-called conjugate gradient method, otherwise the Newton-Raphson method will be used.
+Full-derivatives method. Branch length derivatives are computed
+analytically, others numerically. The @var{derivatives} arguments
+specifies if first or second order derivatives should be used. In the
+first case, the optimization method used is the so-called conjugate
+gradient method, otherwise the Newton-Raphson method will be used.
 
-@item DB(derivatives=@{Newton|Gradient@}, nstep=@{int>0@})
-This method do not compute numerical derivatives. Branch lengths parameters are optmized using either the conjuate gradent or the Newton-Raphson method,
-other parameters are estimated using the Brent method in one dimension. The algorithm then loop over all parameters until convergence.
-The @var{nstep} arguments allow to specify a number of progressive steps to perform during optimization.
-If @option{nstep=3} and @option{precision=E-6}, a first optimization with @option{precision=E-2}, will be performed, then a round with @option{precision} set to E-4 and
-finally @option{precision} will be set to E-6.
-This approach generally increases convergence time.
+@item D-Brent(derivatives=@{Newton|Gradient@}, nstep=@{int>0@})
+Branch lengths parameters are optimized using either the conjugate
+gradient or the Newton-Raphson method, other parameters are estimated
+using the Brent method in one dimension. The algorithm then loops over
+all parameters until convergence. The @var{nstep} arguments allow to
+specify a number of progressive steps to perform during optimization.
+If @option{nstep=3} and @option{precision=E-6}, a first optimization
+with @option{precision=E-2}, will be performed, then a round with
+@option{precision} set to E-4 and finally @option{precision} will be
+set to E-6. This approach generally increases convergence time.
+
+@item D-BFGS(derivatives=@{Newton|Gradient@}, nstep=@{int>0@})
+Branch lengths parameters are optimized using either the conjugate
+gradient or the Newton-Raphson method, other parameters are estimated
+using the BFGS method. The algorithm then loops over all parameters
+until convergence. The @var{nstep} arguments allow to specify a number
+of progressive steps to perform during optimization. If
+@option{nstep=3} and @option{precision=E-6}, a first optimization with
+@option{precision=E-2}, will be performed, then a round with
+@option{precision} set to E-4 and finally @option{precision} will be
+set to E-6. This approach generally increases convergence time.
 @end table
 
 @item optimization.reparametrization = @{boolean@}
@@ -1278,11 +1301,18 @@ A file where to dump warning messages.
 The maximum number of likelihood evaluations to perform.
 
 @item optimization.ignore_parameter = @{list<chars>@}
-A list of parameters to ignore during the estimation process.
-The parameter name should include there "namespace", that is their model name, for instance K80.kappa, TN93.theta, GTR.a, Gamma.alpha, etc.
-For nested models, the syntax is the following: @command{G01.rdist_Gamma.alpha},
-    @command{TS98.model_T92.kappa}, @command{RE08.lamba},
-    @command{RE08.model_G01.model_GTR.a}, etc. 'Ancient' will ignore all parameters in the ancestral frequency set (non-homogeneous models), and 'BrLen' will ignore all branch lengths.
+A list of parameters to ignore during the estimation process. The
+parameter name should include there "namespace", that is their model
+name, for instance K80.kappa, TN93.theta, GTR.a, Gamma.alpha, etc. For
+nested models, the syntax is the following:
+@command{G01.rdist_Gamma.alpha}, @command{TS98.model_T92.kappa},
+@command{RE08.lamba}, @command{RE08.model_G01.model_GTR.a}, etc.
+'Ancient' will ignore all parameters in the ancestral frequency set
+(non-homogeneous models), and 'BrLen' will ignore all branch lengths.
+
+The '*' wildcard can be used as a suffix, as in
+@command{YN98.freq_Word.1_*} for all the parameters whose names start
+with @command{YN98.freq_Word.1_}.
 
 @item optimization.tolerance = @{float>0@}
 The precision on the log-likelihood to reach.
