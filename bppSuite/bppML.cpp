@@ -234,13 +234,13 @@ int main(int args, char** argv)
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
-        rDist = new ConstantDistribution(1.);
+        rDist = new ConstantDistribution(1., true);
       }
       else
       {
         rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
-      if (dynamic_cast<MixedSubstitutionModel*>(model) == NULL)
+      if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
         tl = new RHomogeneousClockTreeLikelihood(*tree, *sites, model, rDist, true, true);
       else
         throw Exception("Molecular clock with Mixed model not supported yet, sorry :(");
@@ -256,13 +256,13 @@ int main(int args, char** argv)
         if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
         {
           // Markov-modulated Markov model!
-          rDist = new ConstantDistribution(1.);
+          rDist = new ConstantDistribution(1., true);
         }
         else
         {
           rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
         }
-        if (dynamic_cast<MixedSubstitutionModel*>(model) == NULL)
+        if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
           tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
         else
           throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
@@ -274,7 +274,7 @@ int main(int args, char** argv)
         if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
         {
           // Markov-modulated Markov model!
-          rDist = new ConstantDistribution(1.);
+          rDist = new ConstantDistribution(1., true);
         }
         else
         {
@@ -287,13 +287,13 @@ int main(int args, char** argv)
           string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
           ApplicationTools::displayResult("Likelihood data compression", compression);
           if (compression == "simple")
-            if (dynamic_cast<MixedSubstitutionModel*>(model) == NULL)
+            if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
               tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
             else
               tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
 
           else if (compression == "recursive")
-            if (dynamic_cast<MixedSubstitutionModel*>(model) == NULL)
+            if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
               tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
             else
               tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
@@ -302,7 +302,7 @@ int main(int args, char** argv)
         }
         else if (recursion == "double")
         {
-          if (dynamic_cast<MixedSubstitutionModel*>(model) == NULL)
+          if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
             tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true);
           else
             tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true);
@@ -316,7 +316,7 @@ int main(int args, char** argv)
         if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
         {
           // Markov-modulated Markov model!
-          rDist = new ConstantDistribution(1.);
+          rDist = new ConstantDistribution(1., true);
         }
         else
         {
@@ -372,7 +372,7 @@ int main(int args, char** argv)
         if (modelSet->getNumberOfStates() >= 2 * modelSet->getAlphabet()->getSize())
         {
           // Markov-modulated Markov model!
-          rDist = new ConstantDistribution(1.);
+          rDist = new ConstantDistribution(1., true);
         }
         else
         {
