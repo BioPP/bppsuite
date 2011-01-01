@@ -233,7 +233,7 @@ int main(int args, char ** argv)
   {
     ifstream in(infosFile.c_str());
     DataTable * infos = DataTable::read(in, "\t");
-    rDist = new ConstantDistribution(1.);
+    rDist = new ConstantDistribution(1., true);
     unsigned int nbSites = infos->getNumberOfRows();
     ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
     vector<double> rates(nbSites);
@@ -287,7 +287,7 @@ int main(int args, char ** argv)
     if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
-      rDist = new ConstantDistribution(1.);
+      rDist = new ConstantDistribution(1., true);
     }
     else
     {
