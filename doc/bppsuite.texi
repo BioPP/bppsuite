@@ -556,6 +556,9 @@ to the one used in the PAML software, and possible values are
 The same words can be used to specify root frequencies for codon
 models, in the case of non reversibility.
 
+Otherwise, the @var{frequencies=@{frequencies set description@}}
+argument can as well be used.
+
 @table @command
 
 @item GY94([genetic_code=@{genetic code description@} , kappa=@{real>0@}, V=@{real>0@}])
