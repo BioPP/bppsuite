@@ -38,8 +38,11 @@ ADD_EXECUTABLE(bppphysamp bppPhyloSampler.cpp)
 TARGET_LINK_LIBRARIES(bppphysamp ${LIBS})
 SET_TARGET_PROPERTIES(bppphysamp PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
 
+ADD_EXECUTABLE(bpptreedraw bppTreeDraw.cpp)
+TARGET_LINK_LIBRARIES(bpptreedraw ${LIBS})
+SET_TARGET_PROPERTIES(bpptreedraw PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
 
-# Install libs
+# Install progs
 INSTALL(TARGETS
   bppml
   bppseqgen
@@ -50,4 +53,5 @@ INSTALL(TARGETS
   bppancestor
   bppreroot
   bppphysamp
+  bpptreedraw
   DESTINATION bin)

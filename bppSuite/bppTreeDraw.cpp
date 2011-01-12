@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS
+Copyright or © or Copr. Bio++ Development Team
 
 This software is a computer program whose purpose is to draw phylogenies.
 
@@ -98,7 +98,7 @@ int main(int args, char ** argv)
   GraphicDevice* gd = 0;
 	string outputPath = ApplicationTools::getAFilePath("output.drawing.file", bpptreedraw.getParams(), true, false, "", false);
   ofstream file(outputPath.c_str(), ios::out);
-  string graphicTypeCmd = ApplicationTools::getStringParameter("output.drawing.format", bpptreedraw.getParams(), "svg");
+  string graphicTypeCmd = ApplicationTools::getStringParameter("output.drawing.format", bpptreedraw.getParams(), "Svg");
   string graphicType;
   map<string, string> graphicTypeArgs;
   KeyvalTools::parseProcedure(graphicTypeCmd, graphicType, graphicTypeArgs);
@@ -123,7 +123,7 @@ int main(int args, char ** argv)
 
   // Get the tree plotter:
   TreeDrawing* td = 0;
-  string plotTypeCmd = ApplicationTools::getStringParameter("output.drawing.plot", bpptreedraw.getParams(), "cladogram");
+  string plotTypeCmd = ApplicationTools::getStringParameter("output.drawing.plot", bpptreedraw.getParams(), "Cladogram");
   string plotType;
   map<string, string> plotTypeArgs;
   KeyvalTools::parseProcedure(plotTypeCmd, plotType, plotTypeArgs);
