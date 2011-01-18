@@ -281,6 +281,24 @@ int main(int args, char** argv)
     // +--------------+
     else if (cmdName == "RemoveStops")
     {
+      SiteContainer* sites = dynamic_cast<SiteContainer *>(sequences);
+      if (!sites)
+      {
+        throw Exception("'RemoveStops' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
+      }
+
+      for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
+      {
+        if (SiteTools::hasStopCodon(sites->getSite(i-1)))
+          sites->deleteSite(i - 1);
+      }
+    }
+
+    // +---------+
+    // | Get CDS |
+    // +---------+
+    else if (cmdName == "GetCDS")
+    {
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
       else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));

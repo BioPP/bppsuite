@@ -111,7 +111,7 @@ int main(int args, char ** argv)
 
   VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppancestor.getParams());
   
-  VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppancestor.getParams());
+  VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppancestor.getParams(), "", true, false);
   delete allSites;
 
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
@@ -154,6 +154,7 @@ int main(int args, char ** argv)
   if (nhOpt == "no")
   {  
     model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
+    if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if(model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
@@ -169,7 +170,8 @@ int main(int args, char ** argv)
   else if (nhOpt == "one_per_branch")
   {
     model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
-    if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+    if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+    if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
       rDist = new ConstantDistribution(1., true);
@@ -179,7 +181,7 @@ int main(int args, char ** argv)
       rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
     }
     vector<double> rateFreqs;
-    if(model->getNumberOfStates() != alphabet->getSize())
+    if (model->getNumberOfStates() != alphabet->getSize())
     {
       //Markov-Modulated Markov Model...
       unsigned int n =(unsigned int)(model->getNumberOfStates() / alphabet->getSize());
@@ -196,7 +198,8 @@ int main(int args, char ** argv)
   else if (nhOpt == "general")
   {
     modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, bppancestor.getParams());
-    if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
+    if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+    if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
       rDist = new ConstantDistribution(1.);
@@ -338,11 +341,15 @@ int main(int args, char ** argv)
       double lnL = tl->getLogLikelihoodForASite(i);
       const Site* currentSite = &sites->getSite(i);
       int currentSitePosition = currentSite->getPosition();
-      int isCompl = (SiteTools::isComplete(* currentSite) ? 1 : 0);
-      int isConst = (SiteTools::isConstant(* currentSite) ? 1 : 0);
+      string isCompl = "NA";
+      string isConst = "NA";
+      try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+      catch(EmptySiteException& ex) {}
+      try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+      catch(EmptySiteException& ex) {}
       row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
-      row[1] = TextTools::toString(isCompl);
-      row[2] = TextTools::toString(isConst);
+      row[1] = isCompl;
+      row[2] = isConst;
       row[3] = TextTools::toString(lnL);
       row[4] = TextTools::toString(classes[i]);
       row[5] = TextTools::toString(rates[i]);

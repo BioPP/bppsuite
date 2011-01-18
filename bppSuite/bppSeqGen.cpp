@@ -77,31 +77,31 @@ void readTrees(ifstream& file, vector<Tree*>& trees, vector<double>& pos) throw 
   double previousPos = 0;
   pos.push_back(0);
   string newickStr;
-  while(!file.eof())
+  while (!file.eof())
   {
     string tmp = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(file));
-    if(tmp.size() == 0 || tmp.substr(0, 1) == "#") continue;
+    if (tmp.size() == 0 || tmp.substr(0, 1) == "#") continue;
     line += tmp;
         
     index1 = line.find_first_of(" \t");
-    if(index1 == string::npos) throw Exception("Error when parsing tree file: now begining position.");
+    if (index1 == string::npos) throw Exception("Error when parsing tree file: now begining position.");
     index2 = line.find_first_of(" \t", index1 + 1);
-    if(index2 == string::npos) throw Exception("Error when parsing tree file: now ending position.");
+    if (index2 == string::npos) throw Exception("Error when parsing tree file: now ending position.");
     begin  = TextTools::toDouble(line.substr(0, index1));
     end    = TextTools::toDouble(line.substr(index1 + 1, index2 - index1 - 1));
     index3 = line.find_first_of(";", index2 + 1);
-    while(index3 == string::npos)
+    while (index3 == string::npos)
     {
-      if(file.eof()) throw Exception("Error when parsing tree file: incomplete tree.");
+      if (file.eof()) throw Exception("Error when parsing tree file: incomplete tree.");
       line += FileTools::getNextLine(file);
       index3 = line.find_first_of(";", index3);
     }
     newickStr = line.substr(index2 + 1, index3 - index2);
     TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(newickStr);
-    if(trees.size() > 0)
+    if (trees.size() > 0)
     {
       //Check leave names:
-      if(!VectorTools::haveSameElements(t->getLeavesNames(), trees[trees.size()-1]->getLeavesNames()))
+      if (!VectorTools::haveSameElements(t->getLeavesNames(), trees[trees.size()-1]->getLeavesNames()))
         throw Exception("Error: all trees must have the same leaf names.");
     }
     trees.push_back(t);
@@ -155,13 +155,13 @@ int main(int args, char ** argv)
     positions.push_back(1);
     ApplicationTools::displayResult("Number of leaves", TextTools::toString(trees[0]->getNumberOfLeaves()));
     string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppseqgen.getParams(), false, false);
-    if(treeWIdPath != "none")
+    if (treeWIdPath != "none")
     {
       TreeTemplate<Node> ttree(*trees[0]);
-      vector<Node *> nodes = ttree.getNodes();
-      for(unsigned int i = 0; i < nodes.size(); i++)
+      vector<Node*> nodes = ttree.getNodes();
+      for (size_t i = 0; i < nodes.size(); i++)
       {
-        if(nodes[i]->isLeaf())
+        if (nodes[i]->isLeaf())
           nodes[i]->setName(TextTools::toString(nodes[i]->getId()) + "_" + nodes[i]->getName());
         else
           nodes[i]->setBranchProperty("NodeId", BppString(TextTools::toString(nodes[i]->getId())));
@@ -195,7 +195,7 @@ int main(int args, char ** argv)
   //Homogeneous case:
   if (nhOpt == "no")
   {
-    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
+    SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
     FrequenciesSet* fSet = new FixedFrequenciesSet(model->getAlphabet(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
@@ -207,7 +207,7 @@ int main(int args, char ** argv)
     SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
     vector<double> rateFreqs;
-    if(model->getNumberOfStates() != alphabet->getSize())
+    if (model->getNumberOfStates() != alphabet->getSize())
     {
       //Markov-Modulated Markov Model...
       unsigned int n =(unsigned int)(model->getNumberOfStates() / alphabet->getSize());
@@ -232,7 +232,7 @@ int main(int args, char ** argv)
   if (infosFile != "none")
   {
     ifstream in(infosFile.c_str());
-    DataTable * infos = DataTable::read(in, "\t");
+    DataTable* infos = DataTable::read(in, "\t");
     rDist = new ConstantDistribution(1., true);
     unsigned int nbSites = infos->getNumberOfRows();
     ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
@@ -243,7 +243,7 @@ int main(int args, char ** argv)
       rates[i] = TextTools::toDouble(ratesStrings[i]);
     }
 
-    if(trees.size() == 1)
+    if (trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
       ApplicationTools::displayTask("Perform simulations");

@@ -43,7 +43,7 @@ asr.method = marginal //only option for now
 asr.probabilities = yes
 
 # Should we sample from the posterior distribution instead of using the maximum probability?
-asr.sample = yes
+asr.sample = no
 
 # How many samples should we use?
 asr.sample.number = 10

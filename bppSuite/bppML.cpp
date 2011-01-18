@@ -554,11 +554,15 @@ int main(int args, char** argv)
         double lnL = tl->getLogLikelihoodForASite(i);
         const Site* currentSite = &sites->getSite(i);
         int currentSitePosition = currentSite->getPosition();
-        int isCompl = (SiteTools::isComplete(*currentSite) ? 1 : 0);
-        int isConst = (SiteTools::isConstant(*currentSite) ? 1 : 0);
+        string isCompl = "NA";
+        string isConst = "NA";
+        try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+        catch(EmptySiteException& ex) {}
+        try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+        catch(EmptySiteException& ex) {}
         row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
-        row[1] = TextTools::toString(isCompl);
-        row[2] = TextTools::toString(isConst);
+        row[1] = isCompl;
+        row[2] = isConst;
         row[3] = TextTools::toString(lnL);
         row[4] = TextTools::toString(classes[i]);
         row[5] = TextTools::toString(rates[i]);

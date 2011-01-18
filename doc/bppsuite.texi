@@ -1767,8 +1767,11 @@ Change gaps to fully unresolved characters, N for nucleotides and X for proteins
 @item UnknownToGap
 Change (partially) unresolved characters to gaps.
 
-@item RemoveCodons
-Remove stop codons and everything after in codon sequences.
+@item RemoveStops
+Remove all sites with at least one stop codon.
+
+@item GetCDS
+Remove the first stop codon and everything after in codon sequences.
 
 @item CoerceToAlignment
 Try to convert a set of sequence to an alignment. This will fail if sequences do not have the same length.
