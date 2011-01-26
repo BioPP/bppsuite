@@ -41,6 +41,7 @@
 // From the STL:
 #include <iostream>
 #include <iomanip>
+#include <limits>
 
 using namespace std;
 
@@ -454,12 +455,25 @@ int main(int args, char** argv)
         if (f)
           exit(-1);
       }
-      ApplicationTools::displayError("!!! Looking at each site:");
-      for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
-        (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
+      bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
+      if (removeSaturated) {
+        ApplicationTools::displayError("!!! Looking at each site:");
+        for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
+          (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
+        }
+        ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
+        ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
+        exit(-1);
+      } else {
+        ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
+        for (unsigned int i = sites->getNumberOfSites(); i > 0; --i) {
+          if (tl->getLogLikelihoodForASite(i - 1) == numeric_limits<double>::infinity()) {
+            ApplicationTools::displayResult("Ignore saturated site", sites->getSite(i - 1).getPosition());
+            sites->deleteSite(i - 1);
+          }
+        }
+        ApplicationTools::displayResult("Number of sites retained", sites->getNumberOfSites());
       }
-      ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
-      exit(-1);
     }
 
     if (optimizeClock == "global")
