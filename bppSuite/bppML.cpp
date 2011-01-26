@@ -463,11 +463,11 @@ int main(int args, char** argv)
         }
         ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
         ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
-        exit(-1);
+        exit(1);
       } else {
         ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
         for (unsigned int i = sites->getNumberOfSites(); i > 0; --i) {
-          if (tl->getLogLikelihoodForASite(i - 1) == -numeric_limits<double>::infinity()) {
+          if (isinf(tl->getLogLikelihoodForASite(i - 1))) {
             ApplicationTools::displayResult("Ignore saturated site", sites->getSite(i - 1).getPosition());
             sites->deleteSite(i - 1);
           }
@@ -475,6 +475,12 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Number of sites retained", sites->getNumberOfSites());
         tl->setData(*sites);
         tl->initialize();
+        logL = tl->getValue();
+        if (isinf(logL)) {
+          ApplicationTools::displayError("This should not happen. Exiting now.");
+          exit(1);
+        }
+        ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
       }
     }
 
