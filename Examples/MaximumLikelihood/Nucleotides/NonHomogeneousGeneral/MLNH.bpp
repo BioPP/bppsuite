@@ -51,7 +51,7 @@ init.brlen.method = Input
 # general => Specify the model by hand.
 nonhomogeneous = general
 
-nonhomogeneous.root_freq=GC(init=balanced)
+nonhomogeneous.root_freq=Full(init=balanced)
 
 rate_distribution = Gamma(n=4, alpha=0.358)
 
@@ -60,10 +60,15 @@ rate_distribution = Gamma(n=4, alpha=0.358)
 nonhomogeneous.number_of_models = 2
 
 # Set up each model:
-model1 = T92(kappa=2, theta=0.5, useObservedFreqs=no)
+model1 = GTR(theta=0.5, useObservedFreqs=yes)
 model1.nodes_id=0:62 # The Ids of the nodes to which this model should be assigned.
 
-model2 = T92(kappa=model1.T92.kappa, theta=0.9, useObservedFreqs=no)
+model2 = GTR(a=model1.GTR.a,\
+             b=model1.GTR.b,\
+             c=model1.GTR.c,\
+             d=model1.GTR.d,\
+             e=model1.GTR.e,\
+             theta=0.9, useObservedFreqs=yes)
 model2.nodes_id=63:154
 
 # Likelihood recursion option:

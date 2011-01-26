@@ -42,7 +42,7 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = YN98(kappa=1, omega=1, codon_freqs=F3X4)
+model = YN98(kappa=1, omega=1, frequencies=F1X4)
 nonhomogeneous=one_per_branch
 #These lines are for the F1X4 option:
 #nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa,\
@@ -99,7 +99,7 @@ optimization.ignore_parameter =
 optimization.max_number_f_eval = 10000
 
 # Precision to reach:
-optimization.tolerance = 0.000001
+optimization.tolerance = 1 //0.000001
 
 # idem for error or warning messages:
 optimization.message_handler = $(DATA).messages

@@ -456,7 +456,7 @@ int main(int args, char** argv)
           exit(-1);
       }
       bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
-      if (removeSaturated) {
+      if (!removeSaturated) {
         ApplicationTools::displayError("!!! Looking at each site:");
         for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
           (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
@@ -467,12 +467,14 @@ int main(int args, char** argv)
       } else {
         ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
         for (unsigned int i = sites->getNumberOfSites(); i > 0; --i) {
-          if (tl->getLogLikelihoodForASite(i - 1) == numeric_limits<double>::infinity()) {
+          if (tl->getLogLikelihoodForASite(i - 1) == -numeric_limits<double>::infinity()) {
             ApplicationTools::displayResult("Ignore saturated site", sites->getSite(i - 1).getPosition());
             sites->deleteSite(i - 1);
           }
         }
         ApplicationTools::displayResult("Number of sites retained", sites->getNumberOfSites());
+        tl->setData(*sites);
+        tl->initialize();
       }
     }
 
