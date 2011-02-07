@@ -1,3 +1,12 @@
+bppsuite (0.6.0-1) unstable; urgency=low
+
+  * Compatibility update with Bio++ 2.0.0.
+  * New mixed substitution models.
+  * More sequence manipulation tools.
+  * Several bug fixed and syntax improvements.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 07 Feb 2011 09:00:00 +0100
+
 bppsuite (0.5.0-1) unstable; urgency=low
 
   * New substitution models.

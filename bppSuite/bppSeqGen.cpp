@@ -204,7 +204,7 @@ int main(int args, char ** argv)
   {
     if(inputTrees == "multiple")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
-    SubstitutionModel * model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
+    SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
     vector<double> rateFreqs;
     if (model->getNumberOfStates() != alphabet->getSize())
@@ -284,7 +284,7 @@ int main(int args, char ** argv)
   }
   else
   {
-    if(modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
+    if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
       rDist = new ConstantDistribution(1., true);
@@ -295,7 +295,7 @@ int main(int args, char ** argv)
     }
 
     unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", bppseqgen.getParams(), 100);
-    if(trees.size() == 1)
+    if (trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
       ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));

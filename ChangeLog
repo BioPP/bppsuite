@@ -1,3 +1,6 @@
+03/06/10 -*- Version 0.6.0 -*-
+* Compatibility with Bio++ 2.0.0.
+
 03/06/10 Julien Dutheil
 * New method in bppPhySamp + new, faster, implementation.
 
