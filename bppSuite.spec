@@ -1,5 +1,5 @@
 %define name bppsuite
-%define version 0.5.0
+%define version 0.6.0
 %define release 1
 %define _prefix /usr
 
@@ -51,7 +51,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING INSTALL ChangeLog
+%doc AUTHORS.txt COPYING.txt INSTALL.txt ChangeLog
 %{_prefix}/bin/bppml
 %{_prefix}/bin/bppseqgen
 %{_prefix}/bin/bppancestor
@@ -65,8 +65,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/info/bppsuite.info.gz
 
 %changelog
+* Mon Feb 07 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
+- BppSuite 0.6.0 release
 * Thu Mar 25 2010 Julien Dutheil <julien.dutheil@univ-montp2.fr>
-- BppSuite 0.4.0 release
+- BppSuite 0.5.0 release
 * Wed Jun 10 2009 Julien Dutheil <jdutheil@birc.au.dk>
 - BppSuite 0.4.0 release
 * Thu Dec 11 2008 Julien Dutheil <jdutheil@birc.au.dk>
