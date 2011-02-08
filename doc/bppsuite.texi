@@ -541,6 +541,7 @@ it is not given, the one related with the alphabet is used. The several values a
 @item InvertebrateMitochondrialGeneticCode
 @item StandardGeneticCode
 @item VertebrateMitochondrialGeneticCode
+@item YeastMitochondrialGeneticCode
 @end itemize
 
 The next codon models also take as argument a @var{codon_freq}
@@ -1011,7 +1012,28 @@ You can also make a given model share parameters with another one by writing for
 @example
 model2 = T92(theta=0.39, kappa=model1.T92.kappa)
 @end example
-Please watch out the syntax, parameters are referred to as [model name].[parameter name] in that case.
+Please note the syntax, parameters are referred to as [model name].[parameter name] in that case. Only parameter from identical models can be aliased in this manner.
+To link parameters from different models, you have to use the more general option (warning, currently beta feature!)
+
+@table @command
+
+@item nonhomogeneous.alias = @{list of aliases@}
+
+where each alias is described as `param1->param2'. The full name of the parameters have to be used, see for example:
+
+@example
+model1 = T92(theta=0.4, kappa=4)
+model2 = GTR(theta=0.4, a = 1.1, b=0.4, c=0.4, d=0.25, e=0.1)
+nonhomogeneous.alias=GTR.theta_1->T92.theta_1
+@end example
+
+This option can be used to link parameters of the root frequencies if the model is non-stationary:
+@example
+nonhomogeneous.root_freq=Full(init=balanced)
+nonhomogeneous.alias=Full.theta->GTR.theta_1
+@end example
+
+@end table
 
 Finally, you may find useful the following options:
 
@@ -1023,7 +1045,7 @@ values, and leaf names with their id as suffix.
 The use of that option will cause the program to exit just after producing the tagged tree.
 
 @item output.parameter_names.file = @{@{path@}|none@}
-A text file listing all parameter names. This might come handy in order to specify the parameter that should not be optimized (see optimization.ignore_parameter).
+A text file listing all parameter names. This might come handy in order to specify the parameter that should not be optimized (see optimization.ignore_parameter) or aliased (see above).
 The use of that option will cause the program to exit just after producing the list file.
 
 @end table
@@ -1751,9 +1773,16 @@ Convert to the complementary sequence, switching the type of alphabet (DNA<->RNA
 @item Switch [[alphabet = DNA or RNA]]
 Change the alphabet type (DNA<->RNA).
 
-@item Translate(code = @{Standard|VerMito|InvMito|EchMito@}) [[alphabet = DNA or RNA]]
+@item Translate(code = @{genetic code@}) [[alphabet = DNA or RNA]]
 Convert to proteins. You have to specify a genetic code, see specific options.
-@option{code}: The genetic code to use for the translation.
+@option{code}: The genetic code to use for the translation, one of
+@itemize
+@item EchinodermMitochondrialGeneticCode
+@item InvertebrateMitochondrialGeneticCode
+@item StandardGeneticCode
+@item VertebrateMitochondrialGeneticCode
+@item YeastMitochondrialGeneticCode
+@end itemize
 
 @item Invert
 Invert the sequence 5' <-> 3' or N <-> C

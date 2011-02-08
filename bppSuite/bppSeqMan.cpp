@@ -74,8 +74,8 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Sequence Manipulator, version 0.3              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 15/04/10 *" << endl;
+  cout << "*           Bio++ Sequence Manipulator, version 0.4              *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 07/02/11 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -201,15 +201,7 @@ int main(int args, char** argv)
         throw Exception("Error in translation: alphabet is not of type 'nucleic'.");
       GeneticCode* gc = NULL;
       string gcstr = ApplicationTools::getStringParameter("code", cmdArgs, "Standard");
-      if (gcstr == "Standard")
-        gc = new StandardGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()));
-      else if (gcstr == "VerMito")
-        gc = new VertebrateMitochondrialGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()));
-      else if (gcstr == "InvMito")
-        gc = new InvertebrateMitochondrialGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()));
-      else if (gcstr == "EchMito")
-        gc = new EchinodermMitochondrialGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()));
-      else throw Exception("Unknown genetic code: " + gcstr);
+      gc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()), gcstr);
 
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
