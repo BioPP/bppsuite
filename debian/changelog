@@ -1,3 +1,9 @@
+bppsuite (0.6.0-2) unstable; urgency=low
+
+  * Compatibility update with bpp-phyl 2.0.1.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 28 Feb 2011 09:00:00 +0100
+
 bppsuite (0.6.0-1) unstable; urgency=low
 
   * Compatibility update with Bio++ 2.0.0.

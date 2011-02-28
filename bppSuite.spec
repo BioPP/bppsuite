@@ -1,6 +1,6 @@
 %define name bppsuite
 %define version 0.6.0
-%define release 1
+%define release 2
 %define _prefix /usr
 
 Summary: The Bio++ Program Suite.

@@ -1,6 +1,6 @@
 #! /bin/sh
 arch=x86_64
-version=0.5.1-1
+version=0.6.0-1
 
 strip bppSuite/bppdist
 strip bppSuite/bpppars
