@@ -59,6 +59,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp #CONFIGURE-STAMP#
+	rm -f CMakeCache.txt
 
 	# Add here commands to clean up after the build process.
 	[ ! -f Makefile ] || $(MAKE) clean;
