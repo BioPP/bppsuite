@@ -160,10 +160,11 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "bppSuite/bppdist"
  "bppSuite/bppseqgen"
  "doc/bppsuite/"
- "doc/bppsuite.info"
+ "doc/bppsuite\\\\.info"
  "debian/bppsuite/"
- "debian/bppsuite.substvars"
- "debian/bppsuite.debhelper"
+ "debian/bppsuite\\\\.substvars"
+ "debian/bppsuite\\\\.debhelper"
+ "debian/debhelper\\\\.log"
  "debian/tmp"
  ${CPACK_SOURCE_IGNORE_FILES}
 )
