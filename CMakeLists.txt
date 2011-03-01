@@ -161,8 +161,10 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "bppSuite/bppseqgen"
  "doc/bppsuite/"
  "doc/bppsuite.info"
+ "debian/bppsuite/"
+ "debian/bppsuite.substvars"
+ "debian/bppsuite.debhelper"
  "debian/tmp"
- "debian/bppsuite"
  ${CPACK_SOURCE_IGNORE_FILES}
 )
 IF (MACOS)
