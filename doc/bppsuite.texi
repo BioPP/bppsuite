@@ -4,6 +4,19 @@
 @settitle BppSuite Manual 0.6.0
 @documentencoding UTF-8
 @afourpaper
+@dircategory Science Biology Genetics
+@direntry
+* bppml: (bppml)                Bio++ Maximum Likelihood.
+* bppseqgen: (bppseqgen)        Bio++ Sequence Generator.
+* bppancestor: (bppancestor)    Bio++ Ancestral Sequences and Rates reconstruction.
+* bppdist: (bppdist)            Bio++ Distance Methods.
+* bpppars: (bpppars)            Bio++ Maximum Parsimony.
+* bppconsense: (bppconsense)    Bio++ Consensus Trees.
+* bppphysamp: (bppphysamp)      Bio++ Phylogenetic Sampler.
+* bppreroot: (bppreroot)        Bio++ Serial Tree Re-rooting.
+* bppseqman: (bppseqman)        Bio++ Sequences Manipulation.
+* bpptreedraw: (bpptreedraw)    Bio++ Tree Drawing.
+@end direntry
 @c %**end of header
 
 @include version.texi

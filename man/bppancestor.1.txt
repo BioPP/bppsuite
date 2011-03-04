@@ -1,0 +1,37 @@
+.TH BPPANCESTOR 1 LOCAL
+
+.SH NAME
+
+bppml - Ancestral sequence reconstruction with Bio++
+
+.SH SYNOPSIS
+
+.B bppancestor [options]
+
+.SH AVAILABILITY
+
+All UNIX flavors
+
+.SH DESCRIPTION
+
+bppancestor performs ancestral sequence reconstructions under a large variety of models, including non-homogeneous ones.
+
+.SH OPTIONS
+
+You should refer to 'info bppsuite' or to the online manual of bppsuite for a complete list of available options.
+
+.TP 5
+
+--noninteractive
+
+generates output for redirection in a file.
+
+.TP
+
+param=file
+
+reads a file for loading options
+
+.SH AUTHOR
+
+The Bio++ Development Team.

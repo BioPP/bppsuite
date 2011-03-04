@@ -40,9 +40,15 @@ IF(NOT DEFINED INFO)
   SET(INFO UNIX)
 ENDIF(NOT DEFINED INFO)
 
+#build man pages?
+IF(NOT DEFINED MAN)
+  SET(MAN UNIX)
+ENDIF(NOT DEFINED MAN)
+
 #find executables for documentation
 FIND_PROGRAM(MAKEINFO_EXE NAMES makeinfo)
 FIND_PROGRAM(PDFTEX_EXE NAMES pdftex)
+FIND_PROGRAM(NROFF_EXE NAMES nroff)
 
 #here is a useful function:
 MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
@@ -121,9 +127,46 @@ IF(PDFTEX_EXE)
     )
 ENDIF(PDFTEX_EXE)
 
+IF(NROFF_EXE)
+  MESSAGE("-- Found nroff here: ${NROFF_EXE}")
+  MESSAGE("   Adding targets: man")
+
+  IF(MAN)
+    SET(ADD_MAN_TO "ALL")
+    MESSAGE("   Adding target man to target all")
+  ENDIF(MAN)
+
+  ADD_CUSTOM_TARGET(man
+    ${ADD_MAN_TO}
+    COMMAND cp bppml.1.txt bppml.1
+    COMMAND gzip -f bppml.1
+    COMMAND cp bppseqgen.1.txt bppseqgen.1
+    COMMAND gzip -f bppseqgen.1
+    COMMAND cp bppdist.1.txt bppdist.1
+    COMMAND gzip -f bppdist.1
+    COMMAND cp bpppars.1.txt bpppars.1
+    COMMAND gzip -f bpppars.1
+    COMMAND cp bppseqman.1.txt bppseqman.1
+    COMMAND gzip -f bppseqman.1
+    COMMAND cp bppconsense.1.txt bppconsense.1
+    COMMAND gzip -f bppconsense.1
+    COMMAND cp bppancestor.1.txt bppancestor.1
+    COMMAND gzip -f bppancestor.1
+    COMMAND cp bppreroot.1.txt bppreroot.1
+    COMMAND gzip -f bppreroot.1
+    COMMAND cp bppphysamp.1.txt bppphysamp.1
+    COMMAND gzip -f bppphysamp.1
+    COMMAND cp bpptreedraw.1.txt bpptreedraw.1
+    COMMAND gzip -f bpptreedraw.1
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
+    )
+
+ENDIF(NROFF_EXE)
+
 # Subdirectories
 ADD_SUBDIRECTORY(bppSuite)
 ADD_SUBDIRECTORY(doc)
+ADD_SUBDIRECTORY(man)
 
 # Packager
 SET(CPACK_PACKAGE_NAME "bppsuite")
@@ -174,6 +217,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "doc/bppsuite\\\\.pg"
  "doc/bppsuite\\\\.aux"
  "doc/bppsuite\\\\.pdf"
+ "man/.*\\\\.1.gz"
  "debian/bppsuite/"
  "debian/bppsuite\\\\.substvars"
  "debian/bppsuite\\\\.debhelper"
@@ -200,5 +244,6 @@ ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)
 ADD_DEPENDENCIES(rpm dist info)
 
 #ADD_DEPENDENCIES(info install)
+
 ENDIF(UNIX)
 

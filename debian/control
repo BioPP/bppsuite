@@ -2,23 +2,23 @@ Source: bppsuite
 Section: science
 Priority: optional
 Maintainer: Julien Dutheil <julien.dutheil@univ-montp2.fr>
-Build-Depends: debhelper (>= 5), cmake (>= 2.6),
+Build-Depends: debhelper (>= 5), cmake (>= 2.6), dpkg (>= 1.15.4) | install-info
   libbpp-core-dev (>= 2.0.0), libbpp-seq-dev (>= 2.0.0), libbpp-phyl-dev (>= 2.0.0)
-Standards-Version: 3.7.2
+Standards-Version: 3.9.1
 
 Package: bppsuite
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-core (>= 2.0.0), libbpp-seq (>= 2.0.0), libbpp-phyl (>= 2.0.0)
 Description: Bio++ program suite
- Includes programs:
- - BppML for maximum likelihood analysis,
- - BppSeqGen for sequences simulation,
- - BppAncestor for ancestral states reconstruction,
- - BppDist for distance methods,
- - BppPars for parsimony analysis,
- - BppSeqMan for file conversion and sequence manipulation,
- - BppConsense for building consensus tree and computing bootstrap values,
- - BppPhySamp for phylogenetic sampling,
- - BppReRoot for tree rerooting.
+  Includes programs:
+  - BppML for maximum likelihood analysis,
+  - BppSeqGen for sequences simulation,
+  - BppAncestor for ancestral states reconstruction,
+  - BppDist for distance methods,
+  - BppPars for parsimony analysis,
+  - BppSeqMan for file conversion and sequence manipulation,
+  - BppConsense for building consensus tree and computing bootstrap values,
+  - BppPhySamp for phylogenetic sampling,
+  - BppReRoot for tree rerooting.
 
 
