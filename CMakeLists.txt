@@ -145,7 +145,7 @@ IF(NROFF_EXE)
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
     )
 
-  ADD_CUSTOM_TARGET(man-gz
+  ADD_CUSTOM_TARGET(man-gz ALL
     COMMAND gzip -f bppml.1
     COMMAND gzip -f bppseqgen.1
     COMMAND gzip -f bppdist.1
