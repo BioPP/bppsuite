@@ -10,7 +10,7 @@ Package: bppsuite
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-core (>= 2.0.0), libbpp-seq (>= 2.0.0), libbpp-phyl (>= 2.0.0)
 Description: Bio++ program suite
-  Includes programs:
+ Includes programs:
   - BppML for maximum likelihood analysis,
   - BppSeqGen for sequences simulation,
   - BppAncestor for ancestral states reconstruction,
@@ -20,5 +20,4 @@ Description: Bio++ program suite
   - BppConsense for building consensus tree and computing bootstrap values,
   - BppPhySamp for phylogenetic sampling,
   - BppReRoot for tree rerooting.
-
 

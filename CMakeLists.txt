@@ -186,7 +186,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
  ".*\\\\.zip"
  ".*\\\\.deb"
  ".*\\\\.rpm"
- "\\\\..*\\\\.swp"
+ ".*\\\\..*\\\\.swp"
  ".*stamp"
  "\\\\.sh"
  "bppSuite/\\\\..*"
