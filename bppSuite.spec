@@ -68,6 +68,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/bin/bppreroot
 %{_prefix}/bin/bpptreedraw
 %{_prefix}/share/info/bppsuite.info.gz
+%{_prefix}/share/man/man1/bppml.1.gz
+%{_prefix}/share/man/man1/bppseqgen.1.gz
+%{_prefix}/share/man/man1/bppancestor.1.gz
+%{_prefix}/share/man/man1/bpppars.1.gz
+%{_prefix}/share/man/man1/bppdist.1.gz
+%{_prefix}/share/man/man1/bppconsense.1.gz
+%{_prefix}/share/man/man1/bppseqman.1.gz
+%{_prefix}/share/man/man1/bppreroot.1.gz
+%{_prefix}/share/man/man1/bppphysamp.1.gz
+%{_prefix}/share/man/man1/bpptreedraw.1.gz
 
 %changelog
 * Mon Feb 28 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
