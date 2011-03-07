@@ -129,37 +129,37 @@ ENDIF(PDFTEX_EXE)
 
 IF(NROFF_EXE)
   MESSAGE("-- Found nroff here: ${NROFF_EXE}")
-  MESSAGE("   Adding targets: man")
-
-  IF(MAN)
-    SET(ADD_MAN_TO "ALL")
-    MESSAGE("   Adding target man to target all")
-  ENDIF(MAN)
+  MESSAGE("   Adding targets: man, man-gz")
 
   ADD_CUSTOM_TARGET(man
-    ${ADD_MAN_TO}
     COMMAND cp bppml.1.txt bppml.1
-    COMMAND gzip -f bppml.1
     COMMAND cp bppseqgen.1.txt bppseqgen.1
-    COMMAND gzip -f bppseqgen.1
     COMMAND cp bppdist.1.txt bppdist.1
-    COMMAND gzip -f bppdist.1
     COMMAND cp bpppars.1.txt bpppars.1
-    COMMAND gzip -f bpppars.1
     COMMAND cp bppseqman.1.txt bppseqman.1
-    COMMAND gzip -f bppseqman.1
     COMMAND cp bppconsense.1.txt bppconsense.1
-    COMMAND gzip -f bppconsense.1
     COMMAND cp bppancestor.1.txt bppancestor.1
-    COMMAND gzip -f bppancestor.1
     COMMAND cp bppreroot.1.txt bppreroot.1
-    COMMAND gzip -f bppreroot.1
     COMMAND cp bppphysamp.1.txt bppphysamp.1
-    COMMAND gzip -f bppphysamp.1
     COMMAND cp bpptreedraw.1.txt bpptreedraw.1
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
+    )
+
+  ADD_CUSTOM_TARGET(man-gz
+    COMMAND gzip -f bppml.1
+    COMMAND gzip -f bppseqgen.1
+    COMMAND gzip -f bppdist.1
+    COMMAND gzip -f bpppars.1
+    COMMAND gzip -f bppseqman.1
+    COMMAND gzip -f bppconsense.1
+    COMMAND gzip -f bppancestor.1
+    COMMAND gzip -f bppreroot.1
+    COMMAND gzip -f bppphysamp.1
     COMMAND gzip -f bpptreedraw.1
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
     )
+  
+  ADD_DEPENDENCIES(man-gz man)
 ENDIF(NROFF_EXE)
 
 # Subdirectories
@@ -236,11 +236,11 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 IF (UNIX)
 #This creates deb packages:
 ADD_CUSTOM_TARGET(deb dpkg-buildpackage)
-ADD_DEPENDENCIES(deb dist info)
+ADD_DEPENDENCIES(deb dist info man)
 
 #This creates rpm packages:
 ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)
-ADD_DEPENDENCIES(rpm dist info)
+ADD_DEPENDENCIES(rpm dist info man-gz)
 
 #ADD_DEPENDENCIES(info install)
 
