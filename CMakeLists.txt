@@ -58,7 +58,7 @@ MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
 
   IF(BUILD_STATIC)
     SET(${lib_name}_STATIC_NAMES lib${lib_name}.a)
-    FIND_LIBRARY(${lib_name}_STATIC_LIBRARY NAMES ${${lib_name}_STATIC_NAMES})
+    FIND_LIBRARY(${lib_name}_STATIC_LIBRARY NAMES ${${lib_name}_STATIC_NAMES} PATH_SUFFIXES lib${LIB_SUFFIX})
     IF(${lib_name}_STATIC_LIBRARY)
       MESSAGE("-- Library ${lib_name} found here:")
       MESSAGE("   includes: ${${lib_name}_INCLUDE_DIR}")
@@ -70,7 +70,7 @@ MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
     SET(${OUTPUT_LIBS} ${${OUTPUT_LIBS}} ${${lib_name}_STATIC_LIBRARY})
   ELSE()
     SET(${lib_name}_NAMES ${lib_name} ${lib_name}.lib ${lib_name}.dll)
-    FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES})
+    FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES} PATH_SUFFIXES lib${LIB_SUFFIX})
     IF(${lib_name}_LIBRARY)
       MESSAGE("-- Library ${lib_name} found here:")
       MESSAGE("   includes: ${${lib_name}_INCLUDE_DIR}")
@@ -160,7 +160,6 @@ IF(NROFF_EXE)
     COMMAND gzip -f bpptreedraw.1
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
     )
-
 ENDIF(NROFF_EXE)
 
 # Subdirectories
@@ -171,10 +170,10 @@ ADD_SUBDIRECTORY(man)
 # Packager
 SET(CPACK_PACKAGE_NAME "bppsuite")
 SET(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
-SET(CPACK_PACKAGE_VERSION "0.6.0")
+SET(CPACK_PACKAGE_VERSION "0.6.1")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "6")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
+SET(CPACK_PACKAGE_VERSION_PATCH "1")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Program Suite")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING.txt")
 SET(CPACK_RESOURCE_FILE_AUTHORS "${CMAKE_SOURCE_DIR}/AUTHORS.txt")

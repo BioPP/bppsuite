@@ -1,10 +1,10 @@
-bppsuite (0.6.0-2) unstable; urgency=low
+bppsuite (0.6.1) unstable; urgency=low
 
   * Compatibility update with bpp-phyl 2.0.1.
 
  -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 28 Feb 2011 09:00:00 +0100
 
-bppsuite (0.6.0-1) unstable; urgency=low
+bppsuite (0.6.0) unstable; urgency=low
 
   * Compatibility update with Bio++ 2.0.0.
   * New mixed substitution models.
@@ -13,7 +13,7 @@ bppsuite (0.6.0-1) unstable; urgency=low
 
  -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 07 Feb 2011 09:00:00 +0100
 
-bppsuite (0.5.0-1) unstable; urgency=low
+bppsuite (0.5.0) unstable; urgency=low
 
   * New substitution models.
   * New tree drawing program.
@@ -21,20 +21,20 @@ bppsuite (0.5.0-1) unstable; urgency=low
 
  -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Thu, 25 Mar 2010 21:17:37 +0100
 
-bppsuite (0.4.0-1) unstable; urgency=low
+bppsuite (0.4.0) unstable; urgency=low
 
   * Major syntax update, using keyvals.
   * Compatibility update with Bio++ 1.8.0.
 
  -- Julien Dutheil <jdutheil@birc.au.dk>  Wed, 10 Jun 2009 11:28:58 +0100
 
-bppsuite (0.3.1-1) unstable; urgency=low
+bppsuite (0.3.1) unstable; urgency=low
 
   * Several bug fixed.
 
  -- Julien Dutheil <jdutheil@birc.au.dk>  Thu, 11 Dec 2008 12:21:37 +0100
 
-bppsuite (0.3.0-1) unstable; urgency=low
+bppsuite (0.3.0) unstable; urgency=low
 
   * Initial release
 

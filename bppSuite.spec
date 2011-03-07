@@ -1,6 +1,6 @@
 %define name bppsuite
-%define version 0.6.0
-%define release 2
+%define version 0.6.1
+%define release 1
 %define _prefix /usr
 
 Summary: The Bio++ Program Suite.
@@ -34,7 +34,12 @@ Bio++ program suite includes programs:
 %setup -q
 
 %build
-CFLAGS="-I%{_prefix}/include $RPM_OPT_FLAGS" cmake -DCMAKE_INSTALL_PREFIX=%{_prefix}
+CFLAGS="-I%{_prefix}/include $RPM_OPT_FLAGS"
+CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=%{_prefix}"
+if [ %{_lib} == 'lib64' ] ; then
+  CMAKE_FLAGS="$CMAKE_FLAGS -DLIB_SUFFIX=64"
+fi
+cmake $CMAKE_FLAGS .
 make
 make info
 
@@ -65,6 +70,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/info/bppsuite.info.gz
 
 %changelog
+* Mon Feb 28 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
+- BppSuite 0.6.1 release
 * Mon Feb 07 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
 - BppSuite 0.6.0 release
 * Thu Mar 25 2010 Julien Dutheil <julien.dutheil@univ-montp2.fr>
