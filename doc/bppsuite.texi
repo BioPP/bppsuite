@@ -536,11 +536,11 @@ equilibrium frequencies.
 Protein substitution model, from Le & Gascuel 2008, and free
 equilibrium frequencies.
 
-@item Empirical(file=@{path@})
-Build a protein substitution model from a file in PAML format.
+@item Empirical(name=@{chars@}, file=@{path@})
+Build a protein substitution model from a file in PAML format, and use 'name' as a namespace for parameters.
 
-@item Empirical+F(file=@{path@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Build a protein substitution model from a file in PAML format, and use free equilibrium frequencies.
+@item Empirical+F(name=@{chars@}, file=@{path@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+Build a protein substitution model from a file in PAML format, and use free equilibrium frequencies. 'name' will be used as a parameter namespace, including for frequencies.
 
 @end table
 
