@@ -557,9 +557,9 @@ it is not given, the one related with the alphabet is used. The several values a
 @item YeastMitochondrialGeneticCode
 @end itemize
 
-The next codon models also take as argument a @var{codon_freq}
-specifying the equilirium frequencies of the model. The syntax refers
-to the one used in the PAML software, and possible values are
+The next codon models also take as argument a @var{frequencies} option 
+specifying the equilirium frequencies of the model. Any frequencies description can be used here, but the syntax also supports
+options similar to the ones used in the PAML software:
 @itemize
 @item F0: all frequencies are assumed to be fixed and equal to 1/61, 0 for stop codons.
 @item F1X4: 4 distinct frequencies are used, with parameters theta, theta1, theta2 (@xref{Frequencies sets}, ``Full'' method).
@@ -569,9 +569,6 @@ to the one used in the PAML software, and possible values are
 
 The same words can be used to specify root frequencies for codon
 models, in the case of non reversibility.
-
-Otherwise, the @var{frequencies=@{frequencies set description@}}
-argument can as well be used.
 
 @table @command
 

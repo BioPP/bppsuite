@@ -69,10 +69,10 @@ clean:
 	rm -f build-stamp
 	rm -f CMakeCache.txt
 	rm -f *.cmake
-	rm -f src/*.cmake
+	rm -f bppSuite/*.cmake
 	#rm -f test/*.cmake
 	rm -rf CMakeFiles
-	rm -rf src/CMakeFiles
+	rm -rf bppSuite/CMakeFiles
 	#rm -rf test/CMakeFiles
 	rm -rf _CPack_Packages
 	#rm -rf Testing

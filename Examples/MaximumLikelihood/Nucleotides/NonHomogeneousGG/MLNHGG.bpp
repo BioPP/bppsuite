@@ -91,6 +91,7 @@ optimization.max_number_f_eval = 10000
 optimization.tolerance = 0.000001
 optimization.message_handler = $(DATA).messages
 optimization.profiler = $(DATA).profile
+optimization.backup.file = .$(DATA).bck
 
 optimization.topology = no
 optimization.topology.nstep=4

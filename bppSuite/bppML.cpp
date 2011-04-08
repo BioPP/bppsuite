@@ -405,8 +405,10 @@ int main(int args, char** argv)
 
     delete tree;
 
+    //Listing parameters
     string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false);
     if (paramNameFile != "none") {
+      ApplicationTools::displayResult("List parameters to", paramNameFile);
       ofstream pnfile(paramNameFile.c_str(), ios::out);
       ParameterList pl = tl->getParameters();
       for (unsigned int i = 0; i < pl.size(); ++i) {
@@ -417,6 +419,7 @@ int main(int args, char** argv)
       exit(0);
     }
 
+    //Check initial likelihood:
     double logL = tl->getValue();
     if (isinf(logL))
     {
