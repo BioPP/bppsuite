@@ -1,12 +1,12 @@
 bppsuite (0.6.2-1) unstable; urgency=low
 
+  * RFP: Bio++ -- The Bio++ bioinformatics libraries. (Closes: #616373).
   * Packages are now non-native.
 
  -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Thu, 09 Jun 2011 11:00:00 +0100
 
 bppsuite (0.6.1) unstable; urgency=low
 
-  * RFP: Bio++ -- The Bio++ bioinformatics libraries. (Closes: #616373).
   * Compatibility update with bpp-phyl 2.0.1.
 
  -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 28 Feb 2011 09:00:00 +0100
