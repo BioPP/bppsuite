@@ -172,7 +172,7 @@ int main(int args, char** argv)
     }
     else if (cmdName == "Grafen")
     {
-      string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "Input", "", true, false);
+      string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "input", "", true, false);
       double h;
       if (grafenHeight == "input")
       {

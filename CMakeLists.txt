@@ -135,6 +135,7 @@ IF(PDFTEX_EXE)
     COMMAND ${PDFTEX_EXE} bppsuite.texi
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
     )
+  SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "doc/bppsuite.pdf;doc/bppsuite.aux;doc/bppsuite.cp;doc/bppsuite.fn;doc/bppsuite.info;doc/bppsuite.ky;doc/bppsuite.log;doc/bppsuite.pg;doc/bppsuite.toc;doc/bppsuite.tp;doc/bppsuite.vr")
 ENDIF(PDFTEX_EXE)
 
 IF(NROFF_EXE)
@@ -165,7 +166,7 @@ IF(NROFF_EXE)
     COMMAND gzip -f bpptreedraw.1
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
     )
-
+  SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "man/bppml.1.gz;man/bppseqgen.1.gz;man/bppdist.1.gz;man/bpppars.1.gz;man/bppseqman.1.gz;man/bppconsense.1.gz;man/bppancestor.1.gz;man/bppreroot.1.gz;man/bppphysamp.1.gz;man/bpptreedraw.1.gz")
 ENDIF(NROFF_EXE)
 
 # Subdirectories

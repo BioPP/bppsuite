@@ -101,7 +101,7 @@ install-arch:
 
 	# Add here commands to install the arch part of the package into 
 	# debian/tmp.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/bppsuite install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/bppsuite man doc install
 
 	dh_install -s
 # Must not depend on anything. This is to be called by
