@@ -1,5 +1,5 @@
 %define name bppsuite
-%define version 0.6.1
+%define version 0.6.2
 %define release 1
 %define _prefix /usr
 
@@ -80,6 +80,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/bpptreedraw.1.gz
 
 %changelog
+* Thu Jun 09 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
+- BppSuite 0.6.2 release
 * Mon Feb 28 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
 - BppSuite 0.6.1 release
 * Mon Feb 07 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
