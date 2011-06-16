@@ -3,7 +3,7 @@ Section: science
 Priority: optional
 Maintainer: Loic Dachary <loic@dachary.org>
 Uploaders: Julien Dutheil <julien.dutheil@univ-montp2.fr>
-Build-Depends: debhelper (>= 5), cmake (>= 2.6), dpkg (>= 1.15.4) | install-info,
+Build-Depends: debhelper (>= 5), cmake (>= 2.6), dpkg (>= 1.15.4) | install-info, texinfo,
   libbpp-phyl-dev (>= 2.0.1)
 Standards-Version: 3.9.1
 
