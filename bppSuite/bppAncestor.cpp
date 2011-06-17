@@ -90,9 +90,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.4.0     *" << endl;
+  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.5.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
-  cout << "*          B. Boussau                       Last Modif: 09/11/10 *" << endl;
+  cout << "*          B. Boussau                       Last Modif: 17/06/11 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -271,109 +271,158 @@ int main(int args, char ** argv)
 
   AncestralStateReconstruction *asr = 0;
   bool probMethod = false;
-  if (reconstruction == "marginal")
+  if (reconstruction == "none")
   {
+    //do nothing
+  } else if (reconstruction == "marginal") {
     asr = new MarginalAncestralStateReconstruction(tl);
     probMethod = true;
-  }
-  else
+  } else
     throw Exception("Unknown ancestral state reconstruction method: " + reconstruction);
 
-  if (probMethod)
-  {
-    probs = ApplicationTools::getBooleanParameter("asr.probabilities", bppancestor.getParams(), false, "", true, false);
-    ApplicationTools::displayResult("Output probabilities", probs ? "yes" : "no");
-  }
-
-  // Write infos to file:
-  string outputFile = ApplicationTools::getAFilePath("output.sites.file", bppancestor.getParams(), false, false);
-  if (outputFile != "none")
-  {
-    ApplicationTools::displayResult("Output file for sites", outputFile);
-    ofstream out(outputFile.c_str(), ios::out);
-    TreeTemplate<Node> ttree(*tree);
-    vector<Node *> nodes = ttree.getInnerNodes();
-    unsigned int nbNodes = nodes.size();
-    
-    // Get the rate class with maximum posterior probability:
-    vector<unsigned int> classes = tl->getRateClassWithMaxPostProbOfEachSite();
-    // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
-    Vdouble rates = tl->getPosteriorRateOfEachSite();
-    // Get the ancestral sequences:
-    vector<Sequence*> sequences(nbNodes);
-    vector<VVdouble*> probabilities(nbNodes);
-
-    vector<string> colNames;
-    colNames.push_back("Sites");
-    colNames.push_back("is.complete");
-    colNames.push_back("is.constant");
-    colNames.push_back("lnL");
-    colNames.push_back("rc");
-    colNames.push_back("pr");
-    for (unsigned int i = 0; i < nbNodes; i++) {
-      Node *node = nodes[i];
-      colNames.push_back("max." + TextTools::toString(node->getId()));
-      if (probs) {
-        probabilities[i] = new VVdouble();
-        //The cast will have to be updated when more probabilistic method will be available:
-        sequences[i] = dynamic_cast<MarginalAncestralStateReconstruction *>(asr)->getAncestralSequenceForNode(node->getId(), probabilities[i], false);
-
-        for (unsigned int j = 0; j < nbStates; j++) {
-          colNames.push_back("prob." + TextTools::toString(node->getId()) + "." + alphabet->intToChar((int)j));
-        }
-      }
-      else
-      {
-        if (node->isLeaf()) {
-
-        } else {
-          sequences[i] = asr->getAncestralSequenceForNode(node->getId());
-        }
-      }
+  string outputFile;
+  if (asr) {
+    if (probMethod)
+    {
+      probs = ApplicationTools::getBooleanParameter("asr.probabilities", bppancestor.getParams(), false, "", true, false);
+      ApplicationTools::displayResult("Output probabilities", probs ? "yes" : "no");
     }
 
-    //Now fill the table:
-    vector<string> row(colNames.size());
-    DataTable* infos = new DataTable(colNames);
-    
-    for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
+    // Write infos to file:
+    outputFile = ApplicationTools::getAFilePath("output.sites.file", bppancestor.getParams(), false, false);
+    if (outputFile != "none")
     {
-      double lnL = tl->getLogLikelihoodForASite(i);
-      const Site* currentSite = &sites->getSite(i);
-      int currentSitePosition = currentSite->getPosition();
-      string isCompl = "NA";
-      string isConst = "NA";
-      try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
-      catch(EmptySiteException& ex) {}
-      try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
-      catch(EmptySiteException& ex) {}
-      row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
-      row[1] = isCompl;
-      row[2] = isConst;
-      row[3] = TextTools::toString(lnL);
-      row[4] = TextTools::toString(classes[i]);
-      row[5] = TextTools::toString(rates[i]);
+      ApplicationTools::displayResult("Output file for sites", outputFile);
+      ofstream out(outputFile.c_str(), ios::out);
+      TreeTemplate<Node> ttree(*tree);
+      vector<Node *> nodes = ttree.getInnerNodes();
+      unsigned int nbNodes = nodes.size();
+    
+      // Get the rate class with maximum posterior probability:
+      vector<unsigned int> classes = tl->getRateClassWithMaxPostProbOfEachSite();
+      // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
+      Vdouble rates = tl->getPosteriorRateOfEachSite();
+      // Get the ancestral sequences:
+      vector<Sequence*> sequences(nbNodes);
+      vector<VVdouble*> probabilities(nbNodes);
 
-      unsigned int k = 6;
-      for (unsigned int j = 0; j < nbNodes; j++) {
-        row[k] = sequences[j]->getChar(i);
-        k++;
+      vector<string> colNames;
+      colNames.push_back("Sites");
+      colNames.push_back("is.complete");
+      colNames.push_back("is.constant");
+      colNames.push_back("lnL");
+      colNames.push_back("rc");
+      colNames.push_back("pr");
+      for (unsigned int i = 0; i < nbNodes; i++) {
+        Node *node = nodes[i];
+        colNames.push_back("max." + TextTools::toString(node->getId()));
         if (probs) {
-          for (unsigned int l = 0; l < nbStates; l++) {
-            row[k] = TextTools::toString((*probabilities[j])[i][l]);
-            k++;
+          probabilities[i] = new VVdouble();
+          //The cast will have to be updated when more probabilistic method will be available:
+          sequences[i] = dynamic_cast<MarginalAncestralStateReconstruction *>(asr)->getAncestralSequenceForNode(node->getId(), probabilities[i], false);
+
+          for (unsigned int j = 0; j < nbStates; j++) {
+            colNames.push_back("prob." + TextTools::toString(node->getId()) + "." + alphabet->intToChar((int)j));
+          }
+        }
+        else
+        {
+          if (node->isLeaf()) {
+
+          } else {
+            sequences[i] = asr->getAncestralSequenceForNode(node->getId());
           }
         }
       }
 
-      infos->addRow(row);
+      //Now fill the table:
+      vector<string> row(colNames.size());
+      DataTable* infos = new DataTable(colNames);
+    
+      for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
+      {
+        double lnL = tl->getLogLikelihoodForASite(i);
+        const Site* currentSite = &sites->getSite(i);
+        int currentSitePosition = currentSite->getPosition();
+        string isCompl = "NA";
+        string isConst = "NA";
+        try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+        catch(EmptySiteException& ex) {}
+        try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+        catch(EmptySiteException& ex) {}
+        row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+        row[1] = isCompl;
+        row[2] = isConst;
+        row[3] = TextTools::toString(lnL);
+        row[4] = TextTools::toString(classes[i]);
+        row[5] = TextTools::toString(rates[i]);
+
+        unsigned int k = 6;
+        for (unsigned int j = 0; j < nbNodes; j++) {
+          row[k] = sequences[j]->getChar(i);
+          k++;
+          if (probs) {
+            for (unsigned int l = 0; l < nbStates; l++) {
+              row[k] = TextTools::toString((*probabilities[j])[i][l]);
+              k++;
+            }
+          }
+        }
+
+        infos->addRow(row);
+      }
+
+      DataTable::write(*infos, out, "\t");
+
+      delete infos;
     }
 
-    DataTable::write(*infos, out, "\t");
+    SiteContainer* asSites = 0;
+    if (probMethod)
+    {
+      bool sample = ApplicationTools::getBooleanParameter("asr.sample", bppancestor.getParams(), false, "", true, false);
+      ApplicationTools::displayResult("Sample from posterior distribution", sample ? "yes" : "no");
+      if (sample)
+      {
+        unsigned int nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", bppancestor.getParams(), 1, "", true, false);
+        asSites = new AlignedSequenceContainer(alphabet);
+        for (unsigned int i = 0; i < nbSamples; i++)
+        {
+          ApplicationTools::displayGauge(i, nbSamples-1, '=');
+          SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralStateReconstruction *>(asr)->getAncestralSequences(true);
+          vector<string> names = sampleSites->getSequencesNames();
+          for (unsigned int j = 0; j < names.size(); j++)
+            names[j] += "_" + TextTools::toString(i+1);
+          sampleSites->setSequencesNames(names, false);
+          SequenceContainerTools::append(*asSites, *sampleSites);
+          delete sampleSites;
+        }
+        ApplicationTools::message->endLine();
+      }
+      else
+      {
+        asSites = asr->getAncestralSequences();
+      }
+    }
+    else
+    {
+      asSites = asr->getAncestralSequences();
+    }
+  
+    //Add existing sequence to output?
+    bool addExtant = ApplicationTools::getBooleanParameter("asr.add_extant", bppancestor.getParams(), false, "", true, false);
+    if (addExtant) {
+      SequenceContainerTools::append(*asSites, *sites);
+    }
 
-    delete infos;
+    //Write output:
+    if (ApplicationTools::getStringParameter("output.sequence.file", bppancestor.getParams(), "none") != "none") {
+      SequenceApplicationTools::writeAlignmentFile(*asSites, bppancestor.getParams());
+    }
+    delete asSites;
+
+    delete asr;
   }
- 
 
   outputFile = ApplicationTools::getAFilePath("output.nodes.file", bppancestor.getParams(), false, false);
   if (outputFile != "none")
@@ -381,15 +430,18 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Output file for nodes", outputFile);
     ofstream out(outputFile.c_str(), ios::out);
 
+    //Add existing sequence to output?
+    bool addExtant = ApplicationTools::getBooleanParameter("output.nodes.add_extant", bppancestor.getParams(), false, "", true, false);
+    
     map<int, vector<double> > frequencies;
-    TreeLikelihoodTools::getAncestralFrequencies(*tl, frequencies, false);
+    TreeLikelihoodTools::getAncestralFrequencies(*tl, frequencies, addExtant);
     
     vector<string> colNames;
     colNames.push_back("Nodes");
     for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      colNames.push_back("exp" + TextTools::toString(i));
+      colNames.push_back("exp" + alphabet->intToChar(i));
     for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      colNames.push_back("eb" + TextTools::toString(i));
+      colNames.push_back("eb" + alphabet->intToChar(i));
 
     //Now fill the table:
     vector<string> row(colNames.size());
@@ -416,50 +468,6 @@ int main(int args, char ** argv)
   }
 
 
-
-  SiteContainer* asSites = 0;
-  if (probMethod)
-  {
-    bool sample = ApplicationTools::getBooleanParameter("asr.sample", bppancestor.getParams(), false, "", true, false);
-    ApplicationTools::displayResult("Sample from posterior distribution", sample ? "yes" : "no");
-    if (sample)
-    {
-      unsigned int nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", bppancestor.getParams(), 1, "", true, false);
-      asSites = new AlignedSequenceContainer(alphabet);
-      for (unsigned int i = 0; i < nbSamples; i++)
-      {
-        ApplicationTools::displayGauge(i, nbSamples-1, '=');
-        SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralStateReconstruction *>(asr)->getAncestralSequences(true);
-        vector<string> names = sampleSites->getSequencesNames();
-        for (unsigned int j = 0; j < names.size(); j++)
-          names[j] += "_" + TextTools::toString(i+1);
-        sampleSites->setSequencesNames(names, false);
-        SequenceContainerTools::append(*asSites, *sampleSites);
-        delete sampleSites;
-      }
-      ApplicationTools::message->endLine();
-    }
-    else
-    {
-      asSites = asr->getAncestralSequences();
-    }
-  }
-  else
-  {
-    asSites = asr->getAncestralSequences();
-  }
-  
-  //Add existing sequence to output?
-  bool addExtant = ApplicationTools::getBooleanParameter("asr.add_extant", bppancestor.getParams(), false, "", true, false);
-  if (addExtant) {
-    SequenceContainerTools::append(*asSites, *sites);
-  }
-
-  //Write output:
-  SequenceApplicationTools::writeAlignmentFile(*asSites, bppancestor.getParams());
-  delete asSites;
-
-  delete asr;
   delete alphabet;
   delete sites;
   if(model)    delete model;

@@ -1034,14 +1034,16 @@ where each alias is described as `param1->param2'. The full name of the paramete
 @example
 model1 = T92(theta=0.4, kappa=4)
 model2 = GTR(theta=0.4, a = 1.1, b=0.4, c=0.4, d=0.25, e=0.1)
-nonhomogeneous.alias=GTR.theta_1->T92.theta_1
+nonhomogeneous.alias=GTR.theta1->T92.theta1
 @end example
 
 This option can be used to link parameters of the root frequencies if the model is non-stationary:
 @example
 nonhomogeneous.root_freq=Full(init=balanced)
-nonhomogeneous.alias=Full.theta->GTR.theta_1
+nonhomogeneous.alias=Full.theta1->GTR.theta1_1
 @end example
+
+Note that this option is only available with the 'general' nonhomogeneous substitution models and will be ignored if used with "one_per_branch".
 
 @end table
 
@@ -1583,8 +1585,8 @@ The BppAncestor program uses the common syntax introduced in the previous sectio
 Specific options are:
 @table @command
 
-@item asr.method = @{marginal@}
-That's the only option for now!
+@item asr.method = @{none|marginal@}
+Marginal is the only option for now. If set to "none", only nodes frequencies can be output.
 
 @item asr.probabilities = @{boolean@}
 Tells if we should output the site specific probabilities in each case.
@@ -1606,6 +1608,9 @@ Alignment information log file (site specific rates, probabilities, etc).
 
 @item output.nodes.file = @{@{path@}|none@}
 Ancestral nodes information: expected frequencies of ancestral states.
+
+@item output.nodes.add_extant = @{boolean@}
+Tell if leaf nodes should be added to the output file.
 
 @end table
 

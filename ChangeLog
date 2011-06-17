@@ -1,3 +1,6 @@
+17/06/11 Julien Dutheil
+* Improved bppancestor, also allows to compute frequencies for leaves.
+
 11/06/11 -*- Version 0.6.2 -*-
 * Small bug fixed + new packages.
 
