@@ -21,4 +21,5 @@ Description: Bio++ program suite
   - BppConsense for building consensus tree and computing bootstrap values,
   - BppPhySamp for phylogenetic sampling,
   - BppReRoot for tree rerooting.
+  - BppTreeDraw for tree drawing.
 
