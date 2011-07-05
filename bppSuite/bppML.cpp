@@ -351,14 +351,14 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Likelihood recursion", recursion);
         if (recursion == "simple")
         {
-          if (modelSet->hasMixedSubstitutionModel())
-            tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
+            tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, dynamic_cast<MixedSubstitutionModelSet*>(modelSet), rDist, true, true);
           else
             tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
         }
         else if (recursion == "double")
         {
-          if (modelSet->hasMixedSubstitutionModel())
+          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
             throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
               //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
           else
@@ -384,13 +384,14 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Likelihood recursion", recursion);
         if (recursion == "simple")
         {
-          if (modelSet->hasMixedSubstitutionModel())
-            tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
+            tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, dynamic_cast<MixedSubstitutionModelSet*>(modelSet), rDist, true, true);
           else
             tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
         }
         else if (recursion == "double")
-          if (modelSet->hasMixedSubstitutionModel())
+          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
+
             throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
               //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
           else

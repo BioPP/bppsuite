@@ -1134,6 +1134,44 @@ parameters names are @var{Word.1_GC.theta},
 @var{Word.2_GC.theta}, @var{Word.4_Full.theta_1},
 @var{Word.4_Full.theta_2}, @var{Word.4_Full.theta_3}.
 
+@item Codon(frequency=@{frequency set description@})
+
+or 
+
+@item Codon(frequency1=@{frequency set description@}, frequency2=@{frequency set description@}, frequency3=@{frequency set description@})
+
+frequencies on codons computed as the product of frequencies on the
+letters, with stop codon frequencies set to zero. The arguments
+@var{frequency} and @var{frequency@{i@}} are for descriptions of
+frequency sets on nucleotides. The alphabet must be a Codon alphabet.
+
+If the argument is @var{frequency}, the @emph{same} single site
+frequency set is used (ie the parameters are shared between all
+positions).
+
+If the arguments are @var{frequency1}, @var{frequency2},
+@var{frequency3}, all single site frequency sets are independent. In
+that case, all single site frequency set parameters are position
+dependent.
+
+@example
+alphabet=Codon(letter=DNA, type=Standard)
+Codon(frequency=GC())
+@end example
+builds a frequency set on codons, such that all sites frequencies
+follow the same GC frequency set model. The parameter name is
+@var{Codon.123_GC.theta}.
+
+@example
+alphabet=Codon(letter=DNA, type=Standard)
+Codon(frequency1=GC(),frequency2=GC(),frequency3=Fixed())
+@end example
+
+builds a frequency set on codons, such that first and second sites
+follow independent GC frequency sets, third site follows a Fixed
+frequency set. Then the parameters names are @var{Codon.1_GC.theta},
+@var{Codon.2_GC.theta}.
+
 @end table
 
 All functions accept the following arguments, that take priority over the parameter specification:
