@@ -906,21 +906,23 @@ Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rat
 
 @end table
 
-@subsubsection Mixture of models (beta feature)
+@subsubsection Mixture of models
 
 @table @command
 
-Mixed models combine any sustitution models with a priori distribution
-of parameters. Such models are still experimental and have not been
-yet fully tested. They should hence be used wih extra care!
+Mixed models combine any substitution models with a priori
+distribution of parameters. We call submodels all the models that are
+mixed in the mixture.
 
 During the likelihood computation process, all the submodels of the
 mixture are successively applied on the branches, and the mean of all
 the likelihoods is computed. With nonhomogeneous reconstruction, since
 a mixed model is a random variable, affecting a mixed model to a set
 of branches means that all these branches are dependent, and in this
-case all the branches of the set have the same submodel at the same
-time.
+case a site follows the same submodels in all the branches of the set
+that support this mixed model. Moreover, it is possible to define
+paths that define dependencies between submodels of different
+mixtures (see below).
 
 @item MixedModel(model=@{model description@})
 Mixture model from a given @var{model} in which some parameters follow
@@ -956,6 +958,7 @@ has parameters@var{Mixture.relrate1}, @var{Mixture.relproba1},
 @var{Mixture.1_GY94.kappa}, @var{Mixture.1_GY94.V},
 @var{Mixture.2_YN98.kappa}, @var{Mixture.2_YN98.omega}.
 @end table
+
 
 @subsubsection Linking parameters
 
@@ -1062,6 +1065,7 @@ The use of that option will cause the program to exit just after producing the l
 
 @end table
 
+
 @subsubsection Root frequencies
 
 In case of nonstationary models, the ancestral frequencies are distinct parameters. If a model is assumed to be stationary,
@@ -1075,6 +1079,74 @@ As since version 0.4.0, BppSuite uses the keyval syntax to set up root frequenci
 
 The Frequencies set used can be any of the ones described below @xref{Frequencies sets}, depending on the alphabet used.
 
+@subsubsection Paths among non-homogeneous mixture models
+
+
+In this case, on branches 2 & 3 a site follows any submodel of model 2
+(but the same submodel on both branches), and on branches 4 & 5, a
+site follows any submodel of model  3 (the same on both branches as
+well).  But there is no constraint between models 2 & 3, which means
+that a site can follow any submodel of model 2 and any submodel of
+model 3.
+
+To define constraints for sites between submodels, we can set "paths"
+that any site must follow. For example, in the following description:
+
+nonhomogeneous = general
+nonhomogeneous.number_of_models = 3
+
+@example
+model1=T92()
+model2=MixedModel(model=T92(kappa=Simple(values=(4,10,20),probas=(0.1,0.5,0.4))))
+model3=MixedModel(model=TN93(theta1=Simple(values=(0.1,0.5,0.9),probas=(0.3,0.2,0.5))))
+
+model1.nodes_id=0:1
+model2.nodes_id=2:3
+model3.nodes_id=4:5
+@end example
+
+If the user wants that a site with @var{T92.kappa=4} in model 2 has
+@var{TN93.theta1=0.1} in model 3, that a site with @var{T92.kappa=10}
+in model 2 has @var{TN93.theta1=0.9} in model 3, and that other cases
+are free (in this case it means that @var{T92.kappa=20} in model 2 is
+linked with @var{TN93.theta1=0.5} in model 3), then we can use the
+declarations:
+
+@example
+site.number_of_paths=2
+site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2]
+site.path2=model2[T92.kappa_2] & model3[TN93.theta1_3]
+@end example
+
+The third path (for the remaining submodels) is automatically
+computed.
+
+It is possible to link mixtures of submodels. For example,
+
+@example 
+site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2, TN93.theta1_3]
+@end example
+
+means that a site that has @var{T92.kappa=4} in model2 has either
+@var{TN93.theta1=0.5} or @var{TN93.theta1=0.9} in model3.
+
+
+Because of these constraints, the probabilities of the submodels are
+linked. In the first example, probability of @var{T92.kappa=4} in
+model 2 equals the probability of @var{TN93.theta1=0.5} in model 3.
+Since it is contradictory with the probabilities defined in models 2
+or 3, the reference probabilities are the ones of the first numbered
+mixed model, here model 2. In this case, the probabilities in model 3
+may have no use, but with the second example the probability of
+submodel T92.kappa=4 equals the sum of the probabilities of submodels
+TN93.theta1=0.5 or TN93.theta1=0.9. The relative proportion of those
+models used in the declaration of model 3 is then used. Here their
+respective probabilities are then: 0.1*0.2/ (0.2+0.5)=0.0286 and
+0.1*0.5/(0.2+0.5)=0.0714.
+
+Concerning the optimization procedure, this choice may entail the non-
+identifiability of several parameters (here the probabilities in model
+3), so the user should be careful about this. 
 
 @subsection Frequencies sets
 @anchor{Frequencies sets}
