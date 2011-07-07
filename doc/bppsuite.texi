@@ -546,8 +546,10 @@ Build a protein substitution model from a file in PAML format, and use free equi
 
 @subsubsection Codon models
 
-Standard codon models: the optional @var{genetic_code} argument describes the genetic code. If
-it is not given, the one related with the alphabet is used. The several values available are described below.
+Standard codon models: the optional @var{genetic_code} argument
+describes the genetic code. If it is not given, the one related with
+the alphabet is used. The several values available are described
+below.
 
 @itemize
 @item EchinodermMitochondrialGeneticCode
@@ -557,9 +559,11 @@ it is not given, the one related with the alphabet is used. The several values a
 @item YeastMitochondrialGeneticCode
 @end itemize
 
-The next codon models also take as argument a @var{frequencies} option 
-specifying the equilirium frequencies of the model. Any frequencies description can be used here, but the syntax also supports
-options similar to the ones used in the PAML software:
+The next codon models also take as argument a @var{frequencies} option
+specifying the equilibrium frequencies of the model. Any frequencies
+description can be used here, but the syntax also supports options
+similar to the ones used in the PAML software:
+
 @itemize
 @item F0: all frequencies are assumed to be fixed and equal to 1/61, 0 for stop codons.
 @item F1X4: 4 distinct frequencies are used, with parameters theta, theta1, theta2 (@xref{Frequencies sets}, ``Full'' method).
@@ -568,7 +572,7 @@ options similar to the ones used in the PAML software:
 @end itemize
 
 The same words can be used to specify root frequencies for codon
-models, in the case of non reversibility.
+models, in the case of non stationarity.
 
 @table @command
 
@@ -1060,24 +1064,13 @@ values, and leaf names with their id as suffix.
 The use of that option will cause the program to exit just after producing the tagged tree.
 
 @item output.parameter_names.file = @{@{path@}|none@}
-A text file listing all parameter names. This might come handy in order to specify the parameter that should not be optimized (see optimization.ignore_parameter) or aliased (see above).
-The use of that option will cause the program to exit just after producing the list file.
+A text file listing all parameter names. This might come handy in
+order to specify the parameter that should not be optimized (see
+optimization.ignore_parameter) or aliased (see above). The use of that
+option will cause the program to exit just after producing the list
+file.
 
 @end table
-
-
-@subsubsection Root frequencies
-
-In case of nonstationary models, the ancestral frequencies are distinct parameters. If a model is assumed to be stationary,
-the ``None'' parameter value can be used, which is strictly equivalent to setting
-@command{nonhomogeneous.stationary=yes}.
-
-As since version 0.4.0, BppSuite uses the keyval syntax to set up root frequencies,
-@table @command
-@item nonhomogeneous.root_freq=@{frequency set description@}
-@end table
-
-The Frequencies set used can be any of the ones described below @xref{Frequencies sets}, depending on the alphabet used.
 
 @subsubsection Paths among non-homogeneous mixture models
 
@@ -1147,6 +1140,23 @@ respective probabilities are then: 0.1*0.2/ (0.2+0.5)=0.0286 and
 Concerning the optimization procedure, this choice may entail the non-
 identifiability of several parameters (here the probabilities in model
 3), so the user should be careful about this. 
+
+@subsubsection Root frequencies
+
+In case of nonstationary models, the ancestral frequencies are
+distinct parameters. If a model is assumed to be stationary, the
+``None'' parameter value can be used, which is strictly equivalent to
+setting
+@command{nonhomogeneous.stationary=yes}.
+
+As since version 0.4.0, BppSuite uses the keyval syntax to set up root frequencies,
+@table @command
+@item nonhomogeneous.root_freq=@{frequency set description@}
+@end table
+
+The Frequencies set used can be any of the ones described below
+@xref{Frequencies sets}, depending on the alphabet used.
+
 
 @subsection Frequencies sets
 @anchor{Frequencies sets}
@@ -1244,9 +1254,15 @@ follow independent GC frequency sets, third site follows a Fixed
 frequency set. Then the parameters names are @var{Codon.1_GC.theta},
 @var{Codon.2_GC.theta}.
 
+
+Predefined codon frequencies are available, with a syntax similar to
+the one used in the PAML software. See above Codon Models section.
+
 @end table
 
-All functions accept the following arguments, that take priority over the parameter specification:
+All functions accept the following arguments, that take priority over
+the parameter specification:
+
 @table @command
 
 @item init=@{balanced,observed@}
@@ -1257,7 +1273,9 @@ If the frequencies are set from observed counts, a pseudoCount is
 added to all the counts.
 
 @item values=(@{vector<double>@})
-Explicitly set all frequencies manually. The size of the input vector should equal the number of resolved states in the alphabet, be in alphabetical order of states, and sum to one.
+Explicitly set all frequencies manually. The size of the input vector
+should equal the number of resolved states in the alphabet, be in
+alphabetical order of states, and sum to one.
 
 @end table
 
