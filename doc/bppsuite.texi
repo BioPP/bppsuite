@@ -1625,7 +1625,7 @@ BppML can also optimize branch lengths with a molecular clock:
 
 @table @command
 
-@item optimize.clock=@{no|global@}
+@item optimization.clock=@{no|global@}
 Tell if a molecular clock should be assumed.
 Topology estimation is not possible with a clock constraint.
 

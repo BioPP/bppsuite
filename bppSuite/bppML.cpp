@@ -216,7 +216,7 @@ int main(int args, char** argv)
     }
 
     DiscreteRatesAcrossSitesTreeLikelihood* tl;
-    string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", bppml.getParams(), "no", "", true, false);
+    string optimizeClock = ApplicationTools::getStringParameter("likelihood.clock", bppml.getParams(), "no", "", true, false);
     ApplicationTools::displayResult("Clock", optimizeClock);
     string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
     ApplicationTools::displayResult("Heterogeneous model", nhOpt);
@@ -289,15 +289,15 @@ int main(int args, char** argv)
           ApplicationTools::displayResult("Likelihood data compression", compression);
           if (compression == "simple")
             if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-              tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
+              tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, false, true, false);
             else
-              tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, true, false);
+              tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, false, true, false);
 
           else if (compression == "recursive")
             if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-              tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
+              tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, false, true, true);
             else
-              tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, true, true);
+              tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, false, true, true);
 
           else throw Exception("Unknown likelihood data compression method: " + compression);
         }
