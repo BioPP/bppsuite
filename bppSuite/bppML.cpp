@@ -216,8 +216,6 @@ int main(int args, char** argv)
     }
 
     DiscreteRatesAcrossSitesTreeLikelihood* tl;
-    string optimizeClock = ApplicationTools::getStringParameter("likelihood.clock", bppml.getParams(), "no", "", true, false);
-    ApplicationTools::displayResult("Clock", optimizeClock);
     string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
     ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
@@ -228,8 +226,10 @@ int main(int args, char** argv)
     SubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist    = 0;
 
-    if (optimizeClock == "global")
+    if (optimizeTopo || nbBS > 0)
     {
+      if (nhOpt != "no")
+        throw Exception("Topology estimation with NH model not supported yet, sorry :(");
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
@@ -242,165 +242,140 @@ int main(int args, char** argv)
         rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
       if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-        tl = new RHomogeneousClockTreeLikelihood(*tree, *sites, model, rDist, true, true);
+        tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
       else
-        throw Exception("Molecular clock with Mixed model not supported yet, sorry :(");
+        throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
     }
-    else if (optimizeClock == "no")
+    else if (nhOpt == "no")
     {
-      if (optimizeTopo || nbBS > 0)
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
+      if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
-        if (nhOpt != "no")
-          throw Exception("Topology estimation with NH model not supported yet, sorry :(");
-        model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
-        if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-        if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
-        {
-          // Markov-modulated Markov model!
-          rDist = new ConstantDistribution(1., true);
-        }
-        else
-        {
-          rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
-        }
-        if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-          tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
-        else
-          throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
+        // Markov-modulated Markov model!
+        rDist = new ConstantDistribution(1., true);
       }
-      else if (nhOpt == "no")
+      else
       {
-        model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
-        if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-        if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
-        {
-          // Markov-modulated Markov model!
-          rDist = new ConstantDistribution(1., true);
-        }
-        else
-        {
-          rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
-        }
-        string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
-        ApplicationTools::displayResult("Likelihood recursion", recursion);
-        if (recursion == "simple")
-        {
-          string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
-          ApplicationTools::displayResult("Likelihood data compression", compression);
-          if (compression == "simple")
-            if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-              tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, false, true, false);
-            else
-              tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, false, true, false);
-
-          else if (compression == "recursive")
-            if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-              tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, false, true, true);
-            else
-              tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, false, true, true);
-
-          else throw Exception("Unknown likelihood data compression method: " + compression);
-        }
-        else if (recursion == "double")
-        {
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
+      }
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
+      ApplicationTools::displayResult("Likelihood recursion", recursion);
+      if (recursion == "simple")
+      {
+        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
+        ApplicationTools::displayResult("Likelihood data compression", compression);
+        if (compression == "simple")
           if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-            tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true);
+            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, false, true, false);
           else
-            tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true);
-        }
-        else throw Exception("Unknown recursion option: " + recursion);
+            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, false, true, false);
+
+        else if (compression == "recursive")
+          if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
+            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, false, true, true);
+          else
+            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, false, true, true);
+
+        else throw Exception("Unknown likelihood data compression method: " + compression);
       }
-      else if (nhOpt == "one_per_branch")
+      else if (recursion == "double")
       {
-        model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
-        if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-        if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
-        {
-          // Markov-modulated Markov model!
-          rDist = new ConstantDistribution(1., true);
-        }
+        if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
+          tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true);
         else
-        {
-          rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
-        }
-        vector<double> rateFreqs;
-        if (model->getNumberOfStates() != alphabet->getSize())
-        {
-          // Markov-Modulated Markov Model...
-          unsigned int n = (unsigned int)(model->getNumberOfStates() / alphabet->getSize());
-          rateFreqs = vector<double>(n, 1. / (double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-                                                         // we should assume a rate distribution for the root also!!!
-        }
-
-        bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), false, "", false, false);
-        FrequenciesSet* rootFreqs = 0;
-        if (!stationarity)
-        {
-          rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, sites, bppml.getParams(), rateFreqs);
-          stationarity = !rootFreqs;
-        }
-        ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
-   
-        vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
-        for (unsigned int i = 0; i < globalParameters.size(); i++)
-          ApplicationTools::displayResult("Global parameter", globalParameters[i]);
-        modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters);
-        model = 0;
-
-        string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
-        ApplicationTools::displayResult("Likelihood recursion", recursion);
-        if (recursion == "simple")
-        {
-          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
-            tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, dynamic_cast<MixedSubstitutionModelSet*>(modelSet), rDist, true, true);
-          else
-            tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
-        }
-        else if (recursion == "double")
-        {
-          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
-            throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
-              //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-          else
-            tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-        }
-        else throw Exception("Unknown recursion option: " + recursion);
+          tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true);
       }
-      else if (nhOpt == "general")
-      {
-        modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, bppml.getParams());
-        if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-        if (modelSet->getNumberOfStates() >= 2 * modelSet->getAlphabet()->getSize())
-        {
-          // Markov-modulated Markov model!
-          rDist = new ConstantDistribution(1., true);
-        }
-        else
-        {
-          rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
-        }
-
-        string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
-        ApplicationTools::displayResult("Likelihood recursion", recursion);
-        if (recursion == "simple")
-        {
-          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
-            tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, dynamic_cast<MixedSubstitutionModelSet*>(modelSet), rDist, true, true);
-          else
-            tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
-        }
-        else if (recursion == "double")
-          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
-
-            throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
-              //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-          else
-            tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-        else throw Exception("Unknown recursion option: " + recursion);
-      }
-      else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
+      else throw Exception("Unknown recursion option: " + recursion);
     }
-    else throw Exception("Unknown option for optimization.clock: " + optimizeClock);
+    else if (nhOpt == "one_per_branch")
+    {
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
+      if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
+      {
+        // Markov-modulated Markov model!
+        rDist = new ConstantDistribution(1., true);
+      }
+      else
+      {
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
+      }
+      vector<double> rateFreqs;
+      if (model->getNumberOfStates() != alphabet->getSize())
+      {
+        // Markov-Modulated Markov Model...
+        unsigned int n = (unsigned int)(model->getNumberOfStates() / alphabet->getSize());
+        rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+                                                       // we should assume a rate distribution for the root also!!!
+      }
+
+      bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), false, "", false, false);
+      FrequenciesSet* rootFreqs = 0;
+      if (!stationarity)
+      {
+        rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, sites, bppml.getParams(), rateFreqs);
+        stationarity = !rootFreqs;
+      }
+      ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
+   
+      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
+      for (unsigned int i = 0; i < globalParameters.size(); i++)
+        ApplicationTools::displayResult("Global parameter", globalParameters[i]);
+      modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters);
+      model = 0;
+
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
+      ApplicationTools::displayResult("Likelihood recursion", recursion);
+      if (recursion == "simple")
+      {
+        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
+          tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, dynamic_cast<MixedSubstitutionModelSet*>(modelSet), rDist, true, true);
+        else
+          tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+      }
+      else if (recursion == "double")
+      {
+        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
+          throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
+            //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+        else
+          tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+      }
+      else throw Exception("Unknown recursion option: " + recursion);
+    }
+    else if (nhOpt == "general")
+    {
+      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, bppml.getParams());
+      if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      if (modelSet->getNumberOfStates() >= 2 * modelSet->getAlphabet()->getSize())
+      {
+        // Markov-modulated Markov model!
+        rDist = new ConstantDistribution(1., true);
+      }
+      else
+      {
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
+      }
+
+      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
+      ApplicationTools::displayResult("Likelihood recursion", recursion);
+      if (recursion == "simple")
+      {
+        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
+          tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, dynamic_cast<MixedSubstitutionModelSet*>(modelSet), rDist, true, true);
+        else
+          tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
+      }
+      else if (recursion == "double")
+        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
+          throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
+            //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+        else
+          tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+      else throw Exception("Unknown recursion option: " + recursion);
+    }
+    else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
 
     tl->initialize();
 
@@ -602,11 +577,12 @@ int main(int args, char** argv)
 
 
     // Bootstrap:
-    if (nbBS > 0 && optimizeClock != "no")
+    bool optimizeClock = ApplicationTools::getStringParameter("optimization.clock", bppml.getParams(), "None");
+    if (nbBS > 0 && optimizeClock != "None")
     {
       ApplicationTools::displayError("Bootstrap is not supported with clock trees.");
     }
-    if (nbBS > 0 && optimizeClock == "no")
+    if (nbBS > 0 && optimizeClock == "None")
     {
       ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
       bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", bppml.getParams(), true);
