@@ -463,16 +463,8 @@ int main(int args, char** argv)
       }
     }
 
-    if (optimizeClock == "global")
-    {
-      PhylogeneticsApplicationTools::optimizeParameters(
-        dynamic_cast<DiscreteRatesAcrossSitesClockTreeLikelihood*>(tl), tl->getParameters(), bppml.getParams());
-    }
-    else
-    {
-      tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(
-        PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams()));
-    }
+    tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(
+      PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams()));
 
     tree = new TreeTemplate<Node>(tl->getTree());
     PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
@@ -577,7 +569,7 @@ int main(int args, char** argv)
 
 
     // Bootstrap:
-    bool optimizeClock = ApplicationTools::getStringParameter("optimization.clock", bppml.getParams(), "None");
+    string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", bppml.getParams(), "None", "", true, false);
     if (nbBS > 0 && optimizeClock != "None")
     {
       ApplicationTools::displayError("Bootstrap is not supported with clock trees.");
