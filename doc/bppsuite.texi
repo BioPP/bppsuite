@@ -1085,10 +1085,10 @@ model 3.
 To define constraints for sites between submodels, we can set "paths"
 that any site must follow. For example, in the following description:
 
+@example
 nonhomogeneous = general
 nonhomogeneous.number_of_models = 3
 
-@example
 model1=T92()
 model2=MixedModel(model=T92(kappa=Simple(values=(4,10,20),probas=(0.1,0.5,0.4))))
 model3=MixedModel(model=TN93(theta1=Simple(values=(0.1,0.5,0.9),probas=(0.3,0.2,0.5))))
@@ -1117,7 +1117,7 @@ computed.
 It is possible to link mixtures of submodels. For example,
 
 @example 
-site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2, TN93.theta1_3]
+site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2] & model3[TN93.theta1_3]
 @end example
 
 means that a site that has @var{T92.kappa=4} in model2 has either
@@ -1140,6 +1140,21 @@ respective probabilities are then: 0.1*0.2/ (0.2+0.5)=0.0286 and
 Concerning the optimization procedure, this choice may entail the non-
 identifiability of several parameters (here the probabilities in model
 3), so the user should be careful about this. 
+
+Another example in the case of mixtures of mixed models, where the
+submodels are defined by their names;
+
+@example
+nonhomogeneous = general
+nonhomogeneous.number_of_models = 2
+
+model1=LLG08_UL2()
+model2=LLG08_UL3()
+
+site.number_of_paths=2
+site.path1=model1[LLG08_UL2.M2] & model2[LLG08_UL3.Q1]
+site.path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] & model2[LLG08_UL3.Q3]
+@end example
 
 @subsubsection Root frequencies
 
