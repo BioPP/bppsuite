@@ -1974,6 +1974,9 @@ Keep only complete sites, ie sites without any gap. Sites with unresolved charac
 It is also possible to fix a maximum proportion of gaps, see specific options.
 @option{maxGapAllowed}: The maximum proportion of gaps allowed.
 
+@item GetCodonPosition(position=@{1|2|3@})
+Retrieve the given positions from codon sequences (aligned or not).
+
 @end table
 
 Examples of use:

@@ -494,6 +494,9 @@ int main(int args, char** argv)
       out << "# Log likelihood = ";
       out.setPrecision(20) << (-tl->getValue());
       out.endLine();
+      out << "# Number of sites = ";
+      out.setPrecision(20) << sites->getNumberOfSites();
+      out.endLine();
       out.endLine();
       out << "# Substitution model parameters:";
       out.endLine();

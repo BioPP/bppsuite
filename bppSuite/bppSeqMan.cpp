@@ -74,8 +74,8 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Sequence Manipulator, version 0.4              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 07/02/11 *" << endl;
+  cout << "*           Bio++ Sequence Manipulator, version 0.5              *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 23/08/11 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -388,6 +388,22 @@ int main(int args, char** argv)
       delete sequences;
       sequences = sc;
     }
+    // +------------------+
+    // | GetCodonPosition |
+    // +------------------+
+    else if (cmdName == "GetCodonPosition")
+    {
+      unsigned int pos = ApplicationTools::getParameter<unsigned int>("position", cmdArgs, 3);
+      OrderedSequenceContainer* sc = dynamic_cast<OrderedSequenceContainer*>(SequenceContainerTools::getCodonPosition(*sequences, pos - 1));
+      delete sequences;
+      if (aligned) {
+        sequences = new VectorSiteContainer(*sc);
+        delete sc;
+      } else {
+        sequences = sc;
+      }
+    }
+
     else throw Exception("Unknown action: " + cmdName);
   }
   
