@@ -59,6 +59,10 @@ using namespace std;
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Seq/GeneticCode.all>
 
+//From PhylLib:
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+
 using namespace bpp;
 
 void help()
@@ -402,6 +406,25 @@ int main(int args, char** argv)
       } else {
         sequences = sc;
       }
+    }
+    // +-----------------+
+    // | FilterFromTree |
+    // +-----------------+
+    else if (cmdName == "FilterFromTree")
+    {
+      auto_ptr<Tree> tree(PhylogeneticsApplicationTools::getTree(cmdArgs, ""));
+      vector<string> names = tree->getLeavesNames();
+      OrderedSequenceContainer* reorderedSequences = 0;
+      if (aligned) {
+        reorderedSequences = new VectorSiteContainer(sequences->getAlphabet());
+      } else {
+        reorderedSequences = new VectorSequenceContainer(sequences->getAlphabet());
+      }
+      for (size_t i = 0; i < names.size(); ++i) {
+        reorderedSequences->addSequence(sequences->getSequence(names[i]), false);
+      }
+      delete sequences;
+      sequences = reorderedSequences;
     }
 
     else throw Exception("Unknown action: " + cmdName);

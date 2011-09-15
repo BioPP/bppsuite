@@ -1977,6 +1977,10 @@ It is also possible to fix a maximum proportion of gaps, see specific options.
 @item GetCodonPosition(position=@{1|2|3@})
 Retrieve the given positions from codon sequences (aligned or not).
 
+@item FilterFromTree(tree.file=@{path@}, tree.format=@{chars@})
+Get a subset of sequences based on a tree file. The order of sequences in the file will reflect the tree structure. All sequences which do not have a corresponding leaf in the tree, based on the sequence name, will be removed.
+This method can therefore be used for subsetting a list of sequences, and/or rearrange them in a more convenient manner.
+
 @end table
 
 Examples of use:
