@@ -19,10 +19,8 @@
 @end direntry
 @c %**end of header
 
-@include version.texi
-
 @copying
-This is the manual of the Bio++ Program Suite, version @value{VERSION}, @value{UPDATED}.
+This is the manual of the Bio++ Program Suite, version 0.6.0.
 
 Copyright @copyright{} 2007, 2008, 2009, 2010, 2011 Bio++ development team
 @end copying
@@ -64,6 +62,7 @@ Common options encountered in several programs.
 * Model::                       Setting up a substitution model.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
+* WritingTrees::                Writing trees to files. 
 
 Bio++ Program Suite Reference
 
@@ -240,15 +239,15 @@ It is possible to recall anywhere the value of an option by using $(parameter).
 @example
 optimization.topology.algorithm = NNI
 optimization.topology.algorithm_nni.method = phyml
-output.tree = MyData_$(optimization.topology.algorithm)_$(optimization.topology.algorithm_nni.method).dnd
+output.tree.file = MyData_$(optimization.topology.algorithm)_$(optimization.topology.algorithm_nni.method).dnd
 @end example
 @end cartouche
 You can use this syntax to define global variables:
 @cartouche
 @example
 data=MyData
-sequence.file=$(data).fasta
-input.tree=$(data).dnd
+input.sequence.file=$(data).fasta
+input.tree.file=$(data).dnd
 output.infos=$(data).infos
 @end example
 @end cartouche
@@ -261,8 +260,8 @@ For instance:
 @example
 #Option file 1:
 param=options2.bpp
-sequence.file=$(data).fasta
-sequence.format=Fasta
+input.sequence.file=$(data).fasta
+input.sequence.format=Fasta
 @end example
 @end cartouche
 @cartouche
@@ -286,6 +285,7 @@ data=LSU
 * Model::                       Setting up a substitution model.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
+* WritingTrees::                Writing trees to files. 
 @end menu
 
 @node Sequences, Tree, Common, Common
@@ -379,7 +379,7 @@ original site numbering will be used in the output files (if relevant).
 @item input.tree.file = @{path@}
 The phylogenetic tree file to use.
 
-@item input.tree.format = @{Newick|Nexus@}
+@item input.tree.format = @{Newick|Nexus|NHX@}
 The format of the input tree file.
 
 @end table
@@ -391,7 +391,7 @@ The corresponding options are then:
 @item input.trees.file = @{path@}
 The file containing multiple trees.
 
-@item input.trees.format = @{Newick|Nexus@}
+@item input.trees.format = @{Newick|Nexus|NHX@}
 The format of the input tree file.
 
 @end table
@@ -1449,7 +1449,7 @@ where ``method'' can be one of
 
 @table @command
 @item None
-  (no optimization is performed, initial values are kept ``as is''.
+No optimization is performed, initial values are kept ``as is''.
 
 @item FullD(derivatives=@{Newton|Gradient@})
 Full-derivatives method. Branch length derivatives are computed
@@ -1519,9 +1519,6 @@ with @command{YN98.freq_Word.1_}.
 @item optimization.tolerance = @{float>0@}
 The precision on the log-likelihood to reach.
 
-@item output.tree.file = @{@{path@}|none@}
-File path where to write the optimized tree.
-
 @item output.infos = @{@{path@}|none@}
 A text file containing several statistics for each site in the
 alignment.
@@ -1529,9 +1526,11 @@ These statistics include the posterior rate, rate class with maximum posterior p
 
 @end table
 
+The resulting tree will be written to a file specified by the general tree writing options (@ref{WritingTrees}).
+
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node WritingSequences,  , Estimation, Common
+@node WritingSequences, WritingTrees, Estimation, Common
 @section Writing sequences/alignments to files
 
 @table @command
@@ -1543,6 +1542,32 @@ The output file where to write the sequences.
 The output file format, using the same syntax as for reading (@pxref{Sequences}).
 Only formats Fasta, Mase and Phylip are supported for writing.
 In addition, most of the formats support the @command{length} argument, that specifies the maximum number of sequence characters to output on each line (default set to 100).
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node WritingTrees,  , WritingSequences, Common
+@section Writing trees to files
+
+@table @command
+@item output.tree.file = @{path@}
+The phylogenetic tree file to write to.
+
+@item output.tree.format = @{Newick|Nexus|NHX@}
+The format of the output tree file.
+
+@end table
+
+Some programs may require that you write multiple trees to a file.
+The corresponding options are then:
+
+@table @command
+@item output.trees.file = @{path@}
+The file that will contain multiple trees.
+
+@item output.trees.format = @{Newick|Nexus|NHX@}
+The format of the output tree file.
 
 @end table
 
@@ -2038,7 +2063,7 @@ sequence.manip=KeepComplete(maxGapAllowed=30%),GapToUnknown
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bpptreedraw, , bppseqman, Reference
+@node bpptreedraw,  , bppseqman, Reference
 @section BppTreeDraw: Bio++ Tree Drawing
 
 This is a simple program that outputs a tree in various vector formats.
