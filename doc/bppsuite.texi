@@ -434,6 +434,28 @@ be built. The substitution model is a function, potentially including
 parameters. The following table lists the set of usable functions, and
 their parameters.
 
+Many models have a set of optional parameters denoted here as
+"equilibrium frequencies" that are used to initialize the parameters
+of the model related with the equilibrium frequencies. These options
+are:
+
+@table @command
+
+@item initFreqs=values(@{real]0,1[@},...,@{real]0,1[@})
+The equilibrium frequency is set equal (as much as possible) to the
+given frequencies. Those frequencies are given in the same order as
+the alphabet, and they must sum 1.
+
+@item initFreqs=observed 
+The equilibrium frequency is set equal (as much as possible) to the
+observed frequencies.
+
+@item initFreqs.observedPseudoCount=@{integer@}
+a peusocount integer added to all counts of letters (or words), when
+the frequencies are computed from observed data.
+
+@end table
+
 @subsubsection Nucleotide models
 
 @table @command
@@ -441,39 +463,37 @@ their parameters.
 @item JC69
 The Jukes and Cantor model. This model has no additional parameter.
 
-@item K80(kappa=@{real>0@})
-The Kimura 2 parameters model. @var{kappa} is the transition over transversion ratio.
+@item K80([kappa=@{real>0@}])
+The Kimura 2 parameters model. @var{kappa} is the transition over
+transversion ratio. Default: @var{kappa}=1
 
-@item F84(kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Felsenstein's 1984 substitution model, with
-transition/transversion ratio and 4 distinct equilibrium frequencies,
-set using three independent parameters: @var{theta} is the GC content,
-@var{theta1} is the proportion of G / (G + C) and @var{theta2} is the
-proportion of A / (A + T or U). The @var{useObservedFreqs} option set
-the @var{theta}s parameters according to the observed counts in the
-data set, and @var{useObservedFreqs.pseudoCount} is a quantity,
-defaulting to 0, that can be used in case some counts are zero, on
-small data sets for instance. The corrected values are computed as:
-@tex
-$$\pi_i = {f_i + \psi \over 4\cdot\psi + \sum_j f_j}$$
-@end tex
+@item F84([kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@},theta2=@{real]0,1[@} ,"equilibrium frequencies"] )
+Felsenstein's 1984 substitution model, with transition/transversion
+ratio and 4 distinct equilibrium frequencies, set using three
+independent parameters: @var{theta} is the GC content, @var{theta1} is
+the proportion of G / (G + C) and @var{theta2} is the proportion of A
+/ (A + T or U). 
 
-@item HKY85(kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Hasegawa, Kishino and Yano 1985's substitution model.
-The model is similar to @command{F84}, but with a different implementation.
-The @var{kappa} parameter used here is comparable to the one in @command{K80}.
+@item HKY85([kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@} ,"equilibrium frequencies"])
+Hasegawa, Kishino and Yano 1985's substitution model. The model is
+similar to @command{F84}, but with a different implementation. The
+@var{kappa} parameter used here is comparable to the one in
+@command{K80}.
 
-@item T92(kappa=@{real>0@}, theta=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Tamura 1992's model for nucleotides, similar to @command{HKY85}, yet assuming that the frequencies of A = T/U and G = C.
+@item T92([kappa=@{real>0@}, theta=@{real]0,1[@} ,"equilibrium frequencies"])
+Tamura 1992's model for nucleotides, similar to @command{HKY85}, yet
+assuming that the frequencies of A = T/U and G = C.
 
-@item TN93(kappa1=@{real>0@}, kappa2=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Tamura and Nei 1993's model, similar to @command{HKY85}, but allowing for two distinct transition/transversion ratios.
+@item TN93([kappa1=@{real>0@}, kappa2=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@} ,"equilibrium frequencies"])
+Tamura and Nei 1993's model, similar to @command{HKY85}, but allowing
+for two distinct transition/transversion ratios.
 
-@item GTR(a=@{real>0@}, b=@{real>0@}, c=@{real>0@}, d=@{real>0@}, e=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-The General Time-Reversible substitution model.
-Parameters @var{a}, @var{b}, @var{c}, @var{d}, @var{e} are the entries of the exchangeability matrix.
+@item GTR([a=@{real>0@}, b=@{real>0@}, c=@{real>0@}, d=@{real>0@}, e=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@} ,"equilibrium frequencies"])
+The General Time-Reversible substitution model. Parameters @var{a},
+@var{b}, @var{c}, @var{d}, @var{e} are the entries of the
+exchangeability matrix.
 
-@item L95(beta=@{real>0@}, gamma=@{real>0@}, delta=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+@item L95([beta=@{real>0@}, gamma=@{real>0@}, delta=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@} ,"equilibrium frequencies"])
 The strand-symmetric model of Lobry 1995, for nucleotides.
 
 @end table
@@ -497,59 +517,63 @@ Protein substitution model, from Whelan & Goldman 2001.
 @item LG08
 Protein substitution model, from Le & Gascuel 2008.
 
-@item LLG08_EX2(relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@})
+@item LLG08_EX2([relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. See
 the meaning of the variables in the Mixture model below.
 
-@item LLG08_EX3(relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@})
+@item LLG08_EX3([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008.  See
 the meaning of the variables in the Mixture model below.
 
-@item LLG08_EHO(relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@})
+@item LLG08_EHO([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. See
 the meaning of the variables in the Mixture model below.
 
-@item LLG08_UL2(relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@})
+@item LLG08_UL2([relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. See
 the meaning of the variables in the Mixture model below.
 
-@item LLG08_UL3(relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@})
+@item LLG08_UL3([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. See
 the meaning of the variables in the Mixture model below.
 
-@item DSO78+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+@item DSO78+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ... ,"equilibrium frequencies"])
 Protein substitution model, using the dcmutt implementation of Kosiol
 and Goldman 2005 and free equilibrium frequencies. The @var{thetaX}
 are frequencies parameters, where X is 1 to 19. Parameter @var{theta1}
 is the proportion of A, @var{theta2} is the proportion of R over
 (1-A), @var{theta3} the proportion of N over (1-A-R), etc.
 
-@item JTT92+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+@item JTT92+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
 Protein substitution model, using the dcmutt implementation of Kosiol
 and Goldman 2005 and free equilibrium frequencies.
 
-@item WAG01+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+@item WAG01+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
 Protein substitution model, from Whelan & Goldman 2001, and free
 equilibrium frequencies.
 
-@item LG08+F(theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
+@item LG08+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
 Protein substitution model, from Le & Gascuel 2008, and free
 equilibrium frequencies.
 
 @item Empirical(name=@{chars@}, file=@{path@})
-Build a protein substitution model from a file in PAML format, and use 'name' as a namespace for parameters.
+Build a protein substitution model from a file in PAML format, and use
+'name' as a namespace for parameters.
 
-@item Empirical+F(name=@{chars@}, file=@{path@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., useObservedFreqs=@{boolean@}, useObservedFreqs.pseudoCount=@{int>0@})
-Build a protein substitution model from a file in PAML format, and use free equilibrium frequencies. 'name' will be used as a parameter namespace, including for frequencies.
+@item Empirical+F(name=@{chars@}, file=@{path@}, [theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
+Build a protein substitution model from a file in PAML format, and use
+free equilibrium frequencies. 'name' will be used as a parameter
+namespace, including for frequencies.
 
 @end table
 
 @subsubsection Miscellaneous models
 
 @table @command
-@item Binary(kappa=@{real>0@})
+@item Binary([kappa=@{real>0@} ,"equilibrium frequencies"])
 Build the model on binary alphabet, where @var{kappa} is the relative
-proportion of 1 over 0 in the equilibrium distribution.
+proportion of 1 over 0 in the equilibrium distribution. Default:
+@var{kappa}=1.
 
 @end table
 
@@ -585,34 +609,34 @@ models, in the case of non stationarity.
 
 @table @command
 
-@item GY94([genetic_code=@{genetic code description@} , kappa=@{real>0@}, V=@{real>0@}])
+@item GY94([genetic_code=@{genetic code description@}, kappa=@{real>0@}, V=@{real>0@}, "equilibrium frequencies"])
 Goldman and Yang (1994) substitution model for codons (default values:
 @var{kappa}=1 and @var{V}=10000).
 
-@item MG94([genetic_code=@{genetic code description@}, rho=@{real>0@}])
+@item MG94([genetic_code=@{genetic code descrition@}, rho=@{real>0@}, "equilibrium frequencies"])
 Muse and Gaut (1994) substitution model for codons (default values:
 @var{rho}=1).
 
-@item YN98([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}])
+@item YN98([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
 Yang and Nielsen (1998) substitution model for codons (default values:
 @var{kappa}=1 and @var{omega}=1).
 
-@item YNGKP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}])
+@item YNGKP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
 The M0 model of PAML, ie the same as YN98.
 
-@item YNGKP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}])
+@item YNGKP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, "equilibrium frequencies"])
 The M1a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000) (default values: @var{kappa}=1, @var{p0}=0.5,
 @var{omega}=0.5).
 
-@item YNGKP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}])
+@item YNGKP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M2a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with  p0=theta1  and
 p1=(1-theta1)*theta2 (default values: @var{kappa}=1, @var{theta1}=0.33333,
 @var{theta2}=0.5, @var{omega0}=0.5, @var{omega2}=0.5).
 
-@item YNGKP_M3(genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}])
+@item YNGKP_M3([genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M3 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with @var{n} discrete values, with p0=theta1
@@ -620,13 +644,13 @@ and pk=(1-theta1)*...*(1-thetak)*theta(k+1), and
 omegak=omega0+delta1+....+deltak (default values: @var{n}=3,
 @var{kappa}=1, @var{thetak}=1/(n-k+1), @var{omega0}=0.5, @var{deltak}=0.5).
 
-@item YNGKP_M7(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}])
+@item YNGKP_M7(n=@{integer>0@}, genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M7 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2).
 
-@item YNGKP_M7(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}])
+@item YNGKP_M8(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M8 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
@@ -661,11 +685,11 @@ this modification.
 
 @table @command
 
-@item CodonRate(model=@{model name@} [, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item CodonRate(model=@{model name@} [, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
 
 or 
 
-@item CodonRate(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}[, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item CodonRate(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}[, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
 
 Substitution model on codons with position specific evolution rates.
 
@@ -696,11 +720,11 @@ model=CodonRate(model1=T92(theta=0.5, kappa=2), \
                 model2=T92(theta=0.4, kappa=2), model3=JC69)
 @end example
 
-@item CodonDistance(model=@{model name@}[, genetic_code=@{genetic code description@}, beta=@{real>0@}])
+@item CodonDistance(model=@{model name@}[, genetic_code=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
 or
 
-@item CodonDistance(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}]) 
+@item CodonDistance(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"]) 
 
 Substitution model on codons that takes into account the difference
 between synonymous and non-synonymous substitutions.
@@ -725,9 +749,9 @@ independent T92 models, and third site follows a JC69 model. Then the
 parameters names are @var{CodonDistance.1_T92.kappa},
 @var{CodonDistance.2_T92.kappa}, @var{CodonDistance.beta}.
 
-@item CodonRateFrequencies(model=@{model name@}, frequencies=@{frequencies set description@}[, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item CodonRateFrequencies(model=@{model name@}, frequencies=@{frequencies set description@}[, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
 or 
-@item CodonRateFrequencies(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
+@item CodonRateFrequencies(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
 
 
 Substitution model on codons with position specific evolution rates,
@@ -759,11 +783,11 @@ has parameters @var{CodonRateFrequencies.123_K80.kappa},
 @var{CodonRateFrequencies.relrate1},
 @var{CodonRateFrequencies.relrate2}.
 
-@item CodonDistanceFrequencies(model=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}])
+@item CodonDistanceFrequencies(model=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
 or 
 
-@item CodonDistanceFrequencies(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}])
+@item CodonDistanceFrequencies(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
 Substitution model on codons that takes into account the difference
 between synonymous and non-synonymous substitutions. Moreover, the
@@ -790,11 +814,11 @@ has parameters @var{CodonDistanceFrequencies.012_T92.kappa},
 @var{CodonDistanceFrequencies.Full.theta_60},
 @var{CodonDistanceFrequencies.beta}.
 
-@item CodonDistancePhaseFrequencies(model=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}])
+@item CodonDistancePhaseFrequencies(model=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
 or 
 
-@item CodonDistancePhaseFrequencies(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}])
+@item CodonDistancePhaseFrequencies(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
 Substitution model on codons that takes into account the difference
 between synonymous and non-synonymous substitutions. Moreover, the
@@ -821,9 +845,9 @@ substitution rate and synonymous substitution rate. Default value: 1.
 
 @table @command
 
-@item Word(model=@{model name@} [,relrate1=@{1>real>0@}, ..., relrate@{n-1@}=@{1>real>0@}]) 
+@item Word(model=@{model name@} [,relrate1=@{1>real>0@}, ..., relrate@{n-1@}=@{1>real>0@}, "equilibrium frequencies"]) 
 or 
-@item Word(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[, relrate1=@{1> real>0@}, ..., relrate@{n-1@}=@{1> real>0@}])
+@item Word(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[, relrate1=@{1> real>0@}, ..., relrate@{n-1@}=@{1> real>0@}, "equilibrium frequencies"])
 
 substitution model on words. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on single sites such
@@ -856,7 +880,8 @@ model. The parameters names are @var{Word.1234_T92.kappa},
 
 @example
 alphabet=Word(letter=DNA,length=4)
-model=Word(model1=T92(), model2=T92(), model3=JC69(), model4=HKY85())
+model=Word(model1=T92(), model2=T92(), model3=JC69(), \
+           model4=HKY85())
 @end example
 builds a model on 4 bases words, such first and second sites follow
 independent T92 models, third site follows a JC69 model, and fourth
@@ -918,15 +943,15 @@ These substitution models take as argument another substitution model, and add s
  
 @table @command
 
-@item TS98(model=@{model description@}, s1=@{real>0@}, s2=@{real>0@})
+@item TS98(model=@{model description@}, s1=@{real>0@}, s2=@{real>0@} [, "equilibrium frequencies"])
 Tuffley and Steel 1998's 'covarion' model, taking a nested substitution model as argument for @var{model}.
 The nested model can be any substitution model for any alphabet.
 
-@item G01(model=@{model description@}, rdist=@{rate distribution description@}, mu=@{real>0@})
+@item G01(model=@{model description@}, rdist=@{rate distribution description@}, mu=@{real>0@} [, "equilibrium frequencies"])
 Galtier 2001's 'covarion' model, taking a nested substitution model as argument for @var{model} and a rate distribution for parameter @var{rdist} (see below).
 The nested model can be any substitution model for any alphabet.
 
-@item RE08(model=@{model description@}, lambda=@{real>0@}, mu=@{real>0@})
+@item RE08(model=@{model description@}, lambda=@{real>0@}, mu=@{real>0@} [, "equilibrium frequencies"])
 Rivas and Eddy 2008's substitution model with gaps, taking a nested substitution model as argument for @var{model}.
 Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rate.
 
@@ -967,7 +992,7 @@ has parameters @var{TN93.kappa1_Gamma.alpha},
 @var{TN93.theta}, @var{MixedModel.TN93.theta1},
 @var{TN93.theta2}.
 
-@item Mixture(model1=@{model description@},..., modeln=@{model description@} [, relrate1=@{1>real>0@},..., relrate@{n-1@}=@{1>real>0@}, relproba1=@{1>real>0@}, ..., relproba@{n-1@}=@{1>real>0@}])
+@item Mixture(model1=@{model description@},..., modeln=@{model description@} [, relrate1=@{1>real>0@},..., relrate@{n-1@}=@{1>real>0@}, relproba1=@{1>real>0@}, ..., relproba@{n-1@}=@{1>real>0@}, "equilibrium frequencies"])
 Mixture model built from several @var{models}: each model has its own
 probability and rate. 
 
