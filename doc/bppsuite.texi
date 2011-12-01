@@ -1211,7 +1211,13 @@ distinct parameters. If a model is assumed to be stationary, the
 setting
 @command{nonhomogeneous.stationary=yes}.
 
-As since version 0.4.0, BppSuite uses the keyval syntax to set up root frequencies,
+When the model is a mixture model, since there is not a set of
+equilibrium frequencies, with this option the root frequencies are set
+to be the average (with the respective probabilities of the submodels)
+of the equilibrium frequencies of the submodels.
+
+As since version 0.4.0, BppSuite uses the keyval syntax to set up root
+frequencies,
 @table @command
 @item nonhomogeneous.root_freq=@{frequency set description@}
 @end table
