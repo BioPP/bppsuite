@@ -1121,14 +1121,6 @@ file.
 
 @subsubsection Paths among non-homogeneous mixture models
 
-
-In this case, on branches 2 & 3 a site follows any submodel of model 2
-(but the same submodel on both branches), and on branches 4 & 5, a
-site follows any submodel of model  3 (the same on both branches as
-well).  But there is no constraint between models 2 & 3, which means
-that a site can follow any submodel of model 2 and any submodel of
-model 3.
-
 To define constraints for sites between submodels, we can set "paths"
 that any site must follow. For example, in the following description:
 
@@ -1144,6 +1136,13 @@ model1.nodes_id=0:1
 model2.nodes_id=2:3
 model3.nodes_id=4:5
 @end example
+
+In this case, on branches 2 & 3 a site follows any submodel of model 2
+(but the same submodel on both branches), and on branches 4 & 5, a
+site follows any submodel of model  3 (the same on both branches as
+well).  But there is no constraint between models 2 & 3, which means
+that a site can follow any submodel of model 2 and any submodel of
+model 3.
 
 If the user wants that a site with @var{T92.kappa=4} in model 2 has
 @var{TN93.theta1=0.1} in model 3, that a site with @var{T92.kappa=10}
@@ -1202,6 +1201,11 @@ site.number_of_paths=2
 site.path1=model1[LLG08_UL2.M2] & model2[LLG08_UL3.Q1]
 site.path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] & model2[LLG08_UL3.Q3]
 @end example
+
+@medskip
+
+When nonhomogeneity option is @option{one_per_branch}, each site is
+constrained to follow the same submodel from leaves to root.
 
 @subsubsection Root frequencies
 
