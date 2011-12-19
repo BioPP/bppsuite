@@ -1202,8 +1202,6 @@ site.path1=model1[LLG08_UL2.M2] & model2[LLG08_UL3.Q1]
 site.path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] & model2[LLG08_UL3.Q3]
 @end example
 
-@medskip
-
 When nonhomogeneity option is @option{one_per_branch}, each site is
 constrained to follow the same submodel from leaves to root.
 

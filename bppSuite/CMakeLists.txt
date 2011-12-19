@@ -42,6 +42,10 @@ ADD_EXECUTABLE(bpptreedraw bppTreeDraw.cpp)
 TARGET_LINK_LIBRARIES(bpptreedraw ${LIBS})
 SET_TARGET_PROPERTIES(bpptreedraw PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
 
+ADD_EXECUTABLE(bppalnscore bppAlnScore.cpp)
+TARGET_LINK_LIBRARIES(bppalnscore ${LIBS})
+SET_TARGET_PROPERTIES(bppalnscore PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
+
 # Install progs
 INSTALL(TARGETS
   bppml
@@ -54,4 +58,5 @@ INSTALL(TARGETS
   bppreroot
   bppphysamp
   bpptreedraw
+  bppalnscore
   DESTINATION bin)
