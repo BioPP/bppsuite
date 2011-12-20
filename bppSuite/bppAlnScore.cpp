@@ -205,11 +205,16 @@ int main(int args, char** argv)
       if (cs[i] == 1) csRanges.addRange(Range<unsigned int>(i, i + 1));
       if (sps[i] >= spsThreshold) spsRanges.addRange(Range<unsigned int>(i, i + 1));
     }
+
     MaseHeader header;
-    header.setSiteSelection("CS", csRanges);
-    header.setSiteSelection("SPS", spsRanges);
+    MultiRange<unsigned int>* tmp1 = new MultiRange<unsigned int>(csRanges); //Note 20/12/11 jdutheil I don't know why we need this!!! If not there we have a seg fault :( :(
+    header.setSiteSelection("CS", *tmp1);
+    MultiRange<unsigned int>* tmp2 = new MultiRange<unsigned int>(spsRanges);
+    header.setSiteSelection("SPS", *tmp2);
     Mase writer;
-    writer.write(outputFilter, *sitesTest, header);
+    writer.writeMeta(outputFilter, *sitesTest, header);
+    delete tmp1;
+    delete tmp2;
   }
 
   //We're done!
