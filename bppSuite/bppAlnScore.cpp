@@ -207,14 +207,10 @@ int main(int args, char** argv)
     }
 
     MaseHeader header;
-    MultiRange<unsigned int>* tmp1 = new MultiRange<unsigned int>(csRanges); //Note 20/12/11 jdutheil I don't know why we need this!!! If not there we have a seg fault :( :(
-    header.setSiteSelection("CS", *tmp1);
-    MultiRange<unsigned int>* tmp2 = new MultiRange<unsigned int>(spsRanges);
-    header.setSiteSelection("SPS", *tmp2);
+    header.setSiteSelection("CS", csRanges);
+    header.setSiteSelection("SPS", spsRanges);
     Mase writer;
     writer.writeMeta(outputFilter, *sitesTest, header);
-    delete tmp1;
-    delete tmp2;
   }
 
   //We're done!
