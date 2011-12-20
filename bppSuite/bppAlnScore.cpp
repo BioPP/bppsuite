@@ -126,8 +126,8 @@ int main(int args, char** argv)
   vector<double> sps = SiteContainerTools::getSumOfPairsScores(indexTest, indexRef, static_cast<double>(na));
 
   //Should scores be averaged for words?
-  unsigned int wsize = ApplicationTools::getParameter<unsigned int>("score.word_size", bppalnscore.getParams(), 1);
-  unsigned int phase = 0;
+  size_t wsize = ApplicationTools::getParameter<size_t>("score.word_size", bppalnscore.getParams(), 1);
+  size_t phase = 0;
   if (wsize > 1) {
     ApplicationTools::displayResult("Scores uniformized for words of size", wsize);
     string phaseOpt = ApplicationTools::getStringParameter("score.phase", bppalnscore.getParams(), "1");
@@ -155,7 +155,29 @@ int main(int args, char** argv)
     ApplicationTools::displayResult("First word starts at", phase + 1);
 
     //Now perform the smoothing:
-    //TODO
+    size_t i;
+    for (i = 0; i < phase; ++i) {
+      cs[i] = 0;
+      sps[i] = 0;
+    }
+    for (; i + wsize < cs.size(); i += wsize) {
+      //First compute minimum criterion:
+      int csmin = 1;
+      double spsmin = 1;
+      for (size_t j = i; j < i + wsize; ++j) {
+        if (cs[j] < csmin) csmin = cs[j];
+        if (sps[j] < spsmin) spsmin = sps[j];
+      }
+      //Assign min to all positions in word:
+      for (size_t j = i; j < i + wsize; ++j) {
+        cs[j] = csmin;
+        sps[j] = spsmin;
+      }
+    }
+    for (; i < cs.size(); ++i) {
+      cs[i] = 0;
+      sps[i] = 0;
+    }
   }
 
   //Output scores to file:
@@ -170,8 +192,27 @@ int main(int args, char** argv)
     output.close();
   }
 
-  //TODO: create a sequence filter:
+  //Create a sequence filter:
+  string outputFilter = ApplicationTools::getAFilePath("output.mase", bppalnscore.getParams(), true, false);
+  if (outputFilter != "none") {
+    ApplicationTools::displayResult("Output mase with site filter to", outputFilter);
+    double spsThreshold = ApplicationTools::getDoubleParameter("output.sps_thresholds", bppalnscore.getParams(), 0.8);
+    ApplicationTools::displayResult("Threshold for SPS", spsThreshold);
+    
+    MultiRange<unsigned int> csRanges;
+    MultiRange<unsigned int> spsRanges;
+    for (size_t i = 0; i < cs.size(); ++i) {
+      if (cs[i] == 1) csRanges.addRange(Range<unsigned int>(i, i + 1));
+      if (sps[i] >= spsThreshold) spsRanges.addRange(Range<unsigned int>(i, i + 1));
+    }
+    MaseHeader header;
+    header.setSiteSelection("CS", csRanges);
+    header.setSiteSelection("SPS", spsRanges);
+    Mase writer;
+    writer.write(outputFilter, *sitesTest, header);
+  }
 
+  //We're done!
   bppalnscore.done();
 
   } catch(exception & e) {
