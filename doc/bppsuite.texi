@@ -75,6 +75,7 @@ Bio++ Program Suite Reference
 * bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
+* bppalnscore::                 iBio++ Alignment Scoring
 * bpptreedraw::                 Bio++ Tree Drawing.
 
 @end detailmenu
@@ -1625,6 +1626,7 @@ This section now details the specific options for each program in the Bio++ Prog
 * bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
+* bppalnscore::                 Bio++ Alignment Scoring
 * bpptreedraw::                 Bio++ Tree Drawing.
 @end menu
 
@@ -1984,7 +1986,7 @@ File where to write the rerooted trees.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bppseqman, bpptreedraw, bppreroot, Reference
+@node bppseqman, bppalnscore, bppreroot, Reference
 @section BppSeqMan: Bio++ Sequence Manipulation
 
 The Bio++ Sequence Manipulator convert between various file formats, and can also perform various operations on sequences.
@@ -2096,7 +2098,61 @@ sequence.manip=KeepComplete(maxGapAllowed=30%),GapToUnknown
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bpptreedraw,  , bppseqman, Reference
+@node bppalnscore, bpptreedraw, bppseqman, Reference
+@section BppAlnScore: Bio++ Alignment Scoring
+
+This program compares two alignments and computes column scores.
+Scores are output to a text file, and/or can be used to generate
+a site selection, to be output in a mase file.
+
+The two input alignments are specified using the input.sequences
+procedures (@pxref{Sequences}), with suffixes ``.test'' for the
+first one, and ``.ref'' for the second. Scores will be computed 
+for each column of the ``.test'' alignment.
+
+Two scores are computed, following work by Thompson (1999):
+@table @emph
+@item column score (CS)
+is 1 if the column is found in the reference alignment, 0 otherwise.
+@item sum-of-pairs score (SPS)
+is the proportion of pairs of residues which are also aligned in
+the reference alignment.
+@end table
+
+Specific options:
+@table @command
+
+@item output.scores = @{path@}
+A text file where scores can be written, one row per column.
+If set to 'none', no file will be produced.
+
+@item output.mase = @{path@}
+If not 'none', a Mase alignment will be generated, as a copy
+of the ``.test'' input alignment, with two sites selections
+names CS and SPS.
+
+@item output.sps_thresholds = @{float@}
+The threshold to use for generating the site selection based 
+on SPS score. All positions with at least the threshold value
+will be included in the selection.
+
+@item score.word_size = @{int>0@}
+If alignment is for a word alphabet (typically codons), the word
+size can be specified in order to produce a compatible site selection.
+Please note that in this case, the alignment must not be loaded with
+the world alphabet, but the corresponding letter alphabet.
+
+@item score.phase = @{int>0|chars@}
+Eather a number (1-based) stating the starting position for words,
+or the starting word. In this latter case, the first occurrence of the
+word in all sequences will be used to determine the phase.
+
+@end table
+
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bpptreedraw,  , bppalnscore, Reference
 @section BppTreeDraw: Bio++ Tree Drawing
 
 This is a simple program that outputs a tree in various vector formats.
