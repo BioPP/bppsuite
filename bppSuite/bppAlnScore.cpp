@@ -160,7 +160,7 @@ int main(int args, char** argv)
       cs[i] = 0;
       sps[i] = 0;
     }
-    for (; i + wsize < cs.size(); i += wsize) {
+    for (; i + wsize <= cs.size(); i += wsize) {
       //First compute minimum criterion:
       int csmin = 1;
       double spsmin = 1;
