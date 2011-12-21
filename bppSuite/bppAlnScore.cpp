@@ -181,7 +181,7 @@ int main(int args, char** argv)
   }
 
   //Output scores to file:
-  string outputScores = ApplicationTools::getAFilePath("output.scores", bppalnscore.getParams(), true, false);
+  string outputScores = ApplicationTools::getAFilePath("output.scores", bppalnscore.getParams(), false, false);
   if (outputScores != "none") {
     ApplicationTools::displayResult("Output scores to", outputScores);
     ofstream output(outputScores.c_str(), ios::out);
@@ -193,7 +193,7 @@ int main(int args, char** argv)
   }
 
   //Create a sequence filter:
-  string outputFilter = ApplicationTools::getAFilePath("output.mase", bppalnscore.getParams(), true, false);
+  string outputFilter = ApplicationTools::getAFilePath("output.mase", bppalnscore.getParams(), false, false);
   if (outputFilter != "none") {
     ApplicationTools::displayResult("Output mase with site filter to", outputFilter);
     double spsThreshold = ApplicationTools::getDoubleParameter("output.sps_thresholds", bppalnscore.getParams(), 0.8);
