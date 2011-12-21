@@ -1,0 +1,33 @@
+# Global variables:
+DATA = HIV1_REF_2010_gag
+
+# ---------------
+# Input sequences
+# ---------------
+
+# The alphabet to use:
+# [DNA|RNA|Protein|Generic]
+alphabet=Codon(code=Standard, letter=DNA)
+
+# The sequence file to use (sequences must be aligned!)
+input.sequence.file=../Data/$(DATA)_DNA.fasta
+
+# The file format:
+input.sequence.format=Fasta
+
+# ----------------
+# Output sequences
+# ----------------
+
+output.sequence.file=$(DATA)_AA.fasta
+
+# The file format:
+output.sequence.format=Fasta()
+
+# -----------------------
+# Sequences manipulations
+# -----------------------
+#For example (see manual for a detailed list of available options):
+sequence.manip = CoerceToAlignment,RemoveStops,KeepComplete(maxGapAllowed=30%),Translate(code=StandardGeneticCode)
+  
+

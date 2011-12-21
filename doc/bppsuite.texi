@@ -2037,6 +2037,9 @@ Change gaps to fully unresolved characters, N for nucleotides and X for proteins
 Change (partially) unresolved characters to gaps.
 
 @item RemoveStops
+Remove all stop codons in sequences. If sequences are aligned, stop codons will be replaced by gaps.
+
+@item RemoveColumnsWithStops
 Remove all sites with at least one stop codon.
 
 @item GetCDS

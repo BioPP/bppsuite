@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS
+Copyright or © or Copr. Bio++ Development Team
 
 This software is a computer program whose purpose is to simulate sequence
 data according to a phylogenetic tree and an evolutionary model.
@@ -78,8 +78,8 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Sequence Manipulator, version 0.5              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 23/08/11 *" << endl;
+  cout << "*           Bio++ Sequence Manipulator, version 0.6              *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 21/12/11 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -201,15 +201,15 @@ int main(int args, char** argv)
     // +-------------+
     else if (cmdName == "Translate")
     {
-      if (!AlphabetTools::isNucleicAlphabet(sequences->getAlphabet()))
-        throw Exception("Error in translation: alphabet is not of type 'nucleic'.");
+      if (!AlphabetTools::isCodonAlphabet(sequences->getAlphabet()))
+        throw Exception("Error in translation: alphabet is not of type 'codon'.");
       GeneticCode* gc = NULL;
       string gcstr = ApplicationTools::getStringParameter("code", cmdArgs, "Standard");
-      gc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const NucleicAlphabet *>(sequences->getAlphabet()), gcstr);
+      gc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const CodonAlphabet*>(sequences->getAlphabet())->getNucleicAlphabet(), gcstr);
 
       OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
+      if (aligned) sc = new VectorSiteContainer(&AlphabetTools::PROTEIN_ALPHABET);
+      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET));
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = gc->translate(sequences->getSequence(i));
@@ -227,9 +227,9 @@ int main(int args, char** argv)
       VectorSequenceContainer* sc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* seq = SequenceTools::removeGaps(sequences->getSequence(i));
+        auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
+        SequenceTools::removeGaps(*seq);
         sc->addSequence(*seq);
-        delete seq;
       }
       delete sequences;
       sequences = sc;
@@ -277,10 +277,40 @@ int main(int args, char** argv)
     // +--------------+
     else if (cmdName == "RemoveStops")
     {
-      SiteContainer* sites = dynamic_cast<SiteContainer *>(sequences);
+      SiteContainer* sites = dynamic_cast<SiteContainer*>(sequences);
       if (!sites)
       {
-        throw Exception("'RemoveStops' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
+        VectorSequenceContainer* sc = new VectorSequenceContainer(sequences->getAlphabet());
+        for (unsigned int i = 0; i < sequences->getNumberOfSequences(); ++i)
+        {
+          auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
+          SequenceTools::removeStops(*seq);
+          sc->addSequence(*seq);
+        }
+        delete sequences;
+        sequences = sc;
+      } else {
+        VectorSiteContainer* sc = new VectorSiteContainer(sequences->getAlphabet());
+        for (unsigned int i = 0; i < sequences->getNumberOfSequences(); ++i)
+        {
+          auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
+          SequenceTools::replaceStopsWithGaps(*seq);
+          sc->addSequence(*seq);
+        }
+        delete sequences;
+        sequences = sc;
+      }
+    }
+
+    // +--------------+
+    // | Remove stops |
+    // +--------------+
+    else if (cmdName == "RemoveColumnsWithStop")
+    {
+      SiteContainer* sites = dynamic_cast<SiteContainer*>(sequences);
+      if (!sites)
+      {
+        throw Exception("'RemoveColumnsWithStop' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
 
       for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
@@ -301,7 +331,12 @@ int main(int args, char** argv)
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         BasicSequence seq = sequences->getSequence(i);
+        unsigned int len = seq.size();
         SequenceTools::getCDS(seq, false, true, true, false);
+        if (aligned) {
+          for (unsigned int c = seq.size(); c < len; ++c)
+            seq.addElement(seq.getAlphabet()->getGapCharacterCode());
+        }
         sc->addSequence(seq, false);
       }
       delete sequences;
