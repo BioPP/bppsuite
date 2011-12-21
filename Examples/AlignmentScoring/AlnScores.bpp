@@ -1,0 +1,13 @@
+DATA=HIV1_REF_2010_gag
+
+input.sequence.file.test   = ../Data/$(DATA)_DNA.fasta
+input.sequence.format.test = Fasta
+input.sequence.file.ref    = ../Data/$(DATA)_macse_DNA.fasta
+input.sequence.format.ref  = Fasta
+
+score.word_size = 3
+score.phase     = ATG
+
+output.scores = $(DATA).scores.txt
+output.mase = $(DATA).filter.mase
+output.sps_thresholds = 0.8

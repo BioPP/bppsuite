@@ -8,6 +8,10 @@ Data/
   treeList.dnd                   A list of trees in newick format.
   treeList2.dnd                  Another list of trees in newick format.
   OutGroup.txt                   A list of taxons to be used with BppReRoot.
+  lysozymeLarge.fasta and .dnd   Files from the PAML package.
+  Myo.mase                       Myoglobin sequence alignment, From dutheil and Galtier 2007
+  HIV1_REF_2010_gag_DNA.fasta    Alignment file downloaded from the HIV database on 21/12/11
+  " " _macse                     realigned with Macse 0.8
 
 
                    ..:: Options files ::..
@@ -25,4 +29,5 @@ These option files are split in their respective program directory:
   SeqMan.bpp                     BppSeqMan option file.
   PhySamp.bpp                    BppPhyloSampler option file.
   ReRoot.bpp                     BppReRoot option file.
+  AlnScores.bpp                  BppAlnscore option file.
 
