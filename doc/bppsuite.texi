@@ -297,7 +297,12 @@ data=LSU
 @{DNA|RNA|Protein|Binary|Word(letter=@{DNA|RNA|Protein@},length=@{int@})|
 Codon(letter=@{DNA|RNA@}, type=@{Standard|EchinodermMitochondrial|InvertebrateMitochondrial|\
 VertebrateMitochondrial@})@}
-The alphabet to use when reading sequences.
+The alphabet to use when reading sequences. DNA and RNA alphabet can in addition take an argument:
+
+@table @command
+@item bangAsgap=@{bool@}
+Tell is exclamation mark should be considered as a gap character. The default is to consider it as an unknown character such as 'N' or '?'.
+@end table
 
 @item input.sequence.file=@{path@}
 The sequence file to use. Depending on the program, these sequences have or do not have to be aligned.
