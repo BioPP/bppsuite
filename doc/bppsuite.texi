@@ -316,8 +316,10 @@ The format is a function, with optional parameters:
 
 @table @command
 
-@item Fasta()
+@item Fasta(extended=@{bool@}, strictNames=@{bool@})
 The fasta format.
+The argument @command{extended}, default to 'no', allows to enable the HUPO-PSI extension of the format.
+The argument @command{strict_names}, default to 'no', specifies that only the first word in the fasta header is used as a sequence names, the rest of the header being considered as comments.
 
 @item Mase(siteSelection=@{chars@})
 The Mase format (as read by Seaview and Phylo_win for instance), with an optional site selection name.
