@@ -394,7 +394,7 @@ int main(int args, char** argv)
         {
           map<int, double> freqs;
           SiteTools::getFrequencies(sites->getSite(i - 1), freqs);
-          if (freqs[-1] >= gapFreq) sites->deleteSite(i - 1);
+          if (freqs[-1] > gapFreq) sites->deleteSite(i - 1);
         }
       }
       else
