@@ -42,16 +42,8 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = YN98(kappa=1, omega=1, frequencies=F1X4)
-nonhomogeneous=one_per_branch
-#These lines are for the F1X4 option:
-#nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa,\
-#  YN98.freq_Codon.123_Full.theta, YN98.freq_Codon.123_Full.theta1, YN98.freq_Codon.123_Full.theta2
-#These lines are for the F3X4 option:
-nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa, YN98.freq*
-nonhomogeneous.stationarity=yes
-#Only if stationarity is set to false:
-nonhomogeneous.root_freq=
+model = YN98(kappa=1, omega=1.0, frequencies=F0)
+nonhomogeneous=no
 
 rate_distribution = Uniform //Gamma(n=4, alpha=0.358)
 
