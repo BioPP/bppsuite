@@ -42,7 +42,7 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = YNGKP_M1(kappa=1, omega=1.0, frequencies=F3X4, p0=1.0)
+model = YNGKP_M1(kappa=1, omega=1.0, frequencies=F3X4, p0=1.0, initFreqs=observed)
 nonhomogeneous=no
 
 rate_distribution = Uniform //Gamma(n=4, alpha=0.358)
