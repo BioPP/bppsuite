@@ -1,26 +1,29 @@
-#initial logL: -65826.8571771722
-#final   logL: -65428.449112789
+#Example data set adapted from PAML
+#
+#Initial log likelihood.................: -1068.04967173634
 
 # Global variables:
-DATA = LSU
+DATA = lysozymeLarge
 
 # Sequences:
 
 # The alphabet to use:
-# DNA, RNA or Protein
-alphabet=DNA
+# DNA, RNA or Protein...
+alphabet=Codon(letter=DNA, type=Standard)
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=../../../Data/$(DATA).phy
+input.sequence.file=../../../Data/$(DATA).fasta
 
 # The alignment format:
-input.sequence.format=Phylip(order=sequential, type=extended, split=spaces)
+input.sequence.format=Fasta
 
 #Sites to use:
 # all, nogap or complete (=only resolved chars)
 input.sequence.sites_to_use = all
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
 input.sequence.max_gap_allowed = 50%
+
+input.sequence.remove_stop_codons = yes
 
 # ----------------------------------------------------------------------------------------
 #                                     Input tree file
@@ -39,9 +42,10 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = HKY85(kappa=2.843, initFreqs=observed)
+model = YNGKP_M2(kappa=1, omega0=0.5, omega2=2.0, frequencies=F3X4, theta1=0.33333, theta2=0.5, initFreqs=observed)
+nonhomogeneous=no
 
-rate_distribution = Gamma(n=4, alpha=0.358)
+rate_distribution = Uniform //Gamma(n=4, alpha=0.358)
 
 # Likelihood recursion option:
 # - simple: derivatives takes more time to compute, but likelihood computation is faster.
@@ -67,11 +71,7 @@ likelihood.recursion_simple.compression = recursive
 
 # Should we reestimate likelihood parameters? Tree topology will not be optimized.
 # (recommanded)
-# Method to use for optimizing numerical parameters:
-# - None, no optimization performed
-# - DB derivatives for branch lengths + Brent for other parameters
-# - FullD derivatives for all parameters, using numerical derivatives for non-branch lengths parameters.
-optimization = FullD(derivatives=Newton)
+optimization = D-Brent(derivatives=Newton, nstep=10)
 
 # Tell if the parameter should be transformed in order to remove constraints.
 # This can improves the optimization, but might be a bit slower.
@@ -85,7 +85,7 @@ optimization.final = none
 optimization.verbose = 3
 
 # Parameters to ignore (for instance equilibrium frequencies)
-optimization.ignore_parameter =
+optimization.ignore_parameter = YNGKP_M1.freq*
 
 # Maximum number of likelihood evaluations:
 optimization.max_number_f_eval = 10000
@@ -100,7 +100,7 @@ optimization.message_handler = $(DATA).messages
 optimization.profiler = $(DATA).profile
 
 # Shall we optimize tree topology as well?
-optimization.topology = yes
+optimization.topology = no
 
 # Algorithm to use for topology estimation: only NNI for now
 optimization.topology.algorithm = NNI

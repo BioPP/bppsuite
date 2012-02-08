@@ -1,11 +1,20 @@
-#Initial log likelihood.................: -71011.8177084265
-#Log likelihood.........................: -65343.8442233959
-#GC.theta...............................: 0.483464
-#T92.kappa_1............................: 2.63716
-#T92.theta_1............................: 0.576654
-#T92.theta_2............................: 0.445837
-#Gamma.alpha............................: 0.439279
-#111.83user 0.07system 1:52.90elapsed 99%CPU
+#Initial log likelihood.................: -67066.6981049241
+#Log likelihood.........................: -65187.3822910926
+#Full.theta.............................: 0.481587
+#Full.theta1............................: 0.568231
+#Full.theta2............................: 0.591547
+#GTR.a_1................................: 1.27372
+#GTR.b_1................................: 0.667001
+#GTR.c_1................................: 0.344267
+#GTR.d_1................................: 0.339924
+#GTR.e_1................................: 0.37557
+#GTR.theta_1............................: 0.622987
+#GTR.theta1_1...........................: 0.469133
+#GTR.theta2_1...........................: 0.547965
+#GTR.theta_2............................: 0.491549
+#GTR.theta1_2...........................: 0.485613
+#GTR.theta2_2...........................: 0.555095
+#Gamma.alpha............................: 0.438647
 
 
 # Global variables:
@@ -60,7 +69,7 @@ rate_distribution = Gamma(n=4, alpha=0.358)
 nonhomogeneous.number_of_models = 2
 
 # Set up each model:
-model1 = GTR(theta=0.5, useObservedFreqs=yes)
+model1 = GTR(initFreqs=observed)
 model1.nodes_id=0:62 # The Ids of the nodes to which this model should be assigned.
 
 model2 = GTR(a=model1.GTR.a,\
@@ -68,7 +77,7 @@ model2 = GTR(a=model1.GTR.a,\
              c=model1.GTR.c,\
              d=model1.GTR.d,\
              e=model1.GTR.e,\
-             theta=0.9, useObservedFreqs=yes)
+             initFreqs=observed)
 model2.nodes_id=63:154
 
 # Likelihood recursion option:
@@ -93,7 +102,7 @@ likelihood.recursion_simple.compression = recursive
 optimization=FullD(derivatives=Newton)
 optimization.reparametrization=no
 optimization.verbose = 1
-optimization.ignore_parameter = RootPosition
+optimization.ignore_parameter =
 optimization.max_number_f_eval = 10000
 optimization.tolerance = 0.000001
 optimization.message_handler = $(DATA).messages

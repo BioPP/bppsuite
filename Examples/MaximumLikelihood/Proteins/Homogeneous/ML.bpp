@@ -1,5 +1,5 @@
-#initial logL: -5140.62864568291
-#final   logL: 
+#initial logL: -5140.62856257665
+#final   logL: -4958.52926533168
 
 # Global variables:
 DATA = Myo
@@ -39,7 +39,7 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = JTT92+F(useObservedFreqs=yes)
+model = JTT92+F(initFreqs=observed, initFreqs.observedPseudoCount=0.)
 
 rate_distribution = Gamma(n=4, alpha=0.5)
 

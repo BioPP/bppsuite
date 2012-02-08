@@ -1,6 +1,6 @@
 #Example data set adapted from PAML
 #
-#logL = 65442.80353609310986939818
+#Initial log likelihood.................: -1069.68587126864
 
 # Global variables:
 DATA = lysozymeLarge
