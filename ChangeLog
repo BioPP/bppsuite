@@ -1,3 +1,7 @@
+21/12/11 Julien Dutheil
+* New bppAlnScore program
+* Improved bppSeqMan: protein translation now works + more stop codons removal options.
+
 17/06/11 Julien Dutheil
 * Improved bppancestor, also allows to compute frequencies for leaves.
 

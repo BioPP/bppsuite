@@ -22,4 +22,5 @@ Description: Bio++ program suite
   - BppPhySamp for phylogenetic sampling,
   - BppReRoot for tree rerooting.
   - BppTreeDraw for tree drawing.
+  - BppAlnScore for comparing alignments and computing alignment scores.
 
