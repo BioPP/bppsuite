@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename bppsuite.info
-@settitle BppSuite Manual 0.6.0
+@settitle BppSuite Manual 0.7.0
 @documentencoding UTF-8
 @afourpaper
 @dircategory Science Biology Genetics
@@ -15,6 +15,7 @@
 * bppphysamp: (bppphysamp)      Bio++ Phylogenetic Sampler.
 * bppreroot: (bppreroot)        Bio++ Serial Tree Re-rooting.
 * bppseqman: (bppseqman)        Bio++ Sequences Manipulation.
+* bppalnscore: (bppalnscore)    Bio++ Alignment Scoring
 * bpptreedraw: (bpptreedraw)    Bio++ Tree Drawing.
 @end direntry
 @c %**end of header
@@ -22,7 +23,7 @@
 @copying
 This is the manual of the Bio++ Program Suite, version 0.6.0.
 
-Copyright @copyright{} 2007, 2008, 2009, 2010, 2011 Bio++ development team
+Copyright @copyright{} 2007, 2008, 2009, 2010, 2011, 2012 Bio++ development team
 @end copying
 
 @titlepage
@@ -75,7 +76,7 @@ Bio++ Program Suite Reference
 * bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
-* bppalnscore::                 iBio++ Alignment Scoring
+* bppalnscore::                 Bio++ Alignment Scoring
 * bpptreedraw::                 Bio++ Tree Drawing.
 
 @end detailmenu

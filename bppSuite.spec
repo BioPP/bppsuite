@@ -1,5 +1,5 @@
 %define name bppsuite
-%define version 0.6.2
+%define version 0.7.0
 %define release 1
 %define _prefix /usr
 
@@ -29,6 +29,7 @@ Bio++ program suite includes programs:
  - BppPhySamp for phylogenetic sampling,
  - BppReRoot for tree rerooting.
  - BppTreeDraw for tree drawing.
+ - BppAlnScore for comparing alignments and computing alignment scores.
 
 %prep
 %setup -q
@@ -80,6 +81,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/bpptreedraw.1.gz
 
 %changelog
+* Wed Feb 15 2012 Julien Dutheil <julien.dutheil@univ-montp2.fr>
+- BppSuite 0.7.0 release
 * Thu Jun 09 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>
 - BppSuite 0.6.2 release
 * Mon Feb 28 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr>

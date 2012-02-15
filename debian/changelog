@@ -1,3 +1,10 @@
+bppsuite (0.7.0-1) unstable; urgency=low
+
+  * Several program improvements (more models, options, etc.)
+  * New program bpp Alignment scores.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Wed, 15 Feb 2012 09:17:00 +0100
+
 bppsuite (0.6.2-1) unstable; urgency=low
 
   * RFP: Bio++ -- The Bio++ bioinformatics libraries. (Closes: #616373).

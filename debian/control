@@ -4,12 +4,12 @@ Priority: optional
 Maintainer: Loic Dachary <loic@dachary.org>
 Uploaders: Julien Dutheil <julien.dutheil@univ-montp2.fr>
 Build-Depends: debhelper (>= 5), cmake (>= 2.6), dpkg (>= 1.15.4) | install-info, texinfo,
-  libbpp-phyl-dev (>= 2.0.1)
+  libbpp-phyl-dev (>= 2.0.3)
 Standards-Version: 3.9.1
 
 Package: bppsuite
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-phyl9 (>= 2.0.1)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libbpp-phyl9 (>= 2.0.3)
 Description: Bio++ program suite
  Includes programs:
   - BppML for maximum likelihood analysis,
