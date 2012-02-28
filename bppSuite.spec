@@ -68,6 +68,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/bin/bppphysamp
 %{_prefix}/bin/bppreroot
 %{_prefix}/bin/bpptreedraw
+%{_prefix}/bin/bppalnscore
 %{_prefix}/share/info/bppsuite.info.gz
 %{_prefix}/share/man/man1/bppml.1.gz
 %{_prefix}/share/man/man1/bppseqgen.1.gz
@@ -79,6 +80,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/bppreroot.1.gz
 %{_prefix}/share/man/man1/bppphysamp.1.gz
 %{_prefix}/share/man/man1/bpptreedraw.1.gz
+%{_prefix}/share/man/man1/bppalnscore.1.gz
 
 %changelog
 * Wed Feb 15 2012 Julien Dutheil <julien.dutheil@univ-montp2.fr>
