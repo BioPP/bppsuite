@@ -10,7 +10,7 @@ Release: %{release}
 Vendor: Julien Dutheil
 Source: http://download.gna.org/bppsuite/%{name}-%{version}.tar.gz
 License: CeCILL 2
-Group: System Environment/Libraries
+Group: Productivity/Scientific/Other
 BuildRoot: %{_builddir}/%{name}-root
 Packager: Julien Dutheil
 Prefix: %{_prefix}
