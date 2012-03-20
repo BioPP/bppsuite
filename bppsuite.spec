@@ -13,9 +13,6 @@ Vendor: The Bio++ Project
 Source: http://biopp.univ-montp2.fr/repos/sources/%{_basename}-%{_version}.tar.gz
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
-Requires: bpp-core = %{_version}
-Requires: bpp-seq = %{_version}
-Requires: bpp-phyl = %{_version}
 
 Requires: libbpp-phyl9 = 2.0.3
 Requires: libbpp-seq9 = 2.0.3
