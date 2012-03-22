@@ -942,6 +942,18 @@ parameters names are @var{Triplet.1_T92.kappa},
 @var{Triplet.2_T92.kappa}, @var{Triplet.relrate1},
 @var{Triplet.relrate2}.
 
+@item YpR_Sym(model=@{model description@}, [rCgT=@{real>=0@}, rTgC=@{real>=0@}, rCaT=@{real>=0@}, rTaC=@{real>=0@}])
+
+substitution model on quotiented triplets to handle strand symetric
+neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
+2012). 
+
+@item YpR_Gen(model=@{model description@}, [rCgT=@{real>=0@}, rcGA=@{real>=0@}, rTgC=@{real>=0@}, rtGA=@{real>=0@}, rCaT=@{real>=0@}, rcAG=@{real>=0@}, rTaC=@{real>=0@}, rtAG=@{real>=0@}])
+
+substitution model on quotiented triplets to handle general symetric
+neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
+2012).
+
 @end table
 
 
