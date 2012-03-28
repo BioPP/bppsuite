@@ -982,19 +982,44 @@ Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rat
 
 @table @command
 
-Mixed models combine any substitution models with a priori
-distribution of parameters. We call submodels all the models that are
-mixed in the mixture.
+Mixed models are sometimes called "site models".
+
+Mixed models combine substitution models with respective
+probabilities. We call submodels all the models that are mixed in the
+mixture. A Mixed model is either the mixture of several predefined
+models, or based on a "simple" model in which some parameters follow
+given distributions.
 
 During the likelihood computation process, all the submodels of the
-mixture are successively applied on the branches, and the mean of all
-the likelihoods is computed. With nonhomogeneous reconstruction, since
-a mixed model is a random variable, affecting a mixed model to a set
-of branches means that all these branches are dependent, and in this
-case a site follows the same submodels in all the branches of the set
-that support this mixed model. Moreover, it is possible to define
-paths that define dependencies between submodels of different
-mixtures (see below).
+mixture are successively applied on the branches, and the mean (see
+below) of all the likelihoods is computed.
+
+A site can follow given paths all along the tree, with given
+probabilities. 
+
+In homogeneous reconstruction, a path corresponds to a same submodel
+on all the branches, in a stationary condition. The probability of a
+path is the probability of its submodel. Given a site follows a path,
+a likelihood can be computed; and the overall likelihood on this site
+is the mean of these likelihoods (given the probabilities of the
+paths). This means that the root distribution is a mixture of the
+equilibrium distributions of the submodels.
+
+With nonhomogeneous reconstruction, several models are applied on the
+tree, some models are mixed, some are not. A path is a vector which
+size is the number of mixed models (see below for more details and the
+declaration of paths). 
+
+Since the attribution of a submodel from a mixed model to a given site
+is a unique random variable, affecting the same mixed model to a set
+of branches S means that the attribution to this site is the same on
+all the branches of S. If model M=(Ma,Mb,Mc) is defined on a set of
+branches S, a site in constrained to follow either Ma on all S, or Mb
+on all S, or Ms on all S. If we want that two branches of S are
+independant, two similar mixed models must be defined. Moreover, it is
+possible to define paths that define dependencies between submodels of
+different mixtures (see below).
+
 
 @item MixedModel(model=@{model description@})
 Mixture model from a given @var{model} in which some parameters follow
