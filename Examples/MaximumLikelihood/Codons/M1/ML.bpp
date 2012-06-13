@@ -3,7 +3,7 @@
 #Initial log likelihood.................: -1069.68587126864
 
 # Global variables:
-DATA = lysozymeSmall
+DATA = lysozymeLarge
 
 # Sequences:
 
@@ -42,7 +42,7 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = YNGKP_M1(kappa=1, omega=1.0, frequencies=F3X4, p0=1.0, initFreqs=observed)
+model = YNGKP_M1(kappa=1, omega=0.5, frequencies=F3X4, p0=0.5, initFreqs=observed)
 nonhomogeneous=no
 
 rate_distribution = Uniform //Gamma(n=4, alpha=0.358)
@@ -71,11 +71,11 @@ likelihood.recursion_simple.compression = recursive
 
 # Should we reestimate likelihood parameters? Tree topology will not be optimized.
 # (recommanded)
-optimization = D-Brent(derivatives=Newton, nstep=10)
+optimization = FullD(derivatives=Newton)
 
 # Tell if the parameter should be transformed in order to remove constraints.
 # This can improves the optimization, but might be a bit slower.
-optimization.reparametrization = no
+optimization.reparametrization = yes
 
 # Final optimization step, may be useful if numerical derivatives are used:
 # powell or simplex or none.

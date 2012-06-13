@@ -7,6 +7,8 @@ DATA = LSU
 # DNA, RNA or Protein
 alphabet=DNA
 
+use.gaps=no
+
 # The sequence file to use (sequences must be aligned!)
 input.sequence.file=../Data/$(DATA).phy
 

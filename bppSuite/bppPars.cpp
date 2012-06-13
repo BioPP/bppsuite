@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS
+Copyright or © or Copr. Bio++ Development Team
 
 This software is a computer program whose purpose is to estimate
 phylogenies and evolutionary parameters from a dataset according to
@@ -79,13 +79,13 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*             Bio++ Parsimony Methods, version 0.1.0             *" << endl;
+  cout << "*             Bio++ Parsimony Methods, version 0.2.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 08/08/09 *" << endl;
+  cout << "*                                           Last Modif. 13/06/12 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  if(args == 1)
+  if (args == 1)
   {
     help();
     return 0;
@@ -96,13 +96,16 @@ int main(int args, char ** argv)
   BppApplication bpppars(args, argv, "BppPars");
   bpppars.startTimer();
 
-	Alphabet * alphabet = SequenceApplicationTools::getAlphabet(bpppars.getParams(), "", false);
+	Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bpppars.getParams(), "", false);
+  
+  bool includeGaps = ApplicationTools::getBooleanParameter("use.gaps", bpppars.getParams(), false, "", false, false);
+  ApplicationTools::displayBooleanResult("Use gaps", includeGaps);
 
-	VectorSiteContainer * allSites = SequenceApplicationTools::getSiteContainer(alphabet, bpppars.getParams());
+	VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bpppars.getParams());
 	
-	VectorSiteContainer * sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bpppars.getParams());
+	VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bpppars.getParams(), "", true, !includeGaps, true);
 	delete allSites;
-
+  
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 	
@@ -124,7 +127,7 @@ int main(int args, char ** argv)
   else throw Exception("Unknown init tree method.");
 	
   ApplicationTools::displayTask("Initializing parsimony");
-  DRTreeParsimonyScore* tp = new DRTreeParsimonyScore(*tree, *sites, false);
+  DRTreeParsimonyScore* tp = new DRTreeParsimonyScore(*tree, *sites, false, includeGaps);
   delete tree;
   ApplicationTools::displayTaskDone();
   double score = tp->getScore();
@@ -143,7 +146,7 @@ int main(int args, char ** argv)
   
   //Bootstrap:
   unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bpppars.getParams(), 0);
-  if(nbBS > 0)
+  if (nbBS > 0)
   {
     ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
     const Tree* initTree = tree;
@@ -156,7 +159,7 @@ int main(int args, char ** argv)
     
     string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bpppars.getParams(), false, false);
     ofstream *out = 0;
-    if(bsTreesPath != "none")
+    if (bsTreesPath != "none")
     {
       ApplicationTools::displayResult("Bootstrap trees stored in file", bsTreesPath);
       out = new ofstream(bsTreesPath.c_str(), ios::out);
@@ -185,7 +188,8 @@ int main(int args, char ** argv)
     ApplicationTools::displayTask("Compute bootstrap values", true);
     TreeTools::computeBootstrapValues(*tree, bsTrees);
     ApplicationTools::displayTaskDone();
-    for(unsigned int i = 0; i < nbBS; i++) delete bsTrees[i];
+    for (unsigned int i = 0; i < nbBS; i++)
+      delete bsTrees[i];
 
     //Write resulting tree:
     PhylogeneticsApplicationTools::writeTree(*tree, bpppars.getParams());
@@ -197,7 +201,7 @@ int main(int args, char ** argv)
 
   bpppars.done();
 	}
-  catch(exception & e)
+  catch (exception & e)
   {
 		cout << e.what() << endl;
 		return 1;
