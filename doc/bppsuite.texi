@@ -21,7 +21,7 @@
 @c %**end of header
 
 @copying
-This is the manual of the Bio++ Program Suite, version 0.6.0.
+This is the manual of the Bio++ Program Suite, version 0.7.0.
 
 Copyright @copyright{} 2007, 2008, 2009, 2010, 2011, 2012 Bio++ development team
 @end copying
@@ -41,7 +41,7 @@ Copyright @copyright{} 2007, 2008, 2009, 2010, 2011, 2012 Bio++ development team
 @contents
 
 @ifnottex
-@node Top, Introduction, (dir), (dir)
+@node Top
 @top The Bio++ Program Suite Manual
 
 @insertcopying
@@ -285,6 +285,7 @@ data=LSU
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * Model::                       Setting up a substitution model.
+* Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
 * WritingTrees::                Writing trees to files. 
@@ -408,8 +409,15 @@ The format of the input tree file.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Model, Estimation, Tree, Common
+@node Model, Distribution, Tree, Common
 @section Model specification
+
+@menu
+* Declaration::           Numerous declarations of models.
+* Non-homogeneity::             Specific declaration of non-homogeneous modelling.
+* FrequenciesSet::              Frequencies 
+* Rates::                        Rates across sites
+@end menu
 
 The substitution model specification over the tree is set up in different parts.
 @table @command
@@ -426,7 +434,19 @@ also non-homogeneous.
 
 In combination with those models, one can also specify a distribution of site-specific rate.
 
+@node Declaration, Non-homogeneity, Model, Model
 @subsection Setting up the substitution model
+
+@menu
+* Nucleotide::    Nucleotide models
+* Protein::       Protein models
+* Miscellaneous:: Miscellaneous models
+* Codon::         Codon models
+* Multiple::      General multiple site models
+* Meta::          Meta models
+* Mixture::       Mixture of models
+* Linking::       Linking parameters
+@end menu
 
 @table @command
 
@@ -465,6 +485,7 @@ the frequencies are computed from observed data.
 
 @end table
 
+@node Nucleotide, Protein, Declaration, Declaration
 @subsubsection Nucleotide models
 
 @table @command
@@ -507,6 +528,7 @@ The strand-symmetric model of Lobry 1995, for nucleotides.
 
 @end table
 
+@node Protein, Miscellaneous, Nucleotide, Declaration
 @subsubsection Protein models
 
 @table @command
@@ -576,6 +598,7 @@ namespace, including for frequencies.
 
 @end table
 
+@node Miscellaneous, Codon, Protein, Declaration
 @subsubsection Miscellaneous models
 
 @table @command
@@ -586,6 +609,7 @@ proportion of 1 over 0 in the equilibrium distribution. Default:
 
 @end table
 
+@node Codon, Multiple, Miscellaneous, Declaration
 @subsubsection Codon models
 
 Standard codon models: the optional @var{genetic_code} argument
@@ -850,6 +874,7 @@ substitution rate and synonymous substitution rate. Default value: 1.
 
 
 
+@node Multiple, Meta, Codon, Declaration
 @subsubsection General multiple site models
 
 @table @command
@@ -956,8 +981,7 @@ neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
 
 @end table
 
-
-
+@node Meta, Mixture, Multiple, Declaration
 @subsubsection Meta models
 
 These substitution models take as argument another substitution model, and add several parameters.
@@ -978,6 +1002,7 @@ Parameter @var{lambda} is the insertion rate, while @var{mu} is the deletion rat
 
 @end table
 
+@node Mixture, Linking, Meta, Declaration
 @subsubsection Mixture of models
 
 @table @command
@@ -1057,6 +1082,8 @@ has parameters@var{Mixture.relrate1}, @var{Mixture.relproba1},
 @end table
 
 
+
+@node Linking, , Mixture, Declaration
 @subsubsection Linking parameters
 
 It is possible to reduce the parameter space by putting extra constraints on parameters, using for instance
@@ -1070,7 +1097,7 @@ In that particular case the resulting model is strictly equivalent to the HKY85 
 
 
 
-
+@node Non-homogeneity, FrequenciesSet, Declaration, Model
 @subsection Setting up non-stationary / non-homogeneous models
 
 You can specify a wide range of non-homogeneous models, by combining different options.
@@ -1274,6 +1301,7 @@ The Frequencies set used can be any of the ones described below
 @xref{Frequencies sets}, depending on the alphabet used.
 
 
+@node FrequenciesSet, Rates, Non-homogeneity, Model
 @subsection Frequencies sets
 @anchor{Frequencies sets}
 
@@ -1395,8 +1423,7 @@ alphabetical order of states, and sum to one.
 
 @end table
 
-
-
+@node Rates, , FrequenciesSet, Model
 @subsection Rate across site distribution
 
 From version 0.4.0, BppSuite uses the keyval syntax for specifying the distributions of substitution rate across sites.
@@ -1427,6 +1454,7 @@ with a probability @var{p}.
 @end table
 
 
+@node Distribution, Estimation, Model, Common
 @section Discrete distributions
 @anchor{Discrete distributions}
 
@@ -1505,7 +1533,7 @@ are @var{Mixture.theta1}, @var{Mixture.1_Beta.alpha},
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Estimation, WritingSequences, Model, Common
+@node Estimation, WritingSequences, Distribution, Common
 @section Numerical parameters estimation
 
 Some programs allow you to (re-)estimate numerical parameters, including

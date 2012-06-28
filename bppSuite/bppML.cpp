@@ -532,6 +532,7 @@ int main(int args, char** argv)
 
       // Get the rate class with maximum posterior probability:
       vector<unsigned int> classes = tl->getRateClassWithMaxPostProbOfEachSite();
+
       // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
       Vdouble rates = tl->getPosteriorRateOfEachSite();
 
