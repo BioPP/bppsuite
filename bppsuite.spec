@@ -30,7 +30,6 @@ BuildRequires: libbpp-phyl9 = 2.0.3
 BuildRequires: libbpp-phyl-devel = 2.0.3
 
 
-Prefix: %{_prefix}
 AutoReq: yes
 AutoProv: yes
 %if 0%{?mdkversion}
