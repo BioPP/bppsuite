@@ -48,7 +48,7 @@ nonhomogeneous=one_per_branch
 #nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa,\
 #  YN98.freq_Codon.123_Full.theta, YN98.freq_Codon.123_Full.theta1, YN98.freq_Codon.123_Full.theta2
 #These lines are for the F3X4 option:
-nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa, YN98.freq*
+nonhomogeneous_one_per_branch.shared_parameters=YN98.kappa, YN98.123_*
 nonhomogeneous.stationarity=yes
 #Only if stationarity is set to false:
 nonhomogeneous.root_freq=

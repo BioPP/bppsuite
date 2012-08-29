@@ -85,7 +85,7 @@ optimization.final = none
 optimization.verbose = 3
 
 # Parameters to ignore (for instance equilibrium frequencies)
-optimization.ignore_parameter = YNGKP_M1.freq*
+optimization.ignore_parameter = YNGKP_M1.*Full*
 
 # Maximum number of likelihood evaluations:
 optimization.max_number_f_eval = 10000
