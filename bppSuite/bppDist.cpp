@@ -6,7 +6,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS
+Copyright or © or Copr. Bio++ Development Team
 
 This software is a computer program whose purpose is to estimate
 phylogenies and evolutionary parameters from a dataset according to
@@ -215,7 +215,7 @@ int main(int args, char ** argv)
   //Here it is:
   ofstream warn("warnings", ios::out);
   ApplicationTools::warning = new StlOutputStreamWrapper(&warn);
-  tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, false, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
+  tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
   warn.close();
   delete ApplicationTools::warning;
   ApplicationTools::warning = ApplicationTools::message;
@@ -301,7 +301,6 @@ int main(int args, char ** argv)
           *distMethod,
           parametersToIgnore,
           ignoreBrLen,
-          false,
           type,
           tolerance,
           nbEvalMax,
