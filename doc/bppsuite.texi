@@ -1443,7 +1443,7 @@ The following distributions are currently available:
 
 @table @command
 
-@item Uniform
+@item Constant
 Uses a constant rate across sites.
 
 @item Gamma(n=@{int>=2@}, alpha=@{float>0@})
@@ -1511,10 +1511,25 @@ a uniform distribution, with @var{n} classes in interval
 
 @table @command
 
-@item Mixture(probas=@{vector<double>@}, distribution1=@{distribution description@}, ..., distributionn=@{distribution description@}) 
+@item Invariant(dist=@{distribution description@}, p=@{float>0@})
+
+a Mixture of a given discrete distributution and a 0 Dirac. @var{p} is
+the probability of this 0 Dirac.
+
+For example :
+@example
+Invariant(dist=Gaussian(n=4,2,0.5),p=0.1)
+@end example
+builds a mixture of a gaussian distribution with 4 categories (and
+probability 0.9) and a 0 Dirac with probability 0.1. Overall, there
+are 5 categories. The parameters names are
+@var{Invariant.Gaussian.mu}, @var{Invariant.Gaussian.sigma},
+@var{Invariant.p}.
+
+@item Mixture(probas=@{vector<double>@}, dist1=@{distribution description@}, ..., distn=@{distribution description@}) 
 
 a Mixture of discrete distributions with specific probabilities (in
-@var{probas}) and their respective desccriptions. (in @var{probas}).
+@var{probas}) and their respective desccriptions (in @var{probas}).
 The parameters are the relative probabibility parameters @var{theta1},
 @var{theta2}, ..., @var{thetan-1}, and the parameters of the included
 distributions prefixed by @var{Mixture.i_} where @var{i} is the order
@@ -1522,8 +1537,8 @@ of the distribution.
 
 For example:
 @example
-Mixture(probas=(0.3,0.7),distribution1=Beta(n=5,alpha=2,beta=3),\
-                       distribution2=Gamma(n=10,alpha=9,beta=2)) 
+Mixture(probas=(0.3,0.7),dist1=Beta(n=5,alpha=2,beta=3),\
+                       dist2=Gamma(n=10,alpha=9,beta=2)) 
 @end example
 builds a mixture of a discrete beta distribution and of a discrete
 gamma distribution, with a total of 15 classes. The parameters names

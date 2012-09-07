@@ -53,7 +53,7 @@ nonhomogeneous.stationarity=yes
 #Only if stationarity is set to false:
 nonhomogeneous.root_freq=
 
-rate_distribution = Uniform //Gamma(n=4, alpha=0.358)
+rate_distribution = Constant() //Gamma(n=4, alpha=0.358)
 
 # Likelihood recursion option:
 # - simple: derivatives takes more time to compute, but likelihood computation is faster.

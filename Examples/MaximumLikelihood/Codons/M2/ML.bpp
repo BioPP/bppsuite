@@ -45,7 +45,7 @@ init.brlen.method = Input
 model = YNGKP_M2(kappa=1, omega0=0.5, omega2=2.0, frequencies=F3X4, theta1=0.33333, theta2=0.5, initFreqs=observed)
 nonhomogeneous=no
 
-rate_distribution = Uniform //Gamma(n=4, alpha=0.358)
+rate_distribution = Constant() //Gamma(n=4, alpha=0.358)
 
 # Likelihood recursion option:
 # - simple: derivatives takes more time to compute, but likelihood computation is faster.
