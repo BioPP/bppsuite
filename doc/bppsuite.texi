@@ -492,39 +492,54 @@ the frequencies are computed from observed data.
 
 @item JC69
 The Jukes and Cantor model. This model has no additional parameter.
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1JCnuc.html#_details, Bio++ description}.
 
 @item K80([kappa=@{real>0@}])
 The Kimura 2 parameters model. @var{kappa} is the transition over
-transversion ratio. Default: @var{kappa}=1
+transversion ratio. Default: @var{kappa}=1. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1K80.html#_details, Bio++ description}.
+
 
 @item F84([kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@},theta2=@{real]0,1[@} ,"equilibrium frequencies"] )
 Felsenstein's 1984 substitution model, with transition/transversion
 ratio and 4 distinct equilibrium frequencies, set using three
 independent parameters: @var{theta} is the GC content, @var{theta1} is
 the proportion of G / (G + C) and @var{theta2} is the proportion of A
-/ (A + T or U). 
+/ (A + T or U). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1F84.html#_details, Bio++ description}.
+
 
 @item HKY85([kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@} ,"equilibrium frequencies"])
 Hasegawa, Kishino and Yano 1985's substitution model. The model is
 similar to @command{F84}, but with a different implementation. The
 @var{kappa} parameter used here is comparable to the one in
-@command{K80}.
+@command{K80}. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1HKY85.html#_details, Bio++ description}.
+
 
 @item T92([kappa=@{real>0@}, theta=@{real]0,1[@} ,"equilibrium frequencies"])
 Tamura 1992's model for nucleotides, similar to @command{HKY85}, yet
-assuming that the frequencies of A = T/U and G = C.
+assuming that the frequencies of A = T/U and G = C. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1T92.html#_details, Bio++ description}.
 
 @item TN93([kappa1=@{real>0@}, kappa2=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@} ,"equilibrium frequencies"])
 Tamura and Nei 1993's model, similar to @command{HKY85}, but allowing
-for two distinct transition/transversion ratios.
+for two distinct transition/transversion ratios. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1TN93.html#_details, Bio++ description}.
+
 
 @item GTR([a=@{real>0@}, b=@{real>0@}, c=@{real>0@}, d=@{real>0@}, e=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@} ,"equilibrium frequencies"])
 The General Time-Reversible substitution model. Parameters @var{a},
 @var{b}, @var{c}, @var{d}, @var{e} are the entries of the
-exchangeability matrix.
+exchangeability matrix. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1GTR.html#_details, Bio++ description}.
+
 
 @item L95([beta=@{real>0@}, gamma=@{real>0@}, delta=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@} ,"equilibrium frequencies"])
-The strand-symmetric model of Lobry 1995, for nucleotides.
+The strand-symmetric model of Lobry 1995, for nucleotides. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1L95.html#_details, Bio++ description}.
+
 
 @end table
 
@@ -534,58 +549,88 @@ The strand-symmetric model of Lobry 1995, for nucleotides.
 @table @command
 
 @item JC69
-The Jukes and Cantor model. This model has no additional parameter.
+The Jukes and Cantor model. This model has no additional parameter. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1JCprot.html#_details, Bio++ description}.
+
 
 @item DSO78
-Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005.
+Protein substitution model, using the dcmutt implementation of Kosiol
+and Goldman 2005. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1DSO78.html#_details, Bio++ description}.
+
 
 @item JTT92
-Protein substitution model, using the dcmutt implementation of Kosiol and Goldman 2005.
+Protein substitution model, using the dcmutt implementation of Kosiol
+and Goldman 2005. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1JTT92.html#_details, Bio++ description}.
+
 
 @item WAG01
-Protein substitution model, from Whelan & Goldman 2001.
+Protein substitution model, from Whelan & Goldman 2001. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1WAG01.html#_details, Bio++ description}.
+
 
 @item LG08
-Protein substitution model, from Le & Gascuel 2008.
+Protein substitution model, from Le & Gascuel 2008. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LG08.html#_details, Bio++ description}.
+
 
 @item LLG08_EX2([relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. See
-the meaning of the variables in the Mixture model below.
+the meaning of the variables in the Mixture model below. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__EX2.html#_details, Bio++ description}.
+
 
 @item LLG08_EX3([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008.  See
-the meaning of the variables in the Mixture model below.
+the meaning of the variables in the Mixture model below. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__EX3.html#_details, Bio++ description}.
+
 
 @item LLG08_EHO([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. See
-the meaning of the variables in the Mixture model below.
+the meaning of the variables in the Mixture model below. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__EHO.html#_details, Bio++ description}.
+
 
 @item LLG08_UL2([relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. See
-the meaning of the variables in the Mixture model below.
+the meaning of the variables in the Mixture model below. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__UL2.html#_details, Bio++ description}.
+
 
 @item LLG08_UL3([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. See
-the meaning of the variables in the Mixture model below.
+the meaning of the variables in the Mixture model below. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__UL3.html#_details, Bio++ description}.
+
 
 @item DSO78+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ... ,"equilibrium frequencies"])
 Protein substitution model, using the dcmutt implementation of Kosiol
 and Goldman 2005 and free equilibrium frequencies. The @var{thetaX}
 are frequencies parameters, where X is 1 to 19. Parameter @var{theta1}
 is the proportion of A, @var{theta2} is the proportion of R over
-(1-A), @var{theta3} the proportion of N over (1-A-R), etc.
+(1-A), @var{theta3} the proportion of N over (1-A-R), etc. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1DSO78.html#_details, Bio++ description}.
+
 
 @item JTT92+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
 Protein substitution model, using the dcmutt implementation of Kosiol
-and Goldman 2005 and free equilibrium frequencies.
+and Goldman 2005 and free equilibrium frequencies. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1JTT92.html#_details, Bio++ description}.
+
 
 @item WAG01+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
 Protein substitution model, from Whelan & Goldman 2001, and free
-equilibrium frequencies.
+equilibrium frequencies. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1WAG01.html#_details, Bio++ description}.
+
 
 @item LG08+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
 Protein substitution model, from Le & Gascuel 2008, and free
-equilibrium frequencies.
+equilibrium frequencies. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LG08.html#_details, Bio++ description}.
+
 
 @item Empirical(name=@{chars@}, file=@{path@})
 Build a protein substitution model from a file in PAML format, and use
@@ -605,7 +650,9 @@ namespace, including for frequencies.
 @item Binary([kappa=@{real>0@} ,"equilibrium frequencies"])
 Build the model on binary alphabet, where @var{kappa} is the relative
 proportion of 1 over 0 in the equilibrium distribution. Default:
-@var{kappa}=1.
+@var{kappa}=1. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1BinarySubstitutionModel.html#_details, Bio++ description}.
+
 
 @end table
 
@@ -618,11 +665,11 @@ the alphabet is used. The several values available are described
 below.
 
 @itemize
-@item EchinodermMitochondrialGeneticCode
-@item InvertebrateMitochondrialGeneticCode
-@item StandardGeneticCode
-@item VertebrateMitochondrialGeneticCode
-@item YeastMitochondrialGeneticCode
+@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1EchinodermMitochondrialGeneticCode.html#_details,  EchinodermMitochondrialGeneticCode}  
+@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1InvertebrateMitochondrialGeneticCode.html#_details,InvertebrateMitochondrialGeneticCode}
+@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1StandardGeneticCode.html#_details,                 StandardGeneticCode}                 
+@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1VertebrateMitochondrialGeneticCode.html#_details,  VertebrateMitochondrialGeneticCode}
+@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1YeastMitochondrialGeneticCode.html#_details,       YeastMitochondrialGeneticCode} 
 @end itemize
 
 The next codon models also take as argument a @var{frequencies} option
@@ -644,30 +691,42 @@ models, in the case of non stationarity.
 
 @item GY94([genetic_code=@{genetic code description@}, kappa=@{real>0@}, V=@{real>0@}, "equilibrium frequencies"])
 Goldman and Yang (1994) substitution model for codons (default values:
-@var{kappa}=1 and @var{V}=10000).
+@var{kappa}=1 and @var{V}=10000). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1GY94.html#_details, Bio++ description}.
+
 
 @item MG94([genetic_code=@{genetic code descrition@}, rho=@{real>0@}, "equilibrium frequencies"])
 Muse and Gaut (1994) substitution model for codons (default values:
-@var{rho}=1).
+@var{rho}=1). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1MG94.html#_details, Bio++ description}.
+
 
 @item YN98([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
 Yang and Nielsen (1998) substitution model for codons (default values:
-@var{kappa}=1 and @var{omega}=1).
+@var{kappa}=1 and @var{omega}=1). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YN98.html#_details, Bio++ description}.
+
 
 @item YNGKP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
-The M0 model of PAML, ie the same as YN98.
+The M0 model of PAML, ie the same as YN98. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YN98.html#_details, Bio++ description}.
+
 
 @item YNGKP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, "equilibrium frequencies"])
 The M1a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000) (default values: @var{kappa}=1, @var{p0}=0.5,
-@var{omega}=0.5).
+@var{omega}=0.5). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M1.html#_details, Bio++ description}.
+
 
 @item YNGKP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M2a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with  p0=theta1  and
 p1=(1-theta1)*theta2 (default values: @var{kappa}=1, @var{theta1}=0.33333,
-@var{theta2}=0.5, @var{omega0}=0.5, @var{omega2}=0.5).
+@var{theta2}=0.5, @var{omega0}=0.5, @var{omega2}=0.5). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M2.html#_details, Bio++ description}.
+  
 
 @item YNGKP_M3([genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}, "equilibrium frequencies"])
 
@@ -675,20 +734,27 @@ The M3 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with @var{n} discrete values, with p0=theta1
 and pk=(1-theta1)*...*(1-thetak)*theta(k+1), and
 omegak=omega0+delta1+....+deltak (default values: @var{n}=3,
-@var{kappa}=1, @var{thetak}=1/(n-k+1), @var{omega0}=0.5, @var{deltak}=0.5).
+@var{kappa}=1, @var{thetak}=1/(n-k+1), @var{omega0}=0.5,
+@var{deltak}=0.5). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M3.html#_details, Bio++ description}.
+
 
 @item YNGKP_M7(n=@{integer>0@}, genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M7 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
-classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2).
+classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M7.html#_details, Bio++ description}.
+
 
 @item YNGKP_M8(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M8 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
-@var{p0}=0.5, @var{omegas}=2).
+@var{p0}=0.5, @var{omegas}=2). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M8.html#_details, Bio++ description}.
+
 
 @end table
 
@@ -753,6 +819,9 @@ model=CodonRate(model1=T92(theta=0.5, kappa=2), \
                 model2=T92(theta=0.4, kappa=2), model3=JC69)
 @end example
 
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonRateSubstitutionModel.html#_details, Bio++ description}.
+
 @item CodonDist(model=@{model name@}[, genetic_code=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
 or
@@ -781,6 +850,10 @@ builds a model on codons, such that first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
 parameters names are @var{CodonDist.1_T92.kappa},
 @var{CodonDist.2_T92.kappa}, @var{CodonDist.beta}.
+
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistanceSubstitutionModel.html#_details, Bio++ description}.
+
 
 @item CodonRateFreq(model=@{model name@}, frequencies=@{frequencies set description@}[, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
 or 
@@ -816,6 +889,9 @@ has parameters @var{CodonRateFreq.123_K80.kappa},
 @var{CodonRateFreq.relrate1},
 @var{CodonRateFreq.relrate2}.
 
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonRateFrequenciesSubstitutionModel.html#_details, Bio++ description}.
+
 @item CodonDistFreq(model=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
 or 
@@ -847,6 +923,9 @@ has parameters @var{CodonDistFreq.012_T92.kappa},
 @var{CodonDistFreq.Full.theta_60},
 @var{CodonDistFreq.beta}.
 
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistanceFrequenciesSubstitutionModel.html#_details, Bio++ description}.
+
 @item CodonDistPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
 or 
@@ -869,6 +948,9 @@ below.
 
 Optional argument @var{beta} is the ratio between non-synonymous
 substitution rate and synonymous substitution rate. Default value: 1.
+
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistancePhaseFrequenciesSubstitutionModel.html#_details, Bio++ description}.
 
 @end table
 
@@ -925,6 +1007,9 @@ site follows a HKY85 model. Then the parameters names are
 @var{Word.4_HKY85.theta1}, @var{Word.4_HKY85.theta2},
 @var{Word.relrate1}, @var{Word.relrate2}, @var{Word.relrate3}.
 
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1WordSubstitutionModel.html#_details, Bio++ description}.
+
 @item Triplet(model=@{model description@} [, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 or 
 @item Triplet(model1=@{model description@}, model2=@{model description@}, model3=@{model description@}[, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
@@ -951,7 +1036,7 @@ of each site is 1/3.
 
 @example
 alphabet=Codon(letter=DNA, type=Standard)
-model=Word(model=T92)
+model=Triplet(model=T92)
 @end example
 builds a model on codons, such all sites follow the same T92 model.
 The parameters names are @var{Triplet.123_T92.kappa},
@@ -967,17 +1052,24 @@ parameters names are @var{Triplet.1_T92.kappa},
 @var{Triplet.2_T92.kappa}, @var{Triplet.relrate1},
 @var{Triplet.relrate2}.
 
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1TripletSubstitutionModel.html#_details, Bio++ description}.
+
 @item YpR_Sym(model=@{model description@}, [rCgT=@{real>=0@}, rTgC=@{real>=0@}, rCaT=@{real>=0@}, rTaC=@{real>=0@}])
 
 substitution model on quotiented triplets to handle strand symetric
 neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
-2012). 
+2012). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YpR_SymSubstitutionModel.html#_details, Bio++ description}.
+
 
 @item YpR_Gen(model=@{model description@}, [rCgT=@{real>=0@}, rcGA=@{real>=0@}, rTgC=@{real>=0@}, rtGA=@{real>=0@}, rCaT=@{real>=0@}, rcAG=@{real>=0@}, rTaC=@{real>=0@}, rtAG=@{real>=0@}])
 
 substitution model on quotiented triplets to handle general symetric
 neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
-2012).
+2012). See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YpR_GenSubstitutionModel.html#_details, Bio++ description}.
+
 
 @end table
 
@@ -991,18 +1083,24 @@ These substitution models take as argument another substitution model, and add s
 @item TS98(model=@{model description@}, s1=@{real>0@}, s2=@{real>0@} [, "equilibrium frequencies"])
 Tuffley and Steel 1998's 'covarion' model, taking a nested
 substitution model as argument for @var{model}. The nested model can
-be any substitution model for any alphabet.
+be any substitution model for any alphabet. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1TS98.html#_details, Bio++ description}.
+
 
 @item G01(model=@{model description@}, rdist=@{rate distribution description@}, mu=@{real>0@} [, "equilibrium frequencies"])
 Galtier 2001's 'covarion' model, taking a nested substitution model as
 argument for @var{model} and a rate distribution for parameter
 @var{rdist} (see below). The nested model can be any substitution
-model for any alphabet.
+model for any alphabet. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1G01.html#_details, Bio++ description}.
+
 
 @item RE08(model=@{model description@}, lambda=@{real>0@}, mu=@{real>0@} [, "equilibrium frequencies"])
 Rivas and Eddy 2008's substitution model with gaps, taking a nested
 substitution model as argument for @var{model}. Parameter @var{lambda}
-is the insertion rate, while @var{mu} is the deletion rate.
+is the insertion rate, while @var{mu} is the deletion rate. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1RE08.html#_details, Bio++ description}.
+
 
 @end table
 
@@ -1067,6 +1165,9 @@ has parameters @var{TN93.kappa1_Gamma.alpha},
 @var{TN93.theta}, @var{MixedModel.TN93.theta1},
 @var{TN93.theta2}.
 
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1MixtureOfASubstitutionModel.html#_details, Bio++ description}.
+
 @item Mixture(model1=@{model description@},..., modeln=@{model description@} [, relrate1=@{1>real>0@},..., relrate@{n-1@}=@{1>real>0@}, relproba1=@{1>real>0@}, ..., relproba@{n-1@}=@{1>real>0@}, "equilibrium frequencies"])
 Mixture model built from several @var{models}: each model has its own
 probability and rate. 
@@ -1085,6 +1186,8 @@ has parameters@var{Mixture.relrate1}, @var{Mixture.relproba1},
 @var{Mixture.2_YN98.kappa}, @var{Mixture.2_YN98.omega}.
 @end table
 
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1MixtureOfSubstitutionModels.html#_details, Bio++ description}.
 
 
 @node Linking, , Mixture, Declaration
