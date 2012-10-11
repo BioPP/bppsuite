@@ -1592,12 +1592,14 @@ a discretized gaussian distribution, with @var{n} classes, a mean
 a discretized exponential distribution, with @var{n} classes and
 parameter @var{lambda}.
 
-@item Simple(values=@{vector<double>@}, probas=@{vector<double>@})
+@item Simple(values=@{vector<double>@}, probas=@{vector<double>@} [, ranges=@{vector<parametername[min;max]>@}])
 a discrete distribution with specific values (in @var{values}) and
 their respective non-negative probabibilities (in @var{probas}). The
 parameters are @var{V1}, @var{V2}, ..., @var{Vn} for all the values
 and the relative probabibility parameters are @var{theta1},
-@var{theta2}, ..., @var{thetan-1}.
+@var{theta2}, ..., @var{thetan-1}. Optional argument @{ranges@} sets
+the allowed ranges of values taken by the parameters; usage is like
+@var{ranges=(V1[0.2;0.9],V2[1.1;999])}.
 
 @item TruncExponential(n=@{int>=2@}, lambda=@{float>0@}, tp=@{float>0@})
 a discretized truncated exponential distribution, with @var{n}
