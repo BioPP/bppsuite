@@ -378,6 +378,14 @@ of sequence or a percentage.
 Sites not matching the criterion will not be included in the analysis, but the
 original site numbering will be used in the output files (if relevant).
 
+@item input.sequence.max_unresolved_allowed=100%
+This option only works if the program requires an alignment. Only
+works when the @option{all} option is selected. It specifies the
+maximum amount of unresolved states per site, as a number of sequence
+or a percentage. Sites not matching the criterion will not be included
+in the analysis, but the original site numbering will be used in the
+output files (if relevant).
+
 @end table
  
 @c ------------------------------------------------------------------------------------------------------------------
