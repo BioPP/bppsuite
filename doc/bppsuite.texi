@@ -1607,7 +1607,7 @@ parameters are @var{V1}, @var{V2}, ..., @var{Vn} for all the values
 and the relative probabibility parameters are @var{theta1},
 @var{theta2}, ..., @var{thetan-1}. Optional argument @{ranges@} sets
 the allowed ranges of values taken by the parameters; usage is like
-@var{ranges=(V1[0.2;0.9],V2[1.1;999])}.
+@samp{ranges=(V1[0.2;0.9],V2[1.1;999])}.
 
 @item TruncExponential(n=@{int>=2@}, lambda=@{float>0@}, tp=@{float>0@})
 a discretized truncated exponential distribution, with @var{n}
