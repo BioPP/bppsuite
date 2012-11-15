@@ -165,14 +165,14 @@ int main(int args, char ** argv)
 	OutputStream* messenger = 
 		(mhPath == "none") ? 0 :
 			(mhPath == "std") ? ApplicationTools::message :
-				new StlOutputStream(auto_ptr<ostream>(new ofstream(mhPath.c_str(), ios::out)));
+				new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
 	ApplicationTools::displayResult("Message handler", mhPath);
 
 	string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
 	OutputStream* profiler = 
 		(prPath == "none") ? 0 :
 			(prPath == "std") ? ApplicationTools::message :
-				new StlOutputStream(auto_ptr<ostream>(new ofstream(prPath.c_str(), ios::out)));
+				new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
 	if(profiler) profiler->setPrecision(20);
 	ApplicationTools::displayResult("Profiler", prPath);
 

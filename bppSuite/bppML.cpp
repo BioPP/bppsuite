@@ -490,7 +490,7 @@ int main(int args, char** argv)
     ApplicationTools::displayResult("Output estimates to file", parametersFile);
     if (parametersFile != "none")
     {
-      StlOutputStream out(auto_ptr<ostream>(new ofstream(parametersFile.c_str(), ios::out)));
+      StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
       out << "# Log likelihood = ";
       out.setPrecision(20) << (-tl->getValue());
       out.endLine();
