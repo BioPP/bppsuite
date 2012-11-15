@@ -1823,6 +1823,7 @@ This section now details the specific options for each program in the Bio++ Prog
 * bppml::                       Bio++ Maximum Likelihood.
 * bppseqgen::                   Bio++ Sequence Generator.
 * bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction.
+* bppmixedlikelihoods::         Bio++ Site-Likelihoods Inside Mixed Models.
 * bppdist::                     Bio++ Distance Methods.
 * bpppars::                     Bio++ Maximum Parsimony.
 * bppconsense::                 Bio++ Consensus Trees.
@@ -2005,7 +2006,7 @@ The estimated site-specific rates will then be used to simulate the same number 
  
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bppancestor, bppdist, bppseqgen, Reference
+@node bppancestor, bppmixedlikelihoods, bppseqgen, Reference
 @section BppAncestor: Bio++ Ancestral Sequence and Rate Reconstruction
 
 The BppAncestor program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model (@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
@@ -2043,8 +2044,40 @@ Tell if leaf nodes should be added to the output file.
 @end table
 
 @c ------------------------------------------------------------------------------------------------------------------
+@node bppmixedlikelihoods, bppdist, bppancestor, Reference
+@section BppMixedLikelihoods: Bio++ Site-Likelihoods Inside Mixed Models.
 
-@node bppdist, bpppars, bppancestor, Reference
+The BppMixedLikelihoods program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}) and specifying the model (@pxref{Model}).
+
+Given a mixed parameter name of mixed model, or a mixed model made of
+several models, the BppMixedLikelihoods program computes site per site
+log-likelihoods of the several values of the parameter, or of the
+several sub-models of the mixture. If the mixed model is built on a
+parameter which value follows a distribution, and in an additional
+column -- named "mean" -- the a posteriori mean value of the paramater
+is computed.
+
+Specific options are:
+@table @command
+
+@item output.likelihoods.file = @{@{path@}@}
+Ouput file of the program (site specific log-likelihood, and mean of
+the mixed parameters, if any).
+
+@item likelihoods.model_number = @{integer@}
+In case of a non-homogeneous modeling, the number of the mixed model
+which parameter or sub-models are considered.
+
+@item likelihoods.parameter_name = @{string@}
+If the considered mixed model is built from a distribution on a
+parameter, the name of the parameter to be considered. In this case,
+an additional column is written, in which the average a posteriori
+value of the parameter is.
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+@node bppdist, bpppars, bppmixedlikelihoods, Reference
 @section BppDist: Bio++ Distance Methods
  
 The BppDist program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}) and specifying the model (@pxref{Model}, only the section corresponding to the homogeneous case).

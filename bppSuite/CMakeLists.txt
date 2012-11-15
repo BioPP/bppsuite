@@ -30,6 +30,10 @@ ADD_EXECUTABLE(bppancestor bppAncestor.cpp)
 TARGET_LINK_LIBRARIES(bppancestor ${LIBS})
 SET_TARGET_PROPERTIES(bppancestor PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
 
+ADD_EXECUTABLE(bppmixedlikelihoods bppMixedLikelihoods.cpp)
+TARGET_LINK_LIBRARIES(bppmixedlikelihoods ${LIBS})
+SET_TARGET_PROPERTIES(bppmixedlikelihoods PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
+
 ADD_EXECUTABLE(bppreroot bppReRoot.cpp)
 TARGET_LINK_LIBRARIES(bppreroot ${LIBS})
 SET_TARGET_PROPERTIES(bppreroot PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
@@ -55,6 +59,7 @@ INSTALL(TARGETS
   bppseqman
   bppconsense
   bppancestor
+  bppmixedlikelihoods
   bppreroot
   bppphysamp
   bpptreedraw

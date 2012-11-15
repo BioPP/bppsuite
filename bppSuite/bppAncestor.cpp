@@ -138,7 +138,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
     treeWriter.write(ttree, treeWIdPath);
     delete tree;
-    cout << "BppML's done." << endl;
+    cout << "BppAncestor's done." << endl;
     exit(0);
   }
 
