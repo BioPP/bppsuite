@@ -70,6 +70,7 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
@@ -91,7 +92,7 @@ int main(int args, char** argv)
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Maximum Likelihood Computation, version 1.5.0      *" << endl;
   cout << "*                                                                *" << endl;
-  cout << "* Authors: J. Dutheil                       Last Modif. 07/02/11 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. 16/11/12 *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
   cout << "*          L. Gueguen                                            *" << endl;
   cout << "******************************************************************" << endl;
@@ -235,7 +236,7 @@ int main(int args, char** argv)
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
-        rDist = new ConstantDistribution(1., true);
+        rDist = new ConstantRateDistribution();
       }
       else
       {
@@ -253,7 +254,7 @@ int main(int args, char** argv)
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
-        rDist = new ConstantDistribution(1., true);
+        rDist = new ConstantRateDistribution();
       }
       else
       {
@@ -295,7 +296,7 @@ int main(int args, char** argv)
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
-        rDist = new ConstantDistribution(1., true);
+        rDist = new ConstantRateDistribution();
       }
       else
       {
@@ -351,7 +352,7 @@ int main(int args, char** argv)
       if (modelSet->getNumberOfStates() >= 2 * modelSet->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
-        rDist = new ConstantDistribution(1., true);
+        rDist = new ConstantRateDistribution();
       }
       else
       {

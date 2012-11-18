@@ -62,6 +62,7 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Simulation.all>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
@@ -128,7 +129,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*            Bio++ Sequence Generator, version 1.1.0             *" << endl;
   cout << "* Author: J. Dutheil                                             *" << endl;
-  cout << "*         B. Boussau                        Last Modif. 08/08/09 *" << endl;
+  cout << "*         B. Boussau                        Last Modif. 16/11/12 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -233,7 +234,7 @@ int main(int args, char ** argv)
   {
     ifstream in(infosFile.c_str());
     DataTable* infos = DataTable::read(in, "\t");
-    rDist = new ConstantDistribution(1., true);
+    rDist = new ConstantRateDistribution();
     unsigned int nbSites = infos->getNumberOfRows();
     ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
     vector<double> rates(nbSites);
@@ -287,7 +288,7 @@ int main(int args, char ** argv)
     if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
-      rDist = new ConstantDistribution(1., true);
+      rDist = new ConstantRateDistribution();
     }
     else
     {

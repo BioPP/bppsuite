@@ -71,6 +71,7 @@ using namespace std;
 #include <Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSet.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
@@ -155,10 +156,10 @@ int main(int args, char ** argv)
   {  
     model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
     if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-    if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+    if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
-      rDist = new ConstantDistribution(1., true);
+      rDist = new ConstantRateDistribution();
     }
     else
     {
@@ -174,7 +175,7 @@ int main(int args, char ** argv)
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
-      rDist = new ConstantDistribution(1., true);
+      rDist = new ConstantRateDistribution();
     }
     else
     {
