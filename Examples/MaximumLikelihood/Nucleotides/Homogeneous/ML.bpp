@@ -39,7 +39,7 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = T92(kappa=2.843, initFreqs=observed)
+model = HKY85(kappa=2.843, initFreqs=observed)
 
 rate_distribution = Gamma(n=4, alpha=0.358)
 

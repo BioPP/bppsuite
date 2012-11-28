@@ -98,7 +98,6 @@ int main(int args, char** argv)
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  cout << Parameter::R_PLUS_STAR.getDescription() << endl;
   if (args == 1)
   {
     help();
@@ -233,7 +232,6 @@ int main(int args, char** argv)
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
-      model->getParameters().printParameters(cout);
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
