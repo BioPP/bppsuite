@@ -112,10 +112,10 @@ int main(int args, char ** argv)
   SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppdist.getParams());
   
 	DiscreteDistribution* rDist = 0;
-  if(model->getNumberOfStates() > model->getAlphabet()->getSize())
+  if (model->getNumberOfStates() > model->getAlphabet()->getSize())
   {
     //Markov-modulated Markov model!
-    rDist = new ConstantDistribution(1.);
+    rDist = new ConstantRateDistribution();
   }
   else
   {
@@ -326,8 +326,6 @@ int main(int args, char ** argv)
     
   delete alphabet;
   delete sites;
-  delete model;
-  delete rDist;
   delete distMethod;
   delete tree;
 

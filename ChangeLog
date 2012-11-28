@@ -1,9 +1,14 @@
+<<<<<<< .mine
+11/06/11 -*- Version 0.6.2 -*-
+
+=======
 08/02/12 -*- Version 0.7.0 -*-
 
 21/12/11 Julien Dutheil
 * New bppAlnScore program
 * Improved bppSeqMan: protein translation now works + more stop codons removal options.
 
+>>>>>>> .r258
 17/06/11 Julien Dutheil
 * Improved bppancestor, also allows to compute frequencies for leaves.
 
