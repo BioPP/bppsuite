@@ -51,8 +51,8 @@ Bio++ program suite includes programs:
  - BppReRoot for tree rerooting.
  - BppTreeDraw for tree drawing.
  - BppAlnScore for comparing alignments and computing alignment scores.
-
-
+ - BppMixedLikelioods for computing the site per site likelihoods of submodels from a mixture model.
+ 
 %prep
 %setup -q
 
@@ -90,6 +90,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/bin/bppreroot
 %{_prefix}/bin/bpptreedraw
 %{_prefix}/bin/bppalnscore
+%{_prefix}/bin/bppmixedlikelihoods
 %{_prefix}/share/info/bppsuite.info.%{zipext}
 %{_prefix}/share/man/man1/bppml.1.%{zipext}
 %{_prefix}/share/man/man1/bppseqgen.1.%{zipext}
@@ -102,6 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/bppphysamp.1.%{zipext}
 %{_prefix}/share/man/man1/bpptreedraw.1.%{zipext}
 %{_prefix}/share/man/man1/bppalnscore.1.%{zipext}
+%{_prefix}/share/man/man1/bppmixedlikelihoods.1.%{zipext}
 
 %changelog
 * Wed Feb 15 2012 Julien Dutheil <julien.dutheil@univ-montp2.fr> 0.7.0-1

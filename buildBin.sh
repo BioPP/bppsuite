@@ -12,5 +12,6 @@ strip bppSuite/bppphysamp
 strip bppSuite/bppreroot
 strip bppSuite/bppancestor
 strip bppSuite/bpptreedraw
+strip bppSuite/bppmixedlikelihoods
 tar cvzf bppSuite-${arch}-bin-static-${version}.tar.gz bppSuite/bppdist bppSuite/bpppars bppSuite/bppml bppSuite/bppseqgen bppSuite/bppconsense bppSuite/bppseqman bppSuite/bppphysamp bppSuite/bppreroot bppSuite/bppancestor bppSuite/bpptreedraw
 

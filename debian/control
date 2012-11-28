@@ -23,4 +23,5 @@ Description: Bio++ program suite
   - BppReRoot for tree rerooting.
   - BppTreeDraw for tree drawing.
   - BppAlnScore for comparing alignments and computing alignment scores.
+  - BppMixedLikelihoods for computing site per site likelihoods of components of mixture models.
 

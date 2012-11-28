@@ -407,7 +407,7 @@ int main(int args, char** argv)
         {
           const Site* currentSite = &sites->getSite(i);
           int currentSitePosition = currentSite->getPosition();
-          (*rates)(i, "Sites") = string("[" + TextTools::toString(currentSitePosition) + "]");
+          (*rates)(i,"Sites")=TextTools::toString(currentSitePosition);
         }
 
         VVdouble vvd;
