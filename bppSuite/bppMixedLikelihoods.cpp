@@ -376,6 +376,8 @@ int main(int args, char** argv)
         Vdouble vprob = pMSM2->getProbabilities();
 
         vector<vector<double> > vvprob;
+        vector<double> vsprob;
+        
         for (unsigned int i = 0; i < nbcl; i++)
         {
           vector<double> vprob2;
@@ -385,6 +387,7 @@ int main(int args, char** argv)
           }
 
           vvprob.push_back(vprob2);
+          vsprob.push_back(VectorTools::sum(vvprob[i]));
         }
 
         vector<string> colNames;
@@ -392,12 +395,18 @@ int main(int args, char** argv)
 
         Vdouble dval;
         for (unsigned int i = 0; i < nbcl; i++)
-        {
-          SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
-          double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
-          dval.push_back(valPar);
-          colNames.push_back(parname + "=" + TextTools::toString(valPar));
-        }
+          {
+            SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
+            double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
+            dval.push_back(valPar);
+            colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
+          }
+        for (unsigned int i = 0; i < nbcl; i++)
+          {
+            SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
+            double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
+            colNames.push_back("Pr_" + parname + "=" + TextTools::toString(valPar));
+          }
         colNames.push_back("mean");
 
         DataTable* rates = new DataTable(nSites, colNames.size());
@@ -416,16 +425,10 @@ int main(int args, char** argv)
         {
           string par2 = parname + "_" + TextTools::toString(i + 1);
           for (unsigned int j = 0; j < nummod; j++)
-          {
             pMSM2->setNProbability(j, 0);
-          }
 
-
-          double s = VectorTools::sum(vvprob[i]);
           for (unsigned int j = 0; j < vvprob[i].size(); j++)
-          {
-            pMSM2->setNProbability(vvnmod[i][j], vvprob[i][j] / s);
-          }
+            pMSM2->setNProbability(vvnmod[i][j], vvprob[i][j] / vsprob[i]);
 
           if (tl)
             delete tl;
@@ -440,9 +443,7 @@ int main(int args, char** argv)
           Vdouble vd = tl->getLogLikelihoodForEachSite();
 
           for (unsigned int j = 0; j < nSites; j++)
-          {
             (*rates)(j, i + 1) = TextTools::toString(vd[j]);
-          }
 
           vvd.push_back(vd);
 
@@ -450,19 +451,19 @@ int main(int args, char** argv)
           ApplicationTools::displayMessage("Parameter " + par2 + ":");
 
           ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
-          ApplicationTools::displayResult("Conditional probability", TextTools::toString(s, 15));
+          ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
         }
 
         for (unsigned int j = 0; j < nSites; j++)
         {
           Vdouble vd;
           for (unsigned int i = 0; i < nbcl; i++)
-          {
-            vd.push_back(vvd[i][j]);
-          }
-
+            vd.push_back(std::log(vsprob[i])+vvd[i][j]);
+          
           VectorTools::logNorm(vd);
-          (*rates)(j, nbcl + 1) = TextTools::toString(VectorTools::sumExp(vd, dval));
+          for (unsigned int i = 0; i < nbcl; i++)
+            (*rates)(j,nbcl + i + 1) = TextTools::toString(std::exp(vd[i]));
+          (*rates)(j, 2 * nbcl + 1) = TextTools::toString(VectorTools::sumExp(vd, dval));
         }
 
         DataTable::write(*rates, out, "\t");

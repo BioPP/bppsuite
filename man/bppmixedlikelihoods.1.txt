@@ -19,7 +19,7 @@ On the basis of a mixed model, bppmixedlikelihood computes the
 likelihood of each site for each submodel of the mixture. This is done
 with homogeneous and non-homogeneous modelings. If the mixture is
 based on several values of a parameter, the site per site a posteriori
-average value of this parameter is computed.
+probabilities and average value of this parameter are computed.
 
 .SH OPTIONS
 
