@@ -3,7 +3,7 @@
 alphabet = DNA
 
 # Input tree to use:
-input.tree.file = ../Data/LSUrooted.dnd
+input.tree.file = ../../Data/LSUrooted.dnd
 input.tree.format=Newick
 
 # Print a tree with ids as bootstrap values.
@@ -29,10 +29,27 @@ output.sequence.format = Fasta()
 # general => Specify the model by hand.
 nonhomogeneous = general
 
-# Models are described in a separate file.
-# Choose one of the two following examples:
-//param = SeqGenHomogeneousModel.bpp
-param = SeqGenNonHomogeneousModel.bpp
+# How to deal with root frequencies:
+# balanced  : all frequencies are set to 1/size of the alphabet
+# observed  : use observed counts in the data set
+# init      : manually set the frequencies (they have to sum to one)
+# For nucleotides, one can use the GC rate (theta) parametrization, like in the T92 model:
+# balancedGC: ancestral GC set to 0.5
+# observedGC: use observed GC content
+# initGC    : manually set the ancestral GC content.
+nonhomogeneous.root_freq = GC(theta=0.9)
+
+# Now the general heterogeneous case:
+# Specify the number of distincts models.
+nonhomogeneous.number_of_models = 2
+# Set up each model:
+model1=T92(kappa=2, theta=0.1)
+model1.nodes_id=0:62 # The Ids of the nodes to which this model should be assigned.
+
+model2=T92(kappa=1, theta=0.9)
+model2.nodes_id=63:155
+
+#etc
 
 # Rate Across Sites variation
 rate_distribution = Gamma(n=4, alpha=0.358)
