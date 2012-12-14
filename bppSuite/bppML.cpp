@@ -250,7 +250,6 @@ int main(int args, char** argv)
     else if (nhOpt == "no")
     {
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppml.getParams());
-      model->getParameters().printParameters(cout);
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
