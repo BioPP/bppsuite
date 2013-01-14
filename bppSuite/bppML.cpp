@@ -157,7 +157,10 @@ int main(int args, char** argv)
     KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
     if (cmdName == "Input")
     {
-      // Do nothing!
+      // Is the root has to be moved to the midpoint position along the branch that contains it ? If no, do nothing!
+      string midPointRootBrLengths = ApplicationTools::getStringParameter("midPointRootBrLengths", cmdArgs, "no", "", true, false);
+      if(midPointRootBrLengths == "yes")
+        TreeTools::constrainedMidPointRooting(*tree);
     }
     else if (cmdName == "Equal")
     {
@@ -317,6 +320,17 @@ int main(int args, char** argv)
       {
         rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, sites, bppml.getParams(), rateFreqs);
         stationarity = !rootFreqs;
+        string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppml.getParams(), "");
+        if (freqDescription == "MVAprotein")
+        {
+          if (dynamic_cast<CoalaCore*>(model))
+          {
+            dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");
+            dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model)); 
+          }
+          else
+            throw Exception("The MVAprotein frequencies set at the root can only be used if a COaLA model is used on branches.");
+        }
       }
       ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
    

@@ -205,29 +205,55 @@ int main(int args, char ** argv)
   {
     if(inputTrees == "multiple")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
-    SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
+    SubstitutionModel* model = 0;
+    string modelName = ApplicationTools::getStringParameter("model", bppseqgen.getParams(), "");
+    if (!TextTools::hasSubstring(modelName,"COaLA"))
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
+    else
+    {
+      //COaLA model
+      VectorSiteContainer* allSitesAln = 0;
+      allSitesAln = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, allSitesAln, bppseqgen.getParams());
+    }
+
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
     vector<double> rateFreqs;
     if (model->getNumberOfStates() != alphabet->getSize())
     {
       //Markov-Modulated Markov Model...
-      unsigned int n =(unsigned int)(model->getNumberOfStates() / alphabet->getSize());
-      rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+      unsigned int n = static_cast<unsigned int>(model->getNumberOfStates() / alphabet->getSize());
+      rateFreqs = vector<double>(n, 1./static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
                                                    // we should assume a rate distribution for the root also!!!  
     }
     FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, 0, bppseqgen.getParams(), rateFreqs);
+    string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppseqgen.getParams(), "Full(init=observed)");
+    if (freqDescription.substr(0,10) == "MVAprotein")
+    {
+      dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");   
+      dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model));      
+    }
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, trees[0], globalParameters); 
   }
   //General case:
   else if (nhOpt == "general")
   {
-    if(inputTrees == "multiple")
+    if (inputTrees == "multiple")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
-    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, 0, bppseqgen.getParams());
+    string modelName = ApplicationTools::getStringParameter("model1",bppseqgen.getParams(),"");
+    if (!TextTools::hasSubstring(modelName,"COaLA"))
+     modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, 0, bppseqgen.getParams());
+    else
+    {
+      //COaLA model
+      VectorSiteContainer* allSitesAln = 0;
+      allSitesAln = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
+      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, allSitesAln, bppseqgen.getParams());
+    } 
   }
   else throw Exception("Unknown non-homogeneous option: " + nhOpt);
 
-	DiscreteDistribution* rDist = 0;
+  DiscreteDistribution* rDist = 0;
   NonHomogeneousSequenceSimulator* seqsim = 0;
   SiteContainer* sites = 0;
   if (infosFile != "none")
@@ -292,7 +318,7 @@ int main(int args, char ** argv)
     }
     else
     {
-	    rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
+      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
     }
 
     unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", bppseqgen.getParams(), 100);
