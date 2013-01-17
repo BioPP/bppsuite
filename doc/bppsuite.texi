@@ -934,11 +934,11 @@ has parameters @var{CodonDistFreq.012_T92.kappa},
 See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistanceFrequenciesSubstitutionModel.html#_details, Bio++ description}.
 
-@item CodonDistPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
+@item CodonDistPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
-or 
+or
 
-@item CodonDistPhasFreq(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
+@item CodonDistPhasFreq(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
 Substitution model on codons that takes into account the difference
 between synonymous and non-synonymous substitutions. Moreover, the
@@ -960,8 +960,35 @@ substitution rate and synonymous substitution rate. Default value: 1.
 See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistancePhaseFrequenciesSubstitutionModel.html#_details, Bio++ description}.
 
-@end table
+@item CodonDistFitPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@}, fitness=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
+or
+
+@item CodonDistFitPhasFreq(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@}, fitness=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
+
+Substitution model on codons that takes into account the difference
+between synonymous and non-synonymous substitutions and the difference
+between synonymous codons, in the same manner as in Yang and Nielsen's
+2008 substitution model. The sustitution rates are multiplied by the
+product of the frequencies of the changed nucleotides -- conditioned
+on the phase -- in the given frequencies set, and by ratios of
+fitnesses of the codons.
+
+This model should be used with nucleotidic models in which equilibrium
+distribution is fixed, ans does not depend on the parameters.
+Otherwise there may be problems of identifiability of the parameters.
+
+The multiplicative distribution of the model is described by the
+@var{frequencies} and @var{fitness} arguments. See the description of
+the Frequencies Set below.
+
+Optional argument @var{beta} is the ratio between non-synonymous
+substitution rate and synonymous substitution rate. Default value: 1.
+
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.html#_details, Bio++ description}.
+
+@end table
 
 
 @node Multiple, Meta, Codon, Declaration
