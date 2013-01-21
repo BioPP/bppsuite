@@ -115,7 +115,7 @@ int main(int args, char** argv)
   }
 
   //Build alignment indexes:
-  RowMatrix<unsigned int> indexTest, indexRef;
+  RowMatrix<size_t> indexTest, indexRef;
   SiteContainerTools::getSequencePositions(*sitesTest, indexTest);
   SiteContainerTools::getSequencePositions(*sitesRef,  indexRef);
 

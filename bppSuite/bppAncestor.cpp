@@ -297,10 +297,10 @@ int main(int args, char ** argv)
       ofstream out(outputFile.c_str(), ios::out);
       TreeTemplate<Node> ttree(*tree);
       vector<Node *> nodes = ttree.getInnerNodes();
-      unsigned int nbNodes = nodes.size();
+      size_t nbNodes = nodes.size();
     
       // Get the rate class with maximum posterior probability:
-      vector<unsigned int> classes = tl->getRateClassWithMaxPostProbOfEachSite();
+      vector<size_t> classes = tl->getRateClassWithMaxPostProbOfEachSite();
       // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
       Vdouble rates = tl->getPosteriorRateOfEachSite();
       // Get the ancestral sequences:
@@ -314,7 +314,7 @@ int main(int args, char ** argv)
       colNames.push_back("lnL");
       colNames.push_back("rc");
       colNames.push_back("pr");
-      for (unsigned int i = 0; i < nbNodes; i++) {
+      for (size_t i = 0; i < nbNodes; i++) {
         Node *node = nodes[i];
         colNames.push_back("max." + TextTools::toString(node->getId()));
         if (probs) {
@@ -340,7 +340,7 @@ int main(int args, char ** argv)
       vector<string> row(colNames.size());
       DataTable* infos = new DataTable(colNames);
     
-      for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
+      for (size_t i = 0; i < sites->getNumberOfSites(); i++)
       {
         double lnL = tl->getLogLikelihoodForASite(i);
         const Site* currentSite = &sites->getSite(i);
