@@ -433,12 +433,12 @@ int main(int args, char** argv)
       CodonAlphabet *pca=dynamic_cast<CodonAlphabet*>(alphabet);
       if (pca) {
         bool f = false;
-        unsigned int  s;
-        for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
+        size_t s;
+        for (size_t i = 0; i < sites->getNumberOfSites(); i++) {
           if (isinf(tl->getLogLikelihoodForASite(i))) {
             const Site& site=sites->getSite(i);
             s = site.size();
-            for (unsigned int j = 0; j < s; j++) {
+            for (size_t j = 0; j < s; j++) {
               if (pca->isStop(site.getValue(j))) {
                 (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << sites->getSequence(j).getName()).endLine();
                 f = true;
@@ -460,7 +460,7 @@ int main(int args, char** argv)
         exit(1);
       } else {
         ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
-        for (unsigned int i = sites->getNumberOfSites(); i > 0; --i) {
+        for (size_t i = sites->getNumberOfSites(); i > 0; --i) {
           if (isinf(tl->getLogLikelihoodForASite(i - 1))) {
             ApplicationTools::displayResult("Ignore saturated site", sites->getSite(i - 1).getPosition());
             sites->deleteSite(i - 1);

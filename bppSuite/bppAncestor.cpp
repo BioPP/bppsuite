@@ -150,7 +150,7 @@ int main(int args, char ** argv)
   SubstitutionModel    *model    = 0;
   SubstitutionModelSet *modelSet = 0;
   DiscreteDistribution *rDist    = 0;
-  unsigned int nbStates;
+  size_t nbStates;
 
   if (nhOpt == "no")
   {  

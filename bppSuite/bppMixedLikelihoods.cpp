@@ -260,9 +260,9 @@ int main(int args, char** argv)
     ApplicationTools::displayResult("Output file for likelihoods", outputFile);
     ofstream out(outputFile.c_str(), ios::out);
 
-    unsigned int nSites = sites->getNumberOfSites();
+    size_t nSites = sites->getNumberOfSites();
 
-    unsigned int nummodel = (unsigned int)ApplicationTools::getIntParameter("likelihoods.model_number", bppmixedlikelihoods.getParams(), 1, "", true, true);
+    size_t nummodel = ApplicationTools::getParameter<size_t>("likelihoods.model_number", bppmixedlikelihoods.getParams(), 1, "", true, true);
 
     string parname = ApplicationTools::getStringParameter("likelihoods.parameter_name", bppmixedlikelihoods.getParams(), "", "", true, false);
 
@@ -275,25 +275,25 @@ int main(int args, char** argv)
     MixedSubstitutionModel* p0;
     p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getModel(nummodel - 1));
 
-    if (p0 == NULL)
+    if (!p0)
     {
       ApplicationTools::displayError("Model " + TextTools::toString(nummodel) + " is not a Mixed Model.");
       exit(-1);
     }
 
-    if (dynamic_cast<AbstractBiblioMixedSubstitutionModel*>(p0) != NULL)
+    if (dynamic_cast<AbstractBiblioMixedSubstitutionModel*>(p0))
       p0 = dynamic_cast<AbstractBiblioMixedSubstitutionModel*>(p0)->getMixedModel();
 
 
     // Case of a MixtureOfSubstitutionModels
 
     MixtureOfSubstitutionModels* pMSM = dynamic_cast<MixtureOfSubstitutionModels*>(p0);
-    if (pMSM != NULL)
+    if (pMSM)
     {
       vector<string> colNames;
       colNames.push_back("Sites");
 
-      unsigned int nummod = pMSM->getNumberOfModels();
+      size_t nummod = pMSM->getNumberOfModels();
       for (unsigned int i = 0; i < nummod; i++)
       {
         colNames.push_back(pMSM->getNModel(i)->getName());
@@ -357,10 +357,10 @@ int main(int args, char** argv)
           exit(-1);
         }
 
-        unsigned int nummod = pMSM2->getNumberOfModels();
+        size_t nummod = pMSM2->getNumberOfModels();
 
         vector<vector<int> > vvnmod;
-        unsigned int i2 = 0;
+        size_t i2 = 0;
         while (i2 < nummod)
         {
           string par2 = parname + "_" + TextTools::toString(i2 + 1);
@@ -371,14 +371,14 @@ int main(int args, char** argv)
           i2++;
         }
 
-        unsigned int nbcl = vvnmod.size();
+        size_t nbcl = vvnmod.size();
 
         Vdouble vprob = pMSM2->getProbabilities();
 
         vector<vector<double> > vvprob;
         vector<double> vsprob;
         
-        for (unsigned int i = 0; i < nbcl; i++)
+        for (size_t i = 0; i < nbcl; i++)
         {
           vector<double> vprob2;
           for (unsigned int j = 0; j < vvnmod[i].size(); j++)

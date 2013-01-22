@@ -171,10 +171,10 @@ int main(int args, char ** argv)
       vector<string> leavesTree;      
       leavesTree = (*tree).getLeavesNames();  
   
-      unsigned int numNodes = tree->getNumberOfNodes() - 1;
-      unsigned int numNodeWithBranchLength = 0;
+      size_t numNodes = tree->getNumberOfNodes() - 1;
+      size_t numNodeWithBranchLength = 0;
       vector<Node *>  nodes = tree->getNodes();
-      for (unsigned int i = 0; i < nodes.size(); i++)
+      for (size_t i = 0; i < nodes.size(); i++)
       {
         if(nodes[i]->hasDistanceToFather())
           numNodeWithBranchLength++;
@@ -187,7 +187,7 @@ int main(int args, char ** argv)
       vector<string> outGroup;
       bool found = false;
       bool analyseOutgroupLevel = true;
-      for (unsigned int t = 0; t < levelOutgroup.size() && analyseOutgroupLevel; t++)
+      for (size_t t = 0; t < levelOutgroup.size() && analyseOutgroupLevel; t++)
       {      
         outGroup.clear();
         vector<string>::iterator Iterator;  
@@ -227,13 +227,13 @@ int main(int args, char ** argv)
             {
               bool monophylOk = true;
 
-              for(unsigned f = 0; f < newRoot->getNumberOfSons() && monophylOk; f++)
+              for (size_t f = 0; f < newRoot->getNumberOfSons() && monophylOk; f++)
               {
                 tempLeaves = TreeTemplateTools::getLeavesNames(*newRoot->getSon(f));
                 vector<string> diff;
                 VectorTools::diff(outGroup, tempLeaves, diff);
 
-                unsigned int difference = diff.size();
+                size_t difference = diff.size();
                 if (!( (difference == 0) || (difference == tempLeaves.size()) ) )
                 {
                   //The proposed outgroup is not monophyletic. The analysis for this tree is interrupted

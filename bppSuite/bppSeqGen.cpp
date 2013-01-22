@@ -261,11 +261,11 @@ int main(int args, char ** argv)
     ifstream in(infosFile.c_str());
     DataTable* infos = DataTable::read(in, "\t");
     rDist = new ConstantRateDistribution();
-    unsigned int nbSites = infos->getNumberOfRows();
+    size_t nbSites = infos->getNumberOfRows();
     ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
     vector<double> rates(nbSites);
     vector<string> ratesStrings = infos->getColumn(string("pr"));
-    for(unsigned int i = 0; i < nbSites; i++)
+    for (size_t i = 0; i < nbSites; i++)
     {
       rates[i] = TextTools::toDouble(ratesStrings[i]);
     }
@@ -321,7 +321,7 @@ int main(int args, char ** argv)
       rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
     }
 
-    unsigned int nbSites = ApplicationTools::getParameter<unsigned int>("number_of_sites", bppseqgen.getParams(), 100);
+    size_t nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
     if (trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
@@ -335,8 +335,8 @@ int main(int args, char ** argv)
       ApplicationTools::displayTask("Perform simulations", true);
       ApplicationTools::displayGauge(0, trees.size() - 1, '=');
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
-      unsigned int previousPos = 0;
-      unsigned int currentPos = static_cast<unsigned int>(round(positions[1]*static_cast<double>(nbSites)));
+      size_t previousPos = 0;
+      size_t currentPos = static_cast<unsigned int>(round(positions[1]*static_cast<double>(nbSites)));
       SequenceContainer* tmpCont1 = seqsim->simulate(currentPos - previousPos);
       previousPos = currentPos;
       delete seqsim;

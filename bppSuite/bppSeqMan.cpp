@@ -313,7 +313,7 @@ int main(int args, char** argv)
         throw Exception("'RemoveColumnsWithStop' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
 
-      for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
+      for (size_t i = sites->getNumberOfSites(); i > 0; i--)
       {
         if (SiteTools::hasStopCodon(sites->getSite(i-1)))
           sites->deleteSite(i - 1);
@@ -331,10 +331,10 @@ int main(int args, char** argv)
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         BasicSequence seq = sequences->getSequence(i);
-        unsigned int len = seq.size();
+        size_t len = seq.size();
         SequenceTools::getCDS(seq, false, true, true, false);
         if (aligned) {
-          for (unsigned int c = seq.size(); c < len; ++c)
+          for (size_t c = seq.size(); c < len; ++c)
             seq.addElement(seq.getAlphabet()->getGapCharacterCode());
         }
         sc->addSequence(seq, false);
@@ -390,7 +390,7 @@ int main(int args, char** argv)
       if (maxGapOption[maxGapOption.size()-1] == '%')
       {
         double gapFreq = TextTools::toDouble(maxGapOption.substr(0, maxGapOption.size()-1)) / 100.;
-        for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
+        for (size_t i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, double> freqs;
           SiteTools::getFrequencies(sites->getSite(i - 1), freqs);
@@ -399,8 +399,8 @@ int main(int args, char** argv)
       }
       else
       {
-        unsigned int gapNum=TextTools::to<unsigned int>(maxGapOption);
-        for (unsigned int i = sites->getNumberOfSites(); i > 0; i--)
+        unsigned int gapNum = TextTools::to<unsigned int>(maxGapOption);
+        for (size_t i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, unsigned int> counts;
           SiteTools::getCounts(sites->getSite(i - 1), counts);

@@ -148,12 +148,12 @@ int main(int args, char ** argv)
 
   //Compute lengths:
   vector<string> seqNames;
-  vector<unsigned int> seqLen(dist->size());
+  vector<size_t> seqLen(dist->size());
   string name;
-  for(unsigned int i = 0; i < dist->size(); i++)
+  for(size_t i = 0; i < dist->size(); i++)
   {
     name = dist->getName(i);
-    if(critMeth == "length.complete")
+    if (critMeth == "length.complete")
       seqLen[i] = SequenceTools::getNumberOfCompleteSites(seqs->getSequence(name));
     else
       seqLen[i] = SequenceTools::getNumberOfSites(seqs->getSequence(name));
@@ -206,7 +206,7 @@ int main(int args, char ** argv)
       else throw Exception("Unknown criterion: " + critMeth);
 
       //Remove sequence in list:
-      unsigned int pos = VectorTools::which(seqNames, dist->getName(rm));
+      size_t pos = VectorTools::which(seqNames, dist->getName(rm));
       ApplicationTools::displayResult("Remove sequence", seqNames[pos]);
       seqNames.erase(seqNames.begin() + pos); 
         
@@ -239,7 +239,7 @@ int main(int args, char ** argv)
       else throw Exception("Unknown criterion: " + critMeth);
 
       //Remove sequence in list:
-      unsigned int pos = VectorTools::which(seqNames, dist->getName(rm));
+      size_t pos = VectorTools::which(seqNames, dist->getName(rm));
       ApplicationTools::displayResult("Remove sequence", seqNames[pos]);
       seqNames.erase(seqNames.begin() + pos); 
         
@@ -252,7 +252,7 @@ int main(int args, char ** argv)
 
   //Write sequences to file:
   AlignedSequenceContainer asc(alphabet);
-  for(unsigned int i = 0; i < seqNames.size(); i++)
+  for (size_t i = 0; i < seqNames.size(); i++)
     asc.addSequence(seqs->getSequence(seqNames[i]));
    
   SequenceApplicationTools::writeAlignmentFile(asc, bppphysamp.getParams());
