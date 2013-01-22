@@ -203,7 +203,7 @@ int main(int args, char** argv)
     {
       TreeTemplate<Node> ttree(*tree);
       vector<Node*> nodes = ttree.getNodes();
-      for (unsigned int i = 0; i < nodes.size(); i++)
+      for (size_t i = 0; i < nodes.size(); i++)
       {
         if (nodes[i]->isLeaf())
           nodes[i]->setName(TextTools::toString(nodes[i]->getId()) + "_" + nodes[i]->getName());
@@ -351,7 +351,7 @@ int main(int args, char** argv)
       }
       else if (recursion == "double")
       {
-        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
+        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
           throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
             //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
         else
