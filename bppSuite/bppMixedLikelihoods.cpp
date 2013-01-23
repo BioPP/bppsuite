@@ -272,8 +272,7 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    MixedSubstitutionModel* p0;
-    p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getModel(nummodel - 1));
+    MixedSubstitutionModel* p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getModel(nummodel - 1));
 
     if (!p0)
     {
@@ -281,8 +280,11 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    if (dynamic_cast<AbstractBiblioMixedSubstitutionModel*>(p0))
-      p0 = dynamic_cast<AbstractBiblioMixedSubstitutionModel*>(p0)->getMixedModel();
+    //this is an uglly fix because getMixedModel is private... can't we use clone instead or const everywhere?
+    const AbstractBiblioMixedSubstitutionModel* ptmp = dynamic_cast<AbstractBiblioMixedSubstitutionModel*>(p0);
+    if (ptmp) {
+      p0 = &const_cast<AbstractBiblioMixedSubstitutionModel&>(dynamic_cast<const AbstractBiblioMixedSubstitutionModel&>(ptmp->getMixedModel()));
+    }
 
 
     // Case of a MixtureOfSubstitutionModels
