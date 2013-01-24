@@ -402,6 +402,15 @@ The format of the input tree file.
 
 @end table
 
+In case the input tree does not specify node identifiers, some will be generated automatically.
+Nodes identifiers can be outputed using the following option:
+@table @command
+@item output.tree_ids.file = @{@{path@}|none@}
+A tree file in newick format, with node ids instead of bootstrap
+values, and leaf names with their id as suffix.
+@end table
+In case it is supported by the program, the use of that option will cause the program to exit just after producing the tagged tree.
+
 Some programs may require that your file contains several trees.
 The corresponding options are then:
 
@@ -1317,11 +1326,6 @@ Note that this option is only available with the 'general' nonhomogeneous substi
 Finally, you may find useful the following options:
 
 @table @command
-
-@item output.tree_ids.file = @{@{path@}|none@}
-A tree file in newick format, with node ids instead of bootstrap
-values, and leaf names with their id as suffix.
-The use of that option will cause the program to exit just after producing the tagged tree.
 
 @item output.parameter_names.file = @{@{path@}|none@}
 A text file listing all parameter names. This might come handy in
