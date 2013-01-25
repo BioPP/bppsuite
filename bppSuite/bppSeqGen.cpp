@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS
+Copyright or © or Copr. Bio++ Development Team
 
 This software is a computer program whose purpose is to simulate sequence
 data according to a phylogenetic tree and an evolutionary model.

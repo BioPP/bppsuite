@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS
+   Copyright or © or Copr. Bio++ Development Team
 
    This software is a computer program whose purpose is to estimate
    phylogenies and evolutionary parameters from a dataset according to
@@ -223,6 +223,7 @@ int main(int args, char** argv)
     string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
     ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
+    bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, false);
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, false);
     unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppml.getParams(), 0, "", true, false);
 
@@ -246,7 +247,7 @@ int main(int args, char** argv)
         rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
       if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-        tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true, true);
+        tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true);
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
     }
@@ -270,25 +271,25 @@ int main(int args, char** argv)
         string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
         ApplicationTools::displayResult("Likelihood data compression", compression);
         if (compression == "simple")
-          if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, false, true, false);
+          if (dynamic_cast<MixedSubstitutionModel*>(model))
+            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, false);
           else
-            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, false, true, false);
+            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, false);
 
         else if (compression == "recursive")
           if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, false, true, true);
+            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
           else
-            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, false, true, true);
+            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
 
         else throw Exception("Unknown likelihood data compression method: " + compression);
       }
       else if (recursion == "double")
       {
-        if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-          tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, true);
+        if (dynamic_cast<MixedSubstitutionModel*>(model))
+          tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree);
         else
-          tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true);
+          tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);
       }
       else throw Exception("Unknown recursion option: " + recursion);
     }

@@ -1,6 +1,7 @@
 #Example data set adapted from PAML
 #
-#logL = 65442.80353609310986939818
+#logL0 = -1084.23740828789
+#logL  = -1056.00142355909
 
 # Global variables:
 DATA = lysozymeLarge
@@ -43,7 +44,7 @@ init.brlen.method = Input
 # See the manual for a description of the syntax and available options.
 #
 model = YN98(kappa=1, omega=1.0, frequencies=F0)
-nonhomogeneous=no
+nonhomogeneous = no
 
 rate_distribution = Constant() //Gamma(n=4, alpha=0.358)
 

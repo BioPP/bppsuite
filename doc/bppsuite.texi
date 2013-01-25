@@ -1907,6 +1907,10 @@ The tree is finally scaled to match a given total height, which can be the origi
 A value of rho=0 provides a star tree, and the greater the value of rho, the more recent the inner nodes. 
 
 @end table
+
+@item input.tree.check_root = @{boolean@}
+Tell if the input tree should be checked regarding to the presence of a root. If set to yes (the default), rooted trees will be unrooted if a homogenous model is used.
+If not, a rooted tree will be fitted, which can lead to optimization issues in most cases. Use the non default option with care!
 @end table
 
 @subsection Topology optimization
@@ -2044,6 +2048,10 @@ The BppAncestor program uses the common syntax introduced in the previous sectio
 
 Specific options are:
 @table @command
+
+@item input.tree.check_root = @{boolean@}
+Tell if the input tree should be checked regarding to the presence of a root. If set to yes (the default), rooted trees will be unrooted if a homogenous model is used.
+If not, a rooted tree will be fitted, which can lead to optimization issues in most cases. Use the non default option with care!
 
 @item asr.method = @{none|marginal@}
 Marginal is the only option for now. If set to "none", only nodes frequencies can be output.

@@ -21,6 +21,7 @@ input.sequence.format=Phylip(order=sequential, type=extended, split=spaces)
 input.sequence.sites_to_use = all
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
 input.sequence.max_gap_allowed = 50%
+input.sequence.max_unresolved_allowed = 100%
 
 # ----------------------------------------------------------------------------------------
 #                                     Input tree file

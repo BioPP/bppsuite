@@ -22,7 +22,7 @@ input.sequence.format=Fasta
 input.sequence.sites_to_use = all
 # Specify a maximum amount of gaps: may be an absolute number or a percentage.
 input.sequence.max_gap_allowed = 50%
-
+input.sequence.max_unresolved_allowed = 50%
 input.sequence.remove_stop_codons = yes
 
 # ----------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = YNGKP_M1(kappa=1, omega=0.5, frequencies=F3X4, p0=0.5, initFreqs=observed)
+model = YNGKP_M1(kappa=1, omega=0.5, frequencies=F1X4, p0=0.5, initFreqs=observed, observedPseudoCount=1)
 nonhomogeneous=no
 
 rate_distribution = Constant //Gamma(n=4, alpha=0.358)
@@ -75,7 +75,7 @@ optimization = FullD(derivatives=Newton)
 
 # Tell if the parameter should be transformed in order to remove constraints.
 # This can improves the optimization, but might be a bit slower.
-optimization.reparametrization = yes
+optimization.reparametrization = no
 
 # Final optimization step, may be useful if numerical derivatives are used:
 # powell or simplex or none.
