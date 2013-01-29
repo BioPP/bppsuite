@@ -55,6 +55,7 @@ using namespace std;
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
@@ -63,6 +64,7 @@ using namespace std;
 #include <Bpp/Phyl/Simulation.all>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
@@ -127,9 +129,12 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*            Bio++ Sequence Generator, version 1.1.0             *" << endl;
-  cout << "* Author: J. Dutheil                                             *" << endl;
-  cout << "*         B. Boussau                        Last Modif. 16/11/12 *" << endl;
+  cout << "*            Bio++ Sequence Generator, version 1.2.0             *" << endl;
+  cout << "*                                                                *" << endl;
+  cout << "* Authors: J. Dutheil                                            *" << endl;
+  cout << "*          B. Boussau                       Last Modif. 29/01/13 *" << endl;
+  cout << "*          L. Guéguen                                            *" << endl;
+  cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   

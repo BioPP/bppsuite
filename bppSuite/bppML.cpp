@@ -60,6 +60,7 @@ using namespace std;
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
@@ -70,7 +71,9 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/Protein/CoalaCore.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
@@ -90,11 +93,12 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 1.5.0      *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 1.6.0      *" << endl;
   cout << "*                                                                *" << endl;
-  cout << "* Authors: J. Dutheil                       Last Modif. 16/11/12 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. 29/01/13 *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
-  cout << "*          L. Gueguen                                            *" << endl;
+  cout << "*          L. Guéguen                                            *" << endl;
+  cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 

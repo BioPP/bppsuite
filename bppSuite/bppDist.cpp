@@ -55,6 +55,7 @@ using namespace std;
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
@@ -66,6 +67,7 @@ using namespace std;
 #include <Bpp/Phyl/Distance.all>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 
 using namespace bpp;
 

@@ -52,6 +52,7 @@ using namespace std;
 // From SeqLib:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/Io.all>
@@ -399,10 +400,10 @@ int main(int args, char** argv)
       }
       else
       {
-        unsigned int gapNum = TextTools::to<unsigned int>(maxGapOption);
+        size_t gapNum = TextTools::to<size_t>(maxGapOption);
         for (size_t i = sites->getNumberOfSites(); i > 0; i--)
         {
-          map<int, unsigned int> counts;
+          map<int, size_t> counts;
           SiteTools::getCounts(sites->getSite(i - 1), counts);
           counts[-1]; //Needed in case this entry does not exist in the map. This will set it to 0.
           if (counts[-1] > gapNum) sites->deleteSite(i-1);

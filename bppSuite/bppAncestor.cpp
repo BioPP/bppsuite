@@ -60,6 +60,7 @@ using namespace std;
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
+#include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
