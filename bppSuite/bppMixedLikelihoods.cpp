@@ -281,10 +281,13 @@ int main(int args, char** argv)
       exit(-1);
     }
 
+    bool fromBiblio=false;
+    
     //this is an uglly fix because getMixedModel is private... can't we use clone instead or const everywhere?
-    const AbstractBiblioMixedSubstitutionModel* ptmp = dynamic_cast<AbstractBiblioMixedSubstitutionModel*>(p0);
+    const AbstractBiblioMixedSubstitutionModel* ptmp = dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(p0);
     if (ptmp) {
-      p0 = &const_cast<AbstractBiblioMixedSubstitutionModel&>(dynamic_cast<const AbstractBiblioMixedSubstitutionModel&>(ptmp->getMixedModel()));
+      p0 = ptmp->getMixedModel().clone();
+      fromBiblio=true;
     }
 
 
@@ -351,6 +354,13 @@ int main(int args, char** argv)
 
     else
     {
+      if (fromBiblio)
+        {
+          ApplicationTools::displayError("!!! Not available for models parametrized upon bibliography.");
+          ApplicationTools::displayError("!!! Please convert into MixedModel declaration.");
+          exit(-1);
+        }
+      
       MixtureOfASubstitutionModel* pMSM2 = dynamic_cast<MixtureOfASubstitutionModel*>(p0);
       if (pMSM2 != NULL)
       {
