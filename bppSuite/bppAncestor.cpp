@@ -145,7 +145,7 @@ int main(int args, char ** argv)
   }
 
   bool checkTree = ApplicationTools::getBooleanParameter("input.tree.check_root", bppancestor.getParams(), true, "", true, false);
-  
+
   DRTreeLikelihood *tl;
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppancestor.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
@@ -168,7 +168,11 @@ int main(int args, char ** argv)
     {
       rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
     }
-    tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);
+    if (dynamic_cast<MixedSubstitutionModel*>(model))
+      tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
+    else
+      tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);
+
     nbStates = model->getNumberOfStates();
   }
   else if (nhOpt == "one_per_branch")
@@ -196,6 +200,8 @@ int main(int args, char ** argv)
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppancestor.getParams(), ',', "");
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters); 
     model = 0;
+    if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
+      throw Exception("Non-homogeneous mixed substitution ancestor reconstruction not implemented, sorry!");
     tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
     nbStates = modelSet->getNumberOfStates();
   }
@@ -212,6 +218,8 @@ int main(int args, char ** argv)
     {
       rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
     }
+    if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
+      throw Exception("Non-homogeneous mixed substitution ancestor reconstruction not implemented, sorry!");
     tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
     nbStates = modelSet->getNumberOfStates();
   }

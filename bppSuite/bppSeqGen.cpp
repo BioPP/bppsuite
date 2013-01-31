@@ -258,6 +258,9 @@ int main(int args, char ** argv)
   }
   else throw Exception("Unknown non-homogeneous option: " + nhOpt);
 
+  if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
+    throw Exception("Non-homogeneous mixed substitution sequence generation not implemented, sorry!");
+
   DiscreteDistribution* rDist = 0;
   NonHomogeneousSequenceSimulator* seqsim = 0;
   SiteContainer* sites = 0;
