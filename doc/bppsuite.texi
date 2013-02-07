@@ -41,7 +41,7 @@ Copyright @copyright{} 2007, 2008, 2009, 2010, 2011, 2012 Bio++ development team
 @contents
 
 @ifnottex
-@node Top
+@node Top, Introduction, (dir), (dir)
 @top The Bio++ Program Suite Manual
 
 @insertcopying
@@ -60,16 +60,37 @@ Common options encountered in several programs.
 
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
+* AlphabetIndex::               Setting alphabet indexes.
 * Model::                       Setting up a substitution model.
+* Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
 * WritingTrees::                Writing trees to files. 
+
+Model specification
+
+* Declaration::                 Numerous declarations of models.
+* Non-homogeneity::             Specific declaration of non-homogeneous modelling.
+* FrequenciesSet::              Frequencies 
+* Rates::                       Rates across sites
+
+Setting up the substitution model
+
+* Nucleotide::                  Nucleotide models
+* Protein::                     Protein models
+* Miscellaneous::               Miscellaneous models
+* Codon::                       Codon models
+* Multiple::                    General multiple site models
+* Meta::                        Meta models
+* Mixture::                     Mixture of models
+* Linking::                     Linking parameters
 
 Bio++ Program Suite Reference
 
 * bppml::                       Bio++ Maximum Likelihood.
 * bppseqgen::                   Bio++ Sequence Generator.
 * bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction.
+* bppmixedlikelihoods::         Bio++ Site-Likelihoods Inside Mixed Models.
 * bppdist::                     Bio++ Distance Methods.
 * bpppars::                     Bio++ Maximum Parsimony.
 * bppconsense::                 Bio++ Consensus Trees.
@@ -284,6 +305,7 @@ data=LSU
 @menu
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
+* AlphabetIndex::               
 * Model::                       Setting up a substitution model.
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
@@ -390,7 +412,7 @@ output files (if relevant).
  
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Tree, Model, Sequences, Common
+@node Tree, AlphabetIndex, Sequences, Common
 @section Reading trees
 
 @table @command
@@ -423,17 +445,68 @@ The format of the input tree file.
 
 @end table
 
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node AlphabetIndex, Model, Tree, Common
+@section Specifying alphabet indexes
+
+Some methods require an "alphabet index" to be specified.
+Alphabet indexes associate a value with each alphabet state (Index1, e.g. a biochemical property) or for a pair of states (Index2, e.g. a biochemical distance).
+This section describes the supported indexes:
+
+@subsection Index1
+
+@table @command
+@item None
+If no index should be used.
+@item Surface, Mass, Volume @{AA@}
+Basic amino acids properties.
+@item GranthamPolarity, GranthamVolume @{AA@}
+Grantham's polarity and volume index.
+@item KleinCharge @{AA@}
+Klein's charge.
+@item ChouFasmanAHelix, ChouFasmanBSheet, ChouFasmanTurn @{AA@}
+Chou and Fasmani score for secondary structure prediction. 
+@item ChenGuHuangHydrophobicity @{AA@}
+Hydrophobicity according to Chen, Gu and Huang.
+@item SEALow, SEAMedium, SEAHigh @{AA@}
+Solvent Exposed Area, percent of amino acids having a SEA below 10, between 10 and 30, or higher than 30, respectively.
+@item User
+A user defined Index1, from a file in the AAIndex1 syntax. The input file is specified using the @command{file=@{path@}} argument.
+@command{file}
+
+@end table
+
+
+@subsection Index2
+
+@table @command
+@item None
+If no index should be used.
+@item Blosum50 @{AA@}
+The BLOSUM 50 amino acid distance matrix.
+@item Grantham, Miyata @{AA@}
+Two biochemical distance matrices. Both accept an optional argument @command{symmetrical=@{boolean@}} allowing to specify if the matrix should be symmetric or not. If not, the distance measure will be signed.
+@item Diff
+Allow to compute a distance matrix by taking the difference for, each pair of state, of an Index1 value.
+The Index1 to use is specified using the @command{index1=@{Index1 description@}} argument. An additional argument allow to specify whether the resulting matrix should be symetric (@command{symmetrical=@{boolean@}}):
+  if so, the absolute difference will be used. Alternatively, the distance will be signed and d[i,j] = - d[j,i].
+@item User
+A user defined Index2, from a file in the AAIndex2 syntax. The input file is specified using the @command{file=@{path@}} argument.
+The @command{symmetrical=@{boolean@}} argument can be used to specify whether distances should be signed or not.
+@end table
+
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Model, Distribution, Tree, Common
+@node Model, Distribution, AlphabetIndex, Common
 @section Model specification
 
 @menu
-* Declaration::           Numerous declarations of models.
+* Declaration::                 Numerous declarations of models.
 * Non-homogeneity::             Specific declaration of non-homogeneous modelling.
 * FrequenciesSet::              Frequencies 
-* Rates::                        Rates across sites
+* Rates::                       Rates across sites
 @end menu
 
 The substitution model specification over the tree is set up in different parts.
@@ -455,14 +528,14 @@ In combination with those models, one can also specify a distribution of site-sp
 @subsection Setting up the substitution model
 
 @menu
-* Nucleotide::    Nucleotide models
-* Protein::       Protein models
-* Miscellaneous:: Miscellaneous models
-* Codon::         Codon models
-* Multiple::      General multiple site models
-* Meta::          Meta models
-* Mixture::       Mixture of models
-* Linking::       Linking parameters
+* Nucleotide::                  Nucleotide models
+* Protein::                     Protein models
+* Miscellaneous::               Miscellaneous models
+* Codon::                       Codon models
+* Multiple::                    General multiple site models
+* Meta::                        Meta models
+* Mixture::                     Mixture of models
+* Linking::                     Linking parameters
 @end menu
 
 @table @command
@@ -1234,7 +1307,7 @@ See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1MixtureOfSubstitutionModels.html#_details, Bio++ description}.
 
 
-@node Linking, , Mixture, Declaration
+@node Linking,  , Mixture, Declaration
 @subsubsection Linking parameters
 
 It is possible to reduce the parameter space by putting extra constraints on parameters, using for instance
@@ -1568,7 +1641,7 @@ alphabetical order of states, and sum to one.
 
 @end table
 
-@node Rates, , FrequenciesSet, Model
+@node Rates,  , FrequenciesSet, Model
 @subsection Rate across site distribution
 
 From version 0.4.0, BppSuite uses the keyval syntax for specifying the distributions of substitution rate across sites.
