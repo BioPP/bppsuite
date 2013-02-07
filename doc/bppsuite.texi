@@ -459,7 +459,7 @@ This section describes the supported indexes:
 @table @command
 @item None
 If no index should be used.
-@item Surface, Mass, Volume @{AA@}
+@item Surface, Mass, Volume, Charge @{AA@}
 Basic amino acids properties.
 @item GranthamPolarity, GranthamVolume @{AA@}
 Grantham's polarity and volume index.
