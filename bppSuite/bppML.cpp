@@ -435,7 +435,7 @@ int main(int args, char** argv)
     if (isinf(logL))
     {
       ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
-      CodonAlphabet *pca=dynamic_cast<CodonAlphabet*>(alphabet);
+      CodonAlphabet *pca = dynamic_cast<CodonAlphabet*>(alphabet);
       if (pca) {
         bool f = false;
         size_t s;
