@@ -774,6 +774,20 @@ similar to the ones used in the PAML software:
 @item F61: free equilibrium frequencies, stop codons set to 0.
 @end itemize
 
+An optional option @var{mgmtStopCodon} can be set to define how the
+frequencies computed to stop codons in the case of F1X4 et F3X4 are
+distributed to other codons.
+
+@itemize
+@item uniform : each stop frequency is distributed evenly
+@item linear : each stop frequency is distributed to the neighbour
+codons (ie 1 substitution away), in proportion to each target codon
+frequency.
+@item quadratic (default): each stop frequency is distributed to the
+neighbour codons (ie 1 substitution away), in proportion to the square
+of each target codon frequency.
+@end itemize
+
 The same words can be used to specify root frequencies for codon
 models, in the case of non stationarity.
 
