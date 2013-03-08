@@ -1,5 +1,5 @@
 This package was debianized by Julien Dutheil <julien.dutheil@univ-montp2.fr> on
-Mon, 28 Feb 2011 09:00:00 +0100.
+Fri, 08 Mar 2013 11:41:00 +0100
 
 It was downloaded from <http://download.gna.org/bppsuite/source>
 
@@ -9,7 +9,7 @@ Upstream Author:
 
 Copyright: 
 
-    Copyright (C) 2011 Bio++ Development Team
+    Copyright (C) 2013 Bio++ Development Team
 
 License:
 
@@ -27,7 +27,7 @@ License:
     along with this package; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-The Debian packaging is (C) 2011, Julien Dutheil <julien.dutheil@univ-montp2.fr> and
+The Debian packaging is (C) 2013, Julien Dutheil <julien.dutheil@univ-montp2.fr> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
 
 The provided software is distributed under the CeCILL license:

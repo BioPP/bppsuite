@@ -1,5 +1,5 @@
 %define _basename bppsuite
-%define _version 0.7.0
+%define _version 0.8.0
 %define _release 1
 %define _prefix /usr
 
@@ -14,20 +14,20 @@ Source: http://biopp.univ-montp2.fr/repos/sources/%{_basename}-%{_version}.tar.g
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
 
-Requires: libbpp-phyl9 = 2.0.3
-Requires: libbpp-seq9 = 2.0.3
-Requires: libbpp-core2 = 2.0.3
+Requires: libbpp-phyl9 = 2.1.0
+Requires: libbpp-seq9 = 2.1.0
+Requires: libbpp-core2 = 2.1.0
 
 BuildRoot: %{_builddir}/%{_basename}-root
 BuildRequires: cmake >= 2.6.0
 BuildRequires: gcc-c++ >= 4.0.0
 BuildRequires: texinfo >= 4.0.0
-BuildRequires: libbpp-core2 = 2.0.3
-BuildRequires: libbpp-core-devel = 2.0.3
-BuildRequires: libbpp-seq9 = 2.0.3
-BuildRequires: libbpp-seq-devel = 2.0.3
-BuildRequires: libbpp-phyl9 = 2.0.3
-BuildRequires: libbpp-phyl-devel = 2.0.3
+BuildRequires: libbpp-core2 = 2.1.0
+BuildRequires: libbpp-core-devel = 2.1.0
+BuildRequires: libbpp-seq9 = 2.1.0
+BuildRequires: libbpp-seq-devel = 2.1.0
+BuildRequires: libbpp-phyl9 = 2.1.0
+BuildRequires: libbpp-phyl-devel = 2.1.0
 
 
 AutoReq: yes
@@ -106,6 +106,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/bppmixedlikelihoods.1.%{zipext}
 
 %changelog
+* Fri Mar 08 2013 Julien Dutheil <julien.dutheil@univ-montp2.fr> 0.8.0-1
+- New models for proteins (COaLA)
+- New program bppMixedLikelihoods
 * Wed Feb 15 2012 Julien Dutheil <julien.dutheil@univ-montp2.fr> 0.7.0-1
 - More models, sequence formats and bugs fixed. New bppAlnScore program.
 * Thu Jun 09 2011 Julien Dutheil <julien.dutheil@univ-montp2.fr> 0.6.2-1

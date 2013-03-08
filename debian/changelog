@@ -1,3 +1,10 @@
+bppsuite (0.8.0-1) unstable; urgency=low
+
+  * New models for proteins (COaLA)
+  * New program bppMixedLikelihoods
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Fri, 08 Mar 2013 11:41:00 +0100
+
 bppsuite (0.7.0-1) unstable; urgency=low
 
   * Several program improvements (more models, options, etc.)
