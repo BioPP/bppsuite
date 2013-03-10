@@ -33,7 +33,7 @@ BuildRequires: libbpp-phyl-devel = 2.1.0
 AutoReq: yes
 AutoProv: yes
 %if 0%{?mdkversion}
-%define zipext xz
+%define zipext lzma
 %else
 %define zipext gz
 %endif
@@ -62,6 +62,10 @@ CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=%{_prefix}"
 if [ %{_lib} == 'lib64' ] ; then
   CMAKE_FLAGS="$CMAKE_FLAGS -DLIB_SUFFIX=64"
 fi
+if [ %{zipext} == 'lzma' ] ; then
+  CMAKE_FLAGS="$CMAKE_FLAGS -DDOC_COMPRESS=lzma -DDOC_COMPRESS_EXT=lzma"
+fi
+
 cmake $CMAKE_FLAGS .
 make
 make info

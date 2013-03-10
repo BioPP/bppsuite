@@ -30,9 +30,23 @@ IF(NOT NO_DEP_CHECK)
       FORCE)
 ENDIF(NOT NO_DEP_CHECK)
 
+IF(NOT DOC_COMPRESS)
+  SET(DOC_COMPRESS gzip CACHE STRING
+      "Set program for compressing documentation."
+      FORCE)
+ENDIF(NOT DOC_COMPRESS)
+
+IF(NOT DOC_COMPRESS_EXT)
+  SET(DOC_COMPRESS_EXT gz CACHE STRING
+      "Set extension of compressed documentation."
+      FORCE)
+ENDIF(NOT DOC_COMPRESS_EXT)
+
+
 IF(NO_DEP_CHECK)
   MESSAGE("-- Dependencies checking disabled. Only distribution can be built.")
 ELSE(NO_DEP_CHECK)
+
 
 #static linkage?
 IF(NOT BUILD_STATIC)
@@ -145,32 +159,32 @@ IF(NROFF_EXE)
   ADD_CUSTOM_TARGET(man
     ALL
     COMMAND cp bppml.1.txt bppml.1
-    COMMAND gzip -f bppml.1
+    COMMAND ${DOC_COMPRESS} -f bppml.1
     COMMAND cp bppseqgen.1.txt bppseqgen.1
-    COMMAND gzip -f bppseqgen.1
+    COMMAND ${DOC_COMPRESS} -f bppseqgen.1
     COMMAND cp bppdist.1.txt bppdist.1
-    COMMAND gzip -f bppdist.1
+    COMMAND ${DOC_COMPRESS} -f bppdist.1
     COMMAND cp bpppars.1.txt bpppars.1
-    COMMAND gzip -f bpppars.1
+    COMMAND ${DOC_COMPRESS} -f bpppars.1
     COMMAND cp bppseqman.1.txt bppseqman.1
-    COMMAND gzip -f bppseqman.1
+    COMMAND ${DOC_COMPRESS} -f bppseqman.1
     COMMAND cp bppconsense.1.txt bppconsense.1
-    COMMAND gzip -f bppconsense.1
+    COMMAND ${DOC_COMPRESS} -f bppconsense.1
     COMMAND cp bppancestor.1.txt bppancestor.1
-    COMMAND gzip -f bppancestor.1
+    COMMAND ${DOC_COMPRESS} -f bppancestor.1
     COMMAND cp bppreroot.1.txt bppreroot.1
-    COMMAND gzip -f bppreroot.1
+    COMMAND ${DOC_COMPRESS} -f bppreroot.1
     COMMAND cp bppphysamp.1.txt bppphysamp.1
-    COMMAND gzip -f bppphysamp.1
+    COMMAND ${DOC_COMPRESS} -f bppphysamp.1
     COMMAND cp bpptreedraw.1.txt bpptreedraw.1
-    COMMAND gzip -f bpptreedraw.1
+    COMMAND ${DOC_COMPRESS} -f bpptreedraw.1
     COMMAND cp bppalnscore.1.txt bppalnscore.1
-    COMMAND gzip -f bppalnscore.1
+    COMMAND ${DOC_COMPRESS} -f bppalnscore.1
     COMMAND cp bppmixedlikelihoods.1.txt bppmixedlikelihoods.1
-    COMMAND gzip -f bppmixedlikelihoods.1
+    COMMAND ${DOC_COMPRESS} -f bppmixedlikelihoods.1
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
     )
-  SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "man/bppml.1.gz;man/bppseqgen.1.gz;man/bppdist.1.gz;man/bpppars.1.gz;man/bppseqman.1.gz;man/bppconsense.1.gz;man/bppancestor.1.gz;man/bppreroot.1.gz;man/bppphysamp.1.gz;man/bpptreedraw.1.gz;man/bppalnscore.1.gz;man/bppmixedlikelihoods.1.gz")
+  SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "man/bppml.1.${DOC_COMPRESS_EXT};man/bppseqgen.1.${DOC_COMPRESS_EXT};man/bppdist.1.${DOC_COMPRESS_EXT};man/bpppars.1.${DOC_COMPRESS_EXT};man/bppseqman.1.${DOC_COMPRESS_EXT};man/bppconsense.1.${DOC_COMPRESS_EXT};man/bppancestor.1.${DOC_COMPRESS_EXT};man/bppreroot.1.${DOC_COMPRESS_EXT};man/bppphysamp.1.${DOC_COMPRESS_EXT};man/bpptreedraw.1.${DOC_COMPRESS_EXT};man/bppalnscore.1.${DOC_COMPRESS_EXT};man/bppmixedlikelihoods.1.${DOC_COMPRESS_EXT}")
 ENDIF(NROFF_EXE)
 
 # Subdirectories
@@ -232,7 +246,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "doc/bppsuite\\\\.pg"
  "doc/bppsuite\\\\.aux"
  "doc/bppsuite\\\\.pdf"
- "man/.*\\\\.1.gz"
+ "man/.*\\\\.1.${DOC_COMPRESS_EXT}"
  "debian/tmp"
  "debian/bppsuite/"
  "debian/bppsuite\\\\.substvars"
