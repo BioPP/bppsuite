@@ -70,9 +70,82 @@ IF(NOT DEFINED MAN)
 ENDIF(NOT DEFINED MAN)
 
 #find executables for documentation
-FIND_PROGRAM(MAKEINFO_EXE NAMES makeinfo)
+IF(MAN)
+  FIND_PROGRAM(NROFF_EXE NAMES nroff)
+  IF(NROFF_EXE)
+    MESSAGE("-- Found nroff here: ${NROFF_EXE}")
+    MESSAGE("   Adding targets: man")
+
+    ADD_CUSTOM_TARGET(man
+      ALL
+      COMMAND cp bppml.1.txt bppml.1
+      COMMAND ${DOC_COMPRESS} -f bppml.1
+      COMMAND cp bppseqgen.1.txt bppseqgen.1
+      COMMAND ${DOC_COMPRESS} -f bppseqgen.1
+      COMMAND cp bppdist.1.txt bppdist.1
+      COMMAND ${DOC_COMPRESS} -f bppdist.1
+      COMMAND cp bpppars.1.txt bpppars.1
+      COMMAND ${DOC_COMPRESS} -f bpppars.1
+      COMMAND cp bppseqman.1.txt bppseqman.1
+      COMMAND ${DOC_COMPRESS} -f bppseqman.1
+      COMMAND cp bppconsense.1.txt bppconsense.1
+      COMMAND ${DOC_COMPRESS} -f bppconsense.1
+      COMMAND cp bppancestor.1.txt bppancestor.1
+      COMMAND ${DOC_COMPRESS} -f bppancestor.1
+      COMMAND cp bppreroot.1.txt bppreroot.1
+      COMMAND ${DOC_COMPRESS} -f bppreroot.1
+      COMMAND cp bppphysamp.1.txt bppphysamp.1
+      COMMAND ${DOC_COMPRESS} -f bppphysamp.1
+      COMMAND cp bpptreedraw.1.txt bpptreedraw.1
+      COMMAND ${DOC_COMPRESS} -f bpptreedraw.1
+      COMMAND cp bppalnscore.1.txt bppalnscore.1
+      COMMAND ${DOC_COMPRESS} -f bppalnscore.1
+      COMMAND cp bppmixedlikelihoods.1.txt bppmixedlikelihoods.1
+      COMMAND ${DOC_COMPRESS} -f bppmixedlikelihoods.1
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
+      )
+    SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "man/bppml.1.${DOC_COMPRESS_EXT};man/bppseqgen.1.${DOC_COMPRESS_EXT};man/bppdist.1.${DOC_COMPRESS_EXT};man/bpppars.1.${DOC_COMPRESS_EXT};man/bppseqman.1.${DOC_COMPRESS_EXT};man/bppconsense.1.${DOC_COMPRESS_EXT};man/bppancestor.1.${DOC_COMPRESS_EXT};man/bppreroot.1.${DOC_COMPRESS_EXT};man/bppphysamp.1.${DOC_COMPRESS_EXT};man/bpptreedraw.1.${DOC_COMPRESS_EXT};man/bppalnscore.1.${DOC_COMPRESS_EXT};man/bppmixedlikelihoods.1.${DOC_COMPRESS_EXT}")
+
+  ELSE()
+    MESSAGE(FATAL_ERROR "Program nroff required but not found.")
+  ENDIF()
+ENDIF(MAN)
+
+IF(INFO)
+  FIND_PROGRAM(MAKEINFO_EXE NAMES makeinfo)
+  IF(MAKEINFO_EXE)
+    MESSAGE("-- Found makeinfo here: ${MAKEINFO_EXE}")
+    MESSAGE("   Adding targets: info, html")
+ 
+    SET(ADD_INFO_TO "ALL")
+    MESSAGE("   Adding target info to target all")
+    
+    ADD_CUSTOM_TARGET(info
+      ${ADD_INFO_TO}
+      COMMAND ${MAKEINFO_EXE} bppsuite.texi
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
+      )
+
+    ADD_CUSTOM_TARGET(html
+      COMMAND ${MAKEINFO_EXE} --html --css-ref=http://www.w3.org/StyleSheets/Core/Steely bppsuite.texi
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
+      )
+  ELSE(MAKEINFO_EXE)
+    MESSAGE(FATAL_ERROR p"Program makeinfo required but not found.")
+  ENDIF(MAKEINFO_EXE)
+ENDIF(INFO)
+
 FIND_PROGRAM(PDFTEX_EXE NAMES pdftex)
-FIND_PROGRAM(NROFF_EXE NAMES nroff)
+IF(PDFTEX_EXE)
+  MESSAGE("-- Found pdftex here: ${PDFTEX_EXE}")
+  MESSAGE("   Adding target: pdf")
+
+  ADD_CUSTOM_TARGET(pdf
+    COMMAND ${PDFTEX_EXE} bppsuite.texi
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
+    )
+  SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "doc/bppsuite.pdf;doc/bppsuite.aux;doc/bppsuite.cp;doc/bppsuite.fn;doc/bppsuite.info;doc/bppsuite.ky;doc/bppsuite.log;doc/bppsuite.pg;doc/bppsuite.toc;doc/bppsuite.tp;doc/bppsuite.vr")
+ENDIF(PDFTEX_EXE)
 
 #here is a useful function:
 MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
@@ -119,73 +192,6 @@ ENDIF(CMAKE_INSTALL_PREFIX)
 IMPROVED_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-seq Bpp/Seq/Alphabet/Alphabet.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-core Bpp/Clonable.h)
-
-IF(MAKEINFO_EXE)
-  MESSAGE("-- Found makeinfo here: ${MAKEINFO_EXE}")
-  MESSAGE("   Adding targets: info, html")
-
-  IF(INFO)
-    SET(ADD_INFO_TO "ALL")
-    MESSAGE("   Adding target info to target all")
-  ENDIF(INFO)
-
-  ADD_CUSTOM_TARGET(info
-    ${ADD_INFO_TO}
-    COMMAND ${MAKEINFO_EXE} bppsuite.texi
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
-    )
-
-  ADD_CUSTOM_TARGET(html
-    COMMAND ${MAKEINFO_EXE} --html --css-ref=http://www.w3.org/StyleSheets/Core/Steely bppsuite.texi
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
-    )
-ENDIF(MAKEINFO_EXE)
-
-IF(PDFTEX_EXE)
-  MESSAGE("-- Found pdftex here: ${PDFTEX_EXE}")
-  MESSAGE("   Adding target: pdf")
-
-  ADD_CUSTOM_TARGET(pdf
-    COMMAND ${PDFTEX_EXE} bppsuite.texi
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
-    )
-  SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "doc/bppsuite.pdf;doc/bppsuite.aux;doc/bppsuite.cp;doc/bppsuite.fn;doc/bppsuite.info;doc/bppsuite.ky;doc/bppsuite.log;doc/bppsuite.pg;doc/bppsuite.toc;doc/bppsuite.tp;doc/bppsuite.vr")
-ENDIF(PDFTEX_EXE)
-
-IF(NROFF_EXE)
-  MESSAGE("-- Found nroff here: ${NROFF_EXE}")
-  MESSAGE("   Adding targets: man")
-
-  ADD_CUSTOM_TARGET(man
-    ALL
-    COMMAND cp bppml.1.txt bppml.1
-    COMMAND ${DOC_COMPRESS} -f bppml.1
-    COMMAND cp bppseqgen.1.txt bppseqgen.1
-    COMMAND ${DOC_COMPRESS} -f bppseqgen.1
-    COMMAND cp bppdist.1.txt bppdist.1
-    COMMAND ${DOC_COMPRESS} -f bppdist.1
-    COMMAND cp bpppars.1.txt bpppars.1
-    COMMAND ${DOC_COMPRESS} -f bpppars.1
-    COMMAND cp bppseqman.1.txt bppseqman.1
-    COMMAND ${DOC_COMPRESS} -f bppseqman.1
-    COMMAND cp bppconsense.1.txt bppconsense.1
-    COMMAND ${DOC_COMPRESS} -f bppconsense.1
-    COMMAND cp bppancestor.1.txt bppancestor.1
-    COMMAND ${DOC_COMPRESS} -f bppancestor.1
-    COMMAND cp bppreroot.1.txt bppreroot.1
-    COMMAND ${DOC_COMPRESS} -f bppreroot.1
-    COMMAND cp bppphysamp.1.txt bppphysamp.1
-    COMMAND ${DOC_COMPRESS} -f bppphysamp.1
-    COMMAND cp bpptreedraw.1.txt bpptreedraw.1
-    COMMAND ${DOC_COMPRESS} -f bpptreedraw.1
-    COMMAND cp bppalnscore.1.txt bppalnscore.1
-    COMMAND ${DOC_COMPRESS} -f bppalnscore.1
-    COMMAND cp bppmixedlikelihoods.1.txt bppmixedlikelihoods.1
-    COMMAND ${DOC_COMPRESS} -f bppmixedlikelihoods.1
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/man
-    )
-  SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "man/bppml.1.${DOC_COMPRESS_EXT};man/bppseqgen.1.${DOC_COMPRESS_EXT};man/bppdist.1.${DOC_COMPRESS_EXT};man/bpppars.1.${DOC_COMPRESS_EXT};man/bppseqman.1.${DOC_COMPRESS_EXT};man/bppconsense.1.${DOC_COMPRESS_EXT};man/bppancestor.1.${DOC_COMPRESS_EXT};man/bppreroot.1.${DOC_COMPRESS_EXT};man/bppphysamp.1.${DOC_COMPRESS_EXT};man/bpptreedraw.1.${DOC_COMPRESS_EXT};man/bppalnscore.1.${DOC_COMPRESS_EXT};man/bppmixedlikelihoods.1.${DOC_COMPRESS_EXT}")
-ENDIF(NROFF_EXE)
 
 # Subdirectories
 ADD_SUBDIRECTORY(bppSuite)
