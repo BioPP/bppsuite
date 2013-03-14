@@ -67,6 +67,7 @@ clean:
 	[ ! -f bppSuite/Makefile ] || rm bppSuite/Makefile;
 	[ ! -f doc/Makefile ] || rm doc/Makefile;
 	[ ! -f man/Makefile ] || rm man/Makefile;
+	rm -f man/*.gz;
 	rm -f config.sub config.guess
 	rm -f build-stamp
 	rm -f CMakeCache.txt
