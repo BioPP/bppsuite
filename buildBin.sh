@@ -1,5 +1,5 @@
 #! /bin/sh
-arch=i686
+arch=x86_64 #i686
 version=0.8.0-1
 
 strip bppSuite/bppdist
@@ -14,5 +14,5 @@ strip bppSuite/bppancestor
 strip bppSuite/bpptreedraw
 strip bppSuite/bppalnscore
 strip bppSuite/bppmixedlikelihoods
-tar cvzf bppSuite-${arch}-bin-static-${version}.tar.gz bppSuite/bppdist bppSuite/bpppars bppSuite/bppml bppSuite/bppseqgen bppSuite/bppconsense bppSuite/bppseqman bppSuite/bppphysamp bppSuite/bppreroot bppSuite/bppancestor bppSuite/bpptreedraw bppSuite/bppalnscore bppSuite/bppmixedlikelihoods
+tar cvzf bppsuite-${arch}-bin-static-${version}.tar.gz bppSuite/bppdist bppSuite/bpppars bppSuite/bppml bppSuite/bppseqgen bppSuite/bppconsense bppSuite/bppseqman bppSuite/bppphysamp bppSuite/bppreroot bppSuite/bppancestor bppSuite/bpptreedraw bppSuite/bppalnscore bppSuite/bppmixedlikelihoods
 
