@@ -2432,7 +2432,7 @@ This method can therefore be used for subsetting a list of sequences, and/or rea
 
 Examples of use:
 
-@table @bullet
+@itemize @bullet
 
 @item Just change file format:
 @example
@@ -2459,7 +2459,7 @@ sequence.manip=UnknownToGap,KeepComplete(maxGapAllowed=5)
 sequence.manip=KeepComplete(maxGapAllowed=30%),GapToUnknown
 @end example
 
-@end table
+@end itemize
 
 @c ------------------------------------------------------------------------------------------------------------------
 
