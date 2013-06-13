@@ -51,6 +51,7 @@ using namespace std;
 
 // From SeqLib:
 #include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/CodonSiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -97,6 +98,12 @@ int main(int args, char** argv)
   
   // Get alphabet
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqman.getParams(), "", false, true, true);
+  auto_ptr<GeneticCode> gCode;
+  CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+  if (codonAlphabet) {
+    string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+    gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+  }
 
   // Get sequences:
   SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);
@@ -282,20 +289,20 @@ int main(int args, char** argv)
       if (!sites)
       {
         VectorSequenceContainer* sc = new VectorSequenceContainer(sequences->getAlphabet());
-        for (unsigned int i = 0; i < sequences->getNumberOfSequences(); ++i)
+        for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
         {
           auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
-          SequenceTools::removeStops(*seq);
+          SequenceTools::removeStops(*seq, *gCode);
           sc->addSequence(*seq);
         }
         delete sequences;
         sequences = sc;
       } else {
         VectorSiteContainer* sc = new VectorSiteContainer(sequences->getAlphabet());
-        for (unsigned int i = 0; i < sequences->getNumberOfSequences(); ++i)
+        for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
         {
           auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
-          SequenceTools::replaceStopsWithGaps(*seq);
+          SequenceTools::replaceStopsWithGaps(*seq, *gCode);
           sc->addSequence(*seq);
         }
         delete sequences;
@@ -316,7 +323,7 @@ int main(int args, char** argv)
 
       for (size_t i = sites->getNumberOfSites(); i > 0; i--)
       {
-        if (SiteTools::hasStopCodon(sites->getSite(i-1)))
+        if (CodonSiteTools::hasStop(sites->getSite(i-1), *gCode))
           sites->deleteSite(i - 1);
       }
     }
@@ -333,7 +340,7 @@ int main(int args, char** argv)
       {
         BasicSequence seq = sequences->getSequence(i);
         size_t len = seq.size();
-        SequenceTools::getCDS(seq, false, true, true, false);
+        SequenceTools::getCDS(seq, *gCode, false, true, true, false);
         if (aligned) {
           for (size_t c = seq.size(); c < len; ++c)
             seq.addElement(seq.getAlphabet()->getGapCharacterCode());

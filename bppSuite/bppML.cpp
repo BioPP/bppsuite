@@ -114,6 +114,12 @@ int main(int args, char** argv)
     bppml.startTimer();
 
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppml.getParams(), "", false);
+    auto_ptr<GeneticCode> gCode;
+    CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+    if (codonAlphabet) {
+      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppml.getParams(), "Standard", "", true, true);
+      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+    }
 
     VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppml.getParams());
 
@@ -435,16 +441,16 @@ int main(int args, char** argv)
     if (isinf(logL))
     {
       ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
-      CodonAlphabet *pca = dynamic_cast<CodonAlphabet*>(alphabet);
-      if (pca) {
+      if (codonAlphabet)
+      {
         bool f = false;
         size_t s;
         for (size_t i = 0; i < sites->getNumberOfSites(); i++) {
           if (isinf(tl->getLogLikelihoodForASite(i))) {
-            const Site& site=sites->getSite(i);
+            const Site& site = sites->getSite(i);
             s = site.size();
             for (size_t j = 0; j < s; j++) {
-              if (pca->isStop(site.getValue(j))) {
+              if (gCode->isStop(site.getValue(j))) {
                 (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << sites->getSequence(j).getName()).endLine();
                 f = true;
               }

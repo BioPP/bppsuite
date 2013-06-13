@@ -58,9 +58,10 @@ Copyright @copyright{} 2007, 2008, 2009, 2010, 2011, 2012 Bio++ development team
 
 Common options encountered in several programs.
 
+* Alphabet::                    Alphabets and genetic codes.
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
-* AlphabetIndex::               Setting alphabet indexes.
+* AlphabetIndex::               Setting biochemical properties and distances.
 * Model::                       Setting up a substitution model.
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
@@ -303,9 +304,10 @@ data=LSU
 @c ------------------------------------------------------------------------------------------------------------------
 
 @menu
+* Alphabet::                    Alphabets and genetic codes.
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
-* AlphabetIndex::               
+* AlphabetIndex::               Setting biochemical properties and distances. 
 * Model::                       Setting up a substitution model.
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
@@ -313,8 +315,8 @@ data=LSU
 * WritingTrees::                Writing trees to files. 
 @end menu
 
-@node Sequences, Tree, Common, Common
-@section Setting alphabet and reading sequences
+@node Alphabet, Sequences, Common, Common
+@section Setting alphabet and genetic code
 
 @table @command
 @item alphabet =
@@ -328,6 +330,27 @@ The alphabet to use when reading sequences. DNA and RNA alphabet can in addition
 Tell is exclamation mark should be considered as a gap character. The default is to consider it as an unknown character such as 'N' or '?'.
 @end table
 
+@item genetic_code = @{translation table@}
+Where 'translation table' specifies the code to use, either as a text description, or as the NCBI number.
+The following table give the currently implemented codes with their corresponding names:
+
+@multitable @columnfractions 0.5 0.5
+@item Standard @tab 1
+@item VertebrateMitochondrial @tab 2
+@item YeastMitochondrial @tab 3
+@item MoldMitochondrial @tab 4
+@item InvertebrateMitochondrial @tab 5
+@item EchinodermMitochondrial @tab 9
+@item AscidianMitochondrial @tab 13
+@end multitable
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node Sequences, Tree, Alphabet, Common
+@section Reading sequences
+
+@table @command
 @item input.sequence.file=@{path@}
 The sequence file to use. Depending on the program, these sequences have or do not have to be aligned.
 
@@ -448,7 +471,7 @@ The format of the input tree file.
 @c ------------------------------------------------------------------------------------------------------------------
 
 @node AlphabetIndex, Model, Tree, Common
-@section Specifying alphabet indexes
+@section Specifying biochemical properties and distances
 
 Some methods require an "alphabet index" to be specified.
 Alphabet indexes associate a value with each alphabet state (Index1, e.g. a biochemical property) or for a pair of states (Index2, e.g. a biochemical distance).
@@ -749,20 +772,10 @@ proportion of 1 over 0 in the equilibrium distribution. Default:
 @node Codon, Multiple, Miscellaneous, Declaration
 @subsubsection Codon models
 
-Standard codon models: the optional @var{genetic_code} argument
-describes the genetic code. If it is not given, the one related with
-the alphabet is used. The several values available are described
-below.
+Standard codon models: the global @var{genetic_code} argument
+describes the genetic code and has to be specified.
 
-@itemize
-@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1EchinodermMitochondrialGeneticCode.html#_details,  EchinodermMitochondrialGeneticCode}  
-@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1InvertebrateMitochondrialGeneticCode.html#_details,InvertebrateMitochondrialGeneticCode}
-@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1StandardGeneticCode.html#_details,                 StandardGeneticCode}                 
-@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1VertebrateMitochondrialGeneticCode.html#_details,  VertebrateMitochondrialGeneticCode}
-@item @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-seq/html/classbpp_1_1YeastMitochondrialGeneticCode.html#_details,       YeastMitochondrialGeneticCode} 
-@end itemize
-
-The next codon models also take as argument a @var{frequencies} option
+Codon models also take as argument a @var{frequencies} option
 specifying the equilibrium frequencies of the model. Any frequencies
 description can be used here, but the syntax also supports options
 similar to the ones used in the PAML software:
