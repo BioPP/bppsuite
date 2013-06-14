@@ -150,6 +150,12 @@ int main(int args, char ** argv)
   bppseqgen.startTimer();
 
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqgen.getParams(), "", false);
+  auto_ptr<GeneticCode> gCode;
+  CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+  if (codonAlphabet) {
+    string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqgen.getParams(), "Standard", "", true, true);
+    gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+  }
 
   vector<Tree*> trees;
   vector<double> positions;
@@ -201,7 +207,7 @@ int main(int args, char ** argv)
   //Homogeneous case:
   if (nhOpt == "no")
   {
-    SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
+    SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
     FrequenciesSet* fSet = new FixedFrequenciesSet(model->getAlphabet(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
@@ -213,13 +219,13 @@ int main(int args, char ** argv)
     SubstitutionModel* model = 0;
     string modelName = ApplicationTools::getStringParameter("model", bppseqgen.getParams(), "");
     if (!TextTools::hasSubstring(modelName,"COaLA"))
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, 0, bppseqgen.getParams());
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
     else
     {
       //COaLA model
       VectorSiteContainer* allSitesAln = 0;
       allSitesAln = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, allSitesAln, bppseqgen.getParams());
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams());
     }
 
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");

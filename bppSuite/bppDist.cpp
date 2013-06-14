@@ -102,6 +102,12 @@ int main(int args, char ** argv)
   bppdist.startTimer();
 
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppdist.getParams(), "", false);
+  auto_ptr<GeneticCode> gCode;
+  CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+  if (codonAlphabet) {
+    string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppdist.getParams(), "Standard", "", true, true);
+    gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+  }
 
   VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppdist.getParams());
   
@@ -111,7 +117,7 @@ int main(int args, char ** argv)
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
   
-  SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppdist.getParams());
+  SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppdist.getParams());
   
 	DiscreteDistribution* rDist = 0;
   if (model->getNumberOfStates() > model->getAlphabet()->getSize())

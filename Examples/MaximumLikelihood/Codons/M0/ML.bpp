@@ -10,7 +10,8 @@ DATA = lysozymeLarge
 
 # The alphabet to use:
 # DNA, RNA or Protein...
-alphabet=Codon(letter=DNA, type=Standard)
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
 
 # The sequence file to use (sequences must be aligned!)
 input.sequence.file=../../../Data/$(DATA).fasta

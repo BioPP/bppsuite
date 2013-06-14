@@ -110,6 +110,12 @@ int main(int args, char ** argv)
   bppancestor.startTimer();
 
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppancestor.getParams(), "", false);
+  auto_ptr<GeneticCode> gCode;
+  CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+  if (codonAlphabet) {
+    string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppancestor.getParams(), "Standard", "", true, true);
+    gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+  }
 
   VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppancestor.getParams());
   
@@ -157,7 +163,7 @@ int main(int args, char ** argv)
 
   if (nhOpt == "no")
   {  
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
+    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams());
     if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
@@ -177,7 +183,7 @@ int main(int args, char ** argv)
   }
   else if (nhOpt == "one_per_branch")
   {
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppancestor.getParams());
+    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams());
     if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {

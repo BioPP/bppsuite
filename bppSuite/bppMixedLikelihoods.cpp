@@ -107,6 +107,12 @@ int main(int args, char** argv)
     bppmixedlikelihoods.startTimer();
 
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppmixedlikelihoods.getParams(), "", false);
+    auto_ptr<GeneticCode> gCode;
+    CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+    if (codonAlphabet) {
+      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppmixedlikelihoods.getParams(), "Standard", "", true, true);
+      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+    }
 
     // get the data
 
@@ -127,13 +133,13 @@ int main(int args, char** argv)
     string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppmixedlikelihoods.getParams(), "no", "", true, false);
     ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-    MixedSubstitutionModel* model    = 0;
+    MixedSubstitutionModel* model       = 0;
     MixedSubstitutionModelSet* modelSet = 0;
-    DiscreteDistribution* rDist    = 0;
+    DiscreteDistribution* rDist         = 0;
 
     if (nhOpt == "no")
     {
-      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppmixedlikelihoods.getParams()));
+      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
@@ -154,7 +160,7 @@ int main(int args, char** argv)
     }
     else if (nhOpt == "one_per_branch")
     {
-      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, sites, bppmixedlikelihoods.getParams()));
+      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
