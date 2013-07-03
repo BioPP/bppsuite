@@ -329,7 +329,7 @@ int main(int args, char** argv)
       FrequenciesSet* rootFreqs = 0;
       if (!stationarity)
       {
-        rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, sites, bppml.getParams(), rateFreqs);
+        rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppml.getParams(), rateFreqs);
         stationarity = !rootFreqs;
         string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppml.getParams(), "");
         if (freqDescription == "MVAprotein")
