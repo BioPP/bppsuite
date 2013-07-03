@@ -193,7 +193,7 @@ int main(int args, char** argv)
     }
     else if (nhOpt == "general")
     {
-      modelSet = dynamic_cast<MixedSubstitutionModelSet*>(PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, bppmixedlikelihoods.getParams()));
+      modelSet = dynamic_cast<MixedSubstitutionModelSet*>(PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
       if (modelSet == 0)
       {
         cout << "Missing a Mixed model" << endl;

@@ -213,7 +213,7 @@ int main(int args, char ** argv)
   }
   else if (nhOpt == "general")
   {
-    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, sites, bppancestor.getParams());
+    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppancestor.getParams());
     if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
     {

@@ -253,13 +253,13 @@ int main(int args, char ** argv)
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
     string modelName = ApplicationTools::getStringParameter("model1",bppseqgen.getParams(),"");
     if (!TextTools::hasSubstring(modelName,"COaLA"))
-     modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, 0, bppseqgen.getParams());
+     modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), 0, bppseqgen.getParams());
     else
     {
       //COaLA model
       VectorSiteContainer* allSitesAln = 0;
       allSitesAln = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
-      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, allSitesAln, bppseqgen.getParams());
+      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams());
     } 
   }
   else throw Exception("Unknown non-homogeneous option: " + nhOpt);
