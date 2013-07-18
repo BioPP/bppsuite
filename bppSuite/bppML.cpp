@@ -76,7 +76,11 @@ using namespace std;
 #include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
+#include <Bpp/Phyl/NewLikelihood/RTreeLikelihood.h>
+
 using namespace bpp;
+
+using namespace newlik;
 
 /******************************************************************************/
 
@@ -229,9 +233,8 @@ int main(int args, char** argv)
       exit(0);
     }
 
-    DiscreteRatesAcrossSitesTreeLikelihood* tl;
-    string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
-    ApplicationTools::displayResult("Heterogeneous model", nhOpt);
+    DiscreteRatesAcrossSitesTreeLikelihood* tl_old = 0;
+    newlik::TreeLikelihood* tl_new = 0;
 
     bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, false);
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, false);
@@ -241,8 +244,13 @@ int main(int args, char** argv)
     SubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist    = 0;
 
+    /// Topology estimation
+    
     if (optimizeTopo || nbBS > 0)
     {
+      string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
+      ApplicationTools::displayResult("Heterogeneous model", nhOpt);
+
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
@@ -257,162 +265,158 @@ int main(int args, char** argv)
         rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
       if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-        tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true);
+        tl_old = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true);
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
     }
-    else if (nhOpt == "no")
+
+    /// Constant Topology
+
+    
+    else
     {
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
-      if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-      if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
-      {
-        // Markov-modulated Markov model!
-        rDist = new ConstantRateDistribution();
-      }
-      else
-      {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
-      }
       string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
       ApplicationTools::displayResult("Likelihood recursion", recursion);
-      if (recursion == "simple")
+
+      string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
+      ApplicationTools::displayResult("Heterogeneous model", nhOpt);
+
+
+      // Double recursion
+      
+      if (recursion == "double")
       {
+        if (nhOpt == "no")
+        {
+          model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
+          if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+          if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
+          {
+              // Markov-modulated Markov model!
+            rDist = new ConstantRateDistribution();
+          }
+          else
+            rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
+
+          if (dynamic_cast<MixedSubstitutionModel*>(model))
+            tl_old = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree);
+          else
+            tl_old = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);
+        }
+        
+        else if (nhOpt == "one_per_branch")
+        {
+          model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
+          if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+          if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
+          {
+            // Markov-modulated Markov model!
+            rDist = new ConstantRateDistribution();
+          }
+          else
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
+
+        vector<double> rateFreqs;
+        if (model->getNumberOfStates() != alphabet->getSize())
+        {
+          // Markov-Modulated Markov Model...
+          unsigned int n = (unsigned int)(model->getNumberOfStates() / alphabet->getSize());
+          rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
+                                                       // we should assume a rate distribution for the root also!!!
+        }
+
+        bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), false, "", false, false);
+        FrequenciesSet* rootFreqs = 0;
+        if (!stationarity)
+        {
+          rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppml.getParams(), rateFreqs);
+          stationarity = !rootFreqs;
+          string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppml.getParams(), "");
+          if (freqDescription == "MVAprotein")
+          {
+            if (dynamic_cast<CoalaCore*>(model))
+            {
+              dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");
+              dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model)); 
+            }
+            else
+              throw Exception("The MVAprotein frequencies set at the root can only be used if a COaLA model is used on branches.");
+          }
+        }
+        ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
+   
+        vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
+        for (unsigned int i = 0; i < globalParameters.size(); i++)
+          ApplicationTools::displayResult("Global parameter", globalParameters[i]);
+        modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters);
+        model = 0;
+
+        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
+          throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
+        else
+          tl_old = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+        }
+        else if (nhOpt == "general")
+        {
+          modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppml.getParams());
+          if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+          if (modelSet->getNumberOfStates() >= 2 * modelSet->getAlphabet()->getSize())
+          {
+            // Markov-modulated Markov model!
+            rDist = new ConstantRateDistribution();
+          }
+          else
+            rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
+
+          if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
+            throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
+          else
+            tl_old = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
+        }
+        else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
+
+        tl_old->initialize();
+
+        delete tree;
+    
+      }
+
+      // Simple recursion
+      
+      else if (recursion=="simple")
+      {
+        auto_ptr<SubstitutionProcess> process(PhylogeneticsApplicationTools::setSubstitutionProcess(alphabet, gCode.get(), sites, bppml.getParams()));
+        
+        if (process->getSubstitutionModel(0,0).getName() != "RE08")
+          SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+
         string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
         ApplicationTools::displayResult("Likelihood data compression", compression);
         if (compression == "simple")
-          if (dynamic_cast<MixedSubstitutionModel*>(model))
-            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, false);
-          else
-            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, false);
-
-        else if (compression == "recursive")
-          if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-            tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
-          else
-            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
-
-        else throw Exception("Unknown likelihood data compression method: " + compression);
-      }
-      else if (recursion == "double")
-      {
-        if (dynamic_cast<MixedSubstitutionModel*>(model))
-          tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree);
-        else
-          tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);
-      }
-      else throw Exception("Unknown recursion option: " + recursion);
-    }
-    else if (nhOpt == "one_per_branch")
-    {
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
-      if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-      if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
-      {
-        // Markov-modulated Markov model!
-        rDist = new ConstantRateDistribution();
-      }
-      else
-      {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
-      }
-      vector<double> rateFreqs;
-      if (model->getNumberOfStates() != alphabet->getSize())
-      {
-        // Markov-Modulated Markov Model...
-        unsigned int n = (unsigned int)(model->getNumberOfStates() / alphabet->getSize());
-        rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-                                                       // we should assume a rate distribution for the root also!!!
-      }
-
-      bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), false, "", false, false);
-      FrequenciesSet* rootFreqs = 0;
-      if (!stationarity)
-      {
-        rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppml.getParams(), rateFreqs);
-        stationarity = !rootFreqs;
-        string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppml.getParams(), "");
-        if (freqDescription == "MVAprotein")
         {
-          if (dynamic_cast<CoalaCore*>(model))
-          {
-            dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");
-            dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model)); 
-          }
-          else
-            throw Exception("The MVAprotein frequencies set at the root can only be used if a COaLA model is used on branches.");
+          if (dynamic_cast<const MixedSubstitutionModel*>(&process->getSubstitutionModel(0,0)))
+            throw Exception("Simple recursion process with mixed models is not implemented yet.");
+          else 
+            tl_new = new RTreeLikelihood(*sites, process.release(), true, compression=="recursive");
         }
       }
-      ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
-   
-      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
-      for (unsigned int i = 0; i < globalParameters.size(); i++)
-        ApplicationTools::displayResult("Global parameter", globalParameters[i]);
-      modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters);
-      model = 0;
-
-      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
-      ApplicationTools::displayResult("Likelihood recursion", recursion);
-      if (recursion == "simple")
-      {
-        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
-          tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, dynamic_cast<MixedSubstitutionModelSet*>(modelSet), rDist, true, true);
-        else
-          tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
-      }
-      else if (recursion == "double")
-      {
-        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
-          throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
-            //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-        else
-          tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-      }
-      else throw Exception("Unknown recursion option: " + recursion);
-    }
-    else if (nhOpt == "general")
-    {
-      modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppml.getParams());
-      if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-      if (modelSet->getNumberOfStates() >= 2 * modelSet->getAlphabet()->getSize())
-      {
-        // Markov-modulated Markov model!
-        rDist = new ConstantRateDistribution();
-      }
       else
-      {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
-      }
+        throw Exception("Unknown recursion option: " + recursion);
 
-      string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
-      ApplicationTools::displayResult("Likelihood recursion", recursion);
-      if (recursion == "simple")
-      {
-        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet)!=NULL)
-          tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, dynamic_cast<MixedSubstitutionModelSet*>(modelSet), rDist, true, true);
-        else
-          tl = new RNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true, true);
-      }
-      else if (recursion == "double")
-        if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
-          throw Exception("Double recursion with non homogeneous mixed models is not implemented yet.");
-            //            tl = new DRNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-        else
-          tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-      else throw Exception("Unknown recursion option: " + recursion);
     }
-    else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
-
-    tl->initialize();
-
-    delete tree;
-
+    
     //Listing parameters
     string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false);
     if (paramNameFile != "none") {
       ApplicationTools::displayResult("List parameters to", paramNameFile);
       ofstream pnfile(paramNameFile.c_str(), ios::out);
-      ParameterList pl = tl->getParameters();
+      
+      ParameterList pl;
+      if (tl_old)
+        pl=tl_old->getParameters();
+      else
+        pl=tl_new->getParameters();
+
       for (unsigned int i = 0; i < pl.size(); ++i) {
         pnfile << pl[i].getName() << endl;
       }
@@ -421,184 +425,362 @@ int main(int args, char** argv)
       exit(0);
     }
 
-    //Check initial likelihood:
-    double logL = tl->getValue();
-    if (isinf(logL))
-    {
-      // This may be due to null branch lengths, leading to null likelihood!
-      ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
-      ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
-      ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
-      ParameterList pl = tl->getBranchLengthsParameters();
-      for (unsigned int i = 0; i < pl.size(); i++)
-      {
-        if (pl[i].getValue() < 0.000001) pl[i].setValue(0.000001);
-      }
-      tl->matchParametersValues(pl);
-      logL = tl->getValue();
+
+    // Old optimization
+    
+    if (tl_old){
+      //Check initial likelihood:
+      double logL = tl_old->getValue();
+      if (isinf(logL))
+        {
+          // This may be due to null branch lengths, leading to null likelihood!
+          ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
+          ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
+          ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
+          ParameterList pl = tl_old->getBranchLengthsParameters();
+          for (unsigned int i = 0; i < pl.size(); i++)
+            {
+              if (pl[i].getValue() < 0.000001) pl[i].setValue(0.000001);
+            }
+          tl_old->matchParametersValues(pl);
+          logL = tl_old->getValue();
+        }
+      ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
+      if (isinf(logL))
+        {
+          ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
+          if (codonAlphabet)
+            {
+              bool f = false;
+              size_t s;
+              for (size_t i = 0; i < sites->getNumberOfSites(); i++) {
+                if (isinf(tl_old->getLogLikelihoodForASite(i))) {
+                  const Site& site = sites->getSite(i);
+                  s = site.size();
+                  for (size_t j = 0; j < s; j++) {
+                    if (gCode->isStop(site.getValue(j))) {
+                      (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << sites->getSequence(j).getName()).endLine();
+                      f = true;
+                    }
+                  }
+                }
+              }
+              if (f)
+                exit(-1);
+            }
+          bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
+          if (!removeSaturated) {
+            ApplicationTools::displayError("!!! Looking at each site:");
+            for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
+              (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl_old->getLogLikelihoodForASite(i)).endLine();
+            }
+            ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
+            ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
+            exit(1);
+          } else {
+            ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
+            for (size_t i = sites->getNumberOfSites(); i > 0; --i) {
+              if (isinf(tl_old->getLogLikelihoodForASite(i - 1))) {
+                ApplicationTools::displayResult("Ignore saturated site", sites->getSite(i - 1).getPosition());
+                sites->deleteSite(i - 1);
+              }
+            }
+            ApplicationTools::displayResult("Number of sites retained", sites->getNumberOfSites());
+            tl_old->setData(*sites);
+            tl_old->initialize();
+            logL = tl_old->getValue();
+            if (isinf(logL)) {
+              ApplicationTools::displayError("This should not happen. Exiting now.");
+              exit(1);
+            }
+            ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
+          }
+        }
+      
+      tl_old = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(
+                                                                     PhylogeneticsApplicationTools::optimizeParameters(tl_old, tl_old->getParameters(), bppml.getParams()));
+
+      tree = new TreeTemplate<Node>(tl_old->getTree());
+      PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
+
+      // Write parameters to screen:
+      ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_old->getValue(), 15));
+      ParameterList parameters = tl_old->getSubstitutionModelParameters();
+      for (unsigned int i = 0; i < parameters.size(); i++)
+        {
+          ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+        }
+      parameters = tl_old->getRateDistributionParameters();
+      for (unsigned int i = 0; i < parameters.size(); i++)
+        {
+          ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+        }
+      
+      // Checking convergence:
+      PhylogeneticsApplicationTools::checkEstimatedParameters(tl_old->getParameters());
+      
+      // Write parameters to file:
+      string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
+      ApplicationTools::displayResult("Output estimates to file", parametersFile);
+      if (parametersFile != "none")
+        {
+          StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
+          out << "# Log likelihood = ";
+          out.setPrecision(20) << (-tl_old->getValue());
+          out.endLine();
+          out << "# Number of sites = ";
+          out.setPrecision(20) << sites->getNumberOfSites();
+          out.endLine();
+          out.endLine();
+          out << "# Substitution model parameters:";
+          out.endLine();
+          if (modelSet)
+            {
+              modelSet->matchParametersValues(tl_old->getParameters());
+              PhylogeneticsApplicationTools::printParameters(modelSet, out);
+            }
+          else
+            {
+              model->matchParametersValues(tl_old->getParameters());
+              PhylogeneticsApplicationTools::printParameters(model, out);
+            }
+          out.endLine();
+          (out << "# Rate distribution parameters:").endLine();
+          rDist->matchParametersValues(tl_old->getParameters());
+          PhylogeneticsApplicationTools::printParameters(rDist, out);
+        }
+      
+      // Getting posterior rate class distribution:
+      DiscreteDistribution* prDist = RASTools::getPosteriorRateDistribution(*tl_old);
+      ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
+      if (ApplicationTools::message) prDist->print(*ApplicationTools::message);
+      ApplicationTools::displayMessage("\n");
+      delete prDist;
+      
+      // Write infos to file:
+      string infosFile = ApplicationTools::getAFilePath("output.infos", bppml.getParams(), false, false);
+      if (infosFile != "none")
+        {
+          ApplicationTools::displayResult("Alignment information logfile", infosFile);
+          ofstream out(infosFile.c_str(), ios::out);
+          
+          // Get the rate class with maximum posterior probability:
+          vector<size_t> classes = tl_old->getRateClassWithMaxPostProbOfEachSite();
+
+          // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
+          Vdouble rates = tl_old->getPosteriorRateOfEachSite();
+          
+          vector<string> colNames;
+          colNames.push_back("Sites");
+          colNames.push_back("is.complete");
+          colNames.push_back("is.constant");
+          colNames.push_back("lnL");
+          colNames.push_back("rc");
+          colNames.push_back("pr");
+          vector<string> row(6);
+          DataTable* infos = new DataTable(colNames);
+          
+          for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
+            {
+              double lnL = tl_old->getLogLikelihoodForASite(i);
+              const Site* currentSite = &sites->getSite(i);
+              int currentSitePosition = currentSite->getPosition();
+              string isCompl = "NA";
+              string isConst = "NA";
+              try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+              catch(EmptySiteException& ex) {}
+              try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+              catch(EmptySiteException& ex) {}
+              row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+              row[1] = isCompl;
+              row[2] = isConst;
+              row[3] = TextTools::toString(lnL);
+              row[4] = TextTools::toString(classes[i]);
+              row[5] = TextTools::toString(rates[i]);
+        infos->addRow(row);
+            }
+          
+          DataTable::write(*infos, out, "\t");
+          
+          delete infos;
+        }
     }
-    ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
-    if (isinf(logL))
+    else // tl_new!=0
     {
-      ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
-      if (codonAlphabet)
+      //Check initial likelihood:
+      double logL = tl_new->getValue();
+      if (isinf(logL))
       {
-        bool f = false;
-        size_t s;
-        for (size_t i = 0; i < sites->getNumberOfSites(); i++) {
-          if (isinf(tl->getLogLikelihoodForASite(i))) {
-            const Site& site = sites->getSite(i);
-            s = site.size();
-            for (size_t j = 0; j < s; j++) {
-              if (gCode->isStop(site.getValue(j))) {
-                (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << sites->getSequence(j).getName()).endLine();
-                f = true;
+        // This may be due to null branch lengths, leading to null likelihood!
+        ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
+        ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
+        ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
+        ParameterList pl = tl_new->getBranchLengthsParameters();
+        for (unsigned int i = 0; i < pl.size(); i++)
+          {
+            if (pl[i].getValue() < 0.000001) pl[i].setValue(0.000001);
+          }
+        tl_new->matchParametersValues(pl);
+        logL = tl_new->getValue();
+      }
+      ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
+      if (isinf(logL))
+      {
+        ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
+        if (codonAlphabet)
+        {
+          bool f = false;
+          size_t s;
+          for (size_t i = 0; i < sites->getNumberOfSites(); i++) {
+            if (isinf(tl_new->getLogLikelihoodForASite(i))) {
+              const Site& site = sites->getSite(i);
+              s = site.size();
+              for (size_t j = 0; j < s; j++) {
+                if (gCode->isStop(site.getValue(j))) {
+                  (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << sites->getSequence(j).getName()).endLine();
+                  f = true;
+                }
               }
             }
           }
+          if (f)
+            exit(-1);
         }
-        if (f)
-          exit(-1);
-      }
-      bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
-      if (!removeSaturated) {
-        ApplicationTools::displayError("!!! Looking at each site:");
-        for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
-          (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
-        }
-        ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
-        ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
-        exit(1);
-      } else {
-        ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
-        for (size_t i = sites->getNumberOfSites(); i > 0; --i) {
-          if (isinf(tl->getLogLikelihoodForASite(i - 1))) {
-            ApplicationTools::displayResult("Ignore saturated site", sites->getSite(i - 1).getPosition());
-            sites->deleteSite(i - 1);
+        bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
+        if (!removeSaturated) {
+          ApplicationTools::displayError("!!! Looking at each site:");
+          for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
+            (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl_new->getLogLikelihoodForASite(i)).endLine();
           }
-        }
-        ApplicationTools::displayResult("Number of sites retained", sites->getNumberOfSites());
-        tl->setData(*sites);
-        tl->initialize();
-        logL = tl->getValue();
-        if (isinf(logL)) {
-          ApplicationTools::displayError("This should not happen. Exiting now.");
+          ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
+          ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
           exit(1);
+        } else {
+          ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
+          for (size_t i = sites->getNumberOfSites(); i > 0; --i) {
+            if (isinf(tl_new->getLogLikelihoodForASite(i - 1))) {
+              ApplicationTools::displayResult("Ignore saturated site", sites->getSite(i - 1).getPosition());
+              sites->deleteSite(i - 1);
+            }
+          }
+          ApplicationTools::displayResult("Number of sites retained", sites->getNumberOfSites());
+
+          tl_new->setData(*sites);
+          logL = tl_new->getValue();
+          if (isinf(logL)) {
+            ApplicationTools::displayError("This should not happen. Exiting now.");
+            exit(1);
+          }
+          ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
         }
-        ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
       }
-    }
-
-    tl = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(
-      PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams()));
-
-    tree = new TreeTemplate<Node>(tl->getTree());
-    PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
-
-    // Write parameters to screen:
-    ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl->getValue(), 15));
-    ParameterList parameters = tl->getSubstitutionModelParameters();
-    for (unsigned int i = 0; i < parameters.size(); i++)
-    {
-      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-    }
-    parameters = tl->getRateDistributionParameters();
-    for (unsigned int i = 0; i < parameters.size(); i++)
-    {
-      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-    }
-
-    // Checking convergence:
-    PhylogeneticsApplicationTools::checkEstimatedParameters(tl->getParameters());
-
-    // Write parameters to file:
-    string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
-    ApplicationTools::displayResult("Output estimates to file", parametersFile);
-    if (parametersFile != "none")
-    {
-      StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
-      out << "# Log likelihood = ";
-      out.setPrecision(20) << (-tl->getValue());
-      out.endLine();
-      out << "# Number of sites = ";
-      out.setPrecision(20) << sites->getNumberOfSites();
-      out.endLine();
-      out.endLine();
-      out << "# Substitution model parameters:";
-      out.endLine();
-      if (modelSet)
+      
+      tl_new = dynamic_cast<newlik::TreeLikelihood*>(PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams()));
+  
+      tree = new TreeTemplate<Node>(tl_new->getTree());
+      PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
+      
+      // Write parameters to screen:
+      ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_new->getValue(), 15));
+      ParameterList parameters = tl_new->getSubstitutionProcessParameters();
+      for (unsigned int i = 0; i < parameters.size(); i++)
+        ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+      
+      // Checking convergence:
+      PhylogeneticsApplicationTools::checkEstimatedParameters(tl_new->getParameters());
+      
+      // Write parameters to file:
+      string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
+      ApplicationTools::displayResult("Output estimates to file", parametersFile);
+      if (parametersFile != "none")
       {
-        modelSet->matchParametersValues(tl->getParameters());
-        PhylogeneticsApplicationTools::printParameters(modelSet, out);
+        StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
+        out << "# Log likelihood = ";
+        out.setPrecision(20) << (-tl_new->getValue());
+        out.endLine();
+        out << "# Number of sites = ";
+        out.setPrecision(20) << sites->getNumberOfSites();
+        out.endLine();
+        out.endLine();
+        out << "# Substitution model parameters:";
+        out.endLine();
+      // if (modelSet)
+      //   {
+      //           modelSet->matchParametersValues(tl_old->getParameters());
+      //           PhylogeneticsApplicationTools::printParameters(modelSet, out);
+      //         }
+      //       else
+      //         {
+      //           model->matchParametersValues(tl_old->getParameters());
+      //           PhylogeneticsApplicationTools::printParameters(model, out);
+      //         }
+      //       out.endLine();
+      //       (out << "# Rate distribution parameters:").endLine();
+      //       rDist->matchParametersValues(tl_old->getParameters());
+      //       PhylogeneticsApplicationTools::printParameters(rDist, out);
+      //     }
+      
+      //   // Getting posterior rate class distribution:
+      //   DiscreteDistribution* prDist = RASTools::getPosteriorRateDistribution(*tl_old);
+      //   ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
+      //   if (ApplicationTools::message) prDist->print(*ApplicationTools::message);
+      //   ApplicationTools::displayMessage("\n");
+      //   delete prDist;
+      
+      //   // Write infos to file:
+      //   string infosFile = ApplicationTools::getAFilePath("output.infos", bppml.getParams(), false, false);
+      //   if (infosFile != "none")
+      //     {
+      //       ApplicationTools::displayResult("Alignment information logfile", infosFile);
+      //       ofstream out(infosFile.c_str(), ios::out);
+          
+      //       // Get the rate class with maximum posterior probability:
+      //       vector<size_t> classes = tl_old->getRateClassWithMaxPostProbOfEachSite();
+
+      //       // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
+      //       Vdouble rates = tl_old->getPosteriorRateOfEachSite();
+          
+      //       vector<string> colNames;
+      //       colNames.push_back("Sites");
+      //       colNames.push_back("is.complete");
+      //       colNames.push_back("is.constant");
+      //       colNames.push_back("lnL");
+      //       colNames.push_back("rc");
+      //       colNames.push_back("pr");
+      //       vector<string> row(6);
+      //       DataTable* infos = new DataTable(colNames);
+          
+      //       for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
+      //         {
+      //           double lnL = tl_old->getLogLikelihoodForASite(i);
+      //           const Site* currentSite = &sites->getSite(i);
+      //           int currentSitePosition = currentSite->getPosition();
+      //           string isCompl = "NA";
+      //           string isConst = "NA";
+      //           try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+      //           catch(EmptySiteException& ex) {}
+      //           try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+      //           catch(EmptySiteException& ex) {}
+      //           row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+      //           row[1] = isCompl;
+      //           row[2] = isConst;
+      //           row[3] = TextTools::toString(lnL);
+      //           row[4] = TextTools::toString(classes[i]);
+      //           row[5] = TextTools::toString(rates[i]);
+      //           infos->addRow(row);
+      //         }
+          
+      //       DataTable::write(*infos, out, "\t");
+          
+      //       delete infos;
       }
-      else
-      {
-        model->matchParametersValues(tl->getParameters());
-        PhylogeneticsApplicationTools::printParameters(model, out);
-      }
-      out.endLine();
-      (out << "# Rate distribution parameters:").endLine();
-      rDist->matchParametersValues(tl->getParameters());
-      PhylogeneticsApplicationTools::printParameters(rDist, out);
+  
     }
 
-    // Getting posterior rate class distribution:
-    DiscreteDistribution* prDist = RASTools::getPosteriorRateDistribution(*tl);
-    ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
-    if (ApplicationTools::message) prDist->print(*ApplicationTools::message);
-    ApplicationTools::displayMessage("\n");
-    delete prDist;
 
-    // Write infos to file:
-    string infosFile = ApplicationTools::getAFilePath("output.infos", bppml.getParams(), false, false);
-    if (infosFile != "none")
-    {
-      ApplicationTools::displayResult("Alignment information logfile", infosFile);
-      ofstream out(infosFile.c_str(), ios::out);
-
-      // Get the rate class with maximum posterior probability:
-      vector<size_t> classes = tl->getRateClassWithMaxPostProbOfEachSite();
-
-      // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
-      Vdouble rates = tl->getPosteriorRateOfEachSite();
-
-      vector<string> colNames;
-      colNames.push_back("Sites");
-      colNames.push_back("is.complete");
-      colNames.push_back("is.constant");
-      colNames.push_back("lnL");
-      colNames.push_back("rc");
-      colNames.push_back("pr");
-      vector<string> row(6);
-      DataTable* infos = new DataTable(colNames);
-
-      for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
-      {
-        double lnL = tl->getLogLikelihoodForASite(i);
-        const Site* currentSite = &sites->getSite(i);
-        int currentSitePosition = currentSite->getPosition();
-        string isCompl = "NA";
-        string isConst = "NA";
-        try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
-        catch(EmptySiteException& ex) {}
-        try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
-        catch(EmptySiteException& ex) {}
-        row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
-        row[1] = isCompl;
-        row[2] = isConst;
-        row[3] = TextTools::toString(lnL);
-        row[4] = TextTools::toString(classes[i]);
-        row[5] = TextTools::toString(rates[i]);
-        infos->addRow(row);
-      }
-
-      DataTable::write(*infos, out, "\t");
-
-      delete infos;
-    }
-
-
+    ////////////////////////////////////////////
     // Bootstrap:
+    
     string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", bppml.getParams(), "None", "", true, false);
     if (nbBS > 0 && optimizeClock != "None")
     {
@@ -618,9 +800,9 @@ int main(int args, char** argv)
       if (!optimizeTopo)
       {
         bppml.getParam("optimization.topology") = "yes";
-        tl = dynamic_cast<NNIHomogeneousTreeLikelihood*>(
-            PhylogeneticsApplicationTools::optimizeParameters(tl, tl->getParameters(), bppml.getParams(), "", true, false));
-        initTree = &tl->getTree();
+        tl_old = dynamic_cast<NNIHomogeneousTreeLikelihood*>(
+            PhylogeneticsApplicationTools::optimizeParameters(tl_old, tl_old->getParameters(), bppml.getParams(), "", true, false));
+        initTree = &tl_old->getTree();
       }
 
       string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bppml.getParams(), false, false);
@@ -631,8 +813,8 @@ int main(int args, char** argv)
         out = new ofstream(bsTreesPath.c_str(), ios::out);
       }
       Newick newick;
-      ParameterList paramsToIgnore = tl->getSubstitutionModelParameters();
-      paramsToIgnore.addParameters(tl->getRateDistributionParameters());
+      ParameterList paramsToIgnore = tl_old->getSubstitutionModelParameters();
+      paramsToIgnore.addParameters(tl_old->getRateDistributionParameters());
 
       ApplicationTools::displayTask("Bootstrapping", true);
       vector<Tree*> bsTrees(nbBS);
@@ -686,7 +868,7 @@ int main(int args, char** argv)
     if (model) delete model;
     if (modelSet) delete modelSet;
     delete rDist;
-    delete tl;
+    delete tl_old;
     delete tree;
     bppml.done();
   }
