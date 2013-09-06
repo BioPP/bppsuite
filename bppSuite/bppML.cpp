@@ -145,10 +145,18 @@ int main(int args, char** argv)
       vector<Tree*> vTree;
     
       string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bppml.getParams(), "user", "", false, false);
+      
       ApplicationTools::displayResult("Input tree", initTreeOpt);
+
       if (initTreeOpt == "user")
         {
           vTree = PhylogeneticsApplicationTools::getTrees(bppml.getParams());
+
+          if (vTree.size()==0){
+            ApplicationTools::displayError("!!! Empty file tree.");
+            exit(-1);
+          }
+          
           for (size_t i=0; i<vTree.size(); i++)
             ApplicationTools::displayResult("Number of leaves", TextTools::toString(vTree[i]->getNumberOfLeaves()));
         }
@@ -442,7 +450,7 @@ int main(int args, char** argv)
                   if (collName!="Mixture")
                     throw Exception("Only collection mixture is available now.");
 
-                  SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::setSubstitutionProcessCollection(alphabet, gCode.get(), sites, bppml.getParams());
+                  SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), sites, bppml.getParams());
 
                   std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", collArgs, ',', "(1)");
 
@@ -463,28 +471,36 @@ int main(int args, char** argv)
                   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
                   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-                  auto_ptr<SubstitutionProcess> process(PhylogeneticsApplicationTools::setSubstitutionProcess(alphabet, gCode.get(), sites, bppml.getParams()));
+                  auto_ptr<SubstitutionProcess> process(PhylogeneticsApplicationTools::getSubstitutionProcess(alphabet, gCode.get(), sites, bppml.getParams()));
         
                   if (process->getSubstitutionModel(0,0).getName() != "RE08")
                     SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
                   string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
                   ApplicationTools::displayResult("Likelihood data compression", compression);
+
+                  SingleRecursiveTreeLikelihoodCalculation* tlcomp;
+                  
                   if (compression == "simple")
-                    {
-                      if (dynamic_cast<const MixedSubstitutionModel*>(&process->getSubstitutionModel(0,0)))
-                        throw Exception("Simple recursion process with mixed models is not implemented yet.");
-                      else {
-                        SingleRecursiveTreeLikelihoodCalculation* tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*sites, process.release(), true, compression=="recursive");
-                        tl_new = new SinglePhyloLikelihood(process.release(), tlcomp);
-                      }
-                    }
+                  {
+                    if (dynamic_cast<const MixedSubstitutionModel*>(&process->getSubstitutionModel(0,0)))
+                      throw Exception("Simple recursion process with mixed models is not implemented yet.");
+                    else 
+                      tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*sites, process.get(), true, compression=="simple");
+                  }
                   else
-                    throw Exception("Unknown recursion option: " + recursion);
-
+                  {
+                    if (dynamic_cast<const MixedSubstitutionModel*>(&process->getSubstitutionModel(0,0)))
+                      throw Exception("Recursive recursion process with mixed models is not implemented yet.");
+                    else 
+                      tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*sites, process.get(), true, compression=="recursive");
+                  }
+                  tl_new = new SinglePhyloLikelihood(process.release(), tlcomp);
                 }
-
             }
+          else
+            throw Exception("Unknown recursion option: " + recursion);
+
           
           //Listing parameters
           string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false);
