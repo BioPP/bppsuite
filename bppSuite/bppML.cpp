@@ -140,7 +140,8 @@ int main(int args, char** argv)
       ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
       ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 
-      /////// Get the initial tree
+
+      /////// Get the initial tree  
     
       vector<Tree*> vTree;
     
@@ -450,7 +451,7 @@ int main(int args, char** argv)
                   if (collName!="Mixture")
                     throw Exception("Only collection mixture is available now.");
 
-                  SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), sites, bppml.getParams());
+                  SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), sites, vTree, bppml.getParams());
 
                   std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", collArgs, ',', "(1)");
 
@@ -471,7 +472,7 @@ int main(int args, char** argv)
                   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
                   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-                  auto_ptr<SubstitutionProcess> process(PhylogeneticsApplicationTools::getSubstitutionProcess(alphabet, gCode.get(), sites, bppml.getParams()));
+                  auto_ptr<SubstitutionProcess> process(PhylogeneticsApplicationTools::getSubstitutionProcess(alphabet, gCode.get(), sites, vTree, bppml.getParams()));
         
                   if (process->getSubstitutionModel(0,0).getName() != "RE08")
                     SiteContainerTools::changeGapsToUnknownCharacters(*sites);
@@ -776,12 +777,12 @@ int main(int args, char** argv)
               tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
 
               if (dynamic_cast<SinglePhyloLikelihood*>(tl_new)!=NULL){
+                cerr << "wT" << endl;
                 Tree* tree = new TreeTemplate<Node>((dynamic_cast<SinglePhyloLikelihood*>(tl_new))->getTree());
                 PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
               }
               else {
                 std::vector<const TreeTemplate<Node>* > vTNree = dynamic_cast<MultiPhyloLikelihood*>(tl_new)->getTrees();
-
                 PhylogeneticsApplicationTools::writeTrees(vTNree, bppml.getParams());
               }
               
@@ -796,68 +797,26 @@ int main(int args, char** argv)
       
               // Write parameters to file:
               string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
-              ApplicationTools::displayResult("Output estimates to file", parametersFile);
+              ApplicationTools::displayResult("Process estimates to file", parametersFile);
               if (parametersFile != "none")
                 {
                   StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
                   PhylogeneticsApplicationTools::printParameters(tl_new, out);
-              //   // Getting posterior rate class distribution:
-              //   DiscreteDistribution* prDist = RASTools::getPosteriorRateDistribution(*tl_old);
-              //   ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
-                    //   if (ApplicationTools::message) prDist->print(*ApplicationTools::message);
-                    //   ApplicationTools::displayMessage("\n");
-                    //   delete prDist;
-      
-                    //   // Write infos to file:
-                    //   string infosFile = ApplicationTools::getAFilePath("output.infos", bppml.getParams(), false, false);
-                    //   if (infosFile != "none")
-                    //     {
-                    //       ApplicationTools::displayResult("Alignment information logfile", infosFile);
-                    //       ofstream out(infosFile.c_str(), ios::out);
-          
-                    //       // Get the rate class with maximum posterior probability:
-                    //       vector<size_t> classes = tl_old->getRateClassWithMaxPostProbOfEachSite();
+                }
 
-                    //       // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
-                    //       Vdouble rates = tl_old->getPosteriorRateOfEachSite();
-          
-                    //       vector<string> colNames;
-                    //       colNames.push_back("Sites");
-                    //       colNames.push_back("is.complete");
-                    //       colNames.push_back("is.constant");
-                    //       colNames.push_back("lnL");
-                    //       colNames.push_back("rc");
-                    //       colNames.push_back("pr");
-                    //       vector<string> row(6);
-                    //       DataTable* infos = new DataTable(colNames);
-          
-                    //       for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
-                    //         {
-                    //           double lnL = tl_old->getLogLikelihoodForASite(i);
-                    //           const Site* currentSite = &sites->getSite(i);
-                    //           int currentSitePosition = currentSite->getPosition();
-                    //           string isCompl = "NA";
-                    //           string isConst = "NA";
-                    //           try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
-                    //           catch(EmptySiteException& ex) {}
-                    //           try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
-                    //           catch(EmptySiteException& ex) {}
-                    //           row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
-                    //           row[1] = isCompl;
-                    //           row[2] = isConst;
-                    //           row[3] = TextTools::toString(lnL);
-                    //           row[4] = TextTools::toString(classes[i]);
-                    //           row[5] = TextTools::toString(rates[i]);
-                    //           infos->addRow(row);
-                    //         }
-          
-                    //       DataTable::write(*infos, out, "\t");
-          
-                    //       delete infos;
-  
+              // Write infos to file:
+              //     probabilities of rate discrete distributions
+              //     site infos : lnL, class (or process in case of collection) posterior probability distribution
+
+              string infosFile = ApplicationTools::getAFilePath("output.infos", bppml.getParams(), false, false);
+              if (infosFile != "none")
+              {
+                ApplicationTools::displayResult("Alignment information logfile", infosFile);
+                StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+                  
+                PhylogeneticsApplicationTools::printAnalysisInformation(tl_new, out);
               }
-
-
+              
               ////////////////////////////////////////////
               // Bootstrap:
     
