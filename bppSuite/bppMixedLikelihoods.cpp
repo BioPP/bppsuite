@@ -289,14 +289,20 @@ int main(int args, char** argv)
 
     bool fromBiblio=false;
     
-    //this is an uglly fix because getMixedModel is private... can't we use clone instead or const everywhere?
     const AbstractBiblioMixedSubstitutionModel* ptmp = dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(p0);
     if (ptmp) {
       p0 = ptmp->getMixedModel().clone();
+      if (nhOpt == "no")
+        model = p0;
+      else {
+        Vint nI=modelSet->getNodesWithModel(nummodel - 1);
+        modelSet->removeModel(nummodel - 1);
+        modelSet->addModel(p0, nI);
+      }
       fromBiblio=true;
     }
 
-
+    //////////////////////////////////////////////////
     // Case of a MixtureOfSubstitutionModels
 
     MixtureOfSubstitutionModels* pMSM = dynamic_cast<MixtureOfSubstitutionModels*>(p0);
@@ -356,27 +362,36 @@ int main(int args, char** argv)
       DataTable::write(*rates, out, "\t");
     }
 
+    //////////////////////////////////////////////////
     // Case of a MixtureOfASubstitutionModel
 
     else
     {
-      if (fromBiblio)
-        {
-          ApplicationTools::displayError("!!! Not available for models parametrized upon bibliography.");
-          ApplicationTools::displayError("!!! Please convert into MixedModel declaration.");
-          exit(-1);
-        }
-      
       MixtureOfASubstitutionModel* pMSM2 = dynamic_cast<MixtureOfASubstitutionModel*>(p0);
       if (pMSM2 != NULL)
       {
+        size_t nummod = pMSM2->getNumberOfModels();
+        if (fromBiblio && (parname == ""))
+        {
+          ParameterList pl=pMSM2->getParameters();
+
+          for (size_t i2 = 0; i2 < pl.size(); i2++)
+          {
+            string pl2n = pl[i2].getName();
+            string par2 = pl2n.substr(0,pl2n.find("_")) + "_1";
+            Vint vnmod = pMSM2->getSubmodelNumbers(par2);
+            if (vnmod.size() == 1) {
+              parname=pl2n.substr(0,pl2n.find("_"));
+              break;
+            }
+          }
+        }
+
         if (parname == "")
         {
           ApplicationTools::displayError("Argument likelihoods.parameter_name is required.");
           exit(-1);
         }
-
-        size_t nummod = pMSM2->getNumberOfModels();
 
         vector<vector<int> > vvnmod;
         size_t i2 = 0;
