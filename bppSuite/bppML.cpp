@@ -290,6 +290,7 @@ int main(int args, char** argv)
       SubstitutionModelSet* modelSet = 0;
       DiscreteDistribution* rDist    = 0;
 
+      map<string, string> unparsedparams;
       /// Topology estimation
     
       if (optimizeTopo || nbBS > 0)
@@ -302,7 +303,7 @@ int main(int args, char** argv)
 
           if (nhOpt != "no")
             throw Exception("Topology estimation with NH model not supported yet, sorry :(");
-          model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
+          model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams(), unparsedparams);
           if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
           if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
             {
@@ -340,7 +341,7 @@ int main(int args, char** argv)
 
               if (nhOpt == "no")
                 {
-                  model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
+                  model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams(), unparsedparams);
                   if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
                   if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
                     {
@@ -358,7 +359,7 @@ int main(int args, char** argv)
         
               else if (nhOpt == "one_per_branch")
                 {
-                  model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
+                  model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams(), unparsedparams);
                   if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
                   if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
                     {
@@ -438,6 +439,8 @@ int main(int args, char** argv)
       
           else if (recursion=="simple")
             {
+              SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+
               ///  Collection
               if (collection!="")
                 {
@@ -777,7 +780,6 @@ int main(int args, char** argv)
               tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
 
               if (dynamic_cast<SinglePhyloLikelihood*>(tl_new)!=NULL){
-                cerr << "wT" << endl;
                 Tree* tree = new TreeTemplate<Node>((dynamic_cast<SinglePhyloLikelihood*>(tl_new))->getTree());
                 PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
               }

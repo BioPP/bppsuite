@@ -137,9 +137,11 @@ int main(int args, char** argv)
     MixedSubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist         = 0;
 
+    map<string, string> unparsedparams;
+
     if (nhOpt == "no")
     {
-      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
+      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
@@ -160,7 +162,7 @@ int main(int args, char** argv)
     }
     else if (nhOpt == "one_per_branch")
     {
-      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
+      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;

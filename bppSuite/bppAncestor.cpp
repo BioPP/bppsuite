@@ -161,9 +161,11 @@ int main(int args, char ** argv)
   DiscreteDistribution *rDist    = 0;
   size_t nbStates;
 
+  map<string, string> unparsedparams;
+  
   if (nhOpt == "no")
   {  
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams());
+    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams(), unparsedparams);
     if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
@@ -183,7 +185,7 @@ int main(int args, char ** argv)
   }
   else if (nhOpt == "one_per_branch")
   {
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams());
+    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams(), unparsedparams);
     if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {

@@ -116,8 +116,10 @@ int main(int args, char ** argv)
 
   ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
   ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
-  
-  SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppdist.getParams());
+
+  map<string, string> unparsedparams;
+
+  SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppdist.getParams(), unparsedparams);
   
 	DiscreteDistribution* rDist = 0;
   if (model->getNumberOfStates() > model->getAlphabet()->getSize())

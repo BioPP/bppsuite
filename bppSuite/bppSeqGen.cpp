@@ -204,10 +204,12 @@ int main(int args, char ** argv)
 
   SubstitutionModelSet* modelSet = 0;
 
+  map<string, string> unparsedparams;
+
   //Homogeneous case:
   if (nhOpt == "no")
   {
-    SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
+    SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams(), unparsedparams);
     FrequenciesSet* fSet = new FixedFrequenciesSet(model->getAlphabet(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
@@ -219,13 +221,13 @@ int main(int args, char ** argv)
     SubstitutionModel* model = 0;
     string modelName = ApplicationTools::getStringParameter("model", bppseqgen.getParams(), "");
     if (!TextTools::hasSubstring(modelName,"COaLA"))
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams(), unparsedparams);
     else
     {
       //COaLA model
       VectorSiteContainer* allSitesAln = 0;
       allSitesAln = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams());
+      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams(), unparsedparams);
     }
 
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
