@@ -78,6 +78,7 @@ using namespace std;
 
 #include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
 #include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 
 using namespace bpp;
@@ -451,24 +452,44 @@ int main(int args, char** argv)
                   if (recursion!="simple")
                     throw Exception("Double recursion is not implemented in collections yet, sorry.");
 
-                  if (collName!="Mixture")
-                    throw Exception("Only collection mixture is available now.");
-
                   SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), sites, vTree, bppml.getParams());
 
-                  std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", collArgs, ',', "(1)");
-
-                  MixturePhyloLikelihood* pMP = new MixturePhyloLikelihood(*sites, SPC);
-                  tl_new = pMP;
-
                   
-                  if (vprob.size()!=1)
+                  if (collName=="Mixture")
                   {
-                    if (vprob.size()!=pMP->getCollection()->getNumberOfSubstitutionProcess())
+                    MixturePhyloLikelihood* pMP = new MixturePhyloLikelihood(*sites, SPC);
+                    tl_new = pMP;
+
+                    
+                    size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
+                    
+                    std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", collArgs, ',', "("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP))+")");
+                    if (vprob.size()!=1)
+                    {
+                      if (vprob.size()!=pMP->getCollection()->getNumberOfSubstitutionProcess())
                         throw BadSizeException("Wrong size of probas description in Mixture", vprob.size(), pMP->getCollection()->getNumberOfSubstitutionProcess());
-                    Simplex si(vprob);
-                    pMP->setSubProcessProb(si);
+                      Simplex si(vprob);
+                      pMP->setSubProcessProb(si);
+                    }
                   }
+                  else if (collName=="HMM")
+                  {
+                    HmmPhyloLikelihood* pMP = new HmmPhyloLikelihood(*sites, SPC);
+                    
+                    tl_new = pMP;
+                    size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
+
+                    string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
+                    string vvs="(";
+                    for (size_t i=0;i<nbP;i++)
+                      vvs+=(i==0?"":",")+vs;
+                    vvs+=")";
+                    
+                    RowMatrix<double> mat=ApplicationTools::getMatrixParameter<double>("probas", collArgs, ',', vvs);
+                    pMP->setTransitionProbabilities(mat);
+                  }
+                  else
+                    throw Exception("Unknown Multiple Phylogeny description : "+ collName);
                 }
               else
                 {
@@ -790,7 +811,9 @@ int main(int args, char** argv)
               
               // Write parameters to screen:
               ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_new->getValue(), 15));
-              ParameterList parameters = tl_new->getSubstitutionProcessParameters();
+              ParameterList parameters = tl_new->getParameters();
+              parameters.deleteParameters(tl_new->getBranchLengthsParameters().getParameterNames());
+              
               for (unsigned int i = 0; i < parameters.size(); i++)
                 ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
       
