@@ -59,7 +59,7 @@ using namespace std;
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
-#include <Bpp/Phyl/TreeTemplate.h>
+#include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Simulation.all>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>

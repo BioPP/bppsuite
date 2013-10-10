@@ -58,7 +58,7 @@ using namespace std;
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
-#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Parsimony.all>

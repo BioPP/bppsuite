@@ -52,10 +52,10 @@ using namespace std;
 
 // From PhylLib:
 #include <Bpp/Phyl/Io.all>
-#include <Bpp/Phyl/Tree.h>
-#include <Bpp/Phyl/Node.h>
-#include <Bpp/Phyl/TreeExceptions.h>
-#include <Bpp/Phyl/TreeTemplateTools.h>
+#include <Bpp/Phyl/Tree/Tree.h>
+#include <Bpp/Phyl/Tree/Node.h>
+#include <Bpp/Phyl/Tree/TreeExceptions.h>
+#include <Bpp/Phyl/Tree/TreeTemplateTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 using namespace bpp;

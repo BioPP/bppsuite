@@ -52,7 +52,7 @@ using namespace std;
 #include <Bpp/Graphics/Fig.all>
 
 // From PhylLib:
-#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Graphics.all>
 

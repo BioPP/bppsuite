@@ -148,6 +148,12 @@ or
 @{program@} param=option_file
 @end example
 @end cartouche
+or
+@cartouche
+@example
+@{program@} params=option_file
+@end example
+@end cartouche
 where @{program@} is the name of the program to use (bppml, bppseqgen, etc.).
 Option files contain @command{parameter=value} lines, with only one parameter per line.
 They can be written from scratch using a regular text editor, but since these files can potentially turn to be quite complex, it is probably wiser to start with a sample provided along with the program (if any!).
@@ -276,7 +282,8 @@ output.infos=$(data).infos
 @end example
 @end cartouche
 
-Important note: it is not possible to use a macro with the 'param' option.
+Important note: it is not possible to use a macro with the 'param' or
+'params' option.
 This is because all nested option files are parsed before the variable resolution.
 Writing @command{param=$(model1).bpp} will not work, but this allows the user to override variables in nested files, as with the command line.
 For instance:

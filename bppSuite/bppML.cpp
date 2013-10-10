@@ -65,7 +65,7 @@ using namespace std;
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From PhylLib:
-#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
@@ -812,7 +812,7 @@ int main(int args, char** argv)
               // Write parameters to screen:
               ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_new->getValue(), 15));
               ParameterList parameters = tl_new->getParameters();
-              parameters.deleteParameters(tl_new->getBranchLengthsParameters().getParameterNames());
+              parameters.deleteParameters(tl_new->getBranchLengthsParameters().getParameterNames(),false);
               
               for (unsigned int i = 0; i < parameters.size(); i++)
                 ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));

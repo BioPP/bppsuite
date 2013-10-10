@@ -62,7 +62,7 @@ using namespace std;
 #include <Bpp/Seq/GeneticCode.all>
 
 //From PhylLib:
-#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 using namespace bpp;
