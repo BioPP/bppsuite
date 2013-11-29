@@ -295,9 +295,8 @@ int main(int args, char** argv)
       if (nhOpt == "no")
         model = p0;
       else {
-        Vint nI=modelSet->getNodesWithModel(nummodel - 1);
-        modelSet->removeModel(nummodel - 1);
-        modelSet->addModel(p0, nI);
+        modelSet->replaceModel(nummodel-1, p0);
+        modelSet->isFullySetUpFor(*tree);
       }
       fromBiblio=true;
     }
@@ -429,18 +428,15 @@ int main(int args, char** argv)
 
         Vdouble dval;
         for (unsigned int i = 0; i < nbcl; i++)
-          {
-            SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
-            double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
-            dval.push_back(valPar);
-            colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
-          }
+        {
+          SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
+          double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
+          dval.push_back(valPar);
+          colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
+        }
         for (unsigned int i = 0; i < nbcl; i++)
-          {
-            SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
-            double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
-            colNames.push_back("Pr_" + parname + "=" + TextTools::toString(valPar));
-          }
+          colNames.push_back("Pr_" + parname + "=" + TextTools::toString(dval[i]));
+
         colNames.push_back("mean");
 
         DataTable* rates = new DataTable(nSites, colNames.size());
@@ -455,9 +451,13 @@ int main(int args, char** argv)
 
         VVdouble vvd;
 
+          
+        vector<double> vRates=pMSM2->getVRates();
+
         for (unsigned int i = 0; i < nbcl; i++)
         {
           string par2 = parname + "_" + TextTools::toString(i + 1);
+          
           for (unsigned int j = 0; j < nummod; j++)
             pMSM2->setNProbability(j, 0);
 
@@ -482,7 +482,7 @@ int main(int args, char** argv)
           vvd.push_back(vd);
 
           ApplicationTools::displayMessage("\n");
-          ApplicationTools::displayMessage("Parameter " + par2 + ":");
+          ApplicationTools::displayMessage("Parameter " + par2 + "=" + TextTools::toString(dval[i]) + " with rate=" + TextTools::toString(vRates[i]));
 
           ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
           ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
