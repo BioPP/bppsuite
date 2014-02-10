@@ -49,6 +49,7 @@ using namespace std;
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/Hmm/FullHmmTransitionMatrix.h>
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/App/BppApplication.h>
@@ -79,6 +80,7 @@ using namespace std;
 #include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
 #include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 
 using namespace bpp;
@@ -100,9 +102,9 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 1.6.0      *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 2          *" << endl;
   cout << "*                                                                *" << endl;
-  cout << "* Authors: J. Dutheil                       Last Modif. 29/01/13 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. 10/02/14 *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
   cout << "*          L. Guéguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;
@@ -455,12 +457,13 @@ int main(int args, char** argv)
                   SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), sites, vTree, bppml.getParams());
 
                   
+                  ApplicationTools::displayResult("Collection type", collName);
+
                   if (collName=="Mixture")
                   {
                     MixturePhyloLikelihood* pMP = new MixturePhyloLikelihood(*sites, SPC);
                     tl_new = pMP;
 
-                    
                     size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
                     
                     std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", collArgs, ',', "("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP))+")");
@@ -484,12 +487,38 @@ int main(int args, char** argv)
                     for (size_t i=0;i<nbP;i++)
                       vvs+=(i==0?"":",")+vs;
                     vvs+=")";
-                    
+
                     RowMatrix<double> mat=ApplicationTools::getMatrixParameter<double>("probas", collArgs, ',', vvs);
-                    pMP->setTransitionProbabilities(mat);
+                    
+                    FullHmmTransitionMatrix fhtm(pMP->getHmmTransitionMatrix().getHmmStateAlphabet(), pMP->getNamespace());
+                    fhtm.setTransitionProbabilities(mat);
+                    
+                    pMP->matchParametersValues(fhtm.getParameters());
+                    
+                  }
+                  else if (collName=="AutoCorr")
+                  {
+                    AutoCorrelationPhyloLikelihood* pMP = new AutoCorrelationPhyloLikelihood(*sites, SPC);
+                    
+                    tl_new = pMP;
+                    size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
+
+                    string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
+
+                    vector<double> v=ApplicationTools::getVectorParameter<double>("probas", collArgs, ',', vs);
+
+                    ParameterList pl;
+
+                    for (size_t i=0;i<v.size();i++)
+                      pl.addParameter(Parameter("lambda"+TextTools::toString(i+1),v[i]));
+                    
+                        
+                    pMP->matchParametersValues(pl);
+                    
                   }
                   else
                     throw Exception("Unknown Multiple Phylogeny description : "+ collName);
+                  
                 }
               else
                 {
