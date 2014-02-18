@@ -58,6 +58,8 @@ using namespace std;
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Text/KeyvalTools.h>
+
 
 // From PhylLib:
 #include <Bpp/Phyl/Tree.h>
@@ -232,11 +234,32 @@ int main(int args, char ** argv)
   if (matrixPath != "none")
   {
     ApplicationTools::displayResult("Output matrix file", matrixPath);
-    ODistanceMatrix* odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT);
+    string matrixFormat = ApplicationTools::getAFilePath("output.matrix.format", bppdist.getParams(), false, false, "", false);
+    string format = "";
+    bool extended = false;
+    std::map<std::string, std::string> unparsedArguments_;
+    KeyvalTools::parseProcedure(matrixFormat, format, unparsedArguments_);
+    if (unparsedArguments_.find("type") != unparsedArguments_.end())
+    {
+      if (unparsedArguments_["type"] == "extended")
+      {
+        extended = true;
+      }     
+      else if (unparsedArguments_["type"] == "classic")
+        extended = false;
+      else
+        ApplicationTools::displayWarning("Argument '" +
+                                         unparsedArguments_["type"] + "' for parameter 'Phylip#type' is unknown. " +
+                                         "Default used instead: not extended.");
+    }    
+    else
+      ApplicationTools::displayWarning("Argument 'Phylip#type' not found. Default used instead: not extended.");
+    
+
+    ODistanceMatrix* odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT, extended);
     odm->write(*distEstimation.getMatrix(), matrixPath, true);
     delete odm;
-  }
-
+   }
   PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
   
   //Output some parameters:
@@ -337,9 +360,9 @@ int main(int args, char ** argv)
   delete distMethod;
   delete tree;
 
-  bppdist.done();
-
-  }
+  bppdist.done();}
+  
+      
   catch(exception & e)
   {
     cout << e.what() << endl;
