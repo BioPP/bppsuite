@@ -1879,10 +1879,19 @@ nested models, the syntax is the following:
 @command{G01.rdist_Gamma.alpha}, @command{TS98.model_T92.kappa},
 @command{RE08.lamba}, @command{RE08.model_G01.model_GTR.a}, etc.
 'Ancient' will ignore all parameters in the ancestral frequency set
-(non-homogeneous models), and 'BrLen' will ignore all branch lengths.
+(non-homogeneous models), 'BrLen' will ignore all branch lengths and
+'Model' will ignore all model parameters.
 
 The '*' wildcard can be used, as in @command{*theta*} for all the
 parameters whose name has @command{theta} in it.
+
+@item optimization.constrain_parameter = @{list<chars=interval>@}
+A list of parameters on which the authorized values are limited to a
+given interval. 
+
+@example
+optimization.constrain_parameter = YN98.omega = [-inf;1.9[, *theta* = [0.1;0.7[, BrLen*=[0.01;inf]
+@end example 
 
 @item optimization.tolerance = @{float>0@}
 The precision on the log-likelihood to reach.
