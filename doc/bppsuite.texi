@@ -148,12 +148,6 @@ or
 @{program@} param=option_file
 @end example
 @end cartouche
-or
-@cartouche
-@example
-@{program@} params=option_file
-@end example
-@end cartouche
 where @{program@} is the name of the program to use (bppml, bppseqgen, etc.).
 Option files contain @command{parameter=value} lines, with only one parameter per line.
 They can be written from scratch using a regular text editor, but since these files can potentially turn to be quite complex, it is probably wiser to start with a sample provided along with the program (if any!).
@@ -282,8 +276,7 @@ output.infos=$(data).infos
 @end example
 @end cartouche
 
-Important note: it is not possible to use a macro with the 'param' or
-'params' option.
+Important note: it is not possible to use a macro with the 'param' option.
 This is because all nested option files are parsed before the variable resolution.
 Writing @command{param=$(model1).bpp} will not work, but this allows the user to override variables in nested files, as with the command line.
 For instance:
@@ -1886,11 +1879,20 @@ nested models, the syntax is the following:
 @command{G01.rdist_Gamma.alpha}, @command{TS98.model_T92.kappa},
 @command{RE08.lamba}, @command{RE08.model_G01.model_GTR.a}, etc.
 'Ancient' will ignore all parameters in the ancestral frequency set
-(non-homogeneous models), and 'BrLen' will ignore all branch lengths.
+(non-homogeneous models), 'BrLen' will ignore all branch lengths and
+'Model' will ignore all model parameters.
 
 The '*' wildcard can be used, as in @command{*theta*} for all the
 parameters whose name has @command{theta} in it.
 
+@item optimization.constrain_parameter = @{list<chars=interval>@}
+A list of parameters on which the authorized values are limited to a
+given interval. 
+
+@example
+optimization.constrain_parameter = YN98.omega = [-inf;1.9[, *theta* = [0.1;0.7[, BrLen*=[0.01;inf]
+@end example 
+x
 @item optimization.tolerance = @{float>0@}
 The precision on the log-likelihood to reach.
 
