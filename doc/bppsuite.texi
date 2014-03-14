@@ -1892,7 +1892,7 @@ given interval.
 @example
 optimization.constrain_parameter = YN98.omega = [-inf;1.9[, *theta* = [0.1;0.7[, BrLen*=[0.01;inf]
 @end example 
-x
+
 @item optimization.tolerance = @{float>0@}
 The precision on the log-likelihood to reach.
 

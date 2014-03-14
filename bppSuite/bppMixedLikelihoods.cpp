@@ -291,14 +291,19 @@ int main(int args, char** argv)
 
     bool fromBiblio=false;
     
-    //this is an uglly fix because getMixedModel is private... can't we use clone instead or const everywhere?
     const AbstractBiblioMixedSubstitutionModel* ptmp = dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(p0);
     if (ptmp) {
       p0 = ptmp->getMixedModel().clone();
+      if (nhOpt == "no")
+        model = p0;
+      else {
+        modelSet->replaceModel(nummodel-1, p0);
+        modelSet->isFullySetUpFor(*tree);
+      }
       fromBiblio=true;
     }
 
-
+    //////////////////////////////////////////////////
     // Case of a MixtureOfSubstitutionModels
 
     MixtureOfSubstitutionModels* pMSM = dynamic_cast<MixtureOfSubstitutionModels*>(p0);
@@ -358,27 +363,36 @@ int main(int args, char** argv)
       DataTable::write(*rates, out, "\t");
     }
 
+    //////////////////////////////////////////////////
     // Case of a MixtureOfASubstitutionModel
 
     else
     {
-      if (fromBiblio)
-        {
-          ApplicationTools::displayError("!!! Not available for models parametrized upon bibliography.");
-          ApplicationTools::displayError("!!! Please convert into MixedModel declaration.");
-          exit(-1);
-        }
-      
       MixtureOfASubstitutionModel* pMSM2 = dynamic_cast<MixtureOfASubstitutionModel*>(p0);
       if (pMSM2 != NULL)
       {
+        size_t nummod = pMSM2->getNumberOfModels();
+        if (fromBiblio && (parname == ""))
+        {
+          ParameterList pl=pMSM2->getParameters();
+
+          for (size_t i2 = 0; i2 < pl.size(); i2++)
+          {
+            string pl2n = pl[i2].getName();
+            string par2 = pl2n.substr(0,pl2n.find("_")) + "_1";
+            Vint vnmod = pMSM2->getSubmodelNumbers(par2);
+            if (vnmod.size() == 1) {
+              parname=pl2n.substr(0,pl2n.find("_"));
+              break;
+            }
+          }
+        }
+
         if (parname == "")
         {
           ApplicationTools::displayError("Argument likelihoods.parameter_name is required.");
           exit(-1);
         }
-
-        size_t nummod = pMSM2->getNumberOfModels();
 
         vector<vector<int> > vvnmod;
         size_t i2 = 0;
@@ -416,18 +430,15 @@ int main(int args, char** argv)
 
         Vdouble dval;
         for (unsigned int i = 0; i < nbcl; i++)
-          {
-            SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
-            double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
-            dval.push_back(valPar);
-            colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
-          }
+        {
+          SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
+          double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
+          dval.push_back(valPar);
+          colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
+        }
         for (unsigned int i = 0; i < nbcl; i++)
-          {
-            SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
-            double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
-            colNames.push_back("Pr_" + parname + "=" + TextTools::toString(valPar));
-          }
+          colNames.push_back("Pr_" + parname + "=" + TextTools::toString(dval[i]));
+
         colNames.push_back("mean");
 
         DataTable* rates = new DataTable(nSites, colNames.size());
@@ -442,9 +453,13 @@ int main(int args, char** argv)
 
         VVdouble vvd;
 
+          
+        vector<double> vRates=pMSM2->getVRates();
+
         for (unsigned int i = 0; i < nbcl; i++)
         {
           string par2 = parname + "_" + TextTools::toString(i + 1);
+          
           for (unsigned int j = 0; j < nummod; j++)
             pMSM2->setNProbability(j, 0);
 
@@ -469,7 +484,7 @@ int main(int args, char** argv)
           vvd.push_back(vd);
 
           ApplicationTools::displayMessage("\n");
-          ApplicationTools::displayMessage("Parameter " + par2 + ":");
+          ApplicationTools::displayMessage("Parameter " + par2 + "=" + TextTools::toString(dval[i]) + " with rate=" + TextTools::toString(vRates[i]));
 
           ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
           ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
