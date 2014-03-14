@@ -61,14 +61,14 @@ Common options encountered in several programs.
 * Alphabet::                    Alphabets and genetic codes.
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
-* AlphabetIndex::               Setting biochemical properties and distances.
+* AlphabetIndex::               Setting biochemical properties and distances. 
 * Model::                       Setting up a substitution model.
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
 * WritingTrees::                Writing trees to files. 
 
-Model specification
+Process specification
 
 * Declaration::                 Numerous declarations of models.
 * Non-homogeneity::             Specific declaration of non-homogeneous modelling.
@@ -148,9 +148,12 @@ or
 @{program@} param=option_file
 @end example
 @end cartouche
-where @{program@} is the name of the program to use (bppml, bppseqgen, etc.).
-Option files contain @command{parameter=value} lines, with only one parameter per line.
-They can be written from scratch using a regular text editor, but since these files can potentially turn to be quite complex, it is probably wiser to start with a sample provided along with the program (if any!).
+where @{program@} is the name of the program to use (bppml, bppseqgen,
+etc.). Option files contain @command{parameter=value} lines, with only
+one parameter per line. They can be written from scratch using a
+regular text editor, but since these files can potentially turn to be
+quite complex, it is probably wiser to start with a sample provided
+along with the program (if any!).
 
 Extra-space may be included between parameter names, equal sign and value:
 @cartouche
@@ -193,11 +196,15 @@ Command line and file options may be combined:
 @{program@} param=option_file parameterX=valueX
 @end example
 @end cartouche
-In case @command{parameterX} is specified in both option file and command line, the command line value will be used.
-This allows to run the programs several times by changing a single option, like the name of the data set for instance.
+In case @command{parameterX} is specified in both option file and
+command line, the command line value will be used. This allows to run
+the programs several times by changing a single option, like the name
+of the data set for instance.
 
-Option files can be nested, by using @command{param=nestedoptionfile} within an option file, as with the command line.
-It is possible to use this option as often as needed, this will load all the required option files.
+Option files can be nested, by using @command{param=nestedoptionfile}
+within an option file, as with the command line. It is possible to use
+this option as often as needed, this will load all the required option
+files.
 
 @section Different types of options
 
@@ -358,45 +365,61 @@ The sequence file to use. Depending on the program, these sequences have or do n
 The sequence file format.
 
 @end table
-Since Bio++ Program Suite version 0.4.0, the format description uses the keyval syntax.
-The format is a function, with optional parameters:
+Since Bio++ Program Suite version 0.4.0, the format description uses
+the keyval syntax. The format is a function, with optional parameters:
 
 @table @command
 
 @item Fasta(extended=@{bool@}, strictNames=@{bool@})
 The fasta format.
-The argument @command{extended}, default to 'no', allows to enable the HUPO-PSI extension of the format.
-The argument @command{strict_names}, default to 'no', specifies that only the first word in the fasta header is used as a sequence names, the rest of the header being considered as comments.
+The argument @command{extended}, default to 'no', allows to enable the
+HUPO-PSI extension of the format.
+The argument @command{strict_names}, default to 'no', specifies that
+only the first word in the fasta header is used as a sequence names,
+the rest of the header being considered as comments.
 
 @item Mase(siteSelection=@{chars@})
-The Mase format (as read by Seaview and Phylo_win for instance), with an optional site selection name.
+The Mase format (as read by Seaview and Phylo_win for instance), with
+an optional site selection name.
 
 @item Phylip(order=@{interleaved|sequential@}, type=@{classic|extended@}, split=@{spaces|tab@})
 The Phylip format, with several variations.
-The argument @command{order} distinguishes between sequential and interleaved format, while the option @command{type} distinguished between the plain old Phylip format and the more recent extension allowing for sequence names longer than 10 characters, as understood by PAML and PhyML.
-Finally, the @command{split} argument specifies the type of character that separates the sequence name from the sequence content.
-The conventional option is to use one (classic) or more (extended) spaces, but tabs can also be used instead.
+The argument @command{order} distinguishes between sequential and
+interleaved format, while the option @command{type} distinguished
+between the plain old Phylip format and the more recent extension
+allowing for sequence names longer than 10 characters, as understood
+by PAML and PhyML.
+Finally, the @command{split} argument specifies the type of character
+that separates the sequence name from the sequence content. The
+conventional option is to use one (classic) or more (extended) spaces,
+but tabs can also be used instead.
 
 @item Clustal(extraSpaces=@{int@})
-The Clustal format.
-In its basic set up, sequence names do not have space characters, and one space splits the sequence content from its name.
-The parser can however be configured to allow for spaces in the sequence names, providing a minimum number of space characters is used to split the content from the name.
-Setting @command{extraSpaces} to 5 for instance, the sequences are expected to be at least 6 spaces away for their names.
+The Clustal format. 
+In its basic set up, sequence names do not have space characters, and
+one space splits the sequence content from its name. The parser can
+however be configured to allow for spaces in the sequence names,
+providing a minimum number of space characters is used to split the
+content from the name. Setting @command{extraSpaces} to 5 for
+instance, the sequences are expected to be at least 6 spaces away for
+their names.
 
 @item Dcse()
-The DCSE alignment format. The secondary structure annotation will be ignored.
+The DCSE alignment format. The secondary structure annotation will be
+ignored.
 
 @item Nexus()
-The Nexus alignment format.
-Only very basic support is provided.
+The Nexus alignment format. Only very basic support is provided.
 
 @end table
 
-For programs that do not require the sequences to be aligned, the following formats are also available:
+For programs that do not require the sequences to be aligned, the
+following formats are also available:
 @table @command
 
 @item GenBank()
-Very basic support: only retrieves the sequence content for now, all features are ignored.
+Very basic support: only retrieves the sequence content for now, all
+features are ignored.
 
 @end table
 
@@ -447,17 +470,19 @@ The format of the input tree file.
 
 @end table
 
-In case the input tree does not specify node identifiers, some will be generated automatically.
-Nodes identifiers can be outputed using the following option:
+In case the input tree does not specify node identifiers, some will be
+generated automatically. Nodes identifiers can be outputed using the
+following option:
 @table @command
 @item output.tree_ids.file = @{@{path@}|none@}
 A tree file in newick format, with node ids instead of bootstrap
 values, and leaf names with their id as suffix.
 @end table
-In case it is supported by the program, the use of that option will cause the program to exit just after producing the tagged tree.
+In case it is supported by the program, the use of that option will
+cause the program to exit just after producing the tagged tree.
 
-Some programs may require that your file contains several trees.
-The corresponding options are then:
+Some programs may require that your file contains several trees. The
+corresponding options are then:
 
 @table @command
 @item input.trees.file = @{path@}
@@ -470,12 +495,13 @@ The format of the input tree file.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node AlphabetIndex, Model, Tree, Common
+@node AlphabetIndex, Process, Tree, Common
 @section Specifying biochemical properties and distances
 
-Some methods require an "alphabet index" to be specified.
-Alphabet indexes associate a value with each alphabet state (Index1, e.g. a biochemical property) or for a pair of states (Index2, e.g. a biochemical distance).
-This section describes the supported indexes:
+Some methods require an "alphabet index" to be specified. Alphabet
+indexes associate a value with each alphabet state (Index1, e.g. a
+biochemical property) or for a pair of states (Index2, e.g. a
+biochemical distance). This section describes the supported indexes:
 
 @subsection Index1
 
@@ -493,9 +519,11 @@ Chou and Fasmani score for secondary structure prediction.
 @item ChenGuHuangHydrophobicity @{AA@}
 Hydrophobicity according to Chen, Gu and Huang.
 @item SEALow, SEAMedium, SEAHigh @{AA@}
-Solvent Exposed Area, percent of amino acids having a SEA below 10, between 10 and 30, or higher than 30, respectively.
+Solvent Exposed Area, percent of amino acids having a SEA below 10,
+between 10 and 30, or higher than 30, respectively.
 @item User
-A user defined Index1, from a file in the AAIndex1 syntax. The input file is specified using the @command{file=@{path@}} argument.
+A user defined Index1, from a file in the AAIndex1 syntax. The input
+file is specified using the @command{file=@{path@}} argument.
 @command{file}
 
 @end table
@@ -509,21 +537,31 @@ If no index should be used.
 @item Blosum50 @{AA@}
 The BLOSUM 50 amino acid distance matrix.
 @item Grantham, Miyata @{AA@}
-Two biochemical distance matrices. Both accept an optional argument @command{symmetrical=@{boolean@}} allowing to specify if the matrix should be symmetric or not. If not, the distance measure will be signed.
+Two biochemical distance matrices. Both accept an optional argument
+@command{symmetrical=@{boolean@}} allowing to specify if the matrix
+should be symmetric or not. If not, the distance measure will be
+signed.
 @item Diff
-Allow to compute a distance matrix by taking the difference for, each pair of state, of an Index1 value.
-The Index1 to use is specified using the @command{index1=@{Index1 description@}} argument. An additional argument allow to specify whether the resulting matrix should be symetric (@command{symmetrical=@{boolean@}}):
-  if so, the absolute difference will be used. Alternatively, the distance will be signed and d[i,j] = - d[j,i].
+Allow to compute a distance matrix by taking the difference for, each
+pair of state, of an Index1 value. The Index1 to use is specified
+using the @command{index1=@{Index1 description@}} argument. An
+additional argument allow to specify whether the resulting matrix
+should be symetric (@command{symmetrical=@{boolean@}}): if so, the
+absolute difference will be used. Alternatively, the distance will be
+signed and d[i,j] = - d[j,i].
 @item User
-A user defined Index2, from a file in the AAIndex2 syntax. The input file is specified using the @command{file=@{path@}} argument.
-The @command{symmetrical=@{boolean@}} argument can be used to specify whether distances should be signed or not.
+A user defined Index2, from a file in the AAIndex2 syntax. The input
+file is specified using the @command{file=@{path@}} argument. The
+@command{symmetrical=@{boolean@}} argument can be used to specify
+whether distances should be signed or not.
 @end table
 
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Model, Distribution, AlphabetIndex, Common
-@section Model specification
+
+@node Process, Distribution, AlphabetIndex, Common
+@section Process specification
 
 @menu
 * Declaration::                 Numerous declarations of models.
@@ -537,17 +575,19 @@ The substitution model specification over the tree is set up in different parts.
 @item nonhomogeneous = @{no|one_per_branch|general@}
 Set the type of model. The @option{no} option is used for homogeneous
 models. The @option{one_per_branch} option is used as a short cut for
-setting branch models (for instance Galtier and Gouy 97 for branch GC content, or PAML branch model), and the
-@option{general} option for the more general case, including PAML clade models.
-In either of the last two cases, the model is potentially non-stationary, that is, possibly not at the equilibrium and hence
-includes the root frequencies as additional parameters. If the
-substitution model is not the same across the tree, then the model is
-also non-homogeneous.
+setting branch models (for instance Galtier and Gouy 97 for branch GC
+content, or PAML branch model), and the @option{general} option for
+the more general case, including PAML clade models. In either of the
+last two cases, the model is potentially non-stationary, that is,
+possibly not at the equilibrium and hence includes the root
+frequencies as additional parameters. If the substitution model is not
+the same across the tree, then the model is also non-homogeneous.
 @end table
 
-In combination with those models, one can also specify a distribution of site-specific rate.
+In combination with those models, one can also specify a distribution
+of site-specific rate.
 
-@node Declaration, Non-homogeneity, Model, Model
+@node Declaration, Non-homogeneity, Process, Process
 @subsection Setting up the substitution model
 
 @menu
@@ -1248,7 +1288,7 @@ is the insertion rate, while @var{mu} is the deletion rate. See the
 
 @end table
 
-@node Mixture, Linking, Meta, Declaration
+@node Mixture,  , Meta, Declaration
 @subsubsection Mixture of models
 
 @table @command
@@ -1334,21 +1374,9 @@ See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1MixtureOfSubstitutionModels.html#_details, Bio++ description}.
 
 
-@node Linking,  , Mixture, Declaration
-@subsubsection Linking parameters
-
-It is possible to reduce the parameter space by putting extra constraints on parameters, using for instance
-@example
-model=TN93(kappa1=1.0, kappa2=kappa1, theta=0.5)
-@end example
-In that particular case the resulting model is strictly equivalent to the HKY85 model. This syntax however allows to define a larger set of models.
 
 
-
-
-
-
-@node Non-homogeneity, FrequenciesSet, Declaration, Model
+@node Non-homogeneity, FrequenciesSet, Declaration, Process
 @subsection Setting up non-stationary / non-homogeneous models
 
 You can specify a wide range of non-homogeneous models, by combining different options.
@@ -1391,35 +1419,6 @@ The additional option is available to attach the model to branches in the tree, 
 @item model1.nodes_id = 1,5,10:15,19
 Specify the ids of the nodes to which the node is attached.
 Id ranges can be specified using the @option{begin:end} syntax.
-
-@end table
-
-You can also make a given model share parameters with another one by writing for instance:
-@example
-model2 = T92(theta=0.39, kappa=model1.T92.kappa)
-@end example
-Please note the syntax, parameters are referred to as [model name].[parameter name] in that case. Only parameter from identical models can be aliased in this manner.
-To link parameters from different models, you have to use the more general option (warning, currently beta feature!)
-
-@table @command
-
-@item nonhomogeneous.alias = @{list of aliases@}
-
-where each alias is described as `param1->param2'. The full name of the parameters have to be used, see for example:
-
-@example
-model1 = T92(theta=0.4, kappa=4)
-model2 = GTR(theta=0.4, a = 1.1, b=0.4, c=0.4, d=0.25, e=0.1)
-nonhomogeneous.alias=GTR.theta1->T92.theta1
-@end example
-
-This option can be used to link parameters of the root frequencies if the model is non-stationary:
-@example
-nonhomogeneous.root_freq=Full(init=balanced)
-nonhomogeneous.alias=Full.theta1->GTR.theta1_1
-@end example
-
-Note that this option is only available with the 'general' nonhomogeneous substitution models and will be ignored if used with "one_per_branch".
 
 @end table
 
@@ -1545,7 +1544,7 @@ The Frequencies set used can be any of the ones described below
 @xref{Frequencies sets}, depending on the alphabet used.
 
 
-@node FrequenciesSet, Rates, Non-homogeneity, Model
+@node FrequenciesSet, Rates, Non-homogeneity, Process
 @subsection Frequencies sets
 @anchor{Frequencies sets}
 
@@ -1668,10 +1667,8 @@ alphabetical order of states, and sum to one.
 
 @end table
 
-@node Rates,  , FrequenciesSet, Model
+@node Rates, Linking, FrequenciesSet, Process
 @subsection Rate across site distribution
-
-From version 0.4.0, BppSuite uses the keyval syntax for specifying the distributions of substitution rate across sites.
 
 @table @command
 
@@ -1698,8 +1695,58 @@ with a probability @var{p}.
 
 @end table
 
+@node Linking,  , Rates, Process
+@subsection Linking parameters
 
-@node Distribution, Estimation, Model, Common
+It is possible to reduce the parameter space by putting extra
+constraints on parameters, using for instance
+
+@example
+model=TN93(kappa1=1.0, kappa2=kappa1, theta=0.5)
+@end example
+
+In that particular case the resulting model is strictly equivalent to
+the HKY85 model. This syntax however allows to define a larger set of
+models.
+
+As long as their range match, parameters of several objects (models,
+root frequencies, rates, etc) can be linked.
+
+For instance:
+@example
+model1 = T92(theta=GC.theta, kappa=3)
+model2 = T92(theta=0.39, kappa=T92.kappa_1)
+
+nonhomogeneous.root_freq=GC
+@end example
+
+In the case of nonhomogeneous modelling, a specific syntax is available:
+@table @command
+
+@item nonhomogeneous.alias = @{list of aliases@}
+
+where each alias is described as `param1->param2'. The full name of the parameters have to be used, see for example:
+
+@example
+model1 = T92(theta=0.4, kappa=4)
+model2 = GTR(theta=0.4, a = 1.1, b=0.4, c=0.4, d=0.25, e=0.1)
+nonhomogeneous.alias=GTR.theta1->T92.theta1
+@end example
+
+This option can be used to link parameters of the root frequencies if the model is non-stationary:
+@example
+model1=GTR(theta1=0.7)
+nonhomogeneous.root_freq=Full(init=balanced)
+nonhomogeneous.alias=Full.theta1->GTR.theta1_1
+@end example
+
+Note that this option is only available with the 'general' nonhomogeneous substitution models and will be ignored if used with "one_per_branch".
+
+@end table
+
+
+
+@node Distribution, Estimation, Process, Common
 @section Discrete distributions
 @anchor{Discrete distributions}
 
