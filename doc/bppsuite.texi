@@ -570,7 +570,7 @@ whether distances should be signed or not.
 * Rates::                       Rates across sites
 @end menu
 
-The substitution model specification over the tree is set up in different parts.
+The substitution process specification over the tree is set up in different parts.
 @table @command
 @item nonhomogeneous = @{no|one_per_branch|general@}
 Set the type of model. The @option{no} option is used for homogeneous
@@ -587,7 +587,7 @@ the same across the tree, then the model is also non-homogeneous.
 In combination with those models, one can also specify a distribution
 of site-specific rate.
 
-@node Declaration, Non-homogeneity, Process, Process
+@node Model, Non-homogeneity, Process, Process
 @subsection Setting up the substitution model
 
 @menu
@@ -1376,7 +1376,7 @@ See the
 
 
 
-@node Non-homogeneity, FrequenciesSet, Declaration, Process
+@node Non-homogeneity, FrequenciesSet, Model, Process
 @subsection Setting up non-stationary / non-homogeneous models
 
 You can specify a wide range of non-homogeneous models, by combining different options.
@@ -1534,14 +1534,116 @@ equilibrium frequencies, with this option the root frequencies are set
 to be the average (with the respective probabilities of the submodels)
 of the equilibrium frequencies of the submodels.
 
-As since version 0.4.0, BppSuite uses the keyval syntax to set up root
-frequencies,
 @table @command
 @item nonhomogeneous.root_freq=@{frequency set description@}
 @end table
 
 The Frequencies set used can be any of the ones described below
 @xref{Frequencies sets}, depending on the alphabet used.
+
+
+@node  Collections, FrequenciesSet, Non-homogeneity, Process
+@subsection Collections
+
+Several processes (aka model specifications and trees) can be used
+together in a mixture -- aka site-like -- modelling.
+
+The declaration of objects is made as is general non-homogeneous
+models, but the objects can be models, root frequencies, substitution
+rates, and are numbered.
+ 
+Several trees can be defined in the input file, and they are numbered
+(beginning at 1) in the same order as in the file.
+
+
+Given these definitions, a process is defined on a tree, given a
+model, a substitution rate, a model and optionaly root frequencies. If
+the root frequencies are not given, the process is considered
+stationary. This process can be homogeneous (denoted Homogeneous) or
+not (denoted NonHomogeneous).
+
+@table @command
+@item process@{number@}=@{description@}(@{list of elements@})
+@end table
+
+Rate distributions can be discretized distributions (see
+@pxref{Distribution}), and the rate of a process can be one the rates
+defined by this distribution. In this case, the rate is denoted 
+
+
+@example
+model1=YN98(frequencies=F3X4)
+model2=YNGKP_M1(omega=YN98.omega_1,frequencies=F1X4)
+
+rate_distribution1 = Gamma(n=4)
+
+root_freq1=F1X4
+
+## Non-stationary Homogeneous process on the first tree
+
+process1=Homogeneous(model=1,tree=1,rate=1,root_freq=1)
+
+
+## Stationary Non-homogeneous process on the second tree, defined by 
+## two models, in which the rate is the second discrete value of the
+## discretized gamma distribution.
+
+
+process2=NonHomogeneous(model1=1,model1.nodes_id=(1:4,6:9),model2=2,model2.nodes_id=5,tree=2,rate=1.2)
+
+@end example
+
+
+Given a set of process, a collection defines how these processes are
+organized, it is called as:
+
+
+@table @command
+collection=@{collection definition}
+@end table
+
+Collection can be either defined as
+
+@table @command
+@item Mixture([probas=(@{vector of process probabilities@})])
+Each process has its own a priori probability; all probabilities can
+be given as a vector (must sum one). The likelihood on a site is
+independent of other sites, and is the average value of the
+likelihoods of all processes, given their a priori probabilities.
+
+@item AutoCorr([probas=(@{vector of autocorrelation probabilities})])
+
+Along the sequence, the processes are autocorrelated, which makes the
+whole process (along sites and time) an Hidden Markov Model, where the
+transition probilities from a specific process to the other ones are
+equal. The likelihood on a site is computed using the forward
+algorithm of HMM modelling. The within process transition
+probabilities can be given as a vector.
+
+@item HMM([probas=(@{vector of (@{vector of process transition probabilities@})@})])
+
+The probabilities of the processes on the sites are dependent in a
+markovian way, which makes the whole process (along sites and time) an
+Hidden Markov Model. The likelihood on a site is computed using the
+forward algorithm of HMM modelling. The transition probabilities can
+be given as a vector of lines of the transition matrix, each being
+given as a vector.
+
+
+@end table
+
+Parameters can be linked between objects in the usual way (see
+@pxref{Linking}), or using @command{collection.alias}, for example to
+linked branch lengths.
+
+
+@example
+
+collection=AutoCorr()
+
+## alias between branch lengths
+collection.alias= BrLen3_2-> BrLen0_1, BrLen3_2-> BrLen1_1
+@end example
 
 
 @node FrequenciesSet, Rates, Non-homogeneity, Process
@@ -1560,8 +1662,11 @@ estimated.
 For nucleotides only, set the G content equal to the C content.
 
 @item Full(theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., thetaN=@{real]0,1[@})
-Full parametrization. Contains N free parameters, where N is equal to the size of the alphabet - 1. For codon models, N is the size of the alphabet - 1 - the number of stop codons, whose frequencies are set to 0.
-For nucleotide sequences, theta is the GC content, theta1 is the proportion of A over A+T, and theta2 is the proportion of G over G+C.
+Full parametrization. Contains N free parameters, where N is equal to
+the size of the alphabet - 1. For codon models, N is the size of the
+alphabet - 1 - the number of stop codons, whose frequencies are set to
+0. For nucleotide sequences, theta is the GC content, theta1 is the
+proportion of A over A+T, and theta2 is the proportion of G over G+C.
 
 @item Word(frequency=@{frequency set description@})
 
@@ -1570,9 +1675,9 @@ or
 @item Word(frequency1=@{frequency set description@}, frequency2=@{frequency set description@}, ..., frequencyn=@{frequency set description@})
 
 frequencies on words computed as the product of frequencies on the
-letters. The arguments @var{frequency} and @var{frequency@{i@}} are for
-descriptions of frequency sets on single sites such as nucleotides or
-proteins. The alphabet must be a Word alphabet.
+letters. The arguments @var{frequency} and @var{frequency@{i@}} are
+for descriptions of frequency sets on single sites such as nucleotides
+or proteins. The alphabet must be a Word alphabet.
 
 If the argument is @var{frequency}, the number of multiplied single
 site frequencies is the length of the words in the alphabet, and the
@@ -1694,6 +1799,11 @@ A composite distribution allowing a special class of invariant site,
 with a probability @var{p}.
 
 @end table
+
+@node Collection, Linking, Rates, Process
+@subsection Collection specification
+
+Several 
 
 @node Linking,  , Rates, Process
 @subsection Linking parameters
