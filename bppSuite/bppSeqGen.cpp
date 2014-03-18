@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+// From bpp-core:
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
@@ -52,13 +53,13 @@ using namespace std;
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
-// From PhylLib:
+// From bpp-phyl:
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Simulation.all>
@@ -129,10 +130,10 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*            Bio++ Sequence Generator, version 1.2.0             *" << endl;
+  cout << "*            Bio++ Sequence Generator, version 1.3.0             *" << endl;
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                                            *" << endl;
-  cout << "*          B. Boussau                       Last Modif. 29/01/13 *" << endl;
+  cout << "*          B. Boussau                       Last Modif. 19/03/14 *" << endl;
   cout << "*          L. Guéguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
@@ -274,21 +275,60 @@ int main(int args, char ** argv)
   {
     ifstream in(infosFile.c_str());
     DataTable* infos = DataTable::read(in, "\t");
-    rDist = new ConstantRateDistribution();
     size_t nbSites = infos->getNumberOfRows();
     ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
-    vector<double> rates(nbSites);
-    vector<string> ratesStrings = infos->getColumn(string("pr"));
-    for (size_t i = 0; i < nbSites; i++)
+    string rateCol = ApplicationTools::getStringParameter("input.infos.rates", bppseqgen.getParams(), "pr", "", true, true);
+    string stateCol = ApplicationTools::getStringParameter("input.infos.states", bppseqgen.getParams(), "none", "", true, true);
+    bool withRates = rateCol != "none";
+    bool withStates = stateCol != "none";
+    vector<double> rates;
+    vector<int> states;
+    if (withRates)
     {
-      rates[i] = TextTools::toDouble(ratesStrings[i]);
+      rDist = new ConstantRateDistribution();
+      rates.resize(nbSites);
+      vector<string> ratesStrings = infos->getColumn(rateCol);
+      for (size_t i = 0; i < nbSites; i++)
+      {
+        rates[i] = TextTools::toDouble(ratesStrings[i]);
+      }
+    }
+    else
+    {
+      if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
+      {
+        //Markov-modulated Markov model!
+        rDist = new ConstantRateDistribution();
+      }
+      else
+      {
+        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
+      }
+    }
+    if (withStates)
+    {
+      vector<string> ancestralStates = infos->getColumn(stateCol);
+      for (size_t i = 0; i < nbSites; i++)
+      {
+        states[i] = alphabet->charToInt(ancestralStates[i]);
+      }
     }
 
     if (trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
       ApplicationTools::displayTask("Perform simulations");
-      sites = SequenceSimulationTools::simulateSites(*seqsim, rates);
+      if (withRates)
+        if (withStates)
+          sites = SequenceSimulationTools::simulateSites(*seqsim, rates, states);
+        else
+          sites = SequenceSimulationTools::simulateSites(*seqsim, rates);
+      else
+        if (withStates)
+          sites = SequenceSimulationTools::simulateSites(*seqsim, states);
+        else
+          throw Exception("Error! Info file should contain either site specific rates of ancestral states or both.");
+
       delete seqsim;    
     }
     else
@@ -298,18 +338,46 @@ int main(int args, char ** argv)
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
       unsigned int previousPos = 0;
       unsigned int currentPos = static_cast<unsigned int>(round(positions[1]*static_cast<double>(nbSites)));
-      vector<double> tmpRates(rates.begin() + previousPos, rates.begin() + currentPos);
-      SequenceContainer* tmpCont1 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates);
+      vector<double> tmpRates;
+      if (withRates)
+        tmpRates = vector<double>(rates.begin() + previousPos, rates.begin() + currentPos);
+      vector<int> tmpStates;
+      if (withStates)
+        tmpStates = vector<int>(states.begin() + previousPos, states.begin() + currentPos);
+      SequenceContainer* tmpCont1 = 0;
+      if (withRates)
+        if (withStates)
+          tmpCont1 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates, tmpStates);
+        else
+          tmpCont1 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates);
+      else
+        if (withStates)
+          tmpCont1 = SequenceSimulationTools::simulateSites(*seqsim, tmpStates);
+        else
+          throw Exception("Error! Info file should contain either site specific rates of ancestral states or both.");
       previousPos = currentPos;
       delete seqsim;
 
-      for(unsigned int i = 1; i < trees.size(); i++)
+      for(size_t i = 1; i < trees.size(); i++)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
         currentPos = static_cast<unsigned int>(round(positions[i+1]) * static_cast<double>(nbSites));
-        tmpRates = vector<double>(rates.begin() + previousPos + 1, rates.begin() + currentPos);
-        SequenceContainer* tmpCont2 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates);
+        if (withRates)
+          tmpRates = vector<double>(rates.begin() + previousPos + 1, rates.begin() + currentPos);
+        if (withStates)
+          tmpStates = vector<int>(states.begin() + previousPos + 1, states.begin() + currentPos);
+        SequenceContainer* tmpCont2 = 0;
+        if (withRates)
+          if (withStates)
+            tmpCont2 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates, tmpStates);
+          else     
+            tmpCont2 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates);
+        else
+          if (withStates)
+            tmpCont2 = SequenceSimulationTools::simulateSites(*seqsim, tmpStates);
+          else
+            throw Exception("Error! Info file should contain either site specific rates of ancestral states or both.");
         previousPos = currentPos;
         delete seqsim;
         VectorSequenceContainer* mergedCont = new VectorSequenceContainer(alphabet);
@@ -350,12 +418,12 @@ int main(int args, char ** argv)
       ApplicationTools::displayGauge(0, trees.size() - 1, '=');
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
       size_t previousPos = 0;
-      size_t currentPos = static_cast<unsigned int>(round(positions[1]*static_cast<double>(nbSites)));
+      size_t currentPos = static_cast<unsigned int>(round(positions[1] * static_cast<double>(nbSites)));
       SequenceContainer* tmpCont1 = seqsim->simulate(currentPos - previousPos);
       previousPos = currentPos;
       delete seqsim;
  
-      for (unsigned int i = 1; i < trees.size(); i++)
+      for (size_t i = 1; i < trees.size(); i++)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
@@ -379,7 +447,7 @@ int main(int args, char ** argv)
   SequenceApplicationTools::writeAlignmentFile(*sites, bppseqgen.getParams());
 
   delete alphabet;
-  for (unsigned int i = 0; i < trees.size(); i++)
+  for (size_t i = 0; i < trees.size(); i++)
     delete trees[i];
   delete rDist;
 
