@@ -310,6 +310,7 @@ int main(int args, char ** argv)
     if (withStates)
     {
       vector<string> ancestralStates = infos->getColumn(stateCol);
+      states.resize(nbSites);
       for (size_t i = 0; i < nbSites; i++)
       {
         states[i] = alphabet->charToInt(ancestralStates[i]);
