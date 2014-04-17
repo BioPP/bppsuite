@@ -100,12 +100,6 @@ int main(int args, char** argv)
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqman.getParams(), "", false, true, true);
   auto_ptr<GeneticCode> gCode;
   CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
-  if (codonAlphabet) {
-    string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
-    ApplicationTools::displayResult("Genetic Code", codeDesc);
-      
-    gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
-  }
 
   // Get sequences:
   SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);
@@ -213,16 +207,20 @@ int main(int args, char** argv)
     {
       if (!AlphabetTools::isCodonAlphabet(sequences->getAlphabet()))
         throw Exception("Error in translation: alphabet is not of type 'codon'.");
-      GeneticCode* gc = NULL;
-      string gcstr = ApplicationTools::getStringParameter("code", cmdArgs, "Standard");
-      gc = SequenceApplicationTools::getGeneticCode(dynamic_cast<const CodonAlphabet*>(sequences->getAlphabet())->getNucleicAlphabet(), gcstr);
+      if (cmdArgs["code"] != "")
+        throw Exception("ERROR: 'code' argument is deprecated. The genetic code to use for translation is now set by the top-level argument 'genetic_code'.");
+      if (!gCode.get()) {
+        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+        ApplicationTools::displayResult("Genetic Code", codeDesc);
+        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+      }
 
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(&AlphabetTools::PROTEIN_ALPHABET);
       else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET));
-      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
       {
-        Sequence* seq = gc->translate(sequences->getSequence(i));
+        Sequence* seq = gCode->translate(sequences->getSequence(i));
         sc->addSequence(*seq, false);
         delete seq;
       }
@@ -287,6 +285,11 @@ int main(int args, char** argv)
     // +--------------+
     else if (cmdName == "RemoveStops")
     {
+      if (!gCode.get()) {
+        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+        ApplicationTools::displayResult("Genetic Code", codeDesc);
+        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+      }
       SiteContainer* sites = dynamic_cast<SiteContainer*>(sequences);
       if (!sites)
       {
@@ -322,6 +325,11 @@ int main(int args, char** argv)
       {
         throw Exception("'RemoveColumnsWithStop' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
+      if (!gCode.get()) {
+        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+        ApplicationTools::displayResult("Genetic Code", codeDesc);
+        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+      }
 
       for (size_t i = sites->getNumberOfSites(); i > 0; i--)
       {
@@ -335,10 +343,15 @@ int main(int args, char** argv)
     // +---------+
     else if (cmdName == "GetCDS")
     {
+      if (!gCode.get()) {
+        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+        ApplicationTools::displayResult("Genetic Code", codeDesc);
+        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+      }
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
       else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
-      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
       {
         BasicSequence seq = sequences->getSequence(i);
         size_t len = seq.size();
