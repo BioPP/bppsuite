@@ -2452,16 +2452,10 @@ Convert to the complementary sequence, switching the type of alphabet (DNA<->RNA
 @item Switch [[alphabet = DNA or RNA]]
 Change the alphabet type (DNA<->RNA).
 
-@item Translate(code = @{genetic code@}) [[alphabet = DNA or RNA]]
-Convert to proteins. You have to specify a genetic code, see specific options.
-@option{code}: The genetic code to use for the translation, one of
-@itemize
-@item EchinodermMitochondrialGeneticCode
-@item InvertebrateMitochondrialGeneticCode
-@item StandardGeneticCode
-@item VertebrateMitochondrialGeneticCode
-@item YeastMitochondrialGeneticCode
-@end itemize
+@item Translate [[alphabet = DNA or RNA]]
+Convert to proteins.
+The genetic code used for translation is set via the genetic_code option.
+Genetic code is set once for all sequences.
 
 @item Invert
 Invert the sequence 5' <-> 3' or N <-> C
@@ -2477,9 +2471,13 @@ Change (partially) unresolved characters to gaps.
 
 @item RemoveStops
 Remove all stop codons in sequences. If sequences are aligned, stop codons will be replaced by gaps.
+The genetic code used for translation is set via the genetic_code option.
+Genetic code is set once for all sequences.
 
 @item RemoveColumnsWithStops
 Remove all sites with at least one stop codon.
+The genetic code used for translation is set via the genetic_code option.
+Genetic code is set once for all sequences.
 
 @item GetCDS
 Remove the first stop codon and everything after in codon sequences.
