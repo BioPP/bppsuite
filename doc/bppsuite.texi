@@ -62,7 +62,7 @@ Common options encountered in several programs.
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
-* Model::                       Setting up a substitution model.
+* Process::
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
@@ -70,10 +70,13 @@ Common options encountered in several programs.
 
 Process specification
 
-* Declaration::                 Numerous declarations of models.
+* Model::
 * Non-homogeneity::             Specific declaration of non-homogeneous modelling.
+* Collections::
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
+* Collection::
+* Linking::
 
 Setting up the substitution model
 
@@ -84,7 +87,6 @@ Setting up the substitution model
 * Multiple::                    General multiple site models
 * Meta::                        Meta models
 * Mixture::                     Mixture of models
-* Linking::                     Linking parameters
 
 Bio++ Program Suite Reference
 
@@ -315,7 +317,7 @@ data=LSU
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
-* Model::                       Setting up a substitution model.
+* Process::
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
@@ -564,15 +566,27 @@ whether distances should be signed or not.
 @section Process specification
 
 @menu
-* Declaration::                 Numerous declarations of models.
+* Model::
 * Non-homogeneity::             Specific declaration of non-homogeneous modelling.
+* Collections::
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
+* Collection::
+* Linking::
 @end menu
 
+@c @node Declaration, Model, Process, Process
+@c @subsection Declaration of process
+
+@c @node Non-homogeneity, Model, Declaration, Process
+@c @subsection Setting the heterogeneity
+
 The substitution process specification over the tree is set up in different parts.
+
 @table @command
 @item nonhomogeneous = @{no|one_per_branch|general@}
+@end table
+
 Set the type of model. The @option{no} option is used for homogeneous
 models. The @option{one_per_branch} option is used as a short cut for
 setting branch models (for instance Galtier and Gouy 97 for branch GC
@@ -582,7 +596,6 @@ last two cases, the model is potentially non-stationary, that is,
 possibly not at the equilibrium and hence includes the root
 frequencies as additional parameters. If the substitution model is not
 the same across the tree, then the model is also non-homogeneous.
-@end table
 
 In combination with those models, one can also specify a distribution
 of site-specific rate.
@@ -598,7 +611,6 @@ of site-specific rate.
 * Multiple::                    General multiple site models
 * Meta::                        Meta models
 * Mixture::                     Mixture of models
-* Linking::                     Linking parameters
 @end menu
 
 @table @command
@@ -638,7 +650,7 @@ the frequencies are computed from observed data.
 
 @end table
 
-@node Nucleotide, Protein, Declaration, Declaration
+@node Nucleotide, Protein, Model, Model
 @subsubsection Nucleotide models
 
 @table @command
@@ -696,7 +708,7 @@ The strand-symmetric model of Lobry 1995, for nucleotides. See the
 
 @end table
 
-@node Protein, Miscellaneous, Nucleotide, Declaration
+@node Protein, Miscellaneous, Nucleotide, Model
 @subsubsection Protein models
 
 @table @command
@@ -796,7 +808,7 @@ namespace, including for frequencies.
 
 @end table
 
-@node Miscellaneous, Codon, Protein, Declaration
+@node Miscellaneous, Codon, Protein, Model
 @subsubsection Miscellaneous models
 
 @table @command
@@ -809,7 +821,7 @@ proportion of 1 over 0 in the equilibrium distribution. Default:
 
 @end table
 
-@node Codon, Multiple, Miscellaneous, Declaration
+@node Codon, Multiple, Miscellaneous, Model
 @subsubsection Codon models
 
 Standard codon models: the global @var{genetic_code} argument
@@ -1140,7 +1152,7 @@ See the
 @end table
 
 
-@node Multiple, Meta, Codon, Declaration
+@node Multiple, Meta, Codon, Model
 @subsubsection General multiple site models
 
 @table @command
@@ -1257,7 +1269,7 @@ neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
 
 @end table
 
-@node Meta, Mixture, Multiple, Declaration
+@node Meta, Mixture, Multiple, Model
 @subsubsection Meta models
 
 These substitution models take as argument another substitution model, and add several parameters.
@@ -1288,7 +1300,7 @@ is the insertion rate, while @var{mu} is the deletion rate. See the
 
 @end table
 
-@node Mixture,  , Meta, Declaration
+@node Mixture,  , Meta, Model
 @subsubsection Mixture of models
 
 @table @command
@@ -1376,7 +1388,7 @@ See the
 
 
 
-@node Non-homogeneity, FrequenciesSet, Model, Process
+@node Non-homogeneity, Collections, Model, Process
 @subsection Setting up non-stationary / non-homogeneous models
 
 You can specify a wide range of non-homogeneous models, by combining different options.
@@ -1599,7 +1611,7 @@ organized, it is called as:
 
 
 @table @command
-collection=@{collection definition}
+@item collection=@{collection definition@}
 @end table
 
 Collection can be either defined as
@@ -1611,7 +1623,7 @@ be given as a vector (must sum one). The likelihood on a site is
 independent of other sites, and is the average value of the
 likelihoods of all processes, given their a priori probabilities.
 
-@item AutoCorr([probas=(@{vector of autocorrelation probabilities})])
+@item AutoCorr([probas=(@{vector of autocorrelation probabilities@})])
 
 Along the sequence, the processes are autocorrelated, which makes the
 whole process (along sites and time) an Hidden Markov Model, where the
@@ -1646,7 +1658,7 @@ collection.alias= BrLen3_2-> BrLen0_1, BrLen3_2-> BrLen1_1
 @end example
 
 
-@node FrequenciesSet, Rates, Non-homogeneity, Process
+@node FrequenciesSet, Rates, Collections, Process
 @subsection Frequencies sets
 @anchor{Frequencies sets}
 
@@ -1772,7 +1784,7 @@ alphabetical order of states, and sum to one.
 
 @end table
 
-@node Rates, Linking, FrequenciesSet, Process
+@node Rates, Collection, FrequenciesSet, Process
 @subsection Rate across site distribution
 
 @table @command
@@ -1805,7 +1817,7 @@ with a probability @var{p}.
 
 Several 
 
-@node Linking,  , Rates, Process
+@node Linking,  , Collection, Process
 @subsection Linking parameters
 
 It is possible to reduce the parameter space by putting extra
