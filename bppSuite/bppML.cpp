@@ -130,6 +130,8 @@ int main(int args, char** argv)
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppml.getParams(), "Standard", "", true, true);
+      ApplicationTools::displayResult("Genetic Code", codeDesc);
+      
       gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
     }
 

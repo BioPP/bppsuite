@@ -62,7 +62,7 @@ Common options encountered in several programs.
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
-* Process::
+* Process::                     
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
@@ -70,7 +70,7 @@ Common options encountered in several programs.
 
 Process specification
 
-* Model::
+* Model::                       
 * Non-homogeneity::             Specific declaration of non-homogeneous modelling.
 * Collections::
 * FrequenciesSet::              Frequencies 
@@ -317,7 +317,7 @@ data=LSU
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
-* Process::
+* Process::                     
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
@@ -365,6 +365,14 @@ The sequence file to use. Depending on the program, these sequences have or do n
 
 @item input.sequence.format = @{sequence format description@}
 The sequence file format.
+
+@item input.site.selection = @{list of integers@}
+Will only consider sites in the given list of positions, in extended
+format : positions separated with ",", and "i-j" for all positions
+between i and j, included.
+
+@item input.site.selection = @{Sample(n=@{integer@} [, replace=@{true@}])@}
+Will consider @{n@} random sites, with optional replacement.
 
 @end table
 Since Bio++ Program Suite version 0.4.0, the format description uses
@@ -2353,7 +2361,8 @@ then the sequence with unknown characters will be used.
 Alignment information log file (site specific rates, probabilities, etc).
 
 @item output.nodes.file = @{@{path@}|none@}
-Ancestral nodes information: expected frequencies of ancestral states.
+Ancestral nodes information: expected frequencies (prefix exp) (see Galtier & Gouy
+1998) and a posteriori probabilities of ancestral states (prefix eb).
 
 @item output.nodes.add_extant = @{boolean@}
 Tell if leaf nodes should be added to the output file.
@@ -2566,16 +2575,10 @@ Convert to the complementary sequence, switching the type of alphabet (DNA<->RNA
 @item Switch [[alphabet = DNA or RNA]]
 Change the alphabet type (DNA<->RNA).
 
-@item Translate(code = @{genetic code@}) [[alphabet = DNA or RNA]]
-Convert to proteins. You have to specify a genetic code, see specific options.
-@option{code}: The genetic code to use for the translation, one of
-@itemize
-@item EchinodermMitochondrialGeneticCode
-@item InvertebrateMitochondrialGeneticCode
-@item StandardGeneticCode
-@item VertebrateMitochondrialGeneticCode
-@item YeastMitochondrialGeneticCode
-@end itemize
+@item Translate [[alphabet = DNA or RNA]]
+Convert to proteins.
+The genetic code used for translation is set via the genetic_code option.
+Genetic code is set once for all sequences.
 
 @item Invert
 Invert the sequence 5' <-> 3' or N <-> C
@@ -2591,9 +2594,13 @@ Change (partially) unresolved characters to gaps.
 
 @item RemoveStops
 Remove all stop codons in sequences. If sequences are aligned, stop codons will be replaced by gaps.
+The genetic code used for translation is set via the genetic_code option.
+Genetic code is set once for all sequences.
 
 @item RemoveColumnsWithStops
 Remove all sites with at least one stop codon.
+The genetic code used for translation is set via the genetic_code option.
+Genetic code is set once for all sequences.
 
 @item GetCDS
 Remove the first stop codon and everything after in codon sequences.
