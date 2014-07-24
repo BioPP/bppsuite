@@ -2239,7 +2239,8 @@ then the sequence with unknown characters will be used.
 Alignment information log file (site specific rates, probabilities, etc).
 
 @item output.nodes.file = @{@{path@}|none@}
-Ancestral nodes information: expected frequencies of ancestral states.
+Ancestral nodes information: expected frequencies (prefix exp) (see Galtier & Gouy
+1998) and a posteriori probabilities of ancestral states (prefix eb).
 
 @item output.nodes.add_extant = @{boolean@}
 Tell if leaf nodes should be added to the output file.
