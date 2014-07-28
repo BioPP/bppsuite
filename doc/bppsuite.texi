@@ -2201,6 +2201,24 @@ The number of site positions to simulate.
 A info file like the one output by bppML.
 The estimated site-specific rates will then be used to simulate the same number of sites as found in the info file, with the corresponding rates.
 
+In this case, additional options are possible:
+
+@table @command
+
+@item input.infos.rates = @{string@}
+Name of the column on which the rates are described (default: pr).
+
+@item input.infos.states = @{string@}
+Name of the column on which the states are read (default: none, which
+means a random sequence).
+
+@item input.site.selection = @{Sample(n=@{integer@} [, replace=@{true@}])@}
+Will consider @{n@} random sites from the sequence, with optional
+replacement.
+
+@end table
+
+
 @end table
  
 @c ------------------------------------------------------------------------------------------------------------------
