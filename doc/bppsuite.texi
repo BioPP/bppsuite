@@ -1732,7 +1732,9 @@ nonhomogeneous.root_freq=GC
 
 In the case of nonhomogeneous modelling, a specific syntax is available:
 
-@command nonhomogeneous.alias = @{list of aliases@}
+@example
+nonhomogeneous.alias = @{list of aliases@}
+@end example
 
 where each alias is described as `param1->param2'. The full name of the parameters have to be used, see for example:
 
