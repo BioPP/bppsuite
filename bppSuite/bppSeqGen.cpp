@@ -382,22 +382,28 @@ int main(int args, char ** argv)
   }
   else
   {
-    VectorSiteContainer* allSeq = 0;
-    allSeq = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
-
-    if (allSeq->getNumberOfSequences()>0)
-    {  
-      Sequence* pseq=SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
+    try{
+      VectorSiteContainer* allSeq = 0;
+      allSeq = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
       
-      nbSites=pseq->size();
-      states.resize(nbSites);
-      withStates = true;
-      
-      states = pseq->getContent();
-      ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
-
-      delete pseq;
+      if (allSeq->getNumberOfSequences()>0)
+      {  
+        Sequence* pseq=SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
+        
+        nbSites=pseq->size();
+        states.resize(nbSites);
+        withStates = true;
+        
+        states = pseq->getContent();
+        ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
+        
+        delete pseq;
+      }
     }
+    catch (Exception& e)
+    {
+    }
+      
   }
 
   if (rDist==0)
@@ -416,7 +422,7 @@ int main(int args, char ** argv)
 
   if (nbSites==0)
     nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
-
+  
   /*******************/
   /* Simulations     */
   /*******************/
