@@ -208,7 +208,7 @@ int main(int args, char ** argv)
       //Remove sequence in list:
       size_t pos = VectorTools::which(seqNames, dist->getName(rm));
       ApplicationTools::displayResult("Remove sequence", seqNames[pos]);
-      seqNames.erase(seqNames.begin() + pos); 
+      seqNames.erase(seqNames.begin() + static_cast<ptrdiff_t>(pos)); 
         
       //Ignore all distances from this sequence:
       remove_if(distances.begin(), distances.end(), Test(rm));
@@ -241,7 +241,7 @@ int main(int args, char ** argv)
       //Remove sequence in list:
       size_t pos = VectorTools::which(seqNames, dist->getName(rm));
       ApplicationTools::displayResult("Remove sequence", seqNames[pos]);
-      seqNames.erase(seqNames.begin() + pos); 
+      seqNames.erase(seqNames.begin() + static_cast<ptrdiff_t>(pos)); 
         
       //Ignore all distances from this sequence:
       remove_if(distances.begin(), distances.end(), Test(rm));

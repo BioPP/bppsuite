@@ -1,3 +1,6 @@
+12/08/14 Julien Dutheil
+* bppSeqGen supports simulation under Markov-Modulated models.
+
 17/04/14 Julien Dutheil
 * bppSeqMan: Translate uses global genetic_code argument instead of local 'code' argument.
 * All programs use the --seed argument to set random seed for reproduceable results.

@@ -52,6 +52,7 @@ using namespace std;
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/App/NumCalcApplicationTools.h>
 
@@ -137,7 +138,7 @@ int main(int args, char ** argv)
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                                            *" << endl;
   cout << "*          B. Boussau                       Last Modif. 19/03/14 *" << endl;
-  cout << "*          L. Guéguen                                            *" << endl;
+  cout << "*          L. Gueguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
@@ -282,7 +283,6 @@ int main(int args, char ** argv)
   if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
     throw Exception("Non-homogeneous mixed substitution sequence generation not implemented, sorry!");
 
-
   /*******************************************/
   /*     Starting sequence                   */
   /*******************************************/
@@ -290,13 +290,13 @@ int main(int args, char ** argv)
   DiscreteDistribution* rDist = 0;
   NonHomogeneousSequenceSimulator* seqsim = 0;
   SiteContainer* sites = 0;
-  size_t nbSites=0;
+  size_t nbSites = 0;
 
   string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
 
   bool withStates = false;
   bool withRates = false;
-  vector<int> states;
+  vector<size_t> states;
   vector<double> rates;
   
   if (infosFile != "none")
@@ -327,7 +327,7 @@ int main(int args, char ** argv)
       states.resize(nbSites);
       for (size_t i = 0; i < nbSites; i++)
       {
-        states[i] = alphabet->charToInt(ancestralStates[i]);
+        states[i] = RandomTools::pickOne<size_t>(modelSet->getModelStates(alphabet->charToInt(ancestralStates[i])));
       }
 
       string siteSet = ApplicationTools::getStringParameter("input.site.selection", bppseqgen.getParams(), "none", "", true, 1);
@@ -364,37 +364,39 @@ int main(int args, char ** argv)
           }
         }
         
-        nbSites=vSite.size();
+        nbSites = vSite.size();
 
-        vector<int> newStates(nbSites);
+        vector<size_t> newStates(nbSites);
         vector<double> newRates(nbSites);
 
-        for  (size_t ni=0; ni< nbSites; ni++)
+        for (size_t ni = 0; ni < nbSites; ++ni)
         {
-          newStates[ni]=states[vSite[ni]];
-          newRates[ni]=rates[vSite[ni]];
+          newStates[ni] = states[vSite[ni]];
+          newRates[ni]  = rates[vSite[ni]];
         }
 
-        states=newStates;
-        rates=newRates;
+        states = newStates;
+        rates = newRates;
       }
     }
   }
   else
   {
-    try{
+    try {
       VectorSiteContainer* allSeq = 0;
       allSeq = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
       
-      if (allSeq->getNumberOfSequences()>0)
+      if (allSeq->getNumberOfSequences() > 0)
       {  
-        Sequence* pseq=SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
+        Sequence* pseq = SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
         
-        nbSites=pseq->size();
+        nbSites = pseq->size();
         states.resize(nbSites);
         withStates = true;
         
-        states = pseq->getContent();
+	for (size_t i = 0; i < nbSites; ++i) {
+          states[i] = RandomTools::pickOne(modelSet->getModelStates((*pseq)[i]));
+        }
         ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
         
         delete pseq;
@@ -406,7 +408,7 @@ int main(int args, char ** argv)
       
   }
 
-  if (rDist==0)
+  if (rDist == 0)
   {
     if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
     {
@@ -452,14 +454,14 @@ int main(int args, char ** argv)
       ApplicationTools::displayTask("Perform simulations", true);
       ApplicationTools::displayGauge(0, trees.size() - 1, '=');
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
-      unsigned int previousPos = 0;
-      unsigned int currentPos = static_cast<unsigned int>(round(positions[1]*static_cast<double>(nbSites)));
+      ptrdiff_t previousPos = 0;
+      ptrdiff_t currentPos = static_cast<ptrdiff_t>(round(positions[1]*static_cast<double>(nbSites)));
       vector<double> tmpRates;
       if (withRates)
         tmpRates = vector<double>(rates.begin() + previousPos, rates.begin() + currentPos);
-      vector<int> tmpStates;
+      vector<size_t> tmpStates;
       if (withStates)
-        tmpStates = vector<int>(states.begin() + previousPos, states.begin() + currentPos);
+        tmpStates = vector<size_t>(states.begin() + previousPos, states.begin() + currentPos);
       SequenceContainer* tmpCont1 = 0;
       if (withRates)
         if (withStates)
@@ -478,11 +480,11 @@ int main(int args, char ** argv)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
-        currentPos = static_cast<unsigned int>(round(positions[i+1]) * static_cast<double>(nbSites));
+        currentPos = static_cast<ptrdiff_t>(round(positions[i+1]) * static_cast<double>(nbSites));
         if (withRates)
           tmpRates = vector<double>(rates.begin() + previousPos + 1, rates.begin() + currentPos);
         if (withStates)
-          tmpStates = vector<int>(states.begin() + previousPos + 1, states.begin() + currentPos);
+          tmpStates = vector<size_t>(states.begin() + previousPos + 1, states.begin() + currentPos);
         SequenceContainer* tmpCont2 = 0;
         if (withRates)
           if (withStates)
@@ -497,7 +499,7 @@ int main(int args, char ** argv)
         previousPos = currentPos;
         delete seqsim;
         VectorSequenceContainer* mergedCont = new VectorSequenceContainer(alphabet);
-        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *reinterpret_cast<SequenceContainer*>(mergedCont));
+        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *mergedCont);
         delete tmpCont1;
         delete tmpCont2;
         tmpCont1 = mergedCont;
@@ -547,7 +549,7 @@ int main(int args, char ** argv)
         previousPos = currentPos;
         delete seqsim;
         VectorSequenceContainer* mergedCont = new VectorSequenceContainer(alphabet);
-        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *reinterpret_cast<SequenceContainer*>(mergedCont));
+        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *mergedCont);
         delete tmpCont1;
         delete tmpCont2;
         tmpCont1 = mergedCont;
