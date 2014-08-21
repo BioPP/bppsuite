@@ -129,11 +129,11 @@ int main(int args, char ** argv)
   KeyvalTools::parseProcedure(plotTypeCmd, plotType, plotTypeArgs);
   if (plotType == "Cladogram")
   {
-    td = reinterpret_cast<TreeDrawing*>(new CladogramPlot());
+    td = new CladogramPlot();
   }
   else if (plotType == "Phylogram")
   {
-    td = reinterpret_cast<TreeDrawing*>(new PhylogramPlot());
+    td = new PhylogramPlot();
   }
   else throw Exception("Unknown output format: " + plotType);
   td->setTree(tree);

@@ -139,7 +139,7 @@ int main(int args, char** argv)
       string phaseOpt = ApplicationTools::getStringParameter("score.phase", bppalnscore.getParams(), "1");
       if (TextTools::isDecimalInteger(phaseOpt))
       {
-        phase = TextTools::toInt(phaseOpt);
+        phase = TextTools::to<size_t>(phaseOpt);
         if (phase == 0)
           throw Exception("ERROR: positions are 1-based.");
         phase--;

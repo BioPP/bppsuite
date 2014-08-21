@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 06/06/14 Julien Dutheil
 * bppPhySamp now ouput trees as well.
+=======
+12/08/14 Julien Dutheil
+* bppSeqGen supports simulation under Markov-Modulated models.
+>>>>>>> e725b63b6566a651cf0d8c19dd7fae6bb48c78df
 
 17/04/14 Julien Dutheil
 * bppSeqMan: Translate uses global genetic_code argument instead of local 'code' argument.

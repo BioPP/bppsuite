@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename bppsuite.info
-@settitle BppSuite Manual 0.8.0
+@settitle BppSuite Manual 2.2.0
 @documentencoding UTF-8
 @afourpaper
 @dircategory Science Biology Genetics
@@ -1376,10 +1376,12 @@ model=Mixture(model1=GY94(), model2=YN98(), relrate1=0.1)
 has parameters@var{Mixture.relrate1}, @var{Mixture.relproba1},
 @var{Mixture.1_GY94.kappa}, @var{Mixture.1_GY94.V},
 @var{Mixture.2_YN98.kappa}, @var{Mixture.2_YN98.omega}.
-@end table
 
 See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1MixtureOfSubstitutionModels.html#_details, Bio++ description}.
+
+@end table
+
 
 
 
@@ -1729,9 +1731,10 @@ nonhomogeneous.root_freq=GC
 @end example
 
 In the case of nonhomogeneous modelling, a specific syntax is available:
-@table @command
 
-@item nonhomogeneous.alias = @{list of aliases@}
+@example
+nonhomogeneous.alias = @{list of aliases@}
+@end example
 
 where each alias is described as `param1->param2'. The full name of the parameters have to be used, see for example:
 
@@ -1749,9 +1752,6 @@ nonhomogeneous.alias=Full.theta1->GTR.theta1_1
 @end example
 
 Note that this option is only available with the 'general' nonhomogeneous substitution models and will be ignored if used with "one_per_branch".
-
-@end table
-
 
 
 @node Distribution, Estimation, Process, Common
@@ -2192,16 +2192,48 @@ This is usually the best option, particularly for nucleotide data sets.
 
 The BppSeqGen program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model (@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
 
-@table @command
 
+The root sequence can be sampled from the model specification, with
+additional argument:
+
+@table @command
 @item number_of_sites = @{int>0@}
 The number of site positions to simulate.
+
+@end table
+
+
+Or the root sequence can be built from a file of a sequence:
+
+@table @command
+
+@item input.sequence.file=@{path@}
+A sequence is be loaded, from which the simulation will be performed,
+or from which a root sequence can be sampled.
+(@pxref{Sequences}).
 
 @item input.infos = @{path@}
 A info file like the one output by bppML.
 The estimated site-specific rates will then be used to simulate the same number of sites as found in the info file, with the corresponding rates.
 
+In this case, additional options are possible:
+
+@table @command
+
+@item input.infos.rates = @{string@}
+Name of the column on which the rates are described (default: pr).
+
+@item input.infos.states = @{string@}
+Name of the column on which the states are read (default: none, which
+means a random sequence).
+
+@item input.site.selection = @{string@} 
+used to sample from the given sequence (@pxref{Sequences}).
+
 @end table
+
+@end table
+
  
 @c ------------------------------------------------------------------------------------------------------------------
 
@@ -2239,7 +2271,8 @@ then the sequence with unknown characters will be used.
 Alignment information log file (site specific rates, probabilities, etc).
 
 @item output.nodes.file = @{@{path@}|none@}
-Ancestral nodes information: expected frequencies of ancestral states.
+Ancestral nodes information: expected frequencies (prefix exp) (see Galtier & Gouy
+1998) and a posteriori probabilities of ancestral states (prefix eb).
 
 @item output.nodes.add_extant = @{boolean@}
 Tell if leaf nodes should be added to the output file.

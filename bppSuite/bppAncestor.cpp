@@ -459,9 +459,9 @@ int main(int args, char ** argv)
     vector<string> colNames;
     colNames.push_back("Nodes");
     for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      colNames.push_back("exp" + alphabet->intToChar(i));
+      colNames.push_back("exp" + alphabet->intToChar(tl->getAlphabetChar(i)));
     for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      colNames.push_back("eb" + alphabet->intToChar(i));
+      colNames.push_back("eb" + alphabet->intToChar(tl->getAlphabetChar(i)));
 
     //Now fill the table:
     vector<string> row(colNames.size());
