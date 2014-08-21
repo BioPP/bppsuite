@@ -46,3 +46,9 @@ output.sequence.file=$(DATA).$(TYPE).fasta
 # Ouput format:
 output.sequence.format=Fasta()
 
+# Output tree file
+output.tree.file=$(DATA).$(TYPE).dnd
+
+# Ouput format:
+output.tree.format=Newick
+

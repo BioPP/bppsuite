@@ -2372,7 +2372,7 @@ Build a consensus tree according to a given threshold.
 The Bio++ Phylogenetic Sampler samples sequences from a file according to phylogenetic information.
 The goal is to clean a big data set by removing redundant sequences, bringing only few additional information for evolutionary analyses.
 
-The BppPhySamp programs uses the common options for setting the alphabet, loading the sequences (@pxref{Sequences}) and (@pxref{Tree}) and writing the resulting data set (@pxref{WritingSequences}).
+The BppPhySamp programs uses the common options for setting the alphabet, loading the sequences (@pxref{Sequences}) and (@pxref{Tree}) and writing the resulting data set (@pxref{WritingSequences}, @pxref{WritingTrees}).
 
 @table @command
 
