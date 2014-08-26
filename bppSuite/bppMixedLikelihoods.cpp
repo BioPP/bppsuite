@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS
+   Copyright or © or Copr. Bio++ Development Team
 
    This software is a computer program whose purpose is to estimate
    phylogenies and evolutionary parameters from a dataset according to
@@ -454,17 +454,17 @@ int main(int args, char** argv)
         VVdouble vvd;
 
           
-        vector<double> vRates=pMSM2->getVRates();
+        vector<double> vRates = pMSM2->getVRates();
 
-        for (unsigned int i = 0; i < nbcl; i++)
+        for (size_t i = 0; i < nbcl; ++i)
         {
           string par2 = parname + "_" + TextTools::toString(i + 1);
           
-          for (unsigned int j = 0; j < nummod; j++)
+          for (unsigned int j = 0; j < nummod; ++j)
             pMSM2->setNProbability(j, 0);
 
-          for (unsigned int j = 0; j < vvprob[i].size(); j++)
-            pMSM2->setNProbability(static_cast<size_t>(vvnmod[i][j]), static_cast<size_t>(vvprob[i][j]) / vsprob[i]);
+          for (size_t j = 0; j < vvprob[i].size(); ++j)
+            pMSM2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
 
           if (tl)
             delete tl;
