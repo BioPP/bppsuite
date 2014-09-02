@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS
+   Copyright or © or Copr. Bio++ Development Team
 
    This software is a computer program whose purpose is to estimate
    phylogenies and evolutionary parameters from a dataset according to
@@ -396,7 +396,7 @@ int main(int args, char** argv)
           exit(-1);
         }
 
-        vector<vector<int> > vvnmod;
+        vector< Vint > vvnmod;
         size_t i2 = 0;
         while (i2 < nummod)
         {
@@ -418,9 +418,9 @@ int main(int args, char** argv)
         for (size_t i = 0; i < nbcl; i++)
         {
           vector<double> vprob2;
-          for (unsigned int j = 0; j < vvnmod[i].size(); j++)
+          for (size_t j = 0; j < vvnmod[i].size(); j++)
           {
-            vprob2.push_back(vprob[vvnmod[i][j]]);
+            vprob2.push_back(vprob[static_cast<size_t>(vvnmod[i][j])]);
           }
 
           vvprob.push_back(vprob2);
@@ -433,7 +433,7 @@ int main(int args, char** argv)
         Vdouble dval;
         for (unsigned int i = 0; i < nbcl; i++)
         {
-          SubstitutionModel* pSM = pMSM2->getNModel(vvnmod[i][0]);
+          SubstitutionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
           double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
           dval.push_back(valPar);
           colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
@@ -456,17 +456,17 @@ int main(int args, char** argv)
         VVdouble vvd;
 
           
-        vector<double> vRates=pMSM2->getVRates();
+        vector<double> vRates = pMSM2->getVRates();
 
-        for (unsigned int i = 0; i < nbcl; i++)
+        for (size_t i = 0; i < nbcl; ++i)
         {
           string par2 = parname + "_" + TextTools::toString(i + 1);
           
-          for (unsigned int j = 0; j < nummod; j++)
+          for (unsigned int j = 0; j < nummod; ++j)
             pMSM2->setNProbability(j, 0);
 
-          for (unsigned int j = 0; j < vvprob[i].size(); j++)
-            pMSM2->setNProbability(vvnmod[i][j], vvprob[i][j] / vsprob[i]);
+          for (size_t j = 0; j < vvprob[i].size(); ++j)
+            pMSM2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
 
           if (tl)
             delete tl;

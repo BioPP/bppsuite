@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS
+Copyright or © or Copr. Bio++ Development Team
 
 This software is a computer program whose purpose is to estimate
 phylogenies and evolutionary parameters from a dataset according to
@@ -51,7 +51,7 @@ using namespace std;
 #include <Bpp/Numeric/DataTable.h>
 #include <Bpp/Numeric/Random/RandomTools.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet.all>
 #include <Bpp/Seq/Container.all>
 #include <Bpp/Seq/Io.all>
@@ -59,7 +59,7 @@ using namespace std;
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
-// From PhylLib:
+// From bpp-phyl:
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h>
@@ -103,8 +103,8 @@ class Test {
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Phylogenetic Sampler, version 0.2              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 03/06/10 *" << endl;
+  cout << "*           Bio++ Phylogenetic Sampler, version 0.3              *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 06/06/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -126,17 +126,18 @@ int main(int args, char ** argv)
   string inputMethod = ApplicationTools::getStringParameter("input.method", bppphysamp.getParams(), "tree");
   ApplicationTools::displayResult("Input method", inputMethod);
 
-  DistanceMatrix* dist = 0;
+  auto_ptr< DistanceMatrix > dist;
+  auto_ptr< TreeTemplate<Node> > tree;
   if(inputMethod == "tree")
   {
-    Tree* tree = PhylogeneticsApplicationTools::getTree(bppphysamp.getParams());
-    dist = TreeTemplateTools::getDistanceMatrix(*tree);
+    tree.reset(dynamic_cast<TreeTemplate<Node> *>(PhylogeneticsApplicationTools::getTree(bppphysamp.getParams())));
+    dist.reset(TreeTemplateTools::getDistanceMatrix(*tree));
   }
   else if(inputMethod == "matrix")
   {
     string distPath = ApplicationTools::getAFilePath("input.matrix", bppphysamp.getParams(), true, true);
     PhylipDistanceMatrixFormat matIO;
-    dist = matIO.read(distPath);
+    dist.reset(matIO.read(distPath));
   }
   else throw Exception("Unknown input method: " + inputMethod);
 
@@ -208,7 +209,7 @@ int main(int args, char ** argv)
       //Remove sequence in list:
       size_t pos = VectorTools::which(seqNames, dist->getName(rm));
       ApplicationTools::displayResult("Remove sequence", seqNames[pos]);
-      seqNames.erase(seqNames.begin() + pos); 
+      seqNames.erase(seqNames.begin() + static_cast<ptrdiff_t>(pos)); 
         
       //Ignore all distances from this sequence:
       remove_if(distances.begin(), distances.end(), Test(rm));
@@ -241,7 +242,7 @@ int main(int args, char ** argv)
       //Remove sequence in list:
       size_t pos = VectorTools::which(seqNames, dist->getName(rm));
       ApplicationTools::displayResult("Remove sequence", seqNames[pos]);
-      seqNames.erase(seqNames.begin() + pos); 
+      seqNames.erase(seqNames.begin() + static_cast<ptrdiff_t>(pos)); 
         
       //Ignore all distances from this sequence:
       remove_if(distances.begin(), distances.end(), Test(rm));
@@ -256,6 +257,14 @@ int main(int args, char ** argv)
     asc.addSequence(seqs->getSequence(seqNames[i]));
    
   SequenceApplicationTools::writeAlignmentFile(asc, bppphysamp.getParams());
+
+  //Write tree file:
+  if (ApplicationTools::getStringParameter("output.tree.file", bppphysamp.getParams(), "None") != "None") {
+    for (size_t i = 0; i < seqNames.size(); ++i) {
+      TreeTemplateTools::dropLeaf(*tree, seqNames[i]);
+    }
+    PhylogeneticsApplicationTools::writeTree(*tree, bppphysamp.getParams(), "output.", "", true, true, false);
+  }
 
   bppphysamp.done();
   }

@@ -127,7 +127,7 @@ int main(int args, char** argv)
     {
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
+      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = SequenceTools::getComplement(sequences->getSequence(i));
@@ -146,7 +146,7 @@ int main(int args, char** argv)
       {
         OrderedSequenceContainer* sc = 0;
         if (aligned) sc = new VectorSiteContainer(&AlphabetTools::RNA_ALPHABET);
-        else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET));
+        else         sc = new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET);
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
           Sequence* seq = SequenceTools::transcript(sequences->getSequence(i));
@@ -160,7 +160,7 @@ int main(int args, char** argv)
       {
         OrderedSequenceContainer* sc = 0;
         if (aligned) sc = new VectorSiteContainer(&AlphabetTools::DNA_ALPHABET);
-        else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET));
+        else         sc = new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET);
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
           Sequence* seq = SequenceTools::reverseTranscript(sequences->getSequence(i));
@@ -189,7 +189,7 @@ int main(int args, char** argv)
       else throw Exception("Cannot switch alphabet type, alphabet is not of type 'nucleic'.");
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(alpha);
-      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(alpha));
+      else         sc = new VectorSequenceContainer(alpha);
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);
@@ -217,7 +217,7 @@ int main(int args, char** argv)
 
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(&AlphabetTools::PROTEIN_ALPHABET);
-      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET));
+      else         sc = new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET);
       for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
       {
         Sequence* seq = gCode->translate(sequences->getSequence(i));
@@ -250,7 +250,7 @@ int main(int args, char** argv)
     {
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
+      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = new BasicSequence(sequences->getSequence(i));
@@ -350,7 +350,7 @@ int main(int args, char** argv)
       }
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
+      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
       for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
       {
         BasicSequence seq = sequences->getSequence(i);
@@ -439,7 +439,7 @@ int main(int args, char** argv)
     {
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = reinterpret_cast<OrderedSequenceContainer*>(new VectorSequenceContainer(sequences->getAlphabet()));
+      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
       for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);

@@ -261,10 +261,10 @@ int main(int args, char ** argv)
                   {
                     sonUpper = (tree->getRootNode())->getSon(0);
                   }
-                  int ident = TreeTools::getMaxId(* low, low->getRootId());
+                  int ident = TreeTools::getMaxId(*low, low->getRootId());
                   vector <Node *> nodesTemp= TreeTemplateTools::getNodes( * sonUpper);
-                  for(unsigned int F = 0; F < nodesTemp.size(); F++)
-                    ( * nodesTemp[F]).setId(ident + F + 1);
+                  for(size_t F = 0; F < nodesTemp.size(); F++)
+                    nodesTemp[F]->setId(ident + static_cast<int>(F + 1));
                   low->getRootNode()->addSon(sonUpper);
                   tree = low;
                 }

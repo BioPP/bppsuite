@@ -52,12 +52,16 @@ using namespace std;
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
+#include <Bpp/Numeric/Random/RandomTools.h>
+#include <Bpp/Text/KeyvalTools.h>
+#include <Bpp/App/NumCalcApplicationTools.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Seq/SequenceTools.h>
 
 // From PhylLib:
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
@@ -134,7 +138,7 @@ int main(int args, char ** argv)
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                                            *" << endl;
   cout << "*          B. Boussau                       Last Modif. 19/03/14 *" << endl;
-  cout << "*          L. Guéguen                                            *" << endl;
+  cout << "*          L. Gueguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
@@ -160,6 +164,12 @@ int main(int args, char ** argv)
     gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
   }
 
+
+  /**************************/
+  /* Trees                  */
+  /**************************/
+
+  
   vector<Tree*> trees;
   vector<double> positions;
   string inputTrees = ApplicationTools::getStringParameter("input.tree.method", bppseqgen.getParams(), "single", "", true, false);
@@ -199,9 +209,12 @@ int main(int args, char ** argv)
   }
   else throw Exception("Unknown input.tree.method option: " + inputTrees);
 
-  string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
-  ApplicationTools::displayResult("Site information", infosFile);
 
+  /**********************************/
+  /*  Models                        */
+  /**********************************/
+
+  
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppseqgen.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
@@ -272,21 +285,34 @@ int main(int args, char ** argv)
   if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
     throw Exception("Non-homogeneous mixed substitution sequence generation not implemented, sorry!");
 
+  /*******************************************/
+  /*     Starting sequence                   */
+  /*******************************************/
+
   DiscreteDistribution* rDist = 0;
   NonHomogeneousSequenceSimulator* seqsim = 0;
   SiteContainer* sites = 0;
+  size_t nbSites = 0;
+
+  string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
+
+  bool withStates = false;
+  bool withRates = false;
+  vector<size_t> states;
+  vector<double> rates;
+  
   if (infosFile != "none")
   {
+    ApplicationTools::displayResult("Site information", infosFile);
     ifstream in(infosFile.c_str());
     DataTable* infos = DataTable::read(in, "\t");
-    size_t nbSites = infos->getNumberOfRows();
+    nbSites = infos->getNumberOfRows();
     ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
     string rateCol = ApplicationTools::getStringParameter("input.infos.rates", bppseqgen.getParams(), "pr", "", true, true);
     string stateCol = ApplicationTools::getStringParameter("input.infos.states", bppseqgen.getParams(), "none", "", true, true);
-    bool withRates = rateCol != "none";
-    bool withStates = stateCol != "none";
-    vector<double> rates;
-    vector<int> states;
+    withRates = rateCol != "none";
+    withStates = stateCol != "none";
+  
     if (withRates)
     {
       rDist = new ConstantRateDistribution();
@@ -297,28 +323,116 @@ int main(int args, char ** argv)
         rates[i] = TextTools::toDouble(ratesStrings[i]);
       }
     }
-    else
-    {
-      if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
-      {
-        //Markov-modulated Markov model!
-        rDist = new ConstantRateDistribution();
-      }
-      else
-      {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
-      }
-    }
     if (withStates)
     {
       vector<string> ancestralStates = infos->getColumn(stateCol);
       states.resize(nbSites);
       for (size_t i = 0; i < nbSites; i++)
       {
-        states[i] = alphabet->charToInt(ancestralStates[i]);
+        states[i] = RandomTools::pickOne<size_t>(modelSet->getModelStates(alphabet->charToInt(ancestralStates[i])));
+      }
+
+      string siteSet = ApplicationTools::getStringParameter("input.site.selection", bppseqgen.getParams(), "none", "", true, 1);
+
+      if (siteSet != "none")
+      {
+        vector<size_t> vSite;
+        try {
+          vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet);
+          for (size_t i = 0; i < vSite1.size(); ++i){
+            int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
+            if (x >= 0)
+              vSite.push_back(static_cast<size_t>(x));
+            else
+              throw Exception("SequenceApplicationTools::getSiteContainer(). Incorrect negative index: " + TextTools::toString(x));
+          }
+        }
+        catch (Exception& e)
+        {
+          string seln;
+          map<string, string> selArgs;
+          KeyvalTools::parseProcedure(siteSet, seln, selArgs);
+          if (seln == "Sample")
+          {
+            size_t n = ApplicationTools::getParameter<size_t>("n", selArgs, nbSites, "", true, 1);
+            bool replace = ApplicationTools::getBooleanParameter("replace", selArgs, false, "", true, 1);
+
+            vSite.resize(n);
+            vector<size_t> vPos;
+            for (size_t p = 0; p < nbSites; ++p)
+              vPos.push_back(p);
+          
+            RandomTools::getSample(vPos, vSite, replace);
+          }
+        }
+        
+        nbSites = vSite.size();
+
+        vector<size_t> newStates(nbSites);
+        vector<double> newRates(nbSites);
+
+        for (size_t ni = 0; ni < nbSites; ++ni)
+        {
+          newStates[ni] = states[vSite[ni]];
+          newRates[ni]  = rates[vSite[ni]];
+        }
+
+        states = newStates;
+        rates = newRates;
       }
     }
+  }
+  else
+  {
+    try {
+      VectorSiteContainer* allSeq = 0;
+      allSeq = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
+      
+      if (allSeq->getNumberOfSequences() > 0)
+      {  
+        Sequence* pseq = SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
+        
+        nbSites = pseq->size();
+        states.resize(nbSites);
+        withStates = true;
+        
+	for (size_t i = 0; i < nbSites; ++i) {
+          states[i] = RandomTools::pickOne(modelSet->getModelStates((*pseq)[i]));
+        }
+        ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
+        
+        delete pseq;
+      }
+    }
+    catch (Exception& e)
+    {
+    }
+      
+  }
 
+  if (rDist == 0)
+  {
+    if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
+    {
+      //Markov-modulated Markov model!
+      rDist = new ConstantRateDistribution();
+    }
+    else
+    {
+      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
+    }
+  }
+
+
+  if (nbSites==0)
+    nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
+  
+  /*******************/
+  /* Simulations     */
+  /*******************/
+
+  if (withStates)
+  {
     if (trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
@@ -329,11 +443,12 @@ int main(int args, char ** argv)
         else
           sites = SequenceSimulationTools::simulateSites(*seqsim, rates);
       else
-        if (withStates)
+        if (withStates){
           sites = SequenceSimulationTools::simulateSites(*seqsim, states);
+        }      
         else
           throw Exception("Error! Info file should contain either site specific rates of ancestral states or both.");
-
+      
       delete seqsim;    
     }
     else
@@ -341,14 +456,14 @@ int main(int args, char ** argv)
       ApplicationTools::displayTask("Perform simulations", true);
       ApplicationTools::displayGauge(0, trees.size() - 1, '=');
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
-      unsigned int previousPos = 0;
-      unsigned int currentPos = static_cast<unsigned int>(round(positions[1]*static_cast<double>(nbSites)));
+      ptrdiff_t previousPos = 0;
+      ptrdiff_t currentPos = static_cast<ptrdiff_t>(round(positions[1]*static_cast<double>(nbSites)));
       vector<double> tmpRates;
       if (withRates)
         tmpRates = vector<double>(rates.begin() + previousPos, rates.begin() + currentPos);
-      vector<int> tmpStates;
+      vector<size_t> tmpStates;
       if (withStates)
-        tmpStates = vector<int>(states.begin() + previousPos, states.begin() + currentPos);
+        tmpStates = vector<size_t>(states.begin() + previousPos, states.begin() + currentPos);
       SequenceContainer* tmpCont1 = 0;
       if (withRates)
         if (withStates)
@@ -362,16 +477,16 @@ int main(int args, char ** argv)
           throw Exception("Error! Info file should contain either site specific rates of ancestral states or both.");
       previousPos = currentPos;
       delete seqsim;
-
+      
       for(size_t i = 1; i < trees.size(); i++)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
-        currentPos = static_cast<unsigned int>(round(positions[i+1]) * static_cast<double>(nbSites));
+        currentPos = static_cast<ptrdiff_t>(round(positions[i+1]) * static_cast<double>(nbSites));
         if (withRates)
           tmpRates = vector<double>(rates.begin() + previousPos + 1, rates.begin() + currentPos);
         if (withStates)
-          tmpStates = vector<int>(states.begin() + previousPos + 1, states.begin() + currentPos);
+          tmpStates = vector<size_t>(states.begin() + previousPos + 1, states.begin() + currentPos);
         SequenceContainer* tmpCont2 = 0;
         if (withRates)
           if (withStates)
@@ -386,7 +501,7 @@ int main(int args, char ** argv)
         previousPos = currentPos;
         delete seqsim;
         VectorSequenceContainer* mergedCont = new VectorSequenceContainer(alphabet);
-        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *reinterpret_cast<SequenceContainer*>(mergedCont));
+        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *mergedCont);
         delete tmpCont1;
         delete tmpCont2;
         tmpCont1 = mergedCont;
@@ -407,8 +522,7 @@ int main(int args, char ** argv)
     {
       rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
     }
-
-    size_t nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
+    
     if (trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
@@ -437,7 +551,7 @@ int main(int args, char ** argv)
         previousPos = currentPos;
         delete seqsim;
         VectorSequenceContainer* mergedCont = new VectorSequenceContainer(alphabet);
-        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *reinterpret_cast<SequenceContainer*>(mergedCont));
+        SequenceContainerTools::merge(*tmpCont1, *tmpCont2, *mergedCont);
         delete tmpCont1;
         delete tmpCont2;
         tmpCont1 = mergedCont;
@@ -450,15 +564,15 @@ int main(int args, char ** argv)
   
   // Write to file:
   SequenceApplicationTools::writeAlignmentFile(*sites, bppseqgen.getParams());
-
+  
   delete alphabet;
   for (size_t i = 0; i < trees.size(); i++)
     delete trees[i];
   delete rDist;
 
   bppseqgen.done();
-
-  }
+  
+}
   catch (exception& e)
   {
     cout << e.what() << endl;
