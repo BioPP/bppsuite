@@ -2053,11 +2053,11 @@ Available methods include:
 
 @table @command
 
-@item Input
-Keep initial branch lengths as is.
+@item Input(midpoint_root_branch=@{boolean@})
+Keep initial branch lengths as is. Additional argument specifies if the root position should be moved to the midpoint position of the branch containing it. 
 
 @item Equal(value=@{float>0@})
-Set all branch lengths to the same value, provided as argumet.
+Set all branch lengths to the same value, provided as argumemt.
 
 @item Clock
 Coerce to a clock tree.
