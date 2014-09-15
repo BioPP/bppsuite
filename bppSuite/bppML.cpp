@@ -464,10 +464,13 @@ int main(int args, char** argv)
       }
       bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, 1);
       if (!removeSaturated) {
-        ApplicationTools::displayError("!!! Looking at each site:");
-        for (unsigned int i = 0; i < sites->getNumberOfSites(); i++) {
-          (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
+        ofstream debug ("DEBUG_likelihoods.txt", ios::out);
+        for (size_t i = 0; i < sites->getNumberOfSites(); i++)
+        {
+          debug << "Position " << sites->getSite(i).getPosition() << " = " << tl->getLogLikelihoodForASite(i) << endl; 
         }
+        debug.close();
+        ApplicationTools::displayError("!!! Site-specific likelihood have been written in file DEBUG_likelihoods.txt .");
         ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
         ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
         exit(1);
@@ -484,9 +487,8 @@ int main(int args, char** argv)
         tl->initialize();
         logL = tl->getValue();
         if (isinf(logL)) {
-          ApplicationTools::displayError("This should not happen. Exiting now.");
-          exit(1);
-        }
+          throw Exception("Likelihood is still 0 after saturated sites are removed! Looks like a bug...");
+         }
         ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
       }
     }

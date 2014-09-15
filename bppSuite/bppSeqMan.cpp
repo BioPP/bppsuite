@@ -109,7 +109,7 @@ int main(int args, char** argv)
   
   // Perform manipulations
   
-  vector<string> actions = ApplicationTools::getVectorParameter<string>("sequence.manip", bppseqman.getParams(), ',', "", "", false, false);
+  vector<string> actions = ApplicationTools::getVectorParameter<string>("sequence.manip", bppseqman.getParams(), ',', "", "", false, 1);
   
   bool aligned = false;
 
@@ -210,7 +210,7 @@ int main(int args, char** argv)
       if (cmdArgs["code"] != "")
         throw Exception("ERROR: 'code' argument is deprecated. The genetic code to use for translation is now set by the top-level argument 'genetic_code'.");
       if (!gCode.get()) {
-        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
         gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
       }
@@ -286,7 +286,7 @@ int main(int args, char** argv)
     else if (cmdName == "RemoveStops")
     {
       if (!gCode.get()) {
-        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
         gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
       }
@@ -326,7 +326,7 @@ int main(int args, char** argv)
         throw Exception("'RemoveColumnsWithStop' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
       if (!gCode.get()) {
-        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
         gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
       }
@@ -344,7 +344,7 @@ int main(int args, char** argv)
     else if (cmdName == "GetCDS")
     {
       if (!gCode.get()) {
-        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, true);
+        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
         gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
       }
@@ -389,7 +389,7 @@ int main(int args, char** argv)
       }
 
       const Alphabet* alpha = 0;
-      string alphastr = ApplicationTools::getStringParameter("alphabet", cmdArgs, "DNA");
+      string alphastr = ApplicationTools::getStringParameter("alphabet", cmdArgs, "DNA", "", false, 1);
       if (alphastr == "DNA") alpha = &AlphabetTools::DNA_ALPHABET;
       else if (alphastr == "RNA") alpha = &AlphabetTools::RNA_ALPHABET;
       else if (alphastr == "Protein") alpha = &AlphabetTools::PROTEIN_ALPHABET;
@@ -409,7 +409,7 @@ int main(int args, char** argv)
         throw Exception("'KeepComplete' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
 
-      string maxGapOption = ApplicationTools::getStringParameter("maxGapAllowed", cmdArgs, "100%");
+      string maxGapOption = ApplicationTools::getStringParameter("maxGapAllowed", cmdArgs, "100%", "", false, 1);
       if (maxGapOption[maxGapOption.size()-1] == '%')
       {
         double gapFreq = TextTools::toDouble(maxGapOption.substr(0, maxGapOption.size()-1)) / 100.;
@@ -455,7 +455,7 @@ int main(int args, char** argv)
     // +------------------+
     else if (cmdName == "GetCodonPosition")
     {
-      unsigned int pos = ApplicationTools::getParameter<unsigned int>("position", cmdArgs, 3);
+      unsigned int pos = ApplicationTools::getParameter<unsigned int>("position", cmdArgs, 3, "", false, 1);
       OrderedSequenceContainer* sc = dynamic_cast<OrderedSequenceContainer*>(SequenceContainerTools::getCodonPosition(*sequences, pos - 1));
       delete sequences;
       if (aligned) {
@@ -492,11 +492,11 @@ int main(int args, char** argv)
   ApplicationTools::displayBooleanResult("Final sequences are aligned", aligned);
   if (aligned)
   {
-    SequenceApplicationTools::writeAlignmentFile(*dynamic_cast<SiteContainer*>(sequences), bppseqman.getParams(), "", true);
+    SequenceApplicationTools::writeAlignmentFile(*dynamic_cast<SiteContainer*>(sequences), bppseqman.getParams(), "", true, 1);
   }
   else
   {
-    SequenceApplicationTools::writeSequenceFile(*sequences, bppseqman.getParams(), "", true);
+    SequenceApplicationTools::writeSequenceFile(*sequences, bppseqman.getParams(), "", true, 1);
   }
 
   delete alphabet;
