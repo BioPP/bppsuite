@@ -327,7 +327,11 @@ int main(int args, char ** argv)
       states.resize(nbSites);
       for (size_t i = 0; i < nbSites; i++)
       {
-        states[i] = RandomTools::pickOne<size_t>(modelSet->getModelStates(alphabet->charToInt(ancestralStates[i])));
+        int alphabetState = alphabet->charToInt(ancestralStates[i]);
+        //If a generic character is provided, we pick one state randomly from the possible ones:
+        if (alphabet->isUnresolved(alphabetState))
+          alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
+        states[i] = RandomTools::pickOne<size_t>(modelSet->getModelStates(alphabetState));
       }
 
       string siteSet = ApplicationTools::getStringParameter("input.site.selection", bppseqgen.getParams(), "none", "", true, 1);
@@ -422,7 +426,7 @@ int main(int args, char ** argv)
   }
 
 
-  if (nbSites==0)
+  if (nbSites == 0)
     nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
   
   /*******************/

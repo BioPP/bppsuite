@@ -1,3 +1,6 @@
+16/09/14 Julien Dutheil
+* bppSeqGen supports generic characters as ancestral states in info file (bug #87).
+
 12/08/14 Julien Dutheil
 * bppSeqGen supports simulation under Markov-Modulated models.
 
