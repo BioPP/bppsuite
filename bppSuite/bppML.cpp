@@ -210,7 +210,7 @@ int main(int args, char** argv)
     else throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
     ApplicationTools::displayResult("Branch lengths", cmdName);
 
-    string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "none", 1);
+    string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "", true, "none", 1);
     if (treeWIdPath != "none")
     {
       TreeTemplate<Node> ttree(*tree);
@@ -410,7 +410,7 @@ int main(int args, char** argv)
     delete tree;
 
     //Listing parameters
-    string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false);
+    string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false, "", true, "none", 1);
     if (paramNameFile != "none") {
       ApplicationTools::displayResult("List parameters to", paramNameFile);
       ofstream pnfile(paramNameFile.c_str(), ios::out);
