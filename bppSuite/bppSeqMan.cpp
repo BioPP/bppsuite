@@ -49,7 +49,7 @@ using namespace std;
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/KeyvalTools.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/CodonSiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
@@ -61,7 +61,7 @@ using namespace std;
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Seq/GeneticCode.all>
 
-//From PhylLib:
+//From bpp-phyl:
 #include <Bpp/Phyl/Tree.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
@@ -80,8 +80,8 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Sequence Manipulator, version 0.6              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 21/12/11 *" << endl;
+  cout << "*           Bio++ Sequence Manipulator, version 2.2.0.           *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   

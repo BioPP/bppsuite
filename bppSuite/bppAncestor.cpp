@@ -92,9 +92,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 0.5.0     *" << endl;
+  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 2.2.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
-  cout << "*          B. Boussau                       Last Modif: 17/06/11 *" << endl;
+  cout << "*          B. Boussau                       Last Modif: 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -459,9 +459,9 @@ int main(int args, char ** argv)
     vector<string> colNames;
     colNames.push_back("Nodes");
     for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      colNames.push_back("exp" + alphabet->intToChar(tl->getAlphabetChar(i)));
+      colNames.push_back("exp" + tl->getAlphabetStateAsChar(i));
     for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      colNames.push_back("eb" + alphabet->intToChar(tl->getAlphabetChar(i)));
+      colNames.push_back("eb" + tl->getAlphabetStateAsChar(i));
 
     //Now fill the table:
     vector<string> row(colNames.size());

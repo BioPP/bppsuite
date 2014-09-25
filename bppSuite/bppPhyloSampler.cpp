@@ -103,8 +103,8 @@ class Test {
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Phylogenetic Sampler, version 0.3              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 06/06/14 *" << endl;
+  cout << "*           Bio++ Phylogenetic Sampler, version 2.2.0.           *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
