@@ -1,5 +1,5 @@
 %define _basename bppsuite
-%define _version 0.8.0
+%define _version 2.2.0
 %define _release 1
 %define _prefix /usr
 
@@ -14,21 +14,21 @@ Source: http://biopp.univ-montp2.fr/repos/sources/%{_basename}-%{_version}.tar.g
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
 
-Requires: libbpp-phyl9 = 2.1.0
-Requires: libbpp-seq9 = 2.1.0
-Requires: libbpp-core2 = 2.1.0
+Requires: libbpp-phyl9 = %{_version}
+Requires: libbpp-seq9 = %{_version}
+Requires: libbpp-core2 = %{_version}
 
 BuildRoot: %{_builddir}/%{_basename}-root
 BuildRequires: cmake >= 2.6.0
 BuildRequires: gcc-c++ >= 4.0.0
 BuildRequires: groff
 BuildRequires: texinfo >= 4.0.0
-BuildRequires: libbpp-core2 = 2.1.0
-BuildRequires: libbpp-core-devel = 2.1.0
-BuildRequires: libbpp-seq9 = 2.1.0
-BuildRequires: libbpp-seq-devel = 2.1.0
-BuildRequires: libbpp-phyl9 = 2.1.0
-BuildRequires: libbpp-phyl-devel = 2.1.0
+BuildRequires: libbpp-core2 = %{_version}
+BuildRequires: libbpp-core-devel = %{_version}
+BuildRequires: libbpp-seq9 = %{_version}
+BuildRequires: libbpp-seq-devel = %{_version}
+BuildRequires: libbpp-phyl9 = %{_version}
+BuildRequires: libbpp-phyl-devel = %{_version}
 
 
 AutoReq: yes
@@ -121,6 +121,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/bppmixedlikelihoods.1.%{zipext}
 
 %changelog
+* Mon Sep 28 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
+- Compatibility update. Bio++ Program Suite version number is now indexed
+  on Bio++'s version.
+- Programs support the --seed argument for setting the random seed.
+- bppSeqGen suport generic characters as input.
+- bppPhySamp outputs sampled trees.
 * Fri Mar 08 2013 Julien Dutheil <julien.dutheil@univ-montp2.fr> 0.8.0-1
 - New models for proteins (COaLA)
 - New program bppMixedLikelihoods
