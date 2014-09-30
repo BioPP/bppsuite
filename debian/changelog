@@ -1,3 +1,13 @@
+bppsuite (2.2.0-1) unstable; urgency=low
+
+  * Compatibility update. Bio++ Program Suite version number is now indexed
+    on Bio++'s version.
+  * Programs support the --seed argument for setting the random seed.
+  * bppSeqGen suport generic characters as input.
+  * bppPhySamp outputs sampled trees.
+
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 28 Sep 2014 14:00:00 +0100
+
 bppsuite (0.8.0-1) unstable; urgency=low
 
   * New models for proteins (COaLA)

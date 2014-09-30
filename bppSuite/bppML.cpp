@@ -58,14 +58,14 @@ using namespace std;
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/KeyvalTools.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
-// From PhylLib:
+// From bpp-phyl:
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/PatternTools.h>
@@ -138,7 +138,10 @@ int main(int args, char** argv)
 
     ////// Data
     
-    VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppml.getParams());
+    vector<VectorSiteContainer* > vSites;
+
+    
+    VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppml.getParams(), "", false);
 
     VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppml.getParams(), "", true, false);
     delete allSites;
@@ -146,13 +149,12 @@ int main(int args, char** argv)
     ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
     ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 
-
     /////// Get the initial tree  
     
     vector<Tree*> vTree;
     
-    string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bppml.getParams(), "user", "", false, false);
-      
+    string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bppml.getParams(), "user", "", false, 1);
+
     ApplicationTools::displayResult("Input tree", initTreeOpt);
 
     if (initTreeOpt == "user")
@@ -185,7 +187,7 @@ int main(int args, char** argv)
       
     PhylogeneticsApplicationTools::writeTrees(vcTree, bppml.getParams());
     
-    bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", bppml.getParams(), true, "", false, false);
+    bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", bppml.getParams(), true, "", false, 1);
     if (!computeLikelihood)
     {
       delete alphabet;
@@ -198,22 +200,21 @@ int main(int args, char** argv)
 
     ////////////
     // Setting branch lengths?
-    
-    string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", bppml.getParams(), "Input", "", true, false);
+    string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", bppml.getParams(), "Input", "", true, 1);
     string cmdName;
     map<string, string> cmdArgs;
     KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
     if (cmdName == "Input")
     {
       // Is the root has to be moved to the midpoint position along the branch that contains it ? If no, do nothing!
-      string midPointRootBrLengths = ApplicationTools::getStringParameter("midPointRootBrLengths", cmdArgs, "no", "", true, false);
+      string midPointRootBrLengths = ApplicationTools::getStringParameter("midPointRootBrLengths", cmdArgs, "no", "", true, 2);
       if(midPointRootBrLengths == "yes")
         for (size_t i=0; i< vTree.size(); i++)
           TreeTools::constrainedMidPointRooting(*vTree[i]);
     }
     else if (cmdName == "Equal")
     {
-      double value = ApplicationTools::getDoubleParameter("value", cmdArgs, 0.1, "", true, false);
+      double value = ApplicationTools::getDoubleParameter("value", cmdArgs, 0.1, "", true, 2);
       if (value <= 0)
         throw Exception("Value for branch length must be superior to 0");
       ApplicationTools::displayResult("Branch lengths set to", value);
@@ -227,7 +228,7 @@ int main(int args, char** argv)
     }
     else if (cmdName == "Grafen")
     {
-      string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "input", "", true, false);
+      string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "input", "", true, 2);
       double h;
       for (size_t i=0; i< vTree.size(); i++)
       {
@@ -243,7 +244,7 @@ int main(int args, char** argv)
         }
         ApplicationTools::displayResult("Total height", TextTools::toString(h));
 
-        double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, false);
+        double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
         ApplicationTools::displayResult("Grafen's rho", rho);
         TreeTools::computeBranchLengthsGrafen(*tree, rho);
         double nh = TreeTools::getHeight(*tree, tree->getRootId());
@@ -254,7 +255,8 @@ int main(int args, char** argv)
       throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
     ApplicationTools::displayResult("Branch lengths", cmdName);
   
-    string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false);
+    string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "", true, "none", 1);
+
     if (treeWIdPath != "none")
     {
       Newick treeWriter;
@@ -279,17 +281,16 @@ int main(int args, char** argv)
       exit(0);
     }
 
-
     /////////////////
     // Computing stuff
     
     DiscreteRatesAcrossSitesTreeLikelihood* tl_old = 0;
     newlik::PhyloLikelihood* tl_new = 0;
 
-    bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, false);
-    bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, false);
-    unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppml.getParams(), 0, "", true, false);
-    string collection = ApplicationTools::getStringParameter("collection", bppml.getParams(), "", "", true, false);
+    bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, 2);
+    bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, 1);
+    unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppml.getParams(), 0, "", true, 1);
+    string collection = ApplicationTools::getStringParameter("collection", bppml.getParams(), "", "", true, 1);
     
     
     SubstitutionModel*    model    = 0;
@@ -335,8 +336,7 @@ int main(int args, char** argv)
       if ((recu=="double") || (recu=="simple"))
         ApplicationTools::displayResult("Likelihood recursion", recu);
       else
-        throw Exception("Unknown recursion method " + recu);
-      
+        throw Exception("Unknown recursion option: " + recu);
 
       char recursion = (recu=="simple")?'S':'D';
 
@@ -422,7 +422,8 @@ int main(int args, char** argv)
         if (process->getSubstitutionModel(0,0).getName() != "RE08")
           SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
-        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, false);
+        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, 1);
+        
         ApplicationTools::displayResult("Likelihood data compression", compression);
 
           
@@ -456,7 +457,7 @@ int main(int args, char** argv)
       
       
     //Listing parameters
-    string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false);
+    string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false, "", true, "none", 1);
     if (paramNameFile != "none") {
       ApplicationTools::displayResult("List parameters to", paramNameFile);
       ofstream pnfile(paramNameFile.c_str(), ios::out);

@@ -70,9 +70,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Consensus and Bootstrap Methods, version 0.3.0     *" << endl;
+  cout << "*       Bio++ Consensus and Bootstrap Methods, version 2.2.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created     06/06/07 *" << endl;
-  cout << "*          N. Galtier                       Last Modif. 08/08/09 *" << endl;
+  cout << "*          N. Galtier                       Last Modif. 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -90,7 +90,7 @@ int main(int args, char ** argv)
   vector<Tree*> list = PhylogeneticsApplicationTools::getTrees(bppconsense.getParams());
 
   Tree* tree = 0;
-  string treeMethod = ApplicationTools::getStringParameter("tree", bppconsense.getParams(), "consensus");
+  string treeMethod = ApplicationTools::getStringParameter("tree", bppconsense.getParams(), "Consensus", "", false, 1);
   string cmdName;
   map<string, string> cmdArgs;
   KeyvalTools::parseProcedure(treeMethod, cmdName, cmdArgs);
@@ -101,7 +101,7 @@ int main(int args, char ** argv)
   }
   else if(cmdName == "Consensus")
   {
-    double threshold = ApplicationTools::getDoubleParameter("threshold", cmdArgs, 0);
+    double threshold = ApplicationTools::getDoubleParameter("threshold", cmdArgs, 0, "", false, 1);
     ApplicationTools::displayResult("Consensus threshold", TextTools::toString(threshold));
     ApplicationTools::displayTask("Computing consensus tree");
     tree = TreeTools::thresholdConsensus(list, threshold, true);
@@ -110,12 +110,14 @@ int main(int args, char ** argv)
   else throw Exception("Unknown input tree method: " + treeMethod);
   
   ApplicationTools::displayTask("Compute bootstrap values");
-  TreeTools::computeBootstrapValues(*tree, list);
+
+  int bsformat = ApplicationTools::getIntParameter("bootstrap.format", bppconsense.getParams(), 0, "", false, 1);
+  TreeTools::computeBootstrapValues(*tree, list, true, bsformat);
   ApplicationTools::displayTaskDone();
 
   //Write resulting tree:
   PhylogeneticsApplicationTools::writeTree(*tree, bppconsense.getParams());
-  for (unsigned int i = 0; i < list.size(); i++)
+  for (size_t i = 0; i < list.size(); i++)
     delete list[i];
   delete tree;
 

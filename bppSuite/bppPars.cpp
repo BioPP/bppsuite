@@ -80,9 +80,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*             Bio++ Parsimony Methods, version 0.2.0             *" << endl;
+  cout << "*             Bio++ Parsimony Methods, version 2.2.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 13/06/12 *" << endl;
+  cout << "*                                           Last Modif. 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 

@@ -134,10 +134,10 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*            Bio++ Sequence Generator, version 1.3.0             *" << endl;
+  cout << "*            Bio++ Sequence Generator, version 2.2.0             *" << endl;
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                                            *" << endl;
-  cout << "*          B. Boussau                       Last Modif. 19/03/14 *" << endl;
+  cout << "*          B. Boussau                       Last Modif. 25/09/14 *" << endl;
   cout << "*          L. Gueguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
@@ -226,7 +226,7 @@ int main(int args, char ** argv)
   if (nhOpt == "no")
   {
     SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams(), unparsedparams);
-    FrequenciesSet* fSet = new FixedFrequenciesSet(model->getAlphabet(), model->getFrequencies());
+    FrequenciesSet* fSet = new FixedFrequenciesSet(model->getStateMap().clone(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
   //Galtier-Gouy case:
@@ -329,7 +329,11 @@ int main(int args, char ** argv)
       states.resize(nbSites);
       for (size_t i = 0; i < nbSites; i++)
       {
-        states[i] = RandomTools::pickOne<size_t>(modelSet->getModelStates(alphabet->charToInt(ancestralStates[i])));
+        int alphabetState = alphabet->charToInt(ancestralStates[i]);
+        //If a generic character is provided, we pick one state randomly from the possible ones:
+        if (alphabet->isUnresolved(alphabetState))
+          alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
+        states[i] = RandomTools::pickOne<size_t>(modelSet->getModelStates(alphabetState));
       }
 
       string siteSet = ApplicationTools::getStringParameter("input.site.selection", bppseqgen.getParams(), "none", "", true, 1);
@@ -424,7 +428,7 @@ int main(int args, char ** argv)
   }
 
 
-  if (nbSites==0)
+  if (nbSites == 0)
     nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
   
   /*******************/

@@ -91,7 +91,8 @@ int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*     Bio++ Computation of site likelihoods inside mixed models  *" << endl;
-  cout << "* Author: L. Guéguen                        Created on: 12/11/12 *" << endl;
+  cout << "*                        Version 2.2.0.                          *" << endl;
+  cout << "* Author: L. Guéguen                       Last Modif.: 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 

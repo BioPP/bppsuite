@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS
+Copyright or © or Copr. Bio++ Development Team
 
 This software is a computer program whose purpose is to estimate
 phylogenies and evolutionary parameters from a dataset according to
@@ -78,9 +78,9 @@ int main(int args, char ** argv)
 {
   
   cout << "******************************************************************" << endl;
-  cout << "*                  Bio++ ReRoot, version 0.1.3                   *" << endl;
+  cout << "*                  Bio++ ReRoot, version 2.2.0                   *" << endl;
   cout << "* Author: C. Scornavacca                    Created     15/01/08 *" << endl;
-  cout << "*                                           Last Modif. 08/08/09 *" << endl;
+  cout << "*                                           Last Modif. 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -306,9 +306,7 @@ int main(int args, char ** argv)
   ApplicationTools::displayTaskDone();
      
   //Write rooted trees:  
-
-     
-  for (unsigned int i = 0; i < trees.size(); i++) delete trees[i];
+  for (size_t i = 0; i < trees.size(); i++) delete trees[i];
     
   bppreroot.done();
   }
