@@ -33,17 +33,17 @@ BuildRequires: libbpp-phyl-devel = %{_version}
 
 AutoReq: yes
 AutoProv: yes
-%if 0%{?mdkversion}
-%if 0%{?mdkversion} >= 201100
+%if 0%{?mdkversion} >= 201100 || %{?distribution} == "Mageia"
 BuildRequires: xz
 %define zipext xz
 %else
+%if 0%{?mdkversion}
 BuildRequires: lzma
 %define zipext lzma
-%endif
 %else
 BuildRequires: gzip
 %define zipext gz
+%endif
 %endif
 
 %description
