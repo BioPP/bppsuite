@@ -33,17 +33,25 @@ BuildRequires: libbpp-phyl-devel = %{_version}
 
 AutoReq: yes
 AutoProv: yes
-%if 0%{?mdkversion} >= 201100 || %{?distribution} == "Mageia"
+
+%if 0%{?mandriva_version}
+%if 0%{?mandriva_version} >= 2011
 BuildRequires: xz
 %define zipext xz
 %else
-%if 0%{?mdkversion}
 BuildRequires: lzma
 %define zipext lzma
-%else
+%endif
+%endif
+
+%if 0%{?mageia_version}
+BuildRequires: xz
+%define zipext xz
+%endif
+
+%if 0%{?suse_version} || 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version}
 BuildRequires: gzip
 %define zipext gz
-%endif
 %endif
 
 %description
