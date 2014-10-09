@@ -35,23 +35,22 @@ AutoReq: yes
 AutoProv: yes
 
 %if 0%{?mandriva_version}
-%if 0%{?mandriva_version} >= 2011
+%if %{mandriva_version} >= 2011
 BuildRequires: xz
 %define zipext xz
 %else
 BuildRequires: lzma
 %define zipext lzma
 %endif
-%endif
-
-%if 0%{?mageia_version}
+%else
+%if 0%{?distribution:1} && "%{distribution}" == "Mageia"
 BuildRequires: xz
 %define zipext xz
-%endif
-
-%if 0%{?suse_version} || 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version}
+%else
+#For all other distributions:
 BuildRequires: gzip
 %define zipext gz
+%endif
 %endif
 
 %description
