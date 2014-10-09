@@ -218,7 +218,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "_CPack_Packages"
  "CMakeCache.txt"
  ".*\\\\.cmake"
- ".*\\\\.svn"
+ ".*\\\\.git"
  ".*\\\\.gz"
  ".*\\\\.zip"
  ".*\\\\.deb"
