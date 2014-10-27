@@ -425,7 +425,7 @@ int main(int args, char** argv)
 
     //Check initial likelihood:
     double logL = tl->getValue();
-    if (isinf(logL))
+    if (std::isinf(logL))
     {
       // This may be due to null branch lengths, leading to null likelihood!
       ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
@@ -440,7 +440,7 @@ int main(int args, char** argv)
       logL = tl->getValue();
     }
     ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
-    if (isinf(logL))
+    if (std::isinf(logL))
     {
       ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
       if (codonAlphabet)
@@ -448,7 +448,7 @@ int main(int args, char** argv)
         bool f = false;
         size_t s;
         for (size_t i = 0; i < sites->getNumberOfSites(); i++) {
-          if (isinf(tl->getLogLikelihoodForASite(i))) {
+          if (std::isinf(tl->getLogLikelihoodForASite(i))) {
             const Site& site = sites->getSite(i);
             s = site.size();
             for (size_t j = 0; j < s; j++) {
@@ -477,7 +477,7 @@ int main(int args, char** argv)
       } else {
         ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
         for (size_t i = sites->getNumberOfSites(); i > 0; --i) {
-          if (isinf(tl->getLogLikelihoodForASite(i - 1))) {
+          if (std::isinf(tl->getLogLikelihoodForASite(i - 1))) {
             ApplicationTools::displayResult("Ignore saturated site", sites->getSite(i - 1).getPosition());
             sites->deleteSite(i - 1);
           }
@@ -486,7 +486,7 @@ int main(int args, char** argv)
         tl->setData(*sites);
         tl->initialize();
         logL = tl->getValue();
-        if (isinf(logL)) {
+        if (std::isinf(logL)) {
           throw Exception("Likelihood is still 0 after saturated sites are removed! Looks like a bug...");
          }
         ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));

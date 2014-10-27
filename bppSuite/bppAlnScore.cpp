@@ -91,10 +91,10 @@ int main(int args, char** argv)
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppalnscore.getParams(), "", false, true, true);
 
     // Get the test alignment:
-    auto_ptr<SiteContainer> sitesTest(SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".test", false, true));
+    unique_ptr<SiteContainer> sitesTest(SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".test", false, true));
 
     // Get the reference alignment:
-    auto_ptr<SiteContainer> sitesRef(SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".ref", false, true));
+    unique_ptr<SiteContainer> sitesRef(SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".ref", false, true));
 
     // We check if the two alignments are compatible:
     vector<string> namesTest = sitesTest->getSequencesNames();
@@ -102,7 +102,7 @@ int main(int args, char** argv)
     if (namesTest != namesRef)
     {
       ApplicationTools::displayTask("Reorder sequences in ref. alignment", true);
-      auto_ptr<AlignedSequenceContainer> tmp(new AlignedSequenceContainer(sitesRef->getAlphabet()));
+      AlignedSequenceContainer* tmp = new AlignedSequenceContainer(sitesRef->getAlphabet());
       for (size_t i = 0; i < namesTest.size(); ++i)
       {
         ApplicationTools::displayGauge(i, namesTest.size() - 1);
@@ -112,11 +112,12 @@ int main(int args, char** argv)
         }
         catch (SequenceNotFoundException& ex)
         {
+          delete tmp;
           throw Exception("ERROR!!! Reference alignment should contain the same sequences as the test alignment!");
         }
       }
       ApplicationTools::displayTaskDone();
-      sitesRef = tmp;
+      sitesRef.reset(tmp);
     }
 
     // Build alignment indexes:

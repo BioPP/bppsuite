@@ -237,7 +237,7 @@ int main(int args, char ** argv)
   delete tree;
     
   double logL = tl->getValue();
-  if (isinf(logL))
+  if (std::isinf(logL))
   {
     // This may be due to null branch lengths, leading to null likelihood!
     ApplicationTools::displayWarning("!!! Warning!!! Likelihood is zero.");
@@ -251,7 +251,7 @@ int main(int args, char ** argv)
     tl->matchParametersValues(pl);
     logL = tl->getValue();
   }
-  if (isinf(logL))
+  if (std::isinf(logL))
   {
     ApplicationTools::displayError("!!! Unexpected likelihood == 0.");
     ApplicationTools::displayError("!!! Looking at each site:");

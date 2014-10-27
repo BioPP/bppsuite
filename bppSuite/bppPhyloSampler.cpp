@@ -126,8 +126,8 @@ int main(int args, char ** argv)
   string inputMethod = ApplicationTools::getStringParameter("input.method", bppphysamp.getParams(), "tree");
   ApplicationTools::displayResult("Input method", inputMethod);
 
-  auto_ptr< DistanceMatrix > dist;
-  auto_ptr< TreeTemplate<Node> > tree;
+  unique_ptr< DistanceMatrix > dist;
+  unique_ptr< TreeTemplate<Node> > tree;
   if(inputMethod == "tree")
   {
     tree.reset(dynamic_cast<TreeTemplate<Node> *>(PhylogeneticsApplicationTools::getTree(bppphysamp.getParams())));
