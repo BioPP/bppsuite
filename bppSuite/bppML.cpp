@@ -79,8 +79,11 @@ using namespace std;
 
 #include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
 #include <Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h>
+#include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SingleDataPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 
@@ -314,8 +317,9 @@ int main(int args, char** argv)
     // Computing stuff
     
     DiscreteRatesAcrossSitesTreeLikelihood* tl_old = 0;
-    newlik::PhyloLikelihood* tl_new = 0;
-
+    PhyloLikelihood* tl_new = 0;
+    SubstitutionProcessCollection* SPC = 0;
+    
     bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, 2);
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, 1);
     unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppml.getParams(), 0, "", true, 1);
@@ -366,133 +370,28 @@ int main(int args, char** argv)
 
       map<size_t, SubstitutionModel*> mMod = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), vSites, bppml.getParams(), unparsedparams);
 
-      map<size_t, FrequenciesSet*> mRootFreq=getRootFrequenciesSets(alphabet, gCode, vData, params, suffix, suffixIsOptional);
+      map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), vSites, bppml.getParams());
 
+      SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), vSites, vTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
+      
+      map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, vSites, bppml.getParams(), unparsedparams);
 
-      string recu = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, false);
+      std::vector<SingleDataPhyloLikelihood*> vPhyl;
 
-      if ((recu=="double") || (recu=="simple"))
-        ApplicationTools::displayResult("Likelihood recursion", recu);
+      map<size_t, PhyloLikelihood*>::iterator it;
+
+      for (it=mPhyl.begin(); it != mPhyl.end(); it++)
+        if (dynamic_cast<SingleDataPhyloLikelihood*>(it->second))
+          vPhyl.push_back(dynamic_cast<SingleDataPhyloLikelihood*>(it->second));
+
+      if (vPhyl.size()==1)
+        tl_new=vPhyl[0];
       else
-        throw Exception("Unknown recursion option: " + recu);
-
-      char recursion = (recu=="simple")?'S':'D';
-
-      ///  Collection
-      if (collection!="")
-      {
-        string collName;
-        map<string, string> collArgs;
-        KeyvalTools::parseProcedure(collection, collName, collArgs);
-          
-        SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), vSites, vTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
-          
-        ApplicationTools::displayResult("Collection type", collName);
-          
-        if (collName=="Mixture")
-        {
-          MixturePhyloLikelihood* pMP = new MixturePhyloLikelihood(*vSites[0], SPC, recursion);
-          tl_new = pMP;
-            
-          size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
-            
-          std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", collArgs, ',', "("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP))+")");
-          if (vprob.size()!=1)
-          {
-            if (vprob.size()!=pMP->getCollection()->getNumberOfSubstitutionProcess())
-              throw BadSizeException("Wrong size of probas description in Mixture", vprob.size(), pMP->getCollection()->getNumberOfSubstitutionProcess());
-            Simplex si(vprob);
-            pMP->setSubProcessProb(si);
-          }
-        }
-        else if (collName=="HMM")
-        {
-          HmmPhyloLikelihood* pMP = new HmmPhyloLikelihood(*vSites[0], SPC, recursion);
-            
-          tl_new = pMP;
-          size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
-            
-          string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
-          string vvs="(";
-          for (size_t i=0;i<nbP;i++)
-            vvs+=(i==0?"":",")+vs;
-          vvs+=")";
-            
-          RowMatrix<double> mat=ApplicationTools::getMatrixParameter<double>("probas", collArgs, ',', vvs);
-            
-          FullHmmTransitionMatrix fhtm(pMP->getHmmTransitionMatrix().getHmmStateAlphabet(), pMP->getNamespace());
-          fhtm.setTransitionProbabilities(mat);
-            
-          pMP->matchParametersValues(fhtm.getParameters());
-            
-        }
-        else if (collName=="AutoCorr")
-        {
-          AutoCorrelationPhyloLikelihood* pMP = new AutoCorrelationPhyloLikelihood(*vSites[0], SPC, recursion);
-            
-          tl_new = pMP;
-          size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
-            
-          string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
-            
-          vector<double> v=ApplicationTools::getVectorParameter<double>("probas", collArgs, ',', vs);
-            
-          ParameterList pl;
-            
-          for (size_t i=0;i<v.size();i++)
-            pl.addParameter(Parameter("lambda"+TextTools::toString(i+1),v[i]));
-            
-            
-          pMP->matchParametersValues(pl);
-            
-        }
-        else
-          throw Exception("Unknown Multiple Phylogeny description : "+ collName);
-            
-      }
-      else
-      {
-        string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
-        ApplicationTools::displayResult("Heterogeneous model", nhOpt);
-          
-        auto_ptr<SubstitutionProcess> process(PhylogeneticsApplicationTools::getSubstitutionProcess(alphabet, gCode.get(), vSites, vTree, bppml.getParams()));
-          
-        if (process->getSubstitutionModel(0,0).getName() != "RE08")
-          SiteContainerTools::changeGapsToUnknownCharacters(*vSites[0]);
-
-        string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, 1);
-        
-        ApplicationTools::displayResult("Likelihood data compression", compression);
-
-          
-        TreeLikelihoodCalculation* tlcomp;
-
-        if (recursion=='S')
-        {
-          if (compression == "simple")
-          {
-            if (dynamic_cast<const MixedSubstitutionModel*>(&process->getSubstitutionModel(0,0)))
-              throw Exception("Simple recursion process with mixed models is not implemented yet.");
-            else 
-              tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*vSites[0], process.get(), true, compression=="simple");
-          }
-          else
-          {
-            if (dynamic_cast<const MixedSubstitutionModel*>(&process->getSubstitutionModel(0,0)))
-              throw Exception("Recursive recursion process with mixed models is not implemented yet.");
-            else 
-              tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*vSites[0], process.get(), true, compression=="recursive");
-          }
-        }
-        else
-          tlcomp = new DoubleRecursiveTreeLikelihoodCalculation(*vSites[0], process.get(), true);
-        
-        tl_new = new SinglePhyloLikelihood(process.release(), tlcomp);
-      }
-
+        tl_new=new SumOfDataPhyloLikelihood(vPhyl);      
     }
     
-      
+    tl_new->getParameters().printParameters(cerr);
+    
       
     //Listing parameters
     string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false, "", true, "none", 1);
@@ -699,6 +598,8 @@ int main(int args, char** argv)
     {
       //Check initial likelihood:
       double logL = tl_new->getValue();
+      cerr << logL << endl;
+      
       if (isinf(logL))
       {
         // This may be due to null branch lengths, leading to null likelihood!
@@ -717,65 +618,83 @@ int main(int args, char** argv)
       if (isinf(logL))
       {
         ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
-        if (codonAlphabet)
+
+        vector<SingleDataPhyloLikelihood*> vSD;
+        if (dynamic_cast<SingleDataPhyloLikelihood*>(tl_new)!=NULL)
+          vSD.push_back(dynamic_cast<SingleDataPhyloLikelihood*>(tl_new));
+        else{
+          MultiDataPhyloLikelihood* mDP=dynamic_cast<MultiDataPhyloLikelihood*>(tl_new);
+          
+          for (size_t nSD=0; nSD< mDP->getNumberOfSingleDataPhyloLikelihoods(); nSD++)
+            vSD.push_back(mDP->getSingleDataPhylolikelihood(nSD));
+        }
+
+        for (size_t nSD=0; nSD != vSD.size(); nSD++)
         {
-          bool f = false;
-          size_t s;
-          for (size_t i = 0; i < vSites[0]->getNumberOfSites(); i++) {
-            if (isinf(tl_new->getLogLikelihoodForASite(i))) {
-              const Site& site = vSites[0]->getSite(i);
-              s = site.size();
-              for (size_t j = 0; j < s; j++) {
-                if (gCode->isStop(site.getValue(j))) {
-                  (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vSites[0]->getSequence(j).getName()).endLine();
-                  f = true;
+          ApplicationTools::displayWarning("Checking for phylolikelihood " + TextTools::toString(nSD));
+          
+          if (isinf(vSD[nSD]->getValue()))
+          {
+            SingleDataPhyloLikelihood* sDP=dynamic_cast<SingleDataPhyloLikelihood*>(vSD[nSD]);
+            /// !!! Not economic
+            SiteContainer* vData=sDP->getData()->clone();
+            
+            if (codonAlphabet)
+            {
+              bool f = false;
+              size_t s;
+              for (size_t i = 0; i < vData->getNumberOfSites(); i++) {
+                if (isinf(sDP->getLogLikelihoodForASite(i))) {
+                  const Site& site = vData->getSite(i);
+                  s = site.size();
+                  for (size_t j = 0; j < s; j++) {
+                    if (gCode->isStop(site.getValue(j))) {
+                      (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vData->getSequence(j).getName()).endLine();
+                      f = true;
+                    }
+                  }
                 }
               }
+              if (f)
+                exit(-1);
             }
-          }
-          if (f)
-            exit(-1);
-        }
-        bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
-        if (!removeSaturated) {
-          ApplicationTools::displayError("!!! Looking at each site:");
-          for (unsigned int i = 0; i < vSites[0]->getNumberOfSites(); i++) {
-            (*ApplicationTools::error << "Site " << vSites[0]->getSite(i).getPosition() << "\tlog likelihood = " << tl_new->getLogLikelihoodForASite(i)).endLine();
-          }
-          ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
-          ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
-          exit(1);
-        } else {
-          ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
-          for (size_t i = vSites[0]->getNumberOfSites(); i > 0; --i) {
-            if (isinf(tl_new->getLogLikelihoodForASite(i - 1))) {
-              ApplicationTools::displayResult("Ignore saturated site", vSites[0]->getSite(i - 1).getPosition());
-              vSites[0]->deleteSite(i - 1);
-            }
-          }
-          ApplicationTools::displayResult("Number of sites retained", vSites[0]->getNumberOfSites());
+            
+            bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
+            if (!removeSaturated) {
+              ApplicationTools::displayError("!!! Looking at each site:");
+              for (unsigned int i = 0; i < vData->getNumberOfSites(); i++) {
+                (*ApplicationTools::error << "Site " << vData->getSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
+              }
+              ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
+              ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
+              exit(1);
+            } else {
+              ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
+              for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
+                if (isinf(sDP->getLogLikelihoodForASite(i - 1))) {
+                  ApplicationTools::displayResult("Ignore saturated site", vData->getSite(i - 1).getPosition());
+                  vData->deleteSite(i - 1);
+                }
+              }
+              ApplicationTools::displayResult("Number of sites retained", vSites[0]->getNumberOfSites());
 
-          tl_new->setData(*vSites[0]);
-          logL = tl_new->getValue();
-          if (isinf(logL)) {
-            ApplicationTools::displayError("This should not happen. Exiting now.");
-            exit(1);
+              sDP->setData(*vData);
+              logL = sDP->getValue();
+              if (isinf(logL)) {
+                ApplicationTools::displayError("This should not happen. Exiting now.");
+                exit(1);
+              }
+              ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
+            }
           }
-          ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
         }
       }
       
       tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
 
-      if (dynamic_cast<SinglePhyloLikelihood*>(tl_new)!=NULL){
-        Tree* tree = new TreeTemplate<Node>((dynamic_cast<SinglePhyloLikelihood*>(tl_new))->getTree());
-        PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
-      }
-      else {
-        std::vector<const TreeTemplate<Node>* > vTNree = dynamic_cast<MultiPhyloLikelihood*>(tl_new)->getTrees();
-        PhylogeneticsApplicationTools::writeTrees(vTNree, bppml.getParams());
-      }
-              
+      std::vector<const TreeTemplate<Node>* > vTNree = SPC->getTrees();
+      PhylogeneticsApplicationTools::writeTrees(vTNree, bppml.getParams());
+      
       // Write parameters to screen:
       ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_new->getValue(), 15));
       ParameterList parameters = tl_new->getParameters();
@@ -909,8 +828,6 @@ int main(int args, char** argv)
         delete tl_old;
       if (tl_new)
         delete tl_new;
-      for (size_t i=0; i< vTree.size(); i++)
-        delete vTree[i];
       bppml.done();
     }
   }
