@@ -390,9 +390,6 @@ int main(int args, char** argv)
         tl_new=new SumOfDataPhyloLikelihood(vPhyl);      
     }
     
-    tl_new->getParameters().printParameters(cerr);
-    
-      
     //Listing parameters
     string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false, "", true, "none", 1);
     if (paramNameFile != "none") {
@@ -598,7 +595,6 @@ int main(int args, char** argv)
     {
       //Check initial likelihood:
       double logL = tl_new->getValue();
-      cerr << logL << endl;
       
       if (isinf(logL))
       {
@@ -606,7 +602,7 @@ int main(int args, char** argv)
         ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
         ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
         ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
-        ParameterList pl = tl_new->getBranchLengthsParameters();
+        ParameterList pl = tl_new->getBranchLengthParameters();
         for (unsigned int i = 0; i < pl.size(); i++)
         {
           if (pl[i].getValue() < 0.000001) pl[i].setValue(0.000001);
@@ -689,7 +685,9 @@ int main(int args, char** argv)
           }
         }
       }
-      
+
+      tl_new->getParameters().printParameters(cerr);
+       
       tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
 
       std::vector<const TreeTemplate<Node>* > vTNree = SPC->getTrees();
@@ -698,7 +696,7 @@ int main(int args, char** argv)
       // Write parameters to screen:
       ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_new->getValue(), 15));
       ParameterList parameters = tl_new->getParameters();
-      parameters.deleteParameters(tl_new->getBranchLengthsParameters().getParameterNames(),false);
+      parameters.deleteParameters(tl_new->getBranchLengthParameters().getParameterNames(),false);
               
       for (unsigned int i = 0; i < parameters.size(); i++)
         ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
