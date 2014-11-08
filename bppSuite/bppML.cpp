@@ -179,43 +179,21 @@ int main(int args, char** argv)
     if (vSites.size() == 0)
       throw Exception("Missing data input.sequence.file option");
 
-    /////// Get the initial tree  
+    /////// Get the initial tree
     
-    vector<Tree*> vTree;
-    
-    string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bppml.getParams(), "user", "", false, 1);
-
-    ApplicationTools::displayResult("Input tree", initTreeOpt);
-
-    if (initTreeOpt == "user")
-    {
-      vTree = PhylogeneticsApplicationTools::getTrees(bppml.getParams());
-
-      if (vTree.size()==0){
-        ApplicationTools::displayError("!!! Empty file tree.");
-        exit(-1);
-      }
-          
-      for (size_t i=0; i<vTree.size(); i++)
-        ApplicationTools::displayResult("Number of leaves", TextTools::toString(vTree[i]->getNumberOfLeaves()));
-    }
-    else if (initTreeOpt == "random")
-    {
-      vector<string> names = vSites[0]->getSequencesNames();
-      Tree* tree = TreeTemplateTools::getRandomTree(names);
-      tree->setBranchLengths(1.);
-      vTree.push_back(tree);
-    }
-    else throw Exception("Unknown init tree method.");
+    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), vSites);
 
     // Try to write the current tree to file. This will be overwritten by the optimized tree,
     // but allow to check file existence before running optimization!
 
+    map<size_t, Tree*>::const_iterator it;
     vector<const Tree*> vcTree;
-    for (size_t i=0; i<vTree.size(); i++)
-      vcTree.push_back(vTree[i]);
-      
+    
+    for (it = mTree.begin(); it != mTree.end(); it++)
+      vcTree.push_back(it->second);
+    
     PhylogeneticsApplicationTools::writeTrees(vcTree, bppml.getParams());
+
     
     bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", bppml.getParams(), true, "", false, 1);
     if (!computeLikelihood)
@@ -224,69 +202,12 @@ int main(int args, char** argv)
       for (size_t i=0;i<vSites.size(); i++)
         delete vSites[i];
       
-      for (size_t i=0; i<vTree.size(); i++)
-        delete vTree[i];
+      for (it = mTree.begin(); it != mTree.end(); it++)
+        delete it->second;
       cout << "BppML's done. Bye." << endl;
       return 0;
     }
 
-    ////////////
-    // Setting branch lengths?
-    string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", bppml.getParams(), "Input", "", true, 1);
-    string cmdName;
-    map<string, string> cmdArgs;
-    KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
-    if (cmdName == "Input")
-    {
-      // Is the root has to be moved to the midpoint position along the branch that contains it ? If no, do nothing!
-      string midPointRootBrLengths = ApplicationTools::getStringParameter("midPointRootBrLengths", cmdArgs, "no", "", true, 2);
-      if(midPointRootBrLengths == "yes")
-        for (size_t i=0; i< vTree.size(); i++)
-          TreeTools::constrainedMidPointRooting(*vTree[i]);
-    }
-    else if (cmdName == "Equal")
-    {
-      double value = ApplicationTools::getDoubleParameter("value", cmdArgs, 0.1, "", true, 2);
-      if (value <= 0)
-        throw Exception("Value for branch length must be superior to 0");
-      ApplicationTools::displayResult("Branch lengths set to", value);
-      for (size_t i=0; i< vTree.size(); i++)
-        vTree[i]->setBranchLengths(value);
-    }
-    else if (cmdName == "Clock")
-    {
-      for (size_t i=0; i< vTree.size(); i++)
-        TreeTools::convertToClockTree(*vTree[i], vTree[i]->getRootId(), true);
-    }
-    else if (cmdName == "Grafen")
-    {
-      string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "input", "", true, 2);
-      double h;
-      for (size_t i=0; i< vTree.size(); i++)
-      {
-        Tree* tree=vTree[i];
-        if (grafenHeight == "input")
-        {
-          h = TreeTools::getHeight(*tree, tree->getRootId());
-        }
-        else
-        {
-          h = TextTools::toDouble(grafenHeight);
-          if (h <= 0) throw Exception("Height must be positive in Grafen's method.");
-        }
-        ApplicationTools::displayResult("Total height", TextTools::toString(h));
-
-        double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
-        ApplicationTools::displayResult("Grafen's rho", rho);
-        TreeTools::computeBranchLengthsGrafen(*tree, rho);
-        double nh = TreeTools::getHeight(*tree, tree->getRootId());
-        tree->scaleTree(h / nh);
-      }
-    }
-    else
-      throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
-    ApplicationTools::displayResult("Branch lengths", cmdName);
-  
     string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "", true, "none", 1);
 
     if (treeWIdPath != "none")
@@ -295,9 +216,9 @@ int main(int args, char** argv)
       treeWriter.enableExtendedBootstrapProperty("NodeId");
       ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
 
-      for (size_t iv=0; iv< vTree.size(); iv++)
+      for (it = mTree.begin(); it != mTree.end(); it++)
       {
-        TreeTemplate<Node> ttree(*vTree[iv]);
+        TreeTemplate<Node> ttree(*it->second);
         vector<Node*> nodes = ttree.getNodes();
         for (size_t i = 0; i < nodes.size(); i++)
         {
@@ -306,8 +227,8 @@ int main(int args, char** argv)
           else
             nodes[i]->setBranchProperty("NodeId", BppString(TextTools::toString(nodes[i]->getId())));
         }
-        treeWriter.write(ttree, treeWIdPath, iv==0);
-        delete vTree[iv];
+        treeWriter.write(ttree, treeWIdPath, it==mTree.begin());
+        delete it->second;
       }
       cout << "BppML's done." << endl;
       exit(0);
@@ -329,7 +250,8 @@ int main(int args, char** argv)
     SubstitutionModel*    model    = 0;
     SubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist    = 0;
-
+    Tree* firstTree = mTree.begin()->second;
+    
     map<string, string> unparsedparams;
     /// Topology estimation
     
@@ -357,7 +279,7 @@ int main(int args, char** argv)
         rDist = PhylogeneticsApplicationTools::getRateDistributions(bppml.getParams())[0];
       }
       if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-        tl_old = new NNIHomogeneousTreeLikelihood(*vTree[0], *vSites[0], model, rDist, checkTree, true);
+        tl_old = new NNIHomogeneousTreeLikelihood(*firstTree, *vSites[0], model, rDist, checkTree, true);
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
     }
@@ -372,17 +294,17 @@ int main(int args, char** argv)
 
       map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), vSites, bppml.getParams());
 
-      SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), vSites, vTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
+      SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), vSites, mTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
       
       map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, vSites, bppml.getParams(), unparsedparams);
 
       std::vector<SingleDataPhyloLikelihood*> vPhyl;
 
-      map<size_t, PhyloLikelihood*>::iterator it;
+      map<size_t, PhyloLikelihood*>::iterator itm;
 
-      for (it=mPhyl.begin(); it != mPhyl.end(); it++)
-        if (dynamic_cast<SingleDataPhyloLikelihood*>(it->second))
-          vPhyl.push_back(dynamic_cast<SingleDataPhyloLikelihood*>(it->second));
+      for (itm=mPhyl.begin(); itm != mPhyl.end(); itm++)
+        if (dynamic_cast<SingleDataPhyloLikelihood*>(itm->second))
+          vPhyl.push_back(dynamic_cast<SingleDataPhyloLikelihood*>(itm->second));
 
       if (vPhyl.size()==1)
         tl_new=vPhyl[0];
@@ -686,8 +608,6 @@ int main(int args, char** argv)
         }
       }
 
-      tl_new->getParameters().printParameters(cerr);
-       
       tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
 
       std::vector<const TreeTemplate<Node>* > vTNree = SPC->getTrees();
@@ -741,7 +661,7 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
         bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppml.getParams(), false, "", true, false);
 
-        const Tree* initTree = vTree[0];
+        const Tree* initTree = firstTree;
         if (!bootstrapVerbose) bppml.getParam("optimization.verbose") = "0";
         bppml.getParam("optimization.profiler") = "none";
         bppml.getParam("optimization.messageHandler") = "none";
@@ -799,7 +719,7 @@ int main(int args, char** argv)
 
 
         ApplicationTools::displayTask("Compute bootstrap values");
-        TreeTools::computeBootstrapValues(*vTree[0], bsTrees);
+        TreeTools::computeBootstrapValues(*firstTree, bsTrees);
         ApplicationTools::displayTaskDone();
         for (unsigned int i = 0; i < nbBS; i++)
         {
@@ -808,16 +728,19 @@ int main(int args, char** argv)
 
         // Write resulting tree:
         vcTree.clear();
-        for (size_t i=0; i<vTree.size(); i++)
-          vcTree.push_back(vTree[i]);
-      
+    
+        for (it = mTree.begin(); it != mTree.end(); it++)
+          vcTree.push_back(it->second);
+    
         PhylogeneticsApplicationTools::writeTrees(vcTree, bppml.getParams());
       }
-
 
       delete alphabet;
       for (size_t i=0; i< vSites.size(); i++)
         delete vSites[i];
+      
+      for (it = mTree.begin(); it != mTree.end(); it++)
+        delete it->second;
       
       if (model) delete model;
       if (modelSet) delete modelSet;
