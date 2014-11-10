@@ -190,10 +190,13 @@ int main(int args, char** argv)
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(alpha);
       else         sc = new VectorSequenceContainer(alpha);
-      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);
-        Sequence* seq = new BasicSequence(old->getName(), old->getContent(), old->getComments(), alpha);
+        vector<int> content(old->size());
+        for (size_t j = 0; j < old->size(); ++j)
+          content[j] = (*old)[j];
+        Sequence* seq = new BasicSequence(old->getName(), content, old->getComments(), alpha);
         sc->addSequence(*seq, false);
         delete seq;
       }
