@@ -139,52 +139,22 @@ int main(int args, char** argv)
     }
 
 
-    ////// Data
+    ////// Get the map of the sequences 
+
+    map<size_t, SiteContainer*> mSites = SequenceApplicationTools::getSiteContainers(alphabet, bppml.getParams());
+
     
-    VectorSiteContainer* allSites=0;
-    vector<SiteContainer* > vSites;
-    VectorSiteContainer* sites;
-
-    try {
-      allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppml.getParams(), "", false);
-      
-      sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppml.getParams(), "", true, false);
-      
-      ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
-      ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
-
-      vSites.push_back(sites);
-    }
-    catch(Exception& ex) {
-      size_t i=1;
-
-      while (true)
-      {
-        try {
-          allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppml.getParams(), TextTools::toString(i), false);
-          sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppml.getParams(), TextTools::toString(i), true, false);
-      
-          ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
-          ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
-
-          vSites.push_back(sites);
-          i++;
-        }
-        catch(Exception& ex2) {
-          break;
-        }
-      }
-    }
-    
-    if (vSites.size() == 0)
+    if (mSites.size() == 0)
       throw Exception("Missing data input.sequence.file option");
 
-    /////// Get the initial tree
+    /////// Get the map of initial trees
     
-    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), vSites);
+    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites);
 
-    // Try to write the current tree to file. This will be overwritten by the optimized tree,
-    // but allow to check file existence before running optimization!
+    
+    // Try to write the current tree to file. This will be overwritten
+    // by the optimized tree, but allow to check file existence before
+    // running optimization!
 
     map<size_t, Tree*>::const_iterator it;
     vector<const Tree*> vcTree;
@@ -199,14 +169,16 @@ int main(int args, char** argv)
     if (!computeLikelihood)
     {
       delete alphabet;
-      for (size_t i=0;i<vSites.size(); i++)
-        delete vSites[i];
+      
+      for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
+        delete itc->second;
       
       for (it = mTree.begin(); it != mTree.end(); it++)
         delete it->second;
       cout << "BppML's done. Bye." << endl;
       return 0;
     }
+
 
     string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "", true, "none", 1);
 
@@ -266,9 +238,12 @@ int main(int args, char** argv)
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
       
-      model = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), vSites, bppml.getParams(), unparsedparams)[0];
+      model = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams)[0];
       
-      if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*vSites[0]);
+      if (model->getName() != "RE08")
+        for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
+          SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
+      
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
@@ -279,7 +254,7 @@ int main(int args, char** argv)
         rDist = PhylogeneticsApplicationTools::getRateDistributions(bppml.getParams())[0];
       }
       if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
-        tl_old = new NNIHomogeneousTreeLikelihood(*firstTree, *vSites[0], model, rDist, checkTree, true);
+        tl_old = new NNIHomogeneousTreeLikelihood(*firstTree, *mSites.begin()->second, model, rDist, checkTree, true);
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
     }
@@ -290,13 +265,16 @@ int main(int args, char** argv)
     {
       map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(bppml.getParams());
 
-      map<size_t, SubstitutionModel*> mMod = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), vSites, bppml.getParams(), unparsedparams);
+      map<size_t, SubstitutionModel*> mMod = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams);
 
-      map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), vSites, bppml.getParams());
+      map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, bppml.getParams());
 
-      SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), vSites, mTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
+      SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
       
-      map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, vSites, bppml.getParams(), unparsedparams);
+      for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
+        SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
+
+      map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSites, bppml.getParams(), unparsedparams);
 
       std::vector<SingleDataPhyloLikelihood*> vPhyl;
 
@@ -360,13 +338,13 @@ int main(int args, char** argv)
         {
           bool f = false;
           size_t s;
-          for (size_t i = 0; i < vSites[0]->getNumberOfSites(); i++) {
+          for (size_t i = 0; i < mSites.begin()->second->getNumberOfSites(); i++) {
             if (isinf(tl_old->getLogLikelihoodForASite(i))) {
-              const Site& site = vSites[0]->getSite(i);
+              const Site& site = mSites.begin()->second->getSite(i);
               s = site.size();
               for (size_t j = 0; j < s; j++) {
                 if (gCode->isStop(site.getValue(j))) {
-                  (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vSites[0]->getSequence(j).getName()).endLine();
+                  (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << mSites.begin()->second->getSequence(j).getName()).endLine();
                   f = true;
                 }
               }
@@ -378,22 +356,22 @@ int main(int args, char** argv)
         bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
         if (!removeSaturated) {
           ApplicationTools::displayError("!!! Looking at each site:");
-          for (unsigned int i = 0; i < vSites[0]->getNumberOfSites(); i++) {
-            (*ApplicationTools::error << "Site " << vSites[0]->getSite(i).getPosition() << "\tlog likelihood = " << tl_old->getLogLikelihoodForASite(i)).endLine();
+          for (unsigned int i = 0; i < mSites.begin()->second->getNumberOfSites(); i++) {
+            (*ApplicationTools::error << "Site " << mSites.begin()->second->getSite(i).getPosition() << "\tlog likelihood = " << tl_old->getLogLikelihoodForASite(i)).endLine();
           }
           ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
           ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
           exit(1);
         } else {
           ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
-          for (size_t i = vSites[0]->getNumberOfSites(); i > 0; --i) {
+          for (size_t i = mSites.begin()->second->getNumberOfSites(); i > 0; --i) {
             if (isinf(tl_old->getLogLikelihoodForASite(i - 1))) {
-              ApplicationTools::displayResult("Ignore saturated site", vSites[0]->getSite(i - 1).getPosition());
-              vSites[0]->deleteSite(i - 1);
+              ApplicationTools::displayResult("Ignore saturated site", mSites.begin()->second->getSite(i - 1).getPosition());
+              mSites.begin()->second->deleteSite(i - 1);
             }
           }
-          ApplicationTools::displayResult("Number of sites retained", vSites[0]->getNumberOfSites());
-          tl_old->setData(*vSites[0]);
+          ApplicationTools::displayResult("Number of sites retained", mSites.begin()->second->getNumberOfSites());
+          tl_old->setData(*mSites.begin()->second);
           tl_old->initialize();
           logL = tl_old->getValue();
           if (isinf(logL)) {
@@ -436,7 +414,7 @@ int main(int args, char** argv)
         out.setPrecision(20) << (-tl_old->getValue());
         out.endLine();
         out << "# Number of sites = ";
-        out.setPrecision(20) << vSites[0]->getNumberOfSites();
+        out.setPrecision(20) << mSites.begin()->second->getNumberOfSites();
         out.endLine();
         out.endLine();
         out << "# Substitution model parameters:";
@@ -487,10 +465,10 @@ int main(int args, char** argv)
         vector<string> row(6);
         DataTable* infos = new DataTable(colNames);
           
-        for (unsigned int i = 0; i < vSites[0]->getNumberOfSites(); i++)
+        for (unsigned int i = 0; i < mSites.begin()->second->getNumberOfSites(); i++)
         {
           double lnL = tl_old->getLogLikelihoodForASite(i);
-          const Site* currentSite = &vSites[0]->getSite(i);
+          const Site* currentSite = &mSites.begin()->second->getSite(i);
           int currentSitePosition = currentSite->getPosition();
           string isCompl = "NA";
           string isConst = "NA";
@@ -594,7 +572,7 @@ int main(int args, char** argv)
                   vData->deleteSite(i - 1);
                 }
               }
-              ApplicationTools::displayResult("Number of sites retained", vSites[0]->getNumberOfSites());
+              ApplicationTools::displayResult("Number of sites retained", mSites.begin()->second->getNumberOfSites());
 
               sDP->setData(*vData);
               logL = sDP->getValue();
@@ -630,7 +608,10 @@ int main(int args, char** argv)
       if (parametersFile != "none")
       {
         StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
+        
         PhylogeneticsApplicationTools::printParameters(tl_new, out);
+
+        PhylogeneticsApplicationTools::printParameters(SPC, out);
       }
 
       // Write infos to file:
@@ -689,7 +670,7 @@ int main(int args, char** argv)
         for (unsigned int i = 0; i < nbBS; i++)
         {
           ApplicationTools::displayGauge(i, nbBS - 1, '=');
-          VectorSiteContainer* sample = SiteContainerTools::bootstrapSites(*vSites[0]);
+          VectorSiteContainer* sample = SiteContainerTools::bootstrapSites(*mSites.begin()->second);
           if (!approx)
           {
             model->setFreqFromData(*sample);
@@ -736,8 +717,9 @@ int main(int args, char** argv)
       }
 
       delete alphabet;
-      for (size_t i=0; i< vSites.size(); i++)
-        delete vSites[i];
+
+      for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
+        delete itc->second;
       
       for (it = mTree.begin(); it != mTree.end(); it++)
         delete it->second;

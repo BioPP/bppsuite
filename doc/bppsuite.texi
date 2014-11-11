@@ -279,8 +279,8 @@ You can use this syntax to define global variables:
 @cartouche
 @example
 data=MyData
-input.sequence.file=$(data).fasta
-input.tree.file=$(data).dnd
+input.data1 = sequence(file=$(data).fasta)
+input.tree1 = user(file=$(data).dnd)
 output.infos=$(data).infos
 @end example
 @end cartouche
@@ -293,8 +293,7 @@ For instance:
 @example
 #Option file 1:
 param=options2.bpp
-input.sequence.file=$(data).fasta
-input.sequence.format=Fasta
+input.data1=sequence(file=$(data).fasta, format=Fasta)
 @end example
 @end cartouche
 @cartouche
@@ -359,8 +358,18 @@ The following table give the currently implemented codes with their correspondin
 @node Sequences, Tree, Alphabet, Common
 @section Reading sequences
 
+Sequences are numberer as data like this:
+
 @table @command
-@item input.sequence.file=@{path@}
+
+@item input.data@{number@} = sequence(@{sequence arguments@})
+A description of the substitution model to use, using the keyval syntax.
+
+@end table
+
+The available arguments are : 
+@table @command
+@item file=@{path@}
 The sequence file to use. Depending on the program, these sequences have or do not have to be aligned.
 
 @item input.sequence.format = @{sequence format description@}
