@@ -276,18 +276,16 @@ int main(int args, char** argv)
 
       map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSites, bppml.getParams(), unparsedparams);
 
-      std::vector<SingleDataPhyloLikelihood*> vPhyl;
-
-      map<size_t, PhyloLikelihood*>::iterator itm;
-
-      for (itm=mPhyl.begin(); itm != mPhyl.end(); itm++)
+      map<size_t, SingleDataPhyloLikelihood*> mPhyl2;
+      
+      for (map<size_t, PhyloLikelihood*>::const_iterator itm=mPhyl.begin(); itm != mPhyl.end(); itm++)
         if (dynamic_cast<SingleDataPhyloLikelihood*>(itm->second))
-          vPhyl.push_back(dynamic_cast<SingleDataPhyloLikelihood*>(itm->second));
+          mPhyl2[itm->first]=dynamic_cast<SingleDataPhyloLikelihood*>(itm->second);
 
-      if (vPhyl.size()==1)
-        tl_new=vPhyl[0];
+      if (mPhyl2.size()==1)
+        tl_new=mPhyl2.begin()->second;
       else
-        tl_new=new SumOfDataPhyloLikelihood(vPhyl);      
+        tl_new=new SumOfDataPhyloLikelihood(mPhyl2);      
     }
     
     //Listing parameters
@@ -515,23 +513,26 @@ int main(int args, char** argv)
       {
         ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
-        vector<SingleDataPhyloLikelihood*> vSD;
+        map<size_t, SingleDataPhyloLikelihood*> mSD;
+        
         if (dynamic_cast<SingleDataPhyloLikelihood*>(tl_new)!=NULL)
-          vSD.push_back(dynamic_cast<SingleDataPhyloLikelihood*>(tl_new));
+          mSD[1]=dynamic_cast<SingleDataPhyloLikelihood*>(tl_new);
         else{
           MultiDataPhyloLikelihood* mDP=dynamic_cast<MultiDataPhyloLikelihood*>(tl_new);
+          vector<size_t> nSD=mDP->getNumbersOfSingleDataPhyloLikelihoods();
           
-          for (size_t nSD=0; nSD< mDP->getNumberOfSingleDataPhyloLikelihoods(); nSD++)
-            vSD.push_back(mDP->getSingleDataPhylolikelihood(nSD));
+          for (size_t iSD=0; iSD< nSD.size(); iSD++)
+            mSD[nSD[iSD]]=mDP->getSingleDataPhylolikelihood(nSD[iSD]);
         }
 
-        for (size_t nSD=0; nSD != vSD.size(); nSD++)
+
+        for (map<size_t, SingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
         {
-          ApplicationTools::displayWarning("Checking for phylolikelihood " + TextTools::toString(nSD));
+          ApplicationTools::displayWarning("Checking for phylolikelihood " + TextTools::toString(itm->first));
           
-          if (isinf(vSD[nSD]->getValue()))
+          if (isinf(itm->second->getValue()))
           {
-            SingleDataPhyloLikelihood* sDP=dynamic_cast<SingleDataPhyloLikelihood*>(vSD[nSD]);
+            SingleDataPhyloLikelihood* sDP=itm->second;
             /// !!! Not economic
             SiteContainer* vData=sDP->getData()->clone();
             
@@ -587,9 +588,8 @@ int main(int args, char** argv)
       }
 
       tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
-
-      std::vector<const TreeTemplate<Node>* > vTNree = SPC->getTrees();
-      PhylogeneticsApplicationTools::writeTrees(vTNree, bppml.getParams());
+      
+      PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams());
       
       // Write parameters to screen:
       ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_new->getValue(), 15));
