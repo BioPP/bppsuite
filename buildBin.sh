@@ -1,6 +1,6 @@
 #! /bin/sh
-arch=x86_64 #i686
-version=0.8.0-1
+arch=`uname -m`
+version=2.2.0-1
 
 strip bppSuite/bppdist
 strip bppSuite/bpppars
