@@ -93,7 +93,7 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 1.6.0      *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 2.2.0      *" << endl;
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                       Last Modif. 29/01/13 *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
@@ -322,7 +322,7 @@ int main(int args, char** argv)
       if (model->getNumberOfStates() != alphabet->getSize())
       {
         // Markov-Modulated Markov Model...
-        unsigned int n = (unsigned int)(model->getNumberOfStates() / alphabet->getSize());
+        unsigned int n = static_cast<unsigned int>(model->getNumberOfStates() / alphabet->getSize());
         rateFreqs = vector<double>(n, 1. / static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
                                                        // we should assume a rate distribution for the root also!!!
       }
@@ -348,7 +348,7 @@ int main(int args, char** argv)
       ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
    
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
-      for (unsigned int i = 0; i < globalParameters.size(); i++)
+      for (size_t i = 0; i < globalParameters.size(); i++)
         ApplicationTools::displayResult("Global parameter", globalParameters[i]);
       modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters);
       model = 0;

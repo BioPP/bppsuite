@@ -80,8 +80,8 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Sequence Manipulator, version 2.2.0.           *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 25/09/14 *" << endl;
+  cout << "*           Bio++ Sequence Manipulator, version 2.3.0.           *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 25/11/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -102,18 +102,27 @@ int main(int args, char** argv)
   CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
 
   // Get sequences:
-  SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);
-  OrderedSequenceContainer* sequences = new VectorSequenceContainer(*tmp);
-  delete tmp;
+  bool aligned = ApplicationTools::getBooleanParameter("input.alignment", bppseqman.getParams(), false, "", true, 1);
+  OrderedSequenceContainer* sequences = 0;
+
+  if (aligned) {
+    VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppseqman.getParams());
+    sequences = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppseqman.getParams(), "", true, false);
+    delete allSites;
+  } else {
+    SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);
+    sequences = new VectorSequenceContainer(*tmp);
+    delete tmp;
+  }
+
   ApplicationTools::displayResult("Number of sequences", sequences->getNumberOfSequences());
   
   // Perform manipulations
   
   vector<string> actions = ApplicationTools::getVectorParameter<string>("sequence.manip", bppseqman.getParams(), ',', "", "", false, 1);
   
-  bool aligned = false;
 
-  for (unsigned int a = 0; a < actions.size(); a++)
+  for (size_t a = 0; a < actions.size(); a++)
   {
     string cmdName;
     map<string, string> cmdArgs;
@@ -128,7 +137,7 @@ int main(int args, char** argv)
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
       else         sc = new VectorSequenceContainer(sequences->getAlphabet());
-      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = SequenceTools::getComplement(sequences->getSequence(i));
         sc->addSequence(*seq, false);
@@ -236,7 +245,7 @@ int main(int args, char** argv)
     else if (cmdName == "RemoveGaps")
     {
       VectorSequenceContainer* sc = new VectorSequenceContainer(sequences->getAlphabet());
-      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
         SequenceTools::removeGaps(*seq);
@@ -254,7 +263,7 @@ int main(int args, char** argv)
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
       else         sc = new VectorSequenceContainer(sequences->getAlphabet());
-      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = new BasicSequence(sequences->getSequence(i));
         SymbolListTools::changeGapsToUnknownCharacters(*seq);
@@ -272,7 +281,7 @@ int main(int args, char** argv)
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
       else         sc = new VectorSequenceContainer(sequences->getAlphabet());
-      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         Sequence* seq = new BasicSequence(sequences->getSequence(i));
         SymbolListTools::changeUnresolvedCharactersToGaps(*seq);
@@ -443,7 +452,7 @@ int main(int args, char** argv)
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
       else         sc = new VectorSequenceContainer(sequences->getAlphabet());
-      for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
         const Sequence* old = &sequences->getSequence(i);
         Sequence* seq = SequenceTools::getInvert(*old);

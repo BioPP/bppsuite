@@ -1,3 +1,6 @@
+25/11/14 Julien Dutheil
+* bppSeqMan can now read alignments and perform site seleciton priori to any analysis.
+
 28/09/14 -*- Version 2.2.0 -*- 
 
 16/09/14 Julien Dutheil
