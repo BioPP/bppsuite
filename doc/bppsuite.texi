@@ -62,23 +62,23 @@ Common options encountered in several programs.
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
-* Process::                     
+* Likelihoods::
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
 * WritingTrees::                Writing trees to files. 
 
-Process specification
+Declaring Phylo-likelihoods
 
-* Model::                       
-* Non-homogeneity::             Specific declaration of non-homogeneous modelling.
-* Collections::
+* Model::                       Markov model specification
+* Root::                        Root frequencies
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
-* Collection::
+* Process::                     Process along trees
+* Phylo-likelihoods::
 * Linking::
 
-Setting up the substitution model
+Setting up the substitution models
 
 * Nucleotide::                  Nucleotide models
 * Protein::                     Protein models
@@ -316,7 +316,7 @@ data=LSU
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
-* Process::                     
+* Likelihoods::
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
@@ -538,7 +538,7 @@ cause the program to exit just after producing the tagged tree.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node AlphabetIndex, Phylo-likelihoods, Tree, Common
+@node AlphabetIndex, Likelihoods, Tree, Common
 @section Specifying biochemical properties and distances
 
 Some methods require an "alphabet index" to be specified. Alphabet
@@ -603,18 +603,20 @@ whether distances should be signed or not.
 @c ------------------------------------------------------------------------------------------------------------------
 
 
-@node Phylo-likelihoods, Distribution, AlphabetIndex, Common
+@node Likelihoods, Distribution, AlphabetIndex, Common
 @section Declaring Phylo-likelihoods
 
 @menu
-* Process::
-* Model::
+* Model::                       Markov model specification
+* Root::                        Root frequencies
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
-* Linking::
+* Process::                     Process along trees
+* Phylo-likelihoods::           Declaration of likelihoods
+* Linking::                     Linking parameters
 @end menu
 
-@node Model, Root, Phylo-likelihoods, Phylo-likelihoods
+@node Model, Root, Likelihoods, Likelihoods
 @subsection Setting up the substitution models
 
 @menu
@@ -1479,7 +1481,7 @@ See the
 @c When nonhomogeneity option is @option{one_per_branch}, each site is
 @c constrained to follow the same submodel from leaves to root.
 
-@node  Root, FrequenciesSet, Model, Phylo-likelihoods
+@node  Root, FrequenciesSet, Model, Likelihoods
 @subsection Setting up the root frequencies
 
 Several root frequencies can be defined in the following way:
@@ -1492,7 +1494,7 @@ The Frequencies set used can be any of the ones described below
 @xref{Frequencies sets}, depending on the alphabet used.
 
 
-@node FrequenciesSet, Rates, Root, Phylo-likelihoods
+@node FrequenciesSet, Rates, Root, Likelihoods
 @subsection Declaring frequencies sets
 @anchor{Frequencies sets}
 
@@ -1618,7 +1620,7 @@ alphabetical order of states, and sum to one.
 
 @end table
 
-@node Rates, Process, FrequenciesSet, Phylo-likelihoods
+@node Rates, Process, FrequenciesSet, Likelihoods
 @subsection Setting up substitution rates
 
 Rate distributions are defined in the following way:
@@ -1646,7 +1648,7 @@ with a probability @var{p}.
 
 @end table
 
-@node  Process, Phylo-likelihoods, Rates, Phylo-likelihoods
+@node  Process, Phylo-likelihoods, Rates, Likelihoods
 @subsection Setting up the process
 
 Substitution process are numbered like this:
@@ -1705,7 +1707,7 @@ the developpers.
 @c parameters whose name has @command{theta} in it.
 
 
-@node  Phylo-likelihoods, Linking, Process, Phylo-likelihoods
+@node Phylo-likelihoods, Linking, Process, Likelihoods
 @subsection Setting up phylo-likelihoods
 
 
@@ -1759,7 +1761,7 @@ optimized) log-likelihood is the sum of the log-likelihoods of all
 these phylo-likelihoods.
 
 
-@node Linking,  , Phylo-likelihoods, Phylo-likelihoods
+@node Linking,  , Phylo-likelihoods, Likelihoods
 @subsection Linking parameters
 
 It is possible to reduce the parameter space by putting extra
@@ -1807,7 +1809,7 @@ root_freq1=Full(init=balanced)
 likelihood.alias=Full.theta1_1->GTR.theta1_1
 @end example
 
-@node Distribution, Estimation, Phylo-likelihoods, Common
+@node Distribution, Estimation, Likelihoods, Common
 @section Discrete distributions
 @anchor{Discrete distributions}
 
