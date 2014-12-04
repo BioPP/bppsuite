@@ -329,9 +329,11 @@ int main(int args, char** argv)
 
       bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), false, "", false, 1);
       FrequenciesSet* rootFreqs = 0;
+      std::map<std::string, std::string> aliasFreqNames;
       if (!stationarity)
       {
-        rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppml.getParams(), rateFreqs);
+        
+        rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppml.getParams(), aliasFreqNames, rateFreqs);
         stationarity = !rootFreqs;
         string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppml.getParams(), "", "", true, 1);
         if (freqDescription == "MVAprotein")
@@ -350,7 +352,7 @@ int main(int args, char** argv)
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
       for (size_t i = 0; i < globalParameters.size(); i++)
         ApplicationTools::displayResult("Global parameter", globalParameters[i]);
-      modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters);
+      modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, aliasFreqNames, globalParameters);
       model = 0;
 
       string recursion = ApplicationTools::getStringParameter("likelihood.recursion", bppml.getParams(), "simple", "", true, 1);
@@ -375,7 +377,9 @@ int main(int args, char** argv)
     else if (nhOpt == "general")
     {
       modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppml.getParams());
+
       if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      
       if (modelSet->getNumberOfStates() >= 2 * modelSet->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
