@@ -106,7 +106,7 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 2          *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 2.2.0      *" << endl;
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                       Last Modif. 10/02/14 *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
@@ -267,7 +267,7 @@ int main(int args, char** argv)
 
       map<size_t, SubstitutionModel*> mMod = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams);
 
-      map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, bppml.getParams());
+      map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams);
 
       SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
       

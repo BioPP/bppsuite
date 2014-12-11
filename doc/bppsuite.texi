@@ -2525,6 +2525,9 @@ BppSeqMan can perform any number of elementary operation, in any order, providin
 Specific options:
 @table @command
 
+@item input.alignment = @{boolean@}
+Are the input sequence aligned? If so site selection and filtering is enabled and can be used to preprocess the input data.
+
 @item sequence.manip = @{list<string>@}
 The list, in appropriate order, of elementary operations to perform.
 See below for a list of these operations.

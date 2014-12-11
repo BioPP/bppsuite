@@ -48,7 +48,7 @@ using namespace std;
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/TextTools.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
@@ -71,8 +71,8 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*              Bio++ Alignment Score, version 2.2.0              *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 25/09/14 *" << endl;
+  cout << "*              Bio++ Alignment Score, version 2.3.0              *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. 25/11/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -224,13 +224,29 @@ int main(int args, char** argv)
 
       MultiRange<size_t> csRanges;
       MultiRange<size_t> spsRanges;
+      size_t csBeg = 0, spsBeg = 0, csEnd = 0, spsEnd = 0;
+      size_t s = alphabet->getStateCodingSize();
       for (size_t i = 0; i < cs.size(); ++i)
       {
-        if (cs[i] == 1)
-          csRanges.addRange(Range<size_t>(i, i + 1));
-        if (sps[i] >= spsThreshold)
-          spsRanges.addRange(Range<size_t>(i, i + 1));
+        if (cs[i] == 1 && i > 0 && cs[i-1] != 1)
+          csBeg = i;
+        if (cs[i] != 1 && i > 0 && cs[i-1] == 1) {
+          csEnd = i;
+          csRanges.addRange(Range<size_t>(csBeg * s, csEnd * s));
+        }
+
+        if (sps[i] >= spsThreshold && i > 0 && sps[i-1] < spsThreshold)
+          spsBeg = i;
+        if (sps[i] < spsThreshold && i > 0 && sps[i-1] >= spsThreshold) {
+          spsEnd = i;
+          spsRanges.addRange(Range<size_t>(spsBeg * s, spsEnd * s));
+        }
       }
+      //Add the last range if any:
+      if (cs.back() == 1)
+        csRanges.addRange(Range<size_t>(csBeg * s, cs.size() * s));
+      if (sps.back() >= spsThreshold)
+        spsRanges.addRange(Range<size_t>(spsBeg * s, sps.size() * s));
 
       MaseHeader header;
       header.setSiteSelection("CS", csRanges);

@@ -190,9 +190,12 @@ int main(int args, char** argv)
         rateFreqs = vector<double>(n, 1. / (double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
         // we should assume a rate distribution for the root also!!!
       }
-      FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), rateFreqs);
+      
+      std::map<std::string, std::string> aliasFreqNames;
+
+      FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), aliasFreqNames, rateFreqs);
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppmixedlikelihoods.getParams(), ',', "");
-      modelSet = dynamic_cast<MixedSubstitutionModelSet*>(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters));
+      modelSet = dynamic_cast<MixedSubstitutionModelSet*>(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, aliasFreqNames, globalParameters));
       model = 0;
       tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
     }
