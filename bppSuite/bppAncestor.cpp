@@ -5,37 +5,37 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team
+  Copyright or © or Copr. Bio++ Development Team
 
-This software is a computer program whose purpose is to estimate
-phylogenies and evolutionary parameters from a dataset according to
-the maximum likelihood principle.
+  This software is a computer program whose purpose is to estimate
+  phylogenies and evolutionary parameters from a dataset according to
+  the maximum likelihood principle.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 // From the STL:
@@ -48,6 +48,7 @@ using namespace std;
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
+#include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
@@ -62,6 +63,7 @@ using namespace std;
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+#include <Bpp/Seq/Io/BppOAlignmentWriterFormat.h>
 
 // From PhylLib:
 #include <Bpp/Phyl/Tree/Tree.h>
@@ -75,7 +77,16 @@ using namespace std;
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
+// From Newlik:
+#include <Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h>
+#include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SingleDataPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
+#include <Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h>
+
 using namespace bpp;
+using namespace newlik;
 
 /******************************************************************************/
 
@@ -95,6 +106,7 @@ int main(int args, char ** argv)
   cout << "*     Bio++ Ancestral Sequence Reconstruction, version 2.2.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
   cout << "*          B. Boussau                       Last Modif: 25/09/14 *" << endl;
+  cout << "*          L. Guéguen                       Last Modif: 22/12/14 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -106,402 +118,511 @@ int main(int args, char ** argv)
   
   try {
 
-  BppApplication bppancestor(args, argv, "BppAncestor");
-  bppancestor.startTimer();
+    
+    BppApplication bppancestor(args, argv, "BppAncestor");
+    bppancestor.startTimer();
 
-  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppancestor.getParams(), "", false);
-  auto_ptr<GeneticCode> gCode;
-  CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
-  if (codonAlphabet) {
-    string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppancestor.getParams(), "Standard", "", true, true);
-    ApplicationTools::displayResult("Genetic Code", codeDesc);
+    map<string, string> allParams=bppancestor.getParams();
+    
+    Alphabet* alphabet = SequenceApplicationTools::getAlphabet(allParams, "", false);
+    auto_ptr<GeneticCode> gCode;
+    CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+    if (codonAlphabet) {
+      string codeDesc = ApplicationTools::getStringParameter("genetic_code", allParams, "Standard", "", true, true);
+      ApplicationTools::displayResult("Genetic Code", codeDesc);
       
-    gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
-  }
+      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+    }
 
-  VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppancestor.getParams());
   
-  VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppancestor.getParams(), "", true, false);
-  delete allSites;
+    ////// Get the map of the sequences 
 
-  ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
-  ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
+    map<size_t, SiteContainer*> mSites = SequenceApplicationTools::getSiteContainers(alphabet, allParams);
+
+    if (mSites.size() == 0)
+      throw Exception("Missing data input.sequence.file option");
+
+    /////// Get the map of initial trees
+    
+    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(allParams, mSites);
+
+    // Try to write the current tree to file. This will be overwritten
+    // by the optimized tree, but allow to check file existence before
+    // running optimization!
+
+    vector<const Tree*> vcTree;
+    
+    for (map<size_t, Tree*>::const_iterator it = mTree.begin(); it != mTree.end(); it++)
+      vcTree.push_back(it->second);
+    
+    PhylogeneticsApplicationTools::writeTrees(vcTree, allParams);
+
+    
+    bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", allParams, true, "", false, 1);
+    if (!computeLikelihood)
+    {
+      delete alphabet;
+      
+      for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
+        delete itc->second;
+      
+      for (map<size_t, Tree*>::const_iterator it = mTree.begin(); it != mTree.end(); it++)
+        delete it->second;
+      cout << "Bppancestor's done. Bye." << endl;
+      return 0;
+    }
+
+    /////////////////
+    // Computing stuff
+    
+    PhyloLikelihood* tl = 0;
+    SubstitutionProcessCollection* SPC = 0;
   
-  // Get the initial tree
-  Tree* tree = PhylogeneticsApplicationTools::getTree(bppancestor.getParams());
-  ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
+    string collection = ApplicationTools::getStringParameter("collection", allParams, "", "", true, 1);
+
+    map<string, string> unparsedparams;
+
+    map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(allParams);
+
+    map<size_t, SubstitutionModel*> mMod = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), mSites, allParams, unparsedparams);
+
+    map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, allParams, unparsedparams);
+
+    SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, allParams, unparsedparams);
+
   
-  string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppancestor.getParams(), false, false);
-  if (treeWIdPath != "none")
-  {
-    TreeTemplate<Node> ttree(*tree);
-    vector<Node *> nodes = ttree.getNodes();
-    for(unsigned int i = 0; i < nodes.size(); i++)
+// Missing check
+//  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+
+    for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
+      SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
+
+    // Change all phylolikelihoods recursion parameters to "Double"
+
+    vector<string> phylosName=ApplicationTools::matchingParameters("phylo*", allParams);
+    vector<size_t> phylosNum;
+    for (size_t i=0; i< phylosName.size(); i++)
     {
-      if(nodes[i]->isLeaf())
-        nodes[i]->setName(TextTools::toString(nodes[i]->getId()) + "_" + nodes[i]->getName());
-      else
-        nodes[i]->setBranchProperty("NodeId", BppString(TextTools::toString(nodes[i]->getId())));
+      size_t poseq=phylosName[i].find("=");
+      phylosNum.push_back((size_t)TextTools::toInt(phylosName[i].substr(5,poseq-5)));
     }
-    Newick treeWriter;
-    treeWriter.enableExtendedBootstrapProperty("NodeId");
-    ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
-    treeWriter.write(ttree, treeWIdPath);
-    delete tree;
-    cout << "BppAncestor's done." << endl;
-    exit(0);
-  }
 
-  bool checkTree = ApplicationTools::getBooleanParameter("input.tree.check_root", bppancestor.getParams(), true, "", true, false);
-
-  DRTreeLikelihood *tl;
-  string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppancestor.getParams(), "no", "", true, false);
-  ApplicationTools::displayResult("Heterogeneous model", nhOpt);
-
-  SubstitutionModel    *model    = 0;
-  SubstitutionModelSet *modelSet = 0;
-  DiscreteDistribution *rDist    = 0;
-  size_t nbStates;
-
-  map<string, string> unparsedparams;
+    map<size_t, PhyloLikelihood*> mPhylo;
   
-  if (nhOpt == "no")
-  {  
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams(), unparsedparams);
-    if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-    if (model->getNumberOfStates() > model->getAlphabet()->getSize())
-    {
-      //Markov-modulated Markov model!
-      rDist = new ConstantRateDistribution();
-    }
-    else
-    {
-      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
-    }
-    if (dynamic_cast<MixedSubstitutionModel*>(model))
-      tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
-    else
-      tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);
+    map<string, string> mrec;
+    mrec["recursion"]="double";
 
-    nbStates = model->getNumberOfStates();
-  }
-  else if (nhOpt == "one_per_branch")
-  {
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams(), unparsedparams);
-    if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-    if (model->getNumberOfStates() > model->getAlphabet()->getSize())
+    for (size_t mPi=0; mPi< phylosNum.size(); mPi++)
     {
-      //Markov-modulated Markov model!
-      rDist = new ConstantRateDistribution();
-    }
-    else
-    {
-      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
-    }
-    vector<double> rateFreqs;
-    if (model->getNumberOfStates() != alphabet->getSize())
-    {
-      //Markov-Modulated Markov Model...
-      unsigned int n =(unsigned int)(model->getNumberOfStates() / alphabet->getSize());
-      rateFreqs = vector<double>(n, 1./(double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-                                                   // we should assume a rate distribution for the root also!!!  
+      string phyloName = "";
+
+      string phyloDesc = ApplicationTools::getStringParameter("phylo", allParams, "Single", TextTools::toString(phylosNum[mPi]), 0);
+
+      string newPhyloDesc=KeyvalTools::changeKeyvals(phyloDesc, mrec);
+      
+      allParams["phylo"+TextTools::toString(phylosNum[mPi])]=newPhyloDesc;
     }
     
-    std::map<std::string, std::string> aliasFreqNames;
-    FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppancestor.getParams(), aliasFreqNames, rateFreqs);
-    
-    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppancestor.getParams(), ',', "");
-    modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, aliasFreqNames, globalParameters); 
-    model = 0;
-    if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
-      throw Exception("Non-homogeneous mixed substitution ancestor reconstruction not implemented, sorry!");
-    tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-    nbStates = modelSet->getNumberOfStates();
-  }
-  else if (nhOpt == "general")
-  {
-    modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppancestor.getParams());
-    if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-    if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
-    {
-      //Markov-modulated Markov model!
-      rDist = new ConstantDistribution(1.);
-    }
+    // get the Double recursive phylo likelihoods
+  
+    map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSites, allParams, unparsedparams);
+
+    map<size_t, SingleDataPhyloLikelihood*> mPhyl2;
+      
+    for (map<size_t, PhyloLikelihood*>::const_iterator itm=mPhyl.begin(); itm != mPhyl.end(); itm++)
+      if (dynamic_cast<SingleDataPhyloLikelihood*>(itm->second))
+        mPhyl2[itm->first]=dynamic_cast<SingleDataPhyloLikelihood*>(itm->second);
+
+    if (mPhyl2.size()==1)
+      tl=mPhyl2.begin()->second;
     else
+      tl=new SumOfDataPhyloLikelihood(mPhyl2);      
+
+    //////////////////////////////////////////////
+    /// Infinite likelihood
+  
+    double logL = tl->getValue();
+    if (isinf(logL))
     {
-      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
+      // This may be due to null branch lengths, leading to null likelihood!
+      ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
+      ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
+      ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.001.");
+      ParameterList pl = tl->getBranchLengthParameters();
+      for (unsigned int i = 0; i < pl.size(); i++)
+      {
+        if (pl[i].getValue() < 0.001)
+          pl[i].setValue(0.001);
+      }
+      tl->matchParametersValues(pl);
+      logL = tl->getValue();
     }
-    if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
-      throw Exception("Non-homogeneous mixed substitution ancestor reconstruction not implemented, sorry!");
-    tl = new DRNonHomogeneousTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-    nbStates = modelSet->getNumberOfStates();
-  }
-  else throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
-  tl->initialize();
- 
-  delete tree;
-    
-  double logL = tl->getValue();
-  if (isinf(logL))
-  {
-    // This may be due to null branch lengths, leading to null likelihood!
-    ApplicationTools::displayWarning("!!! Warning!!! Likelihood is zero.");
-    ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
-    ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
-    ParameterList pl = tl->getBranchLengthsParameters();
-    for(unsigned int i = 0; i < pl.size(); i++)
+  
+    ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
+    if (isinf(logL))
     {
-      if(pl[i].getValue() < 0.000001) pl[i].setValue(0.000001);
-    }
-    tl->matchParametersValues(pl);
-    logL = tl->getValue();
-  }
-  if (isinf(logL))
-  {
-    ApplicationTools::displayError("!!! Unexpected likelihood == 0.");
-    ApplicationTools::displayError("!!! Looking at each site:");
-    for(unsigned int i = 0; i < sites->getNumberOfSites(); i++)
-    {
-      (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
-    }
-    ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
-    exit(-1);
-  }
-  tree = new TreeTemplate<Node>(tl->getTree());
+      ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
-  // Write parameters to screen:
-  ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
-  ParameterList parameters = tl->getSubstitutionModelParameters();
-  for (unsigned int i = 0; i < parameters.size(); i++)
-  {
-    ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-  }
-  parameters = tl->getRateDistributionParameters();
-  for (unsigned int i = 0; i < parameters.size(); i++)
-  {
-    ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-  }
+      map<size_t, SingleDataPhyloLikelihood*> mSD;
+        
+      if (dynamic_cast<SingleDataPhyloLikelihood*>(tl)!=NULL)
+        mSD[1]=dynamic_cast<SingleDataPhyloLikelihood*>(tl);
+      else{
+        MultiDataPhyloLikelihood* mDP=dynamic_cast<MultiDataPhyloLikelihood*>(tl);
+        vector<size_t> nSD=mDP->getNumbersOfSingleDataPhyloLikelihoods();
+          
+        for (size_t iSD=0; iSD< nSD.size(); iSD++)
+          mSD[nSD[iSD]]=mDP->getSingleDataPhylolikelihood(nSD[iSD]);
+      }
 
-  // Getting posterior rate class distribution:
-  DiscreteDistribution* prDist = RASTools::getPosteriorRateDistribution(*tl);
-  ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
-  if (ApplicationTools::message) prDist->print(*ApplicationTools::message);
-  ApplicationTools::displayMessage("\n");
-  delete prDist;
 
-  // Reconstruct ancestral sequences:
-  string reconstruction = ApplicationTools::getStringParameter("asr.method", bppancestor.getParams(), "marginal", "", true, false);
-  ApplicationTools::displayResult("Ancestral state reconstruction method", reconstruction);
-  bool probs = false;
-
-  AncestralStateReconstruction *asr = 0;
-  bool probMethod = false;
-  if (reconstruction == "none")
-  {
-    //do nothing
-  } else if (reconstruction == "marginal") {
-    asr = new MarginalAncestralStateReconstruction(tl);
-    probMethod = true;
-  } else
-    throw Exception("Unknown ancestral state reconstruction method: " + reconstruction);
-
-  string outputFile;
-  if (asr) {
-    if (probMethod)
-    {
-      probs = ApplicationTools::getBooleanParameter("asr.probabilities", bppancestor.getParams(), false, "", true, false);
-      ApplicationTools::displayResult("Output probabilities", probs ? "yes" : "no");
-    }
-
-    // Write infos to file:
-    outputFile = ApplicationTools::getAFilePath("output.sites.file", bppancestor.getParams(), false, false);
-    if (outputFile != "none")
-    {
-      ApplicationTools::displayResult("Output file for sites", outputFile);
-      ofstream out(outputFile.c_str(), ios::out);
-      TreeTemplate<Node> ttree(*tree);
-      vector<Node *> nodes = ttree.getInnerNodes();
-      size_t nbNodes = nodes.size();
-    
-      // Get the rate class with maximum posterior probability:
-      vector<size_t> classes = tl->getRateClassWithMaxPostProbOfEachSite();
-      // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
-      Vdouble rates = tl->getPosteriorRateOfEachSite();
-      // Get the ancestral sequences:
-      vector<Sequence*> sequences(nbNodes);
-      vector<VVdouble*> probabilities(nbNodes);
-
-      vector<string> colNames;
-      colNames.push_back("Sites");
-      colNames.push_back("is.complete");
-      colNames.push_back("is.constant");
-      colNames.push_back("lnL");
-      colNames.push_back("rc");
-      colNames.push_back("pr");
-      for (size_t i = 0; i < nbNodes; i++) {
-        Node *node = nodes[i];
-        colNames.push_back("max." + TextTools::toString(node->getId()));
-        if (probs) {
-          probabilities[i] = new VVdouble();
-          //The cast will have to be updated when more probabilistic method will be available:
-          sequences[i] = dynamic_cast<MarginalAncestralStateReconstruction *>(asr)->getAncestralSequenceForNode(node->getId(), probabilities[i], false);
-
-          for (unsigned int j = 0; j < nbStates; j++) {
-            colNames.push_back("prob." + TextTools::toString(node->getId()) + "." + alphabet->intToChar((int)j));
-          }
-        }
-        else
+      for (map<size_t, SingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
+      {
+        ApplicationTools::displayWarning("Checking for phylolikelihood " + TextTools::toString(itm->first));
+          
+        if (isinf(itm->second->getValue()))
         {
-          if (node->isLeaf()) {
-
+          SingleDataPhyloLikelihood* sDP=itm->second;
+          /// !!! Not economic
+          SiteContainer* vData=sDP->getData()->clone();
+            
+          if (codonAlphabet)
+          {
+            bool f = false;
+            size_t s;
+            for (size_t i = 0; i < vData->getNumberOfSites(); i++) {
+              if (isinf(sDP->getLogLikelihoodForASite(i))) {
+                const Site& site = vData->getSite(i);
+                s = site.size();
+                for (size_t j = 0; j < s; j++) {
+                  if (gCode->isStop(site.getValue(j))) {
+                    (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vData->getSequence(j).getName()).endLine();
+                    f = true;
+                  }
+                }
+              }
+            }
+            if (f)
+              exit(-1);
+          }
+            
+          bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", allParams, false, "", true, false);
+          if (!removeSaturated) {
+            ApplicationTools::displayError("!!! Looking at each site:");
+            for (unsigned int i = 0; i < vData->getNumberOfSites(); i++) {
+              (*ApplicationTools::error << "Site " << vData->getSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
+            }
+            ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
+            ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
+            exit(1);
           } else {
-            sequences[i] = asr->getAncestralSequenceForNode(node->getId());
+            ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
+            for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
+              if (isinf(sDP->getLogLikelihoodForASite(i - 1))) {
+                ApplicationTools::displayResult("Ignore saturated site", vData->getSite(i - 1).getPosition());
+                vData->deleteSite(i - 1);
+              }
+            }
+            ApplicationTools::displayResult("Number of sites retained", mSites.begin()->second->getNumberOfSites());
+
+            sDP->setData(*vData);
+            logL = sDP->getValue();
+            if (isinf(logL)) {
+              ApplicationTools::displayError("This should not happen. Exiting now.");
+              exit(1);
+            }
+            ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
           }
         }
       }
+    }
 
-      //Now fill the table:
-      vector<string> row(colNames.size());
-      DataTable* infos = new DataTable(colNames);
+    // Write parameters to screen:
+    //    ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl->getValue(), 15));
+    ParameterList parameters = tl->getParameters();
+    parameters.deleteParameters(tl->getBranchLengthParameters().getParameterNames(),false);
+              
+    for (unsigned int i = 0; i < parameters.size(); i++)
+      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+
+
+    // Reconstruct ancestral sequences:
+    string reconstruction = ApplicationTools::getStringParameter("asr.method", bppancestor.getParams(), "marginal", "", true, false);
+    ApplicationTools::displayResult("Ancestral state reconstruction method", reconstruction);
+    bool probs = false;
+
+  
+    bool probMethod = false;
+    if (reconstruction == "none")
+    {
+      //do nothing
+    } else if (reconstruction == "marginal")
+    {
+      probMethod = true;
+    } else
+      throw Exception("Unknown ancestral state reconstruction method: " + reconstruction);
+
+    string sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file", allParams, true, false, "", false, "none", 1);
+
+    string sequenceFormat="";
+  
+    if (sequenceFilePath!="none")
+      sequenceFormat   = ApplicationTools::getStringParameter("output.sequence.format", allParams, "Fasta", "", false, 1);
+
+    string outputSitesFile, outputNodesFile;
+  
+    /// map of the Single Process 
+    map<size_t, SingleDataPhyloLikelihood*> mSD;
+        
+    if (dynamic_cast<SingleDataPhyloLikelihood*>(tl)!=NULL)
+      mSD[1]=dynamic_cast<SingleDataPhyloLikelihood*>(tl);
+    else{
+      MultiDataPhyloLikelihood* mDP=dynamic_cast<MultiDataPhyloLikelihood*>(tl);
+      vector<size_t> nSD=mDP->getNumbersOfSingleDataPhyloLikelihoods();
+      
+      for (size_t iSD=0; iSD< nSD.size(); iSD++)
+        mSD[nSD[iSD]]=mDP->getSingleDataPhylolikelihood(nSD[iSD]);
+    }
+
+    bool sample=false;
+    unsigned int nbSamples=0;
+    bool addSitesExtant=false;
+    bool addNodesExtant = false;
+
+    // ASR
+  
+    if (probMethod)
+    {
+      probs = ApplicationTools::getBooleanParameter("asr.probabilities", allParams, false, "", true, false);
+      ApplicationTools::displayResult("Output probabilities", probs ? "yes" : "no");
+
+      outputSitesFile = ApplicationTools::getAFilePath("output.sites.file", allParams, false, false);
+
+      sample = ApplicationTools::getBooleanParameter("asr.sample", allParams, false, "", true, false);
+
+      ApplicationTools::displayResult("Sample from posterior distribution", sample ? "yes" : "no");
+
+      if (sample)
+        nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", allParams, 1, "", true, false);
+
+      addSitesExtant = ApplicationTools::getBooleanParameter("asr.add_extant", allParams, false, "", true, false);
+    }
+
+    // Nodes Frequencies
+  
+    outputNodesFile = ApplicationTools::getAFilePath("output.nodes.file", allParams, false, false);
+
+    if (outputNodesFile!="none")
+      addNodesExtant = ApplicationTools::getBooleanParameter("output.nodes.add_extant", allParams, false, "", true, false);
+
+  
+    /// per Single Process 
     
-      for (size_t i = 0; i < sites->getNumberOfSites(); i++)
-      {
-        double lnL = tl->getLogLikelihoodForASite(i);
-        const Site* currentSite = &sites->getSite(i);
-        int currentSitePosition = currentSite->getPosition();
-        string isCompl = "NA";
-        string isConst = "NA";
-        try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
-        catch(EmptySiteException& ex) {}
-        try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
-        catch(EmptySiteException& ex) {}
-        row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
-        row[1] = isCompl;
-        row[2] = isConst;
-        row[3] = TextTools::toString(lnL);
-        row[4] = TextTools::toString(classes[i]);
-        row[5] = TextTools::toString(rates[i]);
+    for (map<size_t, SingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
+    {
+      
+      SingleProcessPhyloLikelihood* sPP=dynamic_cast<SingleProcessPhyloLikelihood*>(itm->second);
 
-        unsigned int k = 6;
-        for (unsigned int j = 0; j < nbNodes; j++) {
-          row[k] = sequences[j]->getChar(i);
-          k++;
-          if (probs) {
-            for (unsigned int l = 0; l < nbStates; l++) {
-              row[k] = TextTools::toString((*probabilities[j])[i][l]);
-              k++;
+      if (sPP==NULL){
+        ApplicationTools::displayWarning("Multi Process ancestral reconstruction not implemented");
+        ApplicationTools::displayWarning("for phylolikelihood " + TextTools::toString(itm->first));
+        continue;
+      }
+
+      const SiteContainer* sites = sPP->getData();
+
+      DoubleRecursiveTreeLikelihoodCalculation* pDR=dynamic_cast<DoubleRecursiveTreeLikelihoodCalculation*>(sPP->getLikelihoodCalculation());
+    
+      if (!pDR)
+      {
+        ApplicationTools::displayWarning("Not double recursive calculation for phylo likelihood " + TextTools::toString(itm->first));
+        continue;
+      }
+
+      if (probMethod)
+      {    
+        AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR);
+
+        size_t nbStates=sPP->getNumberOfStates();
+      
+        // Write infos to file:
+        if (outputSitesFile != "none")
+        {
+          ApplicationTools::displayResult("Phylo " + TextTools::toString(itm->first) + " : Output file for sites", outputSitesFile + "_" + TextTools::toString(itm->first));
+          string outF=outputSitesFile + "_" + TextTools::toString(itm->first);
+          ofstream out(outF.c_str(), ios::out);
+          TreeTemplate<Node> ttree(sPP->getTree());
+          vector<Node *> nodes = ttree.getInnerNodes();
+          size_t nbNodes = nodes.size();
+    
+          // Get the class with maximum posterior probability:
+          vector<size_t> classes = sPP->getClassWithMaxPostProbOfEachSite();
+          // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
+          Vdouble rates = sPP->getPosteriorRateOfEachSite();
+          // Get the ancestral sequences:
+          vector<Sequence*> sequences(nbNodes);
+          vector<VVdouble*> probabilities(nbNodes);
+        
+          vector<string> colNames;
+          colNames.push_back("Sites");
+          colNames.push_back("is.complete");
+          colNames.push_back("is.constant");
+          colNames.push_back("lnL");
+          colNames.push_back("rc");
+          colNames.push_back("pr");
+          for (size_t i = 0; i < nbNodes; i++) {
+            Node *node = nodes[i];
+            colNames.push_back("max." + TextTools::toString(node->getId()));
+            if (probs) {
+              probabilities[i] = new VVdouble();
+              //The cast will have to be updated when more probabilistic method will be available:
+              sequences[i] = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequenceForNode(node->getId(), probabilities[i], false);
+            
+              for (unsigned int j = 0; j < nbStates; j++) {
+                colNames.push_back("prob." + TextTools::toString(node->getId()) + "." + alphabet->intToChar((int)j));
+              }
+            }
+            else
+            {
+              if (node->isLeaf()) {
+              
+              } else {
+                sequences[i] = asr->getAncestralSequenceForNode(node->getId());
+              }
             }
           }
+        
+          //Now fill the table:
+          vector<string> row(colNames.size());
+          DataTable* infos = new DataTable(colNames);
+
+          for (size_t i = 0; i < sites->getNumberOfSites(); i++)
+          {
+            double lnL = sPP->getLogLikelihoodForASite(i);
+            const Site* currentSite = &sites->getSite(i);
+            int currentSitePosition = currentSite->getPosition();
+            string isCompl = "NA";
+            string isConst = "NA";
+            try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+            catch(EmptySiteException& ex) {}
+            try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+            catch(EmptySiteException& ex) {}
+            row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+            row[1] = isCompl;
+            row[2] = isConst;
+            row[3] = TextTools::toString(lnL);
+            row[4] = TextTools::toString(classes[i]);
+            row[5] = TextTools::toString(rates[i]);
+
+            unsigned int k = 6;
+            for (unsigned int j = 0; j < nbNodes; j++) {
+              row[k] = sequences[j]->getChar(i);
+              k++;
+              if (probs) {
+                for (unsigned int l = 0; l < nbStates; l++) {
+                  row[k] = TextTools::toString((*probabilities[j])[i][l]);
+                  k++;
+                }
+              }
+            }
+          
+            infos->addRow(row);
+          }
+        
+          DataTable::write(*infos, out, "\t");
+        
+          delete infos;
         }
 
-        infos->addRow(row);
-      }
-
-      DataTable::write(*infos, out, "\t");
-
-      delete infos;
-    }
-
-    SiteContainer* asSites = 0;
-    if (probMethod)
-    {
-      bool sample = ApplicationTools::getBooleanParameter("asr.sample", bppancestor.getParams(), false, "", true, false);
-      ApplicationTools::displayResult("Sample from posterior distribution", sample ? "yes" : "no");
-      if (sample)
-      {
-        unsigned int nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", bppancestor.getParams(), 1, "", true, false);
-        asSites = new AlignedSequenceContainer(alphabet);
-        for (unsigned int i = 0; i < nbSamples; i++)
+      
+        /// Ancestral sequences
+      
+        SiteContainer* asSites = 0;
+      
+        if (sample)
         {
-          ApplicationTools::displayGauge(i, nbSamples-1, '=');
-          SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralStateReconstruction *>(asr)->getAncestralSequences(true);
-          vector<string> names = sampleSites->getSequencesNames();
-          for (unsigned int j = 0; j < names.size(); j++)
-            names[j] += "_" + TextTools::toString(i+1);
-          sampleSites->setSequencesNames(names, false);
-          SequenceContainerTools::append(*asSites, *sampleSites);
-          delete sampleSites;
+          asSites = new AlignedSequenceContainer(alphabet);
+
+          for (unsigned int i = 0; i < nbSamples; i++)
+          {
+            ApplicationTools::displayGauge(i, nbSamples-1, '=');
+            SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequences(true);
+            vector<string> names = sampleSites->getSequencesNames();
+            for (unsigned int j = 0; j < names.size(); j++)
+              names[j] += "_" + TextTools::toString(i+1);
+            sampleSites->setSequencesNames(names, false);
+            SequenceContainerTools::append(*asSites, *sampleSites);
+            delete sampleSites;
+          }
+          ApplicationTools::message->endLine();
         }
-        ApplicationTools::message->endLine();
+        else
+          asSites = asr->getAncestralSequences();
+      
+        //Add existing sequence to output?
+        if (addSitesExtant) 
+          SequenceContainerTools::append(*asSites, *sites);
+
+
+        //Write output:
+        BppOAlignmentWriterFormat bppoWriter(1);
+        auto_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
+        ApplicationTools::displayResult("Output alignment file ", sequenceFilePath + "_" + TextTools::toString(itm->first));
+        ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
+
+        // Write sequences:
+        oAln->writeAlignment(sequenceFilePath + "_" + TextTools::toString(itm->first), *sites, true);
+    
+        delete asSites;
+        delete asr;
       }
-      else
+
+      /// end of ancestral reconstruction
+    
+      if (outputNodesFile != "none")
       {
-        asSites = asr->getAncestralSequences();
+        ApplicationTools::displayResult("Output file for nodes", outputNodesFile + "_" + TextTools::toString(itm->first));
+        string outF=outputNodesFile  + "_" + TextTools::toString(itm->first);
+        
+        ofstream out(outF.c_str(), ios::out);
+        map<int, vector<double> > frequencies;
+        pDR->getAncestralFrequencies(frequencies, addNodesExtant);
+      
+        vector<string> colNames;
+        colNames.push_back("Nodes");
+        for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
+          colNames.push_back("exp" + sPP->getAlphabet()->getCharCodeAt(i+1));
+        for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
+          colNames.push_back("eb" + sPP->getAlphabet()->getCharCodeAt(i+1));
+      
+        //Now fill the table:
+        vector<string> row(colNames.size());
+        DataTable* infos = new DataTable(colNames);
+      
+        for (map<int, vector<double> >::iterator itf = frequencies.begin(); itf != frequencies.end(); itf++)
+        {
+          row[0] = TextTools::toString(itf->first);
+          Vdouble ebFreqs = pDR->getPosteriorStateFrequencies(itf->first);
+          for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
+          {
+            row[i + 1] = TextTools::toString(itf->second[i]);
+          }
+          for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
+          {
+            row[i + sPP->getNumberOfStates() + 1] = TextTools::toString(ebFreqs[i]);
+          }
+          infos->addRow(row);
+        }
+       
+        DataTable::write(*infos, out, "\t");
+       
+        delete infos;
       }
-    }
-    else
-    {
-      asSites = asr->getAncestralSequences();
     }
   
-    //Add existing sequence to output?
-    bool addExtant = ApplicationTools::getBooleanParameter("asr.add_extant", bppancestor.getParams(), false, "", true, false);
-    if (addExtant) {
-      SequenceContainerTools::append(*asSites, *sites);
-    }
-
-    //Write output:
-    if (ApplicationTools::getStringParameter("output.sequence.file", bppancestor.getParams(), "none") != "none") {
-      SequenceApplicationTools::writeAlignmentFile(*asSites, bppancestor.getParams());
-    }
-    delete asSites;
-
-    delete asr;
-  }
-
-  outputFile = ApplicationTools::getAFilePath("output.nodes.file", bppancestor.getParams(), false, false);
-  if (outputFile != "none")
-  {
-    ApplicationTools::displayResult("Output file for nodes", outputFile);
-    ofstream out(outputFile.c_str(), ios::out);
-
-    //Add existing sequence to output?
-    bool addExtant = ApplicationTools::getBooleanParameter("output.nodes.add_extant", bppancestor.getParams(), false, "", true, false);
-    
-    map<int, vector<double> > frequencies;
-    TreeLikelihoodTools::getAncestralFrequencies(*tl, frequencies, addExtant);
-    
-    vector<string> colNames;
-    colNames.push_back("Nodes");
-    for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      colNames.push_back("exp" + tl->getAlphabetStateAsChar(i));
-    for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      colNames.push_back("eb" + tl->getAlphabetStateAsChar(i));
-
-    //Now fill the table:
-    vector<string> row(colNames.size());
-    DataTable* infos = new DataTable(colNames);
-    
-    for (map<int, vector<double> >::iterator it = frequencies.begin(); it != frequencies.end(); it++)
-    {
-      row[0] = TextTools::toString(it->first);
-      Vdouble ebFreqs = DRTreeLikelihoodTools::getPosteriorStateFrequencies(*tl, it->first);
-      for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      {
-        row[i + 1] = TextTools::toString(it->second[i]);
-      }
-      for (unsigned int i = 0; i < tl->getNumberOfStates(); i++)
-      {
-        row[i + tl->getNumberOfStates() + 1] = TextTools::toString(ebFreqs[i]);
-      }
-      infos->addRow(row);
-    }
-    
-    DataTable::write(*infos, out, "\t");
-
-    delete infos;
-  }
-
-
-  delete alphabet;
-  delete sites;
-  if(model)    delete model;
-  if(modelSet) delete modelSet;
-  delete rDist;
-  delete tl;
-  delete tree;
-  bppancestor.done();
-
+    delete alphabet;
+    bppancestor.done();
+  
   }
   catch (exception & e)
   {

@@ -319,11 +319,12 @@ int main(int args, char** argv)
         // This may be due to null branch lengths, leading to null likelihood!
         ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
         ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
-        ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
+        ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.001.");
         ParameterList pl = tl_old->getBranchLengthsParameters();
         for (unsigned int i = 0; i < pl.size(); i++)
         {
-          if (pl[i].getValue() < 0.000001) pl[i].setValue(0.000001);
+          if (pl[i].getValue() < 0.001)
+            pl[i].setValue(0.001);
         }
         tl_old->matchParametersValues(pl);
         logL = tl_old->getValue();
