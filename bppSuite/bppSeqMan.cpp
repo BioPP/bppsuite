@@ -330,12 +330,12 @@ int main(int args, char** argv)
     // +--------------+
     // | Remove stops |
     // +--------------+
-    else if (cmdName == "RemoveColumnsWithStop")
+    else if (cmdName == "RemoveColumnsWithStops")
     {
       SiteContainer* sites = dynamic_cast<SiteContainer*>(sequences);
       if (!sites)
       {
-        throw Exception("'RemoveColumnsWithStop' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
+        throw Exception("'RemoveColumnsWithStops' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
       if (!gCode.get()) {
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
