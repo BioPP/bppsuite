@@ -591,9 +591,9 @@ int main(int args, char ** argv)
         vector<string> colNames;
         colNames.push_back("Nodes");
         for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
-          colNames.push_back("exp" + sPP->getAlphabet()->getCharCodeAt(i+1));
+          colNames.push_back("exp" + sPP->getAlphabet()->intToChar(i));
         for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
-          colNames.push_back("eb" + sPP->getAlphabet()->getCharCodeAt(i+1));
+          colNames.push_back("eb" + sPP->getAlphabet()->intToChar(i));
       
         //Now fill the table:
         vector<string> row(colNames.size());
