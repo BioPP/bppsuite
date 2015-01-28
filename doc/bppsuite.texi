@@ -2192,7 +2192,6 @@ This is usually the best option, particularly for nucleotide data sets.
 
 The BppSeqGen program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model (@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
 
-
 The root sequence can be sampled from the model specification, with
 additional argument:
 
@@ -2231,6 +2230,10 @@ means a random sequence).
 used to sample from the given sequence (@pxref{Sequences}).
 
 @end table
+
+
+In addition, command line argument @option{--seed=@{int>0@}} can be
+used to set the seed of the random generator.
 
 @end table
 

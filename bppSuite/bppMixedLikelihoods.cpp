@@ -188,9 +188,12 @@ int main(int args, char** argv)
         rateFreqs = vector<double>(n, 1. / (double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
         // we should assume a rate distribution for the root also!!!
       }
-      FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), rateFreqs);
+      
+      std::map<std::string, std::string> aliasFreqNames;
+
+      FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), aliasFreqNames, rateFreqs);
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppmixedlikelihoods.getParams(), ',', "");
-      modelSet = dynamic_cast<MixedSubstitutionModelSet*>(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameters));
+      modelSet = dynamic_cast<MixedSubstitutionModelSet*>(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, aliasFreqNames, globalParameters));
       model = 0;
       tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
     }
@@ -217,6 +220,7 @@ int main(int args, char** argv)
     }
     else
       throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
+
     tl->initialize();
 
     double logL = tl->getValue();
@@ -290,24 +294,23 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    bool fromBiblio=false;
-    
     const AbstractBiblioMixedSubstitutionModel* ptmp = dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(p0);
     if (ptmp) {
       p0 = ptmp->getMixedModel().clone();
+
       if (nhOpt == "no")
         model = p0;
       else {
         modelSet->replaceModel(nummodel-1, p0);
         modelSet->isFullySetUpFor(*tree);
       }
-      fromBiblio=true;
     }
-
+    
     //////////////////////////////////////////////////
     // Case of a MixtureOfSubstitutionModels
 
     MixtureOfSubstitutionModels* pMSM = dynamic_cast<MixtureOfSubstitutionModels*>(p0);
+
     if (pMSM)
     {
       vector<string> colNames;
@@ -373,18 +376,25 @@ int main(int args, char** argv)
       if (pMSM2 != NULL)
       {
         size_t nummod = pMSM2->getNumberOfModels();
-        if (fromBiblio && (parname == ""))
+        if (parname == "")
         {
           ParameterList pl=pMSM2->getParameters();
 
           for (size_t i2 = 0; i2 < pl.size(); i2++)
           {
             string pl2n = pl[i2].getName();
-            string par2 = pl2n.substr(0,pl2n.find("_")) + "_1";
-            Vint vnmod = pMSM2->getSubmodelNumbers(par2);
-            if (vnmod.size() == 1) {
-              parname=pl2n.substr(0,pl2n.find("_"));
-              break;
+
+            if (dynamic_cast<const ConstantDistribution*>(pMSM2->getDistribution(pl2n))==NULL)
+            {
+              parname=pl2n;
+
+              while (parname.size()>0 && pMSM2->getDistribution(parname)==NULL)
+                parname=pl2n.substr(0,pl2n.rfind("_"));
+
+              if (parname.size()>0){
+                ApplicationTools::displayResult("likelihoods.parameter_name", parname);
+                break;
+              }
             }
           }
         }
@@ -408,7 +418,9 @@ int main(int args, char** argv)
         }
 
         size_t nbcl = vvnmod.size();
-
+        if (nbcl==0)
+          throw Exception("Parameter " + parname + " is not mixed.");
+        
         Vdouble vprob = pMSM2->getProbabilities();
 
         vector<vector<double> > vvprob;

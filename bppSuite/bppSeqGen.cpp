@@ -253,14 +253,15 @@ int main(int args, char ** argv)
       rateFreqs = vector<double>(n, 1./static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
                                                    // we should assume a rate distribution for the root also!!!  
     }
-    FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), 0, bppseqgen.getParams(), rateFreqs);
+    std::map<std::string, std::string> aliasFreqNames;
+    FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), 0, bppseqgen.getParams(), aliasFreqNames, rateFreqs);
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppseqgen.getParams(), "Full(init=observed)");
     if (freqDescription.substr(0,10) == "MVAprotein")
     {
       dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");   
       dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model));      
     }
-    modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, trees[0], globalParameters); 
+    modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, trees[0], aliasFreqNames, globalParameters); 
   }
   //General case:
   else if (nhOpt == "general")
