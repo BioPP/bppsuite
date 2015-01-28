@@ -1,3 +1,6 @@
+28/01/15 Julien Dutheil
+* PhySamp now outputs the correct tree!
+
 25/11/14 Julien Dutheil
 * bppalnscore output contiguous segments in mase selection.
 * bppalnscore site selection works with codon alphabets.
