@@ -123,6 +123,7 @@ int main(int args, char ** argv)
     bppancestor.startTimer();
 
     map<string, string> allParams=bppancestor.getParams();
+    map<string, string> unparsedparams;
     
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(allParams, "", false);
     auto_ptr<GeneticCode> gCode;
@@ -144,7 +145,7 @@ int main(int args, char ** argv)
 
     /////// Get the map of initial trees
     
-    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(allParams, mSites);
+    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(allParams, mSites, unparsedparams);
 
     // Try to write the current tree to file. This will be overwritten
     // by the optimized tree, but allow to check file existence before
@@ -179,8 +180,6 @@ int main(int args, char ** argv)
     SubstitutionProcessCollection* SPC = 0;
   
     string collection = ApplicationTools::getStringParameter("collection", allParams, "", "", true, 1);
-
-    map<string, string> unparsedparams;
 
     map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(allParams);
 
@@ -591,9 +590,9 @@ int main(int args, char ** argv)
         vector<string> colNames;
         colNames.push_back("Nodes");
         for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
-          colNames.push_back("exp" + sPP->getAlphabet()->intToChar(i));
+          colNames.push_back("exp" + sPP->getAlphabet()->intToChar((int)i));
         for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
-          colNames.push_back("eb" + sPP->getAlphabet()->intToChar(i));
+          colNames.push_back("eb" + sPP->getAlphabet()->intToChar((int)i));
       
         //Now fill the table:
         vector<string> row(colNames.size());

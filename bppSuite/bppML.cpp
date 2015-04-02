@@ -126,6 +126,8 @@ int main(int args, char** argv)
     BppApplication bppml(args, argv, "BppML");
     bppml.startTimer();
 
+    map<string, string> unparsedparams;
+    
     ///// Alphabet
     
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppml.getParams(), "", false);
@@ -149,9 +151,8 @@ int main(int args, char** argv)
 
     /////// Get the map of initial trees
     
-    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites);
+    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites, unparsedparams);
 
-    
     // Try to write the current tree to file. This will be overwritten
     // by the optimized tree, but allow to check file existence before
     // running optimization!
@@ -224,7 +225,6 @@ int main(int args, char** argv)
     DiscreteDistribution* rDist    = 0;
     Tree* firstTree = mTree.begin()->second;
     
-    map<string, string> unparsedparams;
     /// Topology estimation
     
     if (optimizeTopo || nbBS > 0)
@@ -270,7 +270,7 @@ int main(int args, char** argv)
       map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams);
 
       SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
-      
+
       for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
         SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
 
@@ -287,7 +287,7 @@ int main(int args, char** argv)
       else
         tl_new=new SumOfDataPhyloLikelihood(mPhyl2);      
     }
-    
+
     //Listing parameters
     string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false, "", true, "none", 1);
     if (paramNameFile != "none") {
