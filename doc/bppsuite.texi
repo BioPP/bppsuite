@@ -1357,7 +1357,9 @@ different mixtures (see below).
 Mixture model from a given @var{model} in which some parameters follow
 a probabilistic distribution. Any discrete distribution available can
 be used @xref{Discrete distributions}. The description of the
-parameters distributions is described below.
+parameters distributions is described below. In case the range of a
+parameter is limited, the domain of the corresponding distribution is
+truncated accordingly.
 
 @example
 model=MixedModel(model=TN93(kappa1=Gamma(n=4,alpha=3,beta=1),\
