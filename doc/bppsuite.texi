@@ -521,6 +521,17 @@ The file containing multiple trees.
 @end table
 
 
+The branch lengths can be aliased to other parameters (such as other
+branch lengths) as in the example:
+
+@example
+input.tree1 = user(file = ftree1.dnd, BrLen0=BrLen1, BrLen2=BrLen3_2)
+input.tree2 = user(file = ftree2.dnd)
+@end example
+
+which means that the branch 0 of tree 1 is aliased to the branch 1 of
+tree 1, and branch 2 of tree 1 is aliased to branch 3 of tree 2.
+
 
 In case the input tree does not specify node identifiers, some will be
 generated automatically. Nodes identifiers can be outputed using the
@@ -2114,7 +2125,7 @@ Available methods include:
 Keep initial branch lengths as is. Additional argument specifies if the root position should be moved to the midpoint position of the branch containing it. 
 
 @item Equal(value=@{float>0@})
-Set all branch lengths to the same value, provided as argumemt.
+Set all branch lengths to the same value, provided as argument.
 
 @item Clock
 Coerce to a clock tree.
@@ -2247,7 +2258,31 @@ This is usually the best option, particularly for nucleotide data sets.
 @node bppseqgen, bppancestor, bppml, Reference
 @section BppSeqGen: Bio++ Sequence Simulator
 
-The BppSeqGen program uses the common syntax introduced in the previous section for setting the alphabet, loading the sequences (@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model (@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
+The BppSeqGen program uses the common syntax introduced in the
+previous section for setting the alphabet, loading the sequences
+(@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model
+(@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
+
+
+Several simulations are possible at the same time and they can mix
+several processes. The declaration is :
+
+@table @command
+@item simul@{int}=@{Simulation type@}(process@{number@}=@{number@},
+process@{number@}.positions=(@{number@},...,@{number@}),output.sequence.file=@{file
+path@}[,output.sequence.format=@{alignement format@}])
+@end table
+
+If @option{process1} is not given, process number 1 will be chosen. If
+only one process (or none) is given, @option{positions} is not
+considered, and the same process is applied to all positions.
+
+Up to now, simulation type does not matter. For example, is processes
+number 4 and 2 have been defined before.
+
+@example
+simul1=simul(process1=4, process1.positions=0:50, process2=2, process2.positions=51:200, output.sequence.file = sim1.fa)
+@end example
 
 The root sequence can be sampled from the model specification, with
 additional argument:

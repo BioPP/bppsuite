@@ -77,8 +77,6 @@ using namespace std;
 #include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
-#include <Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h>
-#include <Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h>
 #include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h>
