@@ -701,6 +701,23 @@ exchangeability matrix. See the
 The strand-symmetric model of Lobry 1995, for nucleotides. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1L95.html#_details, Bio++ description}.
 
+@item SSR([beta=@{real>0@}, gamma=@{real>0@}, delta=@{real>0@}, theta=@{real]0,1[@}])
+The strand-symmetric reversible model, for nucleotides. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1SSR.html#_details, Bio++ description}.
+
+@item RN95([thetaR=@{real]0,1[@}, thetaC=@{real]0,1[@}, thetaG=@{real]0,1[@}, kappaP=@{real[0,1[@}, gammaP=@{real[0,1[@}, sigmaP=@{real>1@}, alphaP=@{real>1@}])
+The model described by Rhetsky and Nei, where the only hypothesis is
+that the transversion rates are only dependent of the target
+nucleotide. This model is not reversible. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1RN95.html#_details,Bio++
+description}.
+
+@item RN95s([thetaA=@{real]0,0.5[@}, gamma=@{real]0,0.5[@}, alphaP=@{real>1@}]) 
+The instersection of models RN95 and L95. The two hypotheses are that
+the transversion rates are only dependent of the target nucleotide,
+and strand symmetry. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1RN95s.html#_details,Bio++
+description}.
 
 @end table
 
