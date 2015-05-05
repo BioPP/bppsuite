@@ -132,6 +132,8 @@ int main(int args, char ** argv)
   {
     tree.reset(dynamic_cast<TreeTemplate<Node> *>(PhylogeneticsApplicationTools::getTree(bppphysamp.getParams())));
     dist.reset(TreeTemplateTools::getDistanceMatrix(*tree));
+    //PhylipDistanceMatrixFormat matIO;
+    //matIO.write(*dist.get(), "matrix.txt");
   }
   else if(inputMethod == "matrix")
   {
@@ -260,8 +262,11 @@ int main(int args, char ** argv)
 
   //Write tree file:
   if (ApplicationTools::getStringParameter("output.tree.file", bppphysamp.getParams(), "None") != "None") {
-    for (size_t i = 0; i < seqNames.size(); ++i) {
-      TreeTemplateTools::dropLeaf(*tree, seqNames[i]);
+    vector<string> allSeqNames(seqs->getSequencesNames());
+    vector<string> removedSeqNames;
+    VectorTools::diff(allSeqNames, seqNames, removedSeqNames);
+    for (size_t i = 0; i < removedSeqNames.size(); ++i) {
+      TreeTemplateTools::dropLeaf(*tree, removedSeqNames[i]);
     }
     PhylogeneticsApplicationTools::writeTree(*tree, bppphysamp.getParams(), "output.", "", true, true, false);
   }
