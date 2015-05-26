@@ -77,13 +77,7 @@ using namespace std;
 #include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
-#include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SingleDataPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
+#include <Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.h>
 
 using namespace bpp;
 
@@ -211,6 +205,7 @@ int main(int args, char** argv)
     DiscreteRatesAcrossSitesTreeLikelihood* tl_old = 0;
     PhyloLikelihood* tl_new = 0;
     SubstitutionProcessCollection* SPC = 0;
+    map<size_t, SequenceEvolution*> mSeqEvol;
     
     bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, 2);
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, 1);
@@ -269,21 +264,17 @@ int main(int args, char** argv)
 
       SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
 
+      mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, bppml.getParams(), unparsedparams);
+      
       for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
         SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
 
-      map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSites, bppml.getParams(), unparsedparams);
-
-      map<size_t, SingleDataPhyloLikelihood*> mPhyl2;
+      map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSeqEvol, mSites, bppml.getParams());
       
-      for (map<size_t, PhyloLikelihood*>::const_iterator itm=mPhyl.begin(); itm != mPhyl.end(); itm++)
-        if (dynamic_cast<SingleDataPhyloLikelihood*>(itm->second))
-          mPhyl2[itm->first]=dynamic_cast<SingleDataPhyloLikelihood*>(itm->second);
-
-      if (mPhyl2.size()==1)
-        tl_new=mPhyl2.begin()->second;
+      if (mPhyl.size()==1)
+        tl_new=mPhyl.begin()->second;
       else
-        tl_new=new SumOfDataPhyloLikelihood(mPhyl2);      
+        tl_new=new SumOfPhyloLikelihood(mPhyl);      
     }
 
     //Listing parameters
@@ -512,26 +503,30 @@ int main(int args, char** argv)
       {
         ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
-        map<size_t, SingleDataPhyloLikelihood*> mSD;
+        map<size_t, AbstractSingleDataPhyloLikelihood*> mSD;
         
-        if (dynamic_cast<SingleDataPhyloLikelihood*>(tl_new)!=NULL)
-          mSD[1]=dynamic_cast<SingleDataPhyloLikelihood*>(tl_new);
+        if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl_new)!=NULL)
+          mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl_new);
         else{
-          MultiDataPhyloLikelihood* mDP=dynamic_cast<MultiDataPhyloLikelihood*>(tl_new);
-          vector<size_t> nSD=mDP->getNumbersOfSingleDataPhyloLikelihoods();
+          MultiPhyloLikelihood* mDP=dynamic_cast<MultiPhyloLikelihood*>(tl_new);
+          if (mDP!=NULL)
+          {
+            vector<size_t> nSD=mDP->getNumbersOfPhyloLikelihoods();
           
-          for (size_t iSD=0; iSD< nSD.size(); iSD++)
-            mSD[nSD[iSD]]=mDP->getSingleDataPhylolikelihood(nSD[iSD]);
+            for (size_t iSD=0; iSD< nSD.size(); iSD++)
+              if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]))!=NULL)
+                mSD[nSD[iSD]]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]));
+          }
         }
 
 
-        for (map<size_t, SingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
+        for (map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
         {
           ApplicationTools::displayWarning("Checking for phylolikelihood " + TextTools::toString(itm->first));
           
           if (isinf(itm->second->getValue()))
           {
-            SingleDataPhyloLikelihood* sDP=itm->second;
+            AbstractSingleDataPhyloLikelihood* sDP=itm->second;
             /// !!! Not economic
             SiteContainer* vData=sDP->getData()->clone();
             
@@ -611,6 +606,13 @@ int main(int args, char** argv)
         PhylogeneticsApplicationTools::printParameters(tl_new, out);
 
         PhylogeneticsApplicationTools::printParameters(SPC, out);
+
+        for (map<size_t, SequenceEvolution*>::const_iterator it2=mSeqEvol.begin(); it2!=mSeqEvol.end(); it2++)
+        {
+          PhylogeneticsApplicationTools::printParameters(it2->second, out, it2->first);
+          out.endLine();
+        }
+        
       }
 
       // Write infos to file:

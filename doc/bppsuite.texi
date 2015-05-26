@@ -1,4 +1,4 @@
-\input texinfo   @c -*-texinfo-*-
+\input texinfo                  @c -*-texinfo-*-
 @c %**start of header
 @setfilename bppsuite.info
 @settitle BppSuite Manual 2.2.0
@@ -1664,7 +1664,11 @@ with a probability @var{p}.
 @node  Process, Phylo-likelihoods, Rates, Likelihoods
 @subsection Setting up the process
 
-Substitution process are numbered like this:
+There are two kinds of processes, site substitution process and
+sequence substitution processes. 
+
+
+Site substitution processes are numbered like this:
 
 @table @command
 
@@ -1712,6 +1716,74 @@ process2=NonHomogeneous(model1=1,model1.nodes_id=(1:4,6:9),model2=2,model2.nodes
 Note : @command{OnePerBranch} type is not implemented yet. Just ask
 the developpers.
 
+
+Sequence substitution processes set up an organization of site
+substitution processes along the sequence. 
+
+@table @command
+
+@item process@{number@} = Mixture(process@{number@}=@{number@},[probas=(@{vector of process probabilities@})])
+
+@example
+process2=NonHomogeneous(...)
+process5=Homogeneous(...)
+
+process7=Mixture(process1=2, process2=5, probas=(0.3,0.7))
+@end example
+
+Each site substitution process has its own a priori probability; all
+site substitution processes are enumerated, and all probabilities can
+be given as a vector (must sum one). The likelihood on a site is
+independent of other sites, and is the average value of the
+likelihoods of all processes, given their a priori probabilities.
+
+@item process@{number@} = AutoCorr(process@{number@}=@{number@},[probas=(@{vector of autocorrelation probabilities@})])
+
+Along the sequence, the site substitution processes are
+autocorrelated, which makes the whole process (along sites and time)
+an Hidden Markov Model, where the transition probilities from a
+specific process to the other ones are equal. The likelihood on a site
+is computed using the forward algorithm of HMM modelling. The within
+process transition probabilities can be given as a vector.
+
+@example           
+process2=NonHomogeneous(...)
+process5=Homogeneous(...)
+
+process7=AutoCorr(process1=2, process2=5, probas=(0.95,0.9))
+@end example
+
+@item process@{number@} = HMM(process@{number@}=@{number@},[probas=(@{vector of (@{vector of process transition probabilities@})@})])
+
+The probabilities of the processes on the sites are dependent in a
+markovian way, which makes the whole process (along sites and time) an
+Hidden Markov Model. The likelihood on a site is computed using the
+forward algorithm of HMM modelling. The transition probabilities can
+be given as a vector of lines of the transition matrix, each being
+given as a vector.
+
+@example           
+process2=NonHomogeneous(...)
+process5=Homogeneous(...)
+process3=NonHomogeneous(...)
+
+process7=HMM(process1=2, process2=5, process3=3, probas=((0.95,0.01,0.04),(0.1,0.8,0.1),(0.1,0.03,0.87)))
+@end example
+
+@item process@{number@} = Partition(process@{number@}=@{number@},process@{number@}.sites=(@{number@},...,@{number@}))
+
+The site substitution processes are organized as a partition along the
+sequence. The sites of the processes are defined as a list with ranges.
+
+@example           
+process2=NonHomogeneous(...)
+process5=Homogeneous(...)
+
+process7=Partition(process1=2, process2=5, process1.sites=(1,5:20,24-35), process2.sites=(2-4,21:23,36-50))
+@end example
+
+@end table
+
 @c @item nonhomogeneous_one_per_branch.shared_parameters = @{list<chars>@}
 @c List the names of the parameters that are shared by all branches.
 @c In Galtier & Gouy model, that would be @var{T92.kappa}, since only the theta parameter is branch-specific.
@@ -1723,51 +1795,15 @@ the developpers.
 @node Phylo-likelihoods, Linking, Process, Likelihoods
 @subsection Setting up phylo-likelihoods
 
-
-A phylo-likelihood is an object defined by a data and a (or several)
-process, making it possible to compute a likelihood. When several
-process are used on a data to compute, the resulting likelihood is
-computed from a probabilistic combination of this process : they can
-be linked in a markovian way, or independant.
-
-Several processes (aka model specifications and trees) can be used
-together in a mixture -- aka site-like -- modelling.
+A phylo-likelihood is an object defined by a data and a site or
+sequence substitution process. The recursivity of the computation is
+used as the name of the phylo-likelihood.
 
 @table @command
-@item phylo@{number@}=@{Single@}(data=@{number@}, process=@{number@})
-@item phylo@{number@}=@{Mixture|HMM|AutoCorr@}(data=@{number@}, process=(@{numbers@}), probas=(@{numbers@}))
+@item phylo@{number@}=@{Single|Double@}(data=@{number@}, process=@{number@})
 @end table
 
 
-@table @command
-@item Single(data=@{number@}, process=@{number@})
-The likelihood is computed on a data, given a single process.
-
-@item Mixture([probas=(@{vector of process probabilities@})])
-Each process has its own a priori probability; all probabilities can
-be given as a vector (must sum one). The likelihood on a site is
-independent of other sites, and is the average value of the
-likelihoods of all processes, given their a priori probabilities.
-
-@item AutoCorr([probas=(@{vector of autocorrelation probabilities@})])
-
-Along the sequence, the processes are autocorrelated, which makes the
-whole process (along sites and time) an Hidden Markov Model, where the
-transition probilities from a specific process to the other ones are
-equal. The likelihood on a site is computed using the forward
-algorithm of HMM modelling. The within process transition
-probabilities can be given as a vector.
-
-@item HMM([probas=(@{vector of (@{vector of process transition probabilities@})@})])
-
-The probabilities of the processes on the sites are dependent in a
-markovian way, which makes the whole process (along sites and time) an
-Hidden Markov Model. The likelihood on a site is computed using the
-forward algorithm of HMM modelling. The transition probabilities can
-be given as a vector of lines of the transition matrix, each being
-given as a vector.
-
-@end table
 
 When several phylo-likelihoods are declared, the computed (and
 optimized) log-likelihood is the sum of the log-likelihoods of all
@@ -2244,7 +2280,6 @@ For big data sets, it can save a lot of memory usage too, particularly when the 
 Analytical derivatives are however faster to compute.
 
 This command has no effect in the following cases: (i) topology estimation: this requires a double recursive algorithm, (ii) optimization with a molecular clock: a simple recursion with data compression is used in this case, due to the impossibility of computing analytical derivatives.
-
 @item likelihood.recursion_simple.compression = @{simple|recursive@}
 
 Site compression for the simple recursion:
@@ -2264,18 +2299,14 @@ previous section for setting the alphabet, loading the sequences
 (@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
 
 
-Several simulations are possible at the same time and they can mix
-several processes. The declaration is :
+Several simulations are possible at the same time and they are base on
+site substition processes or sequence substitution processes
+@pxref{Process}. The declaration is :
 
 @table @command
-@item simul@{int}=@{Simulation type@}(process@{number@}=@{number@},
-process@{number@}.positions=(@{number@},...,@{number@}),output.sequence.file=@{file
-path@}[,output.sequence.format=@{alignement format@}])
+@item simul@{int@}=@{Simulation type@}(process=@{number@}, output.sequence.file=@{file path@}[,output.sequence.format=@{alignement format@}])
 @end table
 
-If @option{process1} is not given, process number 1 will be chosen. If
-only one process (or none) is given, @option{positions} is not
-considered, and the same process is applied to all positions.
 
 Up to now, simulation type does not matter. For example, is processes
 number 4 and 2 have been defined before.

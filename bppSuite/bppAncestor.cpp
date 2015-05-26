@@ -80,10 +80,10 @@ using namespace std;
 // From Newlik:
 #include <Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h>
 #include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SingleDataPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 #include <Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h>
+#include <Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.h>
 
 using namespace bpp;
 using namespace newlik;
@@ -189,53 +189,41 @@ int main(int args, char ** argv)
 
     SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, allParams, unparsedparams);
 
-  
+    map<size_t, SequenceEvolution*> mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, allParams, unparsedparams);
+    
 // Missing check
 //  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
     for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
       SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
 
-    // Change all phylolikelihoods recursion parameters to "Double"
+    // Change all phylolikelihoods names to "Double"
 
     vector<string> phylosName=ApplicationTools::matchingParameters("phylo*", allParams);
     vector<size_t> phylosNum;
     for (size_t i=0; i< phylosName.size(); i++)
     {
       size_t poseq=phylosName[i].find("=");
-      phylosNum.push_back((size_t)TextTools::toInt(phylosName[i].substr(5,poseq-5)));
+      size_t pospar=phylosName[i].find("(");
+      allParams[phylosName[i].substr(0,poseq)]="Double"+phylosName[i].substr(pospar);
     }
 
-    map<size_t, PhyloLikelihood*> mPhylo;
-  
-    map<string, string> mrec;
-    mrec["recursion"]="double";
-
-    for (size_t mPi=0; mPi< phylosNum.size(); mPi++)
-    {
-      string phyloName = "";
-
-      string phyloDesc = ApplicationTools::getStringParameter("phylo", allParams, "Single", TextTools::toString(phylosNum[mPi]), 0);
-
-      string newPhyloDesc=KeyvalTools::changeKeyvals(phyloDesc, mrec);
-      
-      allParams["phylo"+TextTools::toString(phylosNum[mPi])]=newPhyloDesc;
-    }
-    
     // get the Double recursive phylo likelihoods
   
-    map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSites, allParams, unparsedparams);
+    map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSeqEvol, mSites, allParams);
 
-    map<size_t, SingleDataPhyloLikelihood*> mPhyl2;
+    // filter to Single Data PhyloLikelihoods
+    
+    // map<size_t, AbstractSingleDataPhyloLikelihood*> mPhyl2;
       
-    for (map<size_t, PhyloLikelihood*>::const_iterator itm=mPhyl.begin(); itm != mPhyl.end(); itm++)
-      if (dynamic_cast<SingleDataPhyloLikelihood*>(itm->second))
-        mPhyl2[itm->first]=dynamic_cast<SingleDataPhyloLikelihood*>(itm->second);
+    // for (map<size_t, PhyloLikelihood*>::iterator itm=mPhyl.begin(); itm != mPhyl.end(); itm++)
+    //   if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(itm->second))
+    //     mPhyl2[itm->first]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(itm->second);
 
-    if (mPhyl2.size()==1)
-      tl=mPhyl2.begin()->second;
+    if (mPhyl.size()==1)
+      tl=mPhyl.begin()->second;
     else
-      tl=new SumOfDataPhyloLikelihood(mPhyl2);      
+      tl=new SumOfPhyloLikelihood(mPhyl);      
 
     //////////////////////////////////////////////
     /// Infinite likelihood
@@ -262,26 +250,30 @@ int main(int args, char ** argv)
     {
       ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
-      map<size_t, SingleDataPhyloLikelihood*> mSD;
-        
-      if (dynamic_cast<SingleDataPhyloLikelihood*>(tl)!=NULL)
-        mSD[1]=dynamic_cast<SingleDataPhyloLikelihood*>(tl);
+      map<size_t, AbstractSingleDataPhyloLikelihood*> mSD;
+
+      if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl)!=NULL)
+        mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl);
       else{
-        MultiDataPhyloLikelihood* mDP=dynamic_cast<MultiDataPhyloLikelihood*>(tl);
-        vector<size_t> nSD=mDP->getNumbersOfSingleDataPhyloLikelihoods();
+        MultiPhyloLikelihood* mDP=dynamic_cast<MultiPhyloLikelihood*>(tl);
+        if (mDP!=NULL)
+        {
+          vector<size_t> nSD=mDP->getNumbersOfPhyloLikelihoods();
           
-        for (size_t iSD=0; iSD< nSD.size(); iSD++)
-          mSD[nSD[iSD]]=mDP->getSingleDataPhylolikelihood(nSD[iSD]);
+          for (size_t iSD=0; iSD< nSD.size(); iSD++)
+            if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]))!=NULL)
+              mSD[nSD[iSD]]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]));
+        }
       }
 
-
-      for (map<size_t, SingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
+      
+      for (map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
       {
         ApplicationTools::displayWarning("Checking for phylolikelihood " + TextTools::toString(itm->first));
           
         if (isinf(itm->second->getValue()))
         {
-          SingleDataPhyloLikelihood* sDP=itm->second;
+          AbstractSingleDataPhyloLikelihood* sDP=itm->second;
           /// !!! Not economic
           SiteContainer* vData=sDP->getData()->clone();
             
@@ -371,16 +363,20 @@ int main(int args, char ** argv)
     string outputSitesFile, outputNodesFile;
   
     /// map of the Single Process 
-    map<size_t, SingleDataPhyloLikelihood*> mSD;
+    map<size_t, AbstractSingleDataPhyloLikelihood*> mSD;
         
-    if (dynamic_cast<SingleDataPhyloLikelihood*>(tl)!=NULL)
-      mSD[1]=dynamic_cast<SingleDataPhyloLikelihood*>(tl);
+    if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl)!=NULL)
+      mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl);
     else{
-      MultiDataPhyloLikelihood* mDP=dynamic_cast<MultiDataPhyloLikelihood*>(tl);
-      vector<size_t> nSD=mDP->getNumbersOfSingleDataPhyloLikelihoods();
-      
-      for (size_t iSD=0; iSD< nSD.size(); iSD++)
-        mSD[nSD[iSD]]=mDP->getSingleDataPhylolikelihood(nSD[iSD]);
+      MultiPhyloLikelihood* mDP=dynamic_cast<MultiPhyloLikelihood*>(tl);
+      if (mDP)
+      {
+        vector<size_t> nSD=mDP->getNumbersOfPhyloLikelihoods();
+        
+        for (size_t iSD=0; iSD< nSD.size(); iSD++)
+          if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]))!=NULL)
+            mSD[nSD[iSD]]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]));
+      }
     }
 
     bool sample=false;
@@ -417,20 +413,31 @@ int main(int args, char ** argv)
   
     /// per Single Process 
     
-    for (map<size_t, SingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
+    for (map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
     {
       
       SingleProcessPhyloLikelihood* sPP=dynamic_cast<SingleProcessPhyloLikelihood*>(itm->second);
+      OneProcessSequencePhyloLikelihood* oPSP=dynamic_cast<OneProcessSequencePhyloLikelihood*>(itm->second);
 
-      if (sPP==NULL){
+      if ((sPP==NULL) && (oPSP==NULL))
+      {
         ApplicationTools::displayWarning("Multi Process ancestral reconstruction not implemented");
         ApplicationTools::displayWarning("for phylolikelihood " + TextTools::toString(itm->first));
         continue;
       }
 
-      const SiteContainer* sites = sPP->getData();
+      const SiteContainer* sites;
+      if (sPP!=NULL)
+        sites=sPP->getData();
+      else
+        sites=oPSP->getData();
+        
 
-      DoubleRecursiveTreeLikelihoodCalculation* pDR=dynamic_cast<DoubleRecursiveTreeLikelihoodCalculation*>(sPP->getLikelihoodCalculation());
+      DoubleRecursiveTreeLikelihoodCalculation* pDR;
+      if (sPP!=NULL)
+        pDR=dynamic_cast<DoubleRecursiveTreeLikelihoodCalculation*>(sPP->getLikelihoodCalculation());
+      else
+        pDR=dynamic_cast<DoubleRecursiveTreeLikelihoodCalculation*>(oPSP->getLikelihoodCalculation());
     
       if (!pDR)
       {
@@ -590,9 +597,9 @@ int main(int args, char ** argv)
         vector<string> colNames;
         colNames.push_back("Nodes");
         for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
-          colNames.push_back("exp" + sPP->getAlphabet()->intToChar((int)i));
+          colNames.push_back("exp" + sPP->getData()->getAlphabet()->intToChar((int)i));
         for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
-          colNames.push_back("eb" + sPP->getAlphabet()->intToChar((int)i));
+          colNames.push_back("eb" + sPP->getData()->getAlphabet()->intToChar((int)i));
       
         //Now fill the table:
         vector<string> row(colNames.size());

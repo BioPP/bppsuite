@@ -76,8 +76,6 @@ using namespace std;
 #include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SingleDataPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 
@@ -85,7 +83,11 @@ using namespace bpp;
 
 using namespace newlik;
 
-map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& spc, map<string, string>& params, map<size_t, string>& mfnames, map<size_t, string>& mformats)
+map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& spc,
+                                          const map<size_t, SequenceEvolution*>& mSeqEvol,
+                                          map<string, string>& params,
+                                          map<size_t, string>& mfnames,
+                                          map<size_t, string>& mformats)
 {
 
   map<size_t, SequenceSimulator*> mSim;
@@ -110,69 +112,20 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
 
     // Process
 
-    size_t indProcess=1;
-    std::vector<size_t> vproc;
+    while (args.find("process")==args.end())
+      throw BadIntegerException("bppseqgen::readSimul. Missing process argument for simul:",(int)num);
 
-    while (args.find("process"+TextTools::toString(indProcess))!=args.end())
-    {
-      vproc.push_back((size_t)ApplicationTools::getIntParameter("process"+TextTools::toString(indProcess), args, 1, "", true, 0));
-      indProcess++;
-    }
-
-    if (vproc.size()==0)
-      vproc.push_back(1);
-    
-    size_t nbProc=vproc.size();
+    size_t indProcess=(size_t)ApplicationTools::getIntParameter("process", args, 1, "", true, 0);
   
-    for (size_t i = 0; i < nbProc; i++)
-      if (! spc.hasSubstitutionProcessNumber(vproc[i]))    
-        throw BadIntegerException("bppseqgen::readSimul. Unknown process number:",(int)vproc[i]);
+    if (! spc.hasSubstitutionProcessNumber(indProcess))
+    {
+      if (mSeqEvol.find(indProcess)==mSeqEvol.end())
+        throw BadIntegerException("bppseqgen::readSimul. Unknown process number:",(int)indProcess);
 
-    // simple proces simulator
-
-    if (vproc.size()==1)
-      ss=new SimpleSubstitutionProcessSequenceSimulator(spc.getSubstitutionProcess(vproc[0]));
-
-    else {
-      
-      // multi process simulator
-      
-      // parse all processes positions
-      
-      vector<size_t> vMap;
-      
-      map<size_t, size_t> posProc;
-      
-      for (size_t i = 0; i < nbProc; i++)
-      {
-        string prefix = "process" + TextTools::toString(i + 1);
-        
-        vector<size_t> procPos = ApplicationTools::getVectorParameter<size_t>(prefix + ".positions", args, ',', ':', TextTools::toString(i), "", true, true);
-        
-        for (size_t j=0; j<procPos.size(); j++)
-          if (posProc.find(procPos[j])!=posProc.end())
-            throw BadIntegerException("A process position is defined twice:",(int)j);
-          else
-            posProc[procPos[j]]=vproc[i];
-      }
-      
-      size_t pos=0;
-      
-      while (posProc.find(pos)!=posProc.end())
-      {
-        vMap.push_back(posProc[pos]);
-        pos++;
-      }
-      
-      if (vMap.size()!=posProc.size())
-        throw Exception("Error : there are gaps in the process positions");
-      
-      SubstitutionProcessSequenceSimulator* sps= new SubstitutionProcessSequenceSimulator(spc);
-      
-      sps->setMap(vMap);
-      ss=sps;
-      
+      ss= new EvolutionSequenceSimulator(*mSeqEvol.find(indProcess)->second);
     }
+    else
+      ss=new SimpleSubstitutionProcessSequenceSimulator(spc.getSubstitutionProcess(indProcess));
     
     // output
     
@@ -252,6 +205,7 @@ int main(int args, char ** argv)
   /**********************************/
   
   SubstitutionProcessCollection* SPC = 0;
+  map<size_t, SequenceEvolution*> mSeqEvol;
   
   map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(bppseqgen.getParams());
 
@@ -261,6 +215,7 @@ int main(int args, char ** argv)
 
   SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, bppseqgen.getParams(), unparsedparams);
 
+  mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, bppseqgen.getParams(), unparsedparams);
 
   /*******************************************/
   /*     Starting sequence                   */
@@ -399,7 +354,7 @@ int main(int args, char ** argv)
   map<size_t, string> filenames;
   map<size_t, string> formats;
   
-  map<size_t, SequenceSimulator*> mSim=readSimul(*SPC,bppseqgen.getParams(),filenames, formats);
+  map<size_t, SequenceSimulator*> mSim=readSimul(*SPC, mSeqEvol, bppseqgen.getParams(),filenames, formats);
   
   for (map<size_t, SequenceSimulator*>::iterator it=mSim.begin(); it!=mSim.end(); it++)
   {
