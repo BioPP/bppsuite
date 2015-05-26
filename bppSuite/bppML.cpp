@@ -81,8 +81,6 @@ using namespace std;
 
 using namespace bpp;
 
-using namespace newlik;
-
 /******************************************************************************/
 
 void help()
