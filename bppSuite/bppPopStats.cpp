@@ -112,9 +112,9 @@ int main(int args, char** argv)
       if (cmdName == "SiteFrequencies")
       {
         unsigned int s = SequenceStatistics::numberOfPolymorphicSites(*psc);
-	ApplicationTools::displayResult("Number of segregating sites:", s);
+        ApplicationTools::displayResult("Number of segregating sites:", s);
         unsigned int nsg = SequenceStatistics::numberOfSingletons(*psc);
-	ApplicationTools::displayResult("Number of singletons:", nsg);
+        ApplicationTools::displayResult("Number of singletons:", nsg);
       }
 
       // +-------------------+
@@ -123,7 +123,7 @@ int main(int args, char** argv)
       if (cmdName == "Watterson75")
       {
         double thetaW75 = SequenceStatistics::watterson75(*psc, true, true, true);
-	ApplicationTools::displayResult("Watterson (1975)'s theta:", thetaW75);
+        ApplicationTools::displayResult("Watterson (1975)'s theta:", thetaW75);
       }
 
       // +----------------+
@@ -132,7 +132,7 @@ int main(int args, char** argv)
       if (cmdName == "Tajima83")
       {
         double thetaT83 = SequenceStatistics::tajima83(*psc, true, true, true);
-	ApplicationTools::displayResult("Tajima (1983)'s theta:", thetaT83);
+        ApplicationTools::displayResult("Tajima (1983)'s theta:", thetaT83);
       }
 
       // +------------+
@@ -141,7 +141,7 @@ int main(int args, char** argv)
       if (cmdName == "TajimaD")
       {
         double tajimaD = SequenceStatistics::tajimaDss(*psc, true, true);
-	ApplicationTools::displayResult("Tajima (1989)'s D:", tajimaD);
+        ApplicationTools::displayResult("Tajima (1989)'s D:", tajimaD);
       }
 
       // +-----------+
@@ -149,8 +149,10 @@ int main(int args, char** argv)
       // +-----------+
       if (cmdName == "FuAndLiDStar")
       {
-        double flDstar = SequenceStatistics::fuLiDStar(*psc);
-	ApplicationTools::displayResult("Fu and Li (1993)'s D*:", flDstar);
+        bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
+        double flDstar = SequenceStatistics::fuLiDStar(*psc, !useTotMut);
+        ApplicationTools::displayResult("Fu and Li (1993)'s D*:", flDstar);
+        ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
       }
 
       // +-----------+
@@ -158,8 +160,10 @@ int main(int args, char** argv)
       // +-----------+
       if (cmdName == "FuAndLiFStar")
       {
-        double flFstar = SequenceStatistics::fuLiFStar(*psc);
-	ApplicationTools::displayResult("Fu and Li (1993)'s F*:", flFstar);
+        bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
+        double flFstar = SequenceStatistics::fuLiFStar(*psc, !useTotMut);
+        ApplicationTools::displayResult("Fu and Li (1993)'s F*:", flFstar);
+        ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
       }
 
 
