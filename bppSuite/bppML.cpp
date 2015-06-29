@@ -419,7 +419,7 @@ int main(int args, char** argv)
       ApplicationTools::displayResult("List parameters to", paramNameFile);
       ofstream pnfile(paramNameFile.c_str(), ios::out);
       ParameterList pl = tl->getParameters();
-      for (unsigned int i = 0; i < pl.size(); ++i) {
+      for (size_t i = 0; i < pl.size(); ++i) {
         pnfile << pl[i].getName() << endl;
       }
       pnfile.close();
