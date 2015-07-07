@@ -78,15 +78,14 @@ using namespace std;
 #include <Bpp/Phyl/Io/Newick.h>
 
 // From Newlik:
-#include <Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h>
-#include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.h>
 #include <Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 #include <Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h>
 #include <Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
 
 using namespace bpp;
-using namespace newlik;
 
 /******************************************************************************/
 
@@ -197,28 +196,11 @@ int main(int args, char ** argv)
     for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
       SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
 
-    // Change all phylolikelihoods names to "Double"
+    // get the recursive phylo likelihoods
 
-    vector<string> phylosName=ApplicationTools::matchingParameters("phylo*", allParams);
-    vector<size_t> phylosNum;
-    for (size_t i=0; i< phylosName.size(); i++)
-    {
-      size_t poseq=phylosName[i].find("=");
-      size_t pospar=phylosName[i].find("(");
-      allParams[phylosName[i].substr(0,poseq)]="Double"+phylosName[i].substr(pospar);
-    }
-
-    // get the Double recursive phylo likelihoods
-  
     map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSeqEvol, mSites, allParams);
 
     // filter to Single Data PhyloLikelihoods
-    
-    // map<size_t, AbstractSingleDataPhyloLikelihood*> mPhyl2;
-      
-    // for (map<size_t, PhyloLikelihood*>::iterator itm=mPhyl.begin(); itm != mPhyl.end(); itm++)
-    //   if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(itm->second))
-    //     mPhyl2[itm->first]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(itm->second);
 
     if (mPhyl.size()==1)
       tl=mPhyl.begin()->second;
@@ -227,8 +209,9 @@ int main(int args, char ** argv)
 
     //////////////////////////////////////////////
     /// Infinite likelihood
-  
+    
     double logL = tl->getValue();
+
     if (isinf(logL))
     {
       // This may be due to null branch lengths, leading to null likelihood!
@@ -415,7 +398,6 @@ int main(int args, char ** argv)
     
     for (map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
     {
-      
       SingleProcessPhyloLikelihood* sPP=dynamic_cast<SingleProcessPhyloLikelihood*>(itm->second);
       OneProcessSequencePhyloLikelihood* oPSP=dynamic_cast<OneProcessSequencePhyloLikelihood*>(itm->second);
 
@@ -432,25 +414,19 @@ int main(int args, char ** argv)
       else
         sites=oPSP->getData();
         
-
-      DoubleRecursiveTreeLikelihoodCalculation* pDR;
+      AbstractLikelihoodTreeCalculation* pDR;
+      
       if (sPP!=NULL)
-        pDR=dynamic_cast<DoubleRecursiveTreeLikelihoodCalculation*>(sPP->getLikelihoodCalculation());
+        pDR=dynamic_cast<AbstractLikelihoodTreeCalculation*>(sPP->getLikelihoodCalculation());
       else
-        pDR=dynamic_cast<DoubleRecursiveTreeLikelihoodCalculation*>(oPSP->getLikelihoodCalculation());
-    
-      if (!pDR)
-      {
-        ApplicationTools::displayWarning("Not double recursive calculation for phylo likelihood " + TextTools::toString(itm->first));
-        continue;
-      }
+        pDR=dynamic_cast<AbstractLikelihoodTreeCalculation*>(oPSP->getLikelihoodCalculation());
 
       if (probMethod)
       {    
         AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR);
 
         size_t nbStates=sPP->getNumberOfStates();
-      
+
         // Write infos to file:
         if (outputSitesFile != "none")
         {
@@ -468,7 +444,7 @@ int main(int args, char ** argv)
           // Get the ancestral sequences:
           vector<Sequence*> sequences(nbNodes);
           vector<VVdouble*> probabilities(nbNodes);
-        
+
           vector<string> colNames;
           colNames.push_back("Sites");
           colNames.push_back("is.complete");
@@ -476,14 +452,17 @@ int main(int args, char ** argv)
           colNames.push_back("lnL");
           colNames.push_back("rc");
           colNames.push_back("pr");
+
           for (size_t i = 0; i < nbNodes; i++) {
             Node *node = nodes[i];
             colNames.push_back("max." + TextTools::toString(node->getId()));
             if (probs) {
               probabilities[i] = new VVdouble();
+              
               //The cast will have to be updated when more probabilistic method will be available:
               sequences[i] = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequenceForNode(node->getId(), probabilities[i], false);
-            
+
+              
               for (unsigned int j = 0; j < nbStates; j++) {
                 colNames.push_back("prob." + TextTools::toString(node->getId()) + "." + alphabet->intToChar((int)j));
               }
@@ -497,11 +476,13 @@ int main(int args, char ** argv)
               }
             }
           }
-        
+
           //Now fill the table:
           vector<string> row(colNames.size());
           DataTable* infos = new DataTable(colNames);
 
+          sPP->computeTreeLikelihood();
+          
           for (size_t i = 0; i < sites->getNumberOfSites(); i++)
           {
             double lnL = sPP->getLogLikelihoodForASite(i);
@@ -584,7 +565,7 @@ int main(int args, char ** argv)
       }
 
       /// end of ancestral reconstruction
-    
+
       if (outputNodesFile != "none")
       {
         ApplicationTools::displayResult("Output file for nodes", outputNodesFile + "_" + TextTools::toString(itm->first));
@@ -608,7 +589,7 @@ int main(int args, char ** argv)
         for (map<int, vector<double> >::iterator itf = frequencies.begin(); itf != frequencies.end(); itf++)
         {
           row[0] = TextTools::toString(itf->first);
-          Vdouble ebFreqs = pDR->getPosteriorStateFrequencies(itf->first);
+          Vdouble ebFreqs = pDR->getLikelihoodData().getPosteriorStateFrequencies(itf->first);
           for (size_t i = 0; i < sPP->getNumberOfStates(); i++)
           {
             row[i + 1] = TextTools::toString(itf->second[i]);

@@ -481,7 +481,7 @@ int main(int args, char** argv)
     {
       //Check initial likelihood:
       double logL = tl_new->getValue();
-      
+
       if (isinf(logL))
       {
         // This may be due to null branch lengths, leading to null likelihood!

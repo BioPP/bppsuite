@@ -81,8 +81,6 @@ using namespace std;
 
 using namespace bpp;
 
-using namespace newlik;
-
 map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& spc,
                                           const map<size_t, SequenceEvolution*>& mSeqEvol,
                                           map<string, string>& params,
