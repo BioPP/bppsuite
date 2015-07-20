@@ -2532,6 +2532,9 @@ Remove all stop codons in sequences. If sequences are aligned, stop codons will 
 The genetic code used for translation is set via the genetic_code option.
 Genetic code is set once for all sequences.
 
+@item RemoveEmptySequences
+Remove all empty sequences (ie sequences with only gaps).
+
 @item RemoveColumnsWithStop
 Remove all sites with at least one stop codon.
 The genetic code used for translation is set via the genetic_code option.
