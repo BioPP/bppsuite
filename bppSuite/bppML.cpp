@@ -77,7 +77,8 @@ using namespace std;
 #include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
-#include <Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
 
 using namespace bpp;
 
@@ -267,14 +268,24 @@ int main(int args, char** argv)
       for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
         SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
 
-      map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSeqEvol, mSites, bppml.getParams());
-      
-      if (mPhyl.size()==1)
-        tl_new=mPhyl.begin()->second;
-      else
-        tl_new=new SumOfPhyloLikelihood(mPhyl);      
+      PhyloLikelihoodContainer* mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(*SPC, mSeqEvol, mSites, bppml.getParams());
+
+      // filter to Single Data PhyloLikelihoods
+
+      if (mPhyl->getSize()==0)
+        throw Exception("Missing phyloLikelihoods.");
+
+      if (mPhyl->getSize()==1)
+        tl_new=(*mPhyl)[mPhyl->getNumbersOfPhyloLikelihoods()[0]];
+      else{
+        tl_new=new ProductOfPhyloLikelihood(mPhyl);
+        dynamic_cast<ProductOfPhyloLikelihood*>(tl_new)->addAllPhyloLikelihoods();
+      }
     }
 
+
+    ApplicationTools::displayMessage("");
+    
     //Listing parameters
     string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false, "", true, "none", 1);
     if (paramNameFile != "none") {
@@ -491,7 +502,7 @@ int main(int args, char** argv)
         ParameterList pl = tl_new->getBranchLengthParameters();
         for (unsigned int i = 0; i < pl.size(); i++)
         {
-          if (pl[i].getValue() < 0.000001) pl[i].setValue(0.000001);
+          if (pl[i].getValue() < 0.000001) pl[i].setValue(0.001);
         }
         tl_new->matchParametersValues(pl);
         logL = tl_new->getValue();
@@ -506,21 +517,24 @@ int main(int args, char** argv)
         if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl_new)!=NULL)
           mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl_new);
         else{
-          MultiPhyloLikelihood* mDP=dynamic_cast<MultiPhyloLikelihood*>(tl_new);
-          if (mDP!=NULL)
+          SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl_new);
+          if (sOAP!=NULL)
           {
-            vector<size_t> nSD=mDP->getNumbersOfPhyloLikelihoods();
+            const vector<size_t>& nSD=sOAP->getNumbersOfPhyloLikelihoods();
           
             for (size_t iSD=0; iSD< nSD.size(); iSD++)
-              if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]))!=NULL)
-                mSD[nSD[iSD]]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]));
+            {
+              AbstractSingleDataPhyloLikelihood* pASDP=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(sOAP->getAbstractPhyloLikelihood(nSD[iSD]));
+            
+              if (pASDP!=NULL)
+                mSD[nSD[iSD]]=pASDP;
+            }
           }
         }
 
-
         for (map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
         {
-          ApplicationTools::displayWarning("Checking for phylolikelihood " + TextTools::toString(itm->first));
+          ApplicationTools::displayWarning("Checking for phyloLikelihood " + TextTools::toString(itm->first));
           
           if (isinf(itm->second->getValue()))
           {
@@ -578,7 +592,7 @@ int main(int args, char** argv)
           }
         }
       }
-
+      
       tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
       
       PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams());

@@ -79,11 +79,12 @@ using namespace std;
 
 // From Newlik:
 #include <Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.h>
-#include <Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 #include <Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h>
-#include <Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
 
 using namespace bpp;
 
@@ -198,14 +199,19 @@ int main(int args, char ** argv)
 
     // get the recursive phylo likelihoods
 
-    map<size_t, PhyloLikelihood*> mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoods(*SPC, mSeqEvol, mSites, allParams);
+    PhyloLikelihoodContainer* mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(*SPC, mSeqEvol, mSites, allParams);
 
     // filter to Single Data PhyloLikelihoods
 
-    if (mPhyl.size()==1)
-      tl=mPhyl.begin()->second;
-    else
-      tl=new SumOfPhyloLikelihood(mPhyl);      
+    if (mPhyl->getSize()==0)
+      throw Exception("Missing phyloLikelihoods.");
+
+    if (mPhyl->getSize()==1)
+      tl=(*mPhyl)[mPhyl->getNumbersOfPhyloLikelihoods()[0]];
+    else{
+      tl=new ProductOfPhyloLikelihood(mPhyl);
+      dynamic_cast<ProductOfPhyloLikelihood*>(tl)->addAllPhyloLikelihoods();
+    }
 
     //////////////////////////////////////////////
     /// Infinite likelihood
@@ -238,21 +244,24 @@ int main(int args, char ** argv)
       if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl)!=NULL)
         mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl);
       else{
-        MultiPhyloLikelihood* mDP=dynamic_cast<MultiPhyloLikelihood*>(tl);
-        if (mDP!=NULL)
+        SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl);
+        if (sOAP!=NULL)
         {
-          vector<size_t> nSD=mDP->getNumbersOfPhyloLikelihoods();
+          const vector<size_t>& nSD=sOAP->getNumbersOfPhyloLikelihoods();
           
           for (size_t iSD=0; iSD< nSD.size(); iSD++)
-            if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]))!=NULL)
-              mSD[nSD[iSD]]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]));
+          {
+            AbstractSingleDataPhyloLikelihood* pASDP=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(sOAP->getAbstractPhyloLikelihood(nSD[iSD]));
+            
+            if (pASDP!=NULL)
+              mSD[nSD[iSD]]=pASDP;
+          }
         }
       }
-
       
       for (map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
       {
-        ApplicationTools::displayWarning("Checking for phylolikelihood " + TextTools::toString(itm->first));
+        ApplicationTools::displayWarning("Checking for phyloLikelihood " + TextTools::toString(itm->first));
           
         if (isinf(itm->second->getValue()))
         {
@@ -351,14 +360,16 @@ int main(int args, char ** argv)
     if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl)!=NULL)
       mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl);
     else{
-      MultiPhyloLikelihood* mDP=dynamic_cast<MultiPhyloLikelihood*>(tl);
-      if (mDP)
+      SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl);
+      if (sOAP)
       {
-        vector<size_t> nSD=mDP->getNumbersOfPhyloLikelihoods();
+        const vector<size_t>& nSD=sOAP->getNumbersOfPhyloLikelihoods();
         
-        for (size_t iSD=0; iSD< nSD.size(); iSD++)
-          if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]))!=NULL)
-            mSD[nSD[iSD]]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(mDP->getPhylolikelihood(nSD[iSD]));
+        for (size_t iSD=0; iSD< nSD.size(); iSD++){
+          AbstractSingleDataPhyloLikelihood* pASDP=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(sOAP->getAbstractPhyloLikelihood(nSD[iSD]));
+          if (pASDP!=NULL)
+            mSD[nSD[iSD]]=pASDP;
+        }
       }
     }
 
@@ -404,7 +415,7 @@ int main(int args, char ** argv)
       if ((sPP==NULL) && (oPSP==NULL))
       {
         ApplicationTools::displayWarning("Multi Process ancestral reconstruction not implemented");
-        ApplicationTools::displayWarning("for phylolikelihood " + TextTools::toString(itm->first));
+        ApplicationTools::displayWarning("for phyloLikelihood " + TextTools::toString(itm->first));
         continue;
       }
 
@@ -481,7 +492,7 @@ int main(int args, char ** argv)
           vector<string> row(colNames.size());
           DataTable* infos = new DataTable(colNames);
 
-          sPP->computeTreeLikelihood();
+          sPP->computeLikelihood();
           
           for (size_t i = 0; i < sites->getNumberOfSites(); i++)
           {

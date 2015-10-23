@@ -73,10 +73,10 @@ using namespace std;
 #include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
-#include <Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 
 using namespace bpp;
