@@ -754,34 +754,43 @@ Protein substitution model, from Le & Gascuel 2008. See the
 
 
 @item LLG08_EX2([relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@}])
-Protein substitution model, from Le, Lartillot & Gascuel 2008. See
-the meaning of the variables in the Mixture model below. See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__EX2.html#_details, Bio++ description}.
+Protein substitution model, from Le, Lartillot & Gascuel 2008.
+@xref{Mixture}, for the meaning of the variables. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__EX2.html#_details,
+Bio++ description}.
 
 
 @item LLG08_EX3([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
-Protein substitution model, from Le, Lartillot & Gascuel 2008.  See
-the meaning of the variables in the Mixture model below. See the
+Protein substitution model, from Le, Lartillot & Gascuel 2008. @xref{Mixture}, for the meaning of the variables. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__EX3.html#_details, Bio++ description}.
 
 
 @item LLG08_EHO([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
-Protein substitution model, from Le, Lartillot & Gascuel 2008. See
-the meaning of the variables in the Mixture model below. See the
+Protein substitution model, from Le, Lartillot & Gascuel 2008. @xref{Mixture}, for the meaning of the variables. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__EHO.html#_details, Bio++ description}.
 
 
 @item LLG08_UL2([relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@}])
-Protein substitution model, from Le, Lartillot & Gascuel 2008. See
-the meaning of the variables in the Mixture model below. See the
+Protein substitution model, from Le, Lartillot & Gascuel 2008. @xref{Mixture}, for the meaning of the variables. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__UL2.html#_details, Bio++ description}.
 
 
 @item LLG08_UL3([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
-Protein substitution model, from Le, Lartillot & Gascuel 2008. See
-the meaning of the variables in the Mixture model below. See the
+Protein substitution model, from Le, Lartillot & Gascuel 2008. @xref{Mixture}, for the meaning of the variables. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LLG08__UL3.html#_details, Bio++ description}.
 
+@item LGL08_CAT(nbCat=@{[10,20,30,40,50,60]@}, [relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, ..., relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}, ...] ))
+CAT protein substitution model, from Le, Gascuel & Lartillot 2008, with a
+given number (@var{nbCat}) of profiles. @xref{Mixture}, for the meaning
+of the variables. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LGL08__CAT.html#_details,
+Bio++ description}.
+
+@item LGL08_CAT_C@{[1,...,nbCat]@}(nbCat=@{[10,20,30,40,50,60]@})
+Submodel of a given CAT Protein substitution model, from Le, Gascuel &
+Lartillot 2008, with a given number (@var{nbCat}) of profiles. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1LGL08__CAT.html#_details,
+Bio++ description}.
 
 @item DSO78+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ... ,"equilibrium frequencies"])
 Protein substitution model, using the dcmutt implementation of Kosiol
