@@ -77,8 +77,8 @@ using namespace std;
 #include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h>
 
 using namespace bpp;
 
@@ -205,6 +205,7 @@ int main(int args, char** argv)
     PhyloLikelihood* tl_new = 0;
     SubstitutionProcessCollection* SPC = 0;
     map<size_t, SequenceEvolution*> mSeqEvol;
+    PhyloLikelihoodContainer* mPhyl=0;
     
     bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, 2);
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, 1);
@@ -268,22 +269,17 @@ int main(int args, char** argv)
       for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
         SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
 
-      PhyloLikelihoodContainer* mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(*SPC, mSeqEvol, mSites, bppml.getParams());
+      mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(*SPC, mSeqEvol, mSites, bppml.getParams());
 
       // filter to Single Data PhyloLikelihoods
 
-      if (mPhyl->getSize()==0)
+      if (!mPhyl->hasPhyloLikelihood(0))
         throw Exception("Missing phyloLikelihoods.");
 
-      if (mPhyl->getSize()==1)
-        tl_new=(*mPhyl)[mPhyl->getNumbersOfPhyloLikelihoods()[0]];
-      else{
-        tl_new=new ProductOfPhyloLikelihood(mPhyl);
-        dynamic_cast<ProductOfPhyloLikelihood*>(tl_new)->addAllPhyloLikelihoods();
-      }
+      tl_new=(*mPhyl)[0];
+      
     }
-
-
+    
     ApplicationTools::displayMessage("");
     
     //Listing parameters
@@ -615,7 +611,7 @@ int main(int args, char** argv)
       {
         StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
         
-        PhylogeneticsApplicationTools::printParameters(tl_new, out);
+        PhylogeneticsApplicationTools::printParameters(*mPhyl, out);
 
         PhylogeneticsApplicationTools::printParameters(SPC, out);
 
@@ -624,7 +620,7 @@ int main(int args, char** argv)
           PhylogeneticsApplicationTools::printParameters(it2->second, out, it2->first);
           out.endLine();
         }
-        
+
       }
 
       // Write infos to file:

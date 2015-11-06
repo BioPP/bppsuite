@@ -203,15 +203,10 @@ int main(int args, char ** argv)
 
     // filter to Single Data PhyloLikelihoods
 
-    if (mPhyl->getSize()==0)
+    if (!mPhyl->hasPhyloLikelihood(0))
       throw Exception("Missing phyloLikelihoods.");
 
-    if (mPhyl->getSize()==1)
-      tl=(*mPhyl)[mPhyl->getNumbersOfPhyloLikelihoods()[0]];
-    else{
-      tl=new ProductOfPhyloLikelihood(mPhyl);
-      dynamic_cast<ProductOfPhyloLikelihood*>(tl)->addAllPhyloLikelihoods();
-    }
+    tl=(*mPhyl)[0];
 
     //////////////////////////////////////////////
     /// Infinite likelihood
