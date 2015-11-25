@@ -92,6 +92,10 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
 
   vector<string> vSimulName=ApplicationTools::matchingParameters("simul*", params);
 
+  if (vSimulName.size() == 0) {
+    ApplicationTools::displayWarning("Did not find any parameters matching `simul*`, so simulation is a no-op.");
+  }
+
   SequenceSimulator* ss;
 
   for (size_t nS=0; nS< vSimulName.size(); nS++)
