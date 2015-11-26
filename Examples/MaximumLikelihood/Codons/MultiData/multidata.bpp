@@ -1,0 +1,37 @@
+DATA = lysozymeLarge
+output.tree.file=newlik_tree.newick
+
+
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+
+## model, with rate distribution and root frequencies
+model1 = YN98(frequencies=F3X4,initFreqs=observed,data=1)
+rate_distribution1=Constant()
+root_freq1=F3X4()
+
+
+## tree
+input.tree1 = user(file=tree1.newick, format=Newick)
+input.tree2 = user(file=tree2.newick, format=Newick)
+
+
+## data
+input.data1=alignment(format=Fasta, selection=1:40, file=../../../Data/$(DATA).fasta)
+input.data2=alignment(format=Fasta, selection=41:80, file=../../../Data/$(DATA).fasta)
+input.data3=alignment(format=Fasta, selection=81:120, file=../../../Data/$(DATA).fasta)
+
+
+##  process (link models and trees)
+process1=Homogeneous(model=1, rate=1, tree=1, root_freq=1)
+process2=Homogeneous(model=1, rate=1, tree=2, root_freq=1)
+
+
+## likelihoods (link process and data)
+phylo1=Single(process=1,data=1)
+phylo2=Single(process=2,data=2)
+
+
+## here data2 and data3 are on the same tree
+phylo3=Single(process=2,data=3)
+
