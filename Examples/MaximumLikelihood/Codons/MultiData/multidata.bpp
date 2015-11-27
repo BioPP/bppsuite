@@ -11,9 +11,8 @@ rate_distribution1=Constant()
 root_freq1=F3X4()
 
 
-## tree
-input.tree1 = user(file=tree1.newick, format=Newick)
-input.tree2 = user(file=tree2.newick, format=Newick)
+## trees (note that there are two, so we get input.tree1 and input.tree2).
+input.tree = user(file=trees.newick, format=Newick)
 
 
 ## data
