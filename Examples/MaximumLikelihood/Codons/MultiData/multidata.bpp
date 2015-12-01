@@ -1,6 +1,7 @@
 DATA = lysozymeLarge
 output.tree.file=newlik_tree.newick
-
+optimize.topology=false
+optimize.parameters=false
 
 alphabet=Codon(letter=DNA)
 genetic_code=Standard
@@ -18,12 +19,13 @@ input.tree = user(file=trees.newick, format=Newick)
 ## data
 input.data1=alignment(format=Fasta, selection=1:40, file=../../../Data/$(DATA).fasta)
 input.data2=alignment(format=Fasta, selection=41:80, file=../../../Data/$(DATA).fasta)
-input.data3=alignment(format=Fasta, selection=81:120, file=../../../Data/$(DATA).fasta)
+input.data3=alignment(format=Fasta, file=../../../Data/$(DATA).fasta)
 
 
 ##  process (link models and trees)
 process1=Homogeneous(model=1, rate=1, tree=1, root_freq=1)
 process2=Homogeneous(model=1, rate=1, tree=2, root_freq=1)
+process3=Partition(process1=1, process1.sites=1:80, process2=2, process2.sites=81:130)
 
 
 ## likelihoods (link process and data)
@@ -31,6 +33,6 @@ phylo1=Single(process=1,data=1)
 phylo2=Single(process=2,data=2)
 
 
-## here data2 and data3 are on the same tree
-phylo3=Single(process=2,data=3)
+## Analysis with partitioned data and different trees.
+phylo3=Single(process=3,data=3)
 
