@@ -1803,7 +1803,8 @@ used as the name of the phylo-likelihood.
 @item phylo@{number@}=@{Single|Double@}(data=@{number@}, process=@{number@})
 @end table
 
-
+With parameter @var{useLog=yes}, the computation is done using log
+(default: false).
 
 When several phylo-likelihoods are declared, the computed (and
 optimized) log-likelihood is the sum of the log-likelihoods of all
