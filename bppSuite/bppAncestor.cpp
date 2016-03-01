@@ -442,7 +442,7 @@ int main(int args, char ** argv)
           string outF=outputSitesFile + "_" + TextTools::toString(itm->first);
           ofstream out(outF.c_str(), ios::out);
           TreeTemplate<Node> ttree(sPP->getTree());
-          vector<Node *> nodes = ttree.getInnerNodes();
+          vector<Node *> nodes = ttree.getNodes();
           size_t nbNodes = nodes.size();
 
           // Get the class with maximum posterior probability:
@@ -476,10 +476,7 @@ int main(int args, char ** argv)
               }
             }
             else
-            {
-              if (!node->isLeaf()) 
                 sequences[i] = asr->getAncestralSequenceForNode(node->getId());
-            }
           }
 
           //Now fill the table:
