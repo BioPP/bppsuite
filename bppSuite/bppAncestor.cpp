@@ -340,7 +340,7 @@ int main(int args, char ** argv)
     } else
       throw Exception("Unknown ancestral state reconstruction method: " + reconstruction);
 
-    string sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file", allParams, true, false, "", false, "none", 1);
+    string sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file", allParams, false, false, "", false, "none", 1);
 
     string sequenceFormat="";
   
@@ -433,7 +433,9 @@ int main(int args, char ** argv)
 
         size_t nbStates=sPP->getNumberOfStates();
 
+        /////////////////////////////////////
         // Write infos to file:
+        
         if (outputSitesFile != "none")
         {
           ApplicationTools::displayResult("Phylo " + TextTools::toString(itm->first) + " : Output file for sites", outputSitesFile + "_" + TextTools::toString(itm->first));
@@ -442,11 +444,12 @@ int main(int args, char ** argv)
           TreeTemplate<Node> ttree(sPP->getTree());
           vector<Node *> nodes = ttree.getInnerNodes();
           size_t nbNodes = nodes.size();
-    
+
           // Get the class with maximum posterior probability:
           vector<size_t> classes = sPP->getClassWithMaxPostProbOfEachSite();
           // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
           Vdouble rates = sPP->getPosteriorRateOfEachSite();
+
           // Get the ancestral sequences:
           vector<Sequence*> sequences(nbNodes);
           vector<VVdouble*> probabilities(nbNodes);
@@ -468,18 +471,14 @@ int main(int args, char ** argv)
               //The cast will have to be updated when more probabilistic method will be available:
               sequences[i] = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequenceForNode(node->getId(), probabilities[i], false);
 
-              
               for (unsigned int j = 0; j < nbStates; j++) {
                 colNames.push_back("prob." + TextTools::toString(node->getId()) + "." + alphabet->intToChar((int)j));
               }
             }
             else
             {
-              if (node->isLeaf()) {
-              
-              } else {
+              if (!node->isLeaf()) 
                 sequences[i] = asr->getAncestralSequenceForNode(node->getId());
-              }
             }
           }
 
@@ -488,7 +487,7 @@ int main(int args, char ** argv)
           DataTable* infos = new DataTable(colNames);
 
           sPP->computeLikelihood();
-          
+
           for (size_t i = 0; i < sites->getNumberOfSites(); i++)
           {
             double lnL = sPP->getLogLikelihoodForASite(i);
@@ -527,51 +526,57 @@ int main(int args, char ** argv)
           delete infos;
         }
 
-      
+        ////////////////////////////////////////////////
         /// Ancestral sequences
-      
-        SiteContainer* asSites = 0;
-      
-        if (sample)
+
+        if (sequenceFilePath!="none")
         {
-          asSites = new AlignedSequenceContainer(alphabet);
-
-          for (unsigned int i = 0; i < nbSamples; i++)
+          SiteContainer* asSites = 0;
+          
+          if (sample)
           {
-            ApplicationTools::displayGauge(i, nbSamples-1, '=');
-            SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequences(true);
-            vector<string> names = sampleSites->getSequencesNames();
-            for (unsigned int j = 0; j < names.size(); j++)
-              names[j] += "_" + TextTools::toString(i+1);
-            sampleSites->setSequencesNames(names, false);
-            SequenceContainerTools::append(*asSites, *sampleSites);
-            delete sampleSites;
+            asSites = new AlignedSequenceContainer(alphabet);
+            
+            for (unsigned int i = 0; i < nbSamples; i++)
+            {
+              ApplicationTools::displayGauge(i, nbSamples-1, '=');
+              SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequences(true);
+              vector<string> names = sampleSites->getSequencesNames();
+              for (unsigned int j = 0; j < names.size(); j++){
+                names[j] += "_" + TextTools::toString(i+1);
+              }
+              
+              sampleSites->setSequencesNames(names, false);
+              SequenceContainerTools::append(*asSites, *sampleSites);
+              delete sampleSites;
+            }
+            ApplicationTools::message->endLine();
           }
-          ApplicationTools::message->endLine();
+          else
+            asSites = asr->getAncestralSequences();
+          
+          //Add existing sequence to output?
+          if (addSitesExtant) 
+            SequenceContainerTools::append(*asSites, *sites);
+          
+          //Write output:
+          BppOAlignmentWriterFormat bppoWriter(1);
+          auto_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
+          ApplicationTools::displayResult("Output alignment file ", sequenceFilePath + "_" + TextTools::toString(itm->first));
+          ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
+          
+          // Write sequences:
+          oAln->writeAlignment(sequenceFilePath + "_" + TextTools::toString(itm->first), *asSites, true);
+          
+          delete asSites;
+          delete asr;
         }
-        else
-          asSites = asr->getAncestralSequences();
-      
-        //Add existing sequence to output?
-        if (addSitesExtant) 
-          SequenceContainerTools::append(*asSites, *sites);
-
-
-        //Write output:
-        BppOAlignmentWriterFormat bppoWriter(1);
-        auto_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
-        ApplicationTools::displayResult("Output alignment file ", sequenceFilePath + "_" + TextTools::toString(itm->first));
-        ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
-
-        // Write sequences:
-        oAln->writeAlignment(sequenceFilePath + "_" + TextTools::toString(itm->first), *sites, true);
-    
-        delete asSites;
-        delete asr;
       }
+      
 
       /// end of ancestral reconstruction
 
+      
       if (outputNodesFile != "none")
       {
         ApplicationTools::displayResult("Output file for nodes", outputNodesFile + "_" + TextTools::toString(itm->first));
