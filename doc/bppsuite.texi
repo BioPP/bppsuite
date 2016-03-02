@@ -352,6 +352,10 @@ The following table give the currently implemented codes with their correspondin
 @end multitable
 @end table
 
+The states of the alphabets are in alphabetical order. For the proteic
+alphabet, the amino-acid are in the order of their 3-letters code
+(ALA, ARG, ASN, ...).
+
 @c ------------------------------------------------------------------------------------------------------------------
 
 @node Sequences, Tree, Alphabet, Common
