@@ -521,6 +521,8 @@ int main(int args, char** argv)
 
     // Write parameters to file:
     string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false, "none", 1);
+    bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.alias", bppml.getParams(), false, "", true, 0);
+
     ApplicationTools::displayResult("Output estimates to file", parametersFile);
     if (parametersFile != "none")
     {
@@ -537,17 +539,17 @@ int main(int args, char** argv)
       if (modelSet)
       {
         modelSet->matchParametersValues(tl->getParameters());
-        PhylogeneticsApplicationTools::printParameters(modelSet, out);
+        PhylogeneticsApplicationTools::printParameters(modelSet, out, 1, withAlias);
       }
       else
       {
         model->matchParametersValues(tl->getParameters());
-        PhylogeneticsApplicationTools::printParameters(model, out);
+        PhylogeneticsApplicationTools::printParameters(model, out, 1, withAlias);
       }
       out.endLine();
       (out << "# Rate distribution parameters:").endLine();
       rDist->matchParametersValues(tl->getParameters());
-      PhylogeneticsApplicationTools::printParameters(rDist, out);
+      PhylogeneticsApplicationTools::printParameters(rDist, out, withAlias);
     }
 
     // Getting posterior rate class distribution:

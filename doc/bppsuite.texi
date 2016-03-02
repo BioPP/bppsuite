@@ -2168,7 +2168,11 @@ Topology estimation is not possible with a clock constraint.
 Alignment information log file (site specific rates, etc):
 
 @item output.estimates = @{@{path@}|none@}
-Write numerical parameter estimated values.
+Write parameter estimated values.
+
+@item output.estimates.alias = @{boolean@}
+Write the alias names of the aliased parameters instead of their
+values (default: true).
 
 @end table
 
