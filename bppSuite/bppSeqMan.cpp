@@ -496,6 +496,22 @@ int main(int args, char** argv)
       delete sequences;
       sequences = reorderedSequences;
     }
+    // +----------------------+
+    // | RemoveEmptySequences |
+    // +----------------------+
+    else if (cmdName == "RemoveEmptySequences")
+    {
+      OrderedSequenceContainer* sc = 0;
+      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
+      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
+      {
+        if (SequenceTools::getNumberOfSites(sequences->getSequence(i))!=0)
+          sc->addSequence(sequences->getSequence(i), false);
+      }
+      delete sequences;
+      sequences = sc;
+    }
 
     else throw Exception("Unknown action: " + cmdName);
   }

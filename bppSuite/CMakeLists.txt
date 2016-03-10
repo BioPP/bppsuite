@@ -50,6 +50,10 @@ ADD_EXECUTABLE(bppalnscore bppAlnScore.cpp)
 TARGET_LINK_LIBRARIES(bppalnscore ${LIBS})
 SET_TARGET_PROPERTIES(bppalnscore PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
 
+ADD_EXECUTABLE(bpppopstats bppPopStats.cpp)
+TARGET_LINK_LIBRARIES(bpppopstats ${LIBS})
+SET_TARGET_PROPERTIES(bpppopstats PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
+
 # Install progs
 INSTALL(TARGETS
   bppml
@@ -64,4 +68,5 @@ INSTALL(TARGETS
   bppphysamp
   bpptreedraw
   bppalnscore
+  bpppopstats
   DESTINATION bin)

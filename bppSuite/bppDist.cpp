@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+// From bpp-core:
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/App/BppApplication.h>
@@ -52,7 +53,7 @@ using namespace std;
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
@@ -88,7 +89,7 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << "*              Bio++ Distance Methods, version 2.2.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 25/09/14 *" << endl;
+  cout << "*                                           Last Modif. 04/02/15 *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -263,7 +264,7 @@ int main(int args, char ** argv)
     ODistanceMatrix* odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT, extended);
     odm->write(*distEstimation.getMatrix(), matrixPath, true);
     delete odm;
-   }
+  }
   PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
   
   //Output some parameters:

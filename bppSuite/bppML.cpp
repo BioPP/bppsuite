@@ -294,7 +294,7 @@ int main(int args, char** argv)
       else
         pl=tl_new->getParameters();
         
-      for (unsigned int i = 0; i < pl.size(); ++i) {
+      for (size_t i = 0; i < pl.size(); ++i) {
         pnfile << pl[i].getName() << endl;
       }
       pnfile.close();
@@ -400,6 +400,8 @@ int main(int args, char** argv)
       // Write parameters to file:
       string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
       ApplicationTools::displayResult("Output estimates to file", parametersFile);
+      bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.withalias", bppml.getParams(), true, "", false, 1);
+
       if (parametersFile != "none")
       {
         StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
@@ -415,12 +417,12 @@ int main(int args, char** argv)
         if (modelSet)
         {
           modelSet->matchParametersValues(tl_old->getParameters());
-          PhylogeneticsApplicationTools::printParameters(modelSet, out);
+          PhylogeneticsApplicationTools::printParameters(modelSet, out, 1, withAlias);
         }
         else
         {
           model->matchParametersValues(tl_old->getParameters());
-          PhylogeneticsApplicationTools::printParameters(model, out);
+          PhylogeneticsApplicationTools::printParameters(model, out, 1);
         }
         out.endLine();
         (out << "# Rate distribution parameters:").endLine();
@@ -606,6 +608,8 @@ int main(int args, char** argv)
       
       // Write parameters to file:
       string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
+      bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.withalias", bppml.getParams(), true, "", false, 1);
+
       ApplicationTools::displayResult("Process estimates to file", parametersFile);
       if (parametersFile != "none")
       {
@@ -613,7 +617,7 @@ int main(int args, char** argv)
         
         PhylogeneticsApplicationTools::printParameters(*mPhyl, out);
 
-        PhylogeneticsApplicationTools::printParameters(SPC, out);
+        PhylogeneticsApplicationTools::printParameters(SPC, out, 1, withAlias);
 
         for (map<size_t, SequenceEvolution*>::const_iterator it2=mSeqEvol.begin(); it2!=mSeqEvol.end(); it2++)
         {
@@ -631,9 +635,7 @@ int main(int args, char** argv)
       if (infosFile != "none")
       {
         ApplicationTools::displayResult("Alignment information logfile", infosFile);
-        StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
-                  
-        PhylogeneticsApplicationTools::printAnalysisInformation(tl_new, out);
+        PhylogeneticsApplicationTools::printAnalysisInformation(*mPhyl, infosFile);
       }
               
       ////////////////////////////////////////////

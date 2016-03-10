@@ -192,6 +192,7 @@ ENDIF(CMAKE_INSTALL_PREFIX)
 IMPROVED_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree/Tree.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-seq Bpp/Seq/Alphabet/Alphabet.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-core Bpp/Clonable.h)
+IMPROVED_FIND_LIBRARY(LIBS bpp-popgen Bpp/PopGen/PolymorphismSequenceContainer.h)
 
 # Subdirectories
 ADD_SUBDIRECTORY(bppSuite)
@@ -218,7 +219,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "_CPack_Packages"
  "CMakeCache.txt"
  ".*\\\\.cmake"
- ".*\\\\.svn"
+ ".*\\\\.git"
  ".*\\\\.gz"
  ".*\\\\.zip"
  ".*\\\\.deb"
