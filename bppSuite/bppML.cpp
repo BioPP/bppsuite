@@ -521,7 +521,7 @@ int main(int args, char** argv)
 
     // Write parameters to file:
     string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false, "none", 1);
-    bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.alias", bppml.getParams(), false, "", true, 0);
+    bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.alias", bppml.getParams(), true, "", true, 0);
 
     ApplicationTools::displayResult("Output estimates to file", parametersFile);
     if (parametersFile != "none")
