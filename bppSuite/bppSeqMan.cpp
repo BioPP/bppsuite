@@ -98,7 +98,7 @@ int main(int args, char** argv)
   
   // Get alphabet
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqman.getParams(), "", false, true, true);
-  auto_ptr<GeneticCode> gCode;
+  unique_ptr<GeneticCode> gCode;
   CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
 
   // Get sequences:
@@ -247,7 +247,7 @@ int main(int args, char** argv)
       VectorSequenceContainer* sc = new VectorSequenceContainer(sequences->getAlphabet());
       for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
+        unique_ptr<Sequence> seq(sequences->getSequence(i).clone());
         SequenceTools::removeGaps(*seq);
         sc->addSequence(*seq);
       }
@@ -308,7 +308,7 @@ int main(int args, char** argv)
         VectorSequenceContainer* sc = new VectorSequenceContainer(sequences->getAlphabet());
         for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
         {
-          auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
+          unique_ptr<Sequence> seq(sequences->getSequence(i).clone());
           SequenceTools::removeStops(*seq, *gCode);
           sc->addSequence(*seq);
         }
@@ -318,7 +318,7 @@ int main(int args, char** argv)
         VectorSiteContainer* sc = new VectorSiteContainer(sequences->getAlphabet());
         for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
         {
-          auto_ptr<Sequence> seq(sequences->getSequence(i).clone());
+          unique_ptr<Sequence> seq(sequences->getSequence(i).clone());
           SequenceTools::replaceStopsWithGaps(*seq, *gCode);
           sc->addSequence(*seq);
         }
@@ -482,7 +482,7 @@ int main(int args, char** argv)
     // +-----------------+
     else if (cmdName == "FilterFromTree")
     {
-      auto_ptr<Tree> tree(PhylogeneticsApplicationTools::getTree(cmdArgs, ""));
+      unique_ptr<Tree> tree(PhylogeneticsApplicationTools::getTree(cmdArgs, ""));
       vector<string> names = tree->getLeavesNames();
       OrderedSequenceContainer* reorderedSequences = 0;
       if (aligned) {
