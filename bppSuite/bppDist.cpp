@@ -105,7 +105,7 @@ int main(int args, char ** argv)
   bppdist.startTimer();
 
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppdist.getParams(), "", false);
-  auto_ptr<GeneticCode> gCode;
+  unique_ptr<GeneticCode> gCode;
   CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
   if (codonAlphabet) {
     string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppdist.getParams(), "Standard", "", true, true);

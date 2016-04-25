@@ -108,7 +108,7 @@ int main(int args, char** argv)
     bppmixedlikelihoods.startTimer();
 
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppmixedlikelihoods.getParams(), "", false);
-    auto_ptr<GeneticCode> gCode;
+    unique_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppmixedlikelihoods.getParams(), "Standard", "", true, true);
@@ -224,7 +224,7 @@ int main(int args, char** argv)
     tl->initialize();
 
     double logL = tl->getValue();
-    if (isinf(logL))
+    if (std::isinf(logL))
     {
       // This may be due to null branch lengths, leading to null likelihood!
       ApplicationTools::displayWarning("!!! Warning!!! Likelihood is zero.");
@@ -239,7 +239,7 @@ int main(int args, char** argv)
       tl->matchParametersValues(pl);
       logL = tl->getValue();
     }
-    if (isinf(logL))
+    if (std::isinf(logL))
     {
       ApplicationTools::displayError("!!! Unexpected likelihood == 0.");
       ApplicationTools::displayError("!!! Looking at each site:");
@@ -442,14 +442,14 @@ int main(int args, char** argv)
         colNames.push_back("Sites");
 
         Vdouble dval;
-        for (unsigned int i = 0; i < nbcl; i++)
+        for (size_t i = 0; i < nbcl; i++)
         {
           SubstitutionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
           double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
           dval.push_back(valPar);
           colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
         }
-        for (unsigned int i = 0; i < nbcl; i++)
+        for (size_t i = 0; i < nbcl; i++)
           colNames.push_back("Pr_" + parname + "=" + TextTools::toString(dval[i]));
 
         colNames.push_back("mean");
@@ -457,7 +457,7 @@ int main(int args, char** argv)
         DataTable* rates = new DataTable(nSites, colNames.size());
         rates->setColumnNames(colNames);
 
-        for (unsigned int i = 0; i < nSites; i++)
+        for (size_t i = 0; i < nSites; i++)
         {
           const Site* currentSite = &sites->getSite(i);
           int currentSitePosition = currentSite->getPosition();
@@ -503,14 +503,14 @@ int main(int args, char** argv)
           ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
         }
 
-        for (unsigned int j = 0; j < nSites; j++)
+        for (size_t j = 0; j < nSites; j++)
         {
           Vdouble vd;
-          for (unsigned int i = 0; i < nbcl; i++)
+          for (size_t i = 0; i < nbcl; i++)
             vd.push_back(std::log(vsprob[i])+vvd[i][j]);
           
           VectorTools::logNorm(vd);
-          for (unsigned int i = 0; i < nbcl; i++)
+          for (size_t i = 0; i < nbcl; i++)
             (*rates)(j,nbcl + i + 1) = TextTools::toString(std::exp(vd[i]));
           (*rates)(j, 2 * nbcl + 1) = TextTools::toString(VectorTools::sumExp(vd, dval));
         }

@@ -110,7 +110,7 @@ int main(int args, char ** argv)
   bppancestor.startTimer();
 
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppancestor.getParams(), "", false);
-  auto_ptr<GeneticCode> gCode;
+  unique_ptr<GeneticCode> gCode;
   CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
   if (codonAlphabet) {
     string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppancestor.getParams(), "Standard", "", true, true);
@@ -240,7 +240,7 @@ int main(int args, char ** argv)
   delete tree;
     
   double logL = tl->getValue();
-  if (isinf(logL))
+  if (std::isinf(logL))
   {
     // This may be due to null branch lengths, leading to null likelihood!
     ApplicationTools::displayWarning("!!! Warning!!! Likelihood is zero.");
@@ -254,7 +254,7 @@ int main(int args, char ** argv)
     tl->matchParametersValues(pl);
     logL = tl->getValue();
   }
-  if (isinf(logL))
+  if (std::isinf(logL))
   {
     ApplicationTools::displayError("!!! Unexpected likelihood == 0.");
     ApplicationTools::displayError("!!! Looking at each site:");
@@ -380,12 +380,12 @@ int main(int args, char ** argv)
         row[4] = TextTools::toString(classes[i]);
         row[5] = TextTools::toString(rates[i]);
 
-        unsigned int k = 6;
-        for (unsigned int j = 0; j < nbNodes; j++) {
+        size_t k = 6;
+        for (size_t j = 0; j < nbNodes; j++) {
           row[k] = sequences[j]->getChar(i);
           k++;
           if (probs) {
-            for (unsigned int l = 0; l < nbStates; l++) {
+            for (size_t l = 0; l < nbStates; l++) {
               row[k] = TextTools::toString((*probabilities[j])[i][l]);
               k++;
             }
