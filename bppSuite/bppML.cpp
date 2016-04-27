@@ -122,7 +122,7 @@ int main(int args, char** argv)
     ///// Alphabet
     
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppml.getParams(), "", false);
-    auto_ptr<GeneticCode> gCode;
+    unique_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppml.getParams(), "Standard", "", true, true);
@@ -308,7 +308,7 @@ int main(int args, char** argv)
     if (tl_old){
       //Check initial likelihood:
       double logL = tl_old->getValue();
-      if (isinf(logL))
+      if (std::isinf(logL))
       {
         // This may be due to null branch lengths, leading to null likelihood!
         ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
@@ -324,7 +324,7 @@ int main(int args, char** argv)
         logL = tl_old->getValue();
       }
       ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
-      if (isinf(logL))
+      if (std::isinf(logL))
       {
         ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
         if (codonAlphabet)
@@ -332,7 +332,7 @@ int main(int args, char** argv)
           bool f = false;
           size_t s;
           for (size_t i = 0; i < mSites.begin()->second->getNumberOfSites(); i++) {
-            if (isinf(tl_old->getLogLikelihoodForASite(i))) {
+            if (std::isinf(tl_old->getLogLikelihoodForASite(i))) {
               const Site& site = mSites.begin()->second->getSite(i);
               s = site.size();
               for (size_t j = 0; j < s; j++) {
@@ -358,7 +358,7 @@ int main(int args, char** argv)
         } else {
           ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
           for (size_t i = mSites.begin()->second->getNumberOfSites(); i > 0; --i) {
-            if (isinf(tl_old->getLogLikelihoodForASite(i - 1))) {
+            if (std::isinf(tl_old->getLogLikelihoodForASite(i - 1))) {
               ApplicationTools::displayResult("Ignore saturated site", mSites.begin()->second->getSite(i - 1).getPosition());
               mSites.begin()->second->deleteSite(i - 1);
             }
@@ -367,7 +367,7 @@ int main(int args, char** argv)
           tl_old->setData(*mSites.begin()->second);
           tl_old->initialize();
           logL = tl_old->getValue();
-          if (isinf(logL)) {
+          if (std::isinf(logL)) {
             ApplicationTools::displayError("This should not happen. Exiting now.");
             exit(1);
           }
@@ -491,7 +491,7 @@ int main(int args, char** argv)
       //Check initial likelihood:
       double logL = tl_new->getValue();
 
-      if (isinf(logL))
+      if (std::isinf(logL))
       {
         // This may be due to null branch lengths, leading to null likelihood!
         ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
@@ -506,7 +506,7 @@ int main(int args, char** argv)
         logL = tl_new->getValue();
       }
       ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
-      if (isinf(logL))
+      if (std::isinf(logL))
       {
         ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
@@ -534,7 +534,7 @@ int main(int args, char** argv)
         {
           ApplicationTools::displayWarning("Checking for phyloLikelihood " + TextTools::toString(itm->first));
           
-          if (isinf(itm->second->getValue()))
+          if (std::isinf(itm->second->getValue()))
           {
             AbstractSingleDataPhyloLikelihood* sDP=itm->second;
             /// !!! Not economic
@@ -545,7 +545,7 @@ int main(int args, char** argv)
               bool f = false;
               size_t s;
               for (size_t i = 0; i < vData->getNumberOfSites(); i++) {
-                if (isinf(sDP->getLogLikelihoodForASite(i))) {
+                if (std::isinf(sDP->getLogLikelihoodForASite(i))) {
                   const Site& site = vData->getSite(i);
                   s = site.size();
                   for (size_t j = 0; j < s; j++) {
@@ -572,7 +572,7 @@ int main(int args, char** argv)
             } else {
               ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
               for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
-                if (isinf(sDP->getLogLikelihoodForASite(i - 1))) {
+                if (std::isinf(sDP->getLogLikelihoodForASite(i - 1))) {
                   ApplicationTools::displayResult("Ignore saturated site", vData->getSite(i - 1).getPosition());
                   vData->deleteSite(i - 1);
                 }
@@ -581,7 +581,7 @@ int main(int args, char** argv)
 
               sDP->setData(*vData);
               logL = sDP->getValue();
-              if (isinf(logL)) {
+              if (std::isinf(logL)) {
                 ApplicationTools::displayError("This should not happen. Exiting now.");
                 exit(1);
               }
@@ -600,7 +600,7 @@ int main(int args, char** argv)
       ParameterList parameters = tl_new->getParameters();
       parameters.deleteParameters(tl_new->getBranchLengthParameters().getParameterNames(),false);
               
-      for (unsigned int i = 0; i < parameters.size(); i++)
+      for (size_t i = 0; i < parameters.size(); i++)
         ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
       
       // Checking convergence:

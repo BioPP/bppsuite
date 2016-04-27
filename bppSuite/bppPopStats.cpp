@@ -94,8 +94,8 @@ int main(int args, char** argv)
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bpppopstats.getParams(), "", false, true, true);
 
     // Get the ingroup alignment:
-    auto_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
-    auto_ptr<PolymorphismSequenceContainer> psc(new PolymorphismSequenceContainer(*sites));
+    unique_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
+    unique_ptr<PolymorphismSequenceContainer> psc(new PolymorphismSequenceContainer(*sites));
 
     // Compute statistics
     vector<string> actions = ApplicationTools::getVectorParameter<string>("pop.stats", bpppopstats.getParams(), ',', "", "", false, 1);

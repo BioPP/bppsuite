@@ -108,7 +108,7 @@ int main(int args, char** argv)
     bppmixedlikelihoods.startTimer();
 
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppmixedlikelihoods.getParams(), "", false);
-    auto_ptr<GeneticCode> gCode;
+    unique_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppmixedlikelihoods.getParams(), "Standard", "", true, true);
@@ -226,7 +226,7 @@ int main(int args, char** argv)
     tl->initialize();
 
     double logL = tl->getValue();
-    if (isinf(logL))
+    if (std::isinf(logL))
     {
       // This may be due to null branch lengths, leading to null likelihood!
       ApplicationTools::displayWarning("!!! Warning!!! Likelihood is zero.");
@@ -241,7 +241,7 @@ int main(int args, char** argv)
       tl->matchParametersValues(pl);
       logL = tl->getValue();
     }
-    if (isinf(logL))
+    if (std::isinf(logL))
     {
       ApplicationTools::displayError("!!! Unexpected likelihood == 0.");
       ApplicationTools::displayError("!!! Looking at each site:");
@@ -257,12 +257,12 @@ int main(int args, char** argv)
     // Write parameters to screen:
     ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
     ParameterList parameters = tl->getSubstitutionModelParameters();
-    for (unsigned int i = 0; i < parameters.size(); i++)
+    for (size_t i = 0; i < parameters.size(); i++)
     {
       ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
     parameters = tl->getRateDistributionParameters();
-    for (unsigned int i = 0; i < parameters.size(); i++)
+    for (size_t i = 0; i < parameters.size(); i++)
     {
       ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }

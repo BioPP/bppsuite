@@ -175,7 +175,7 @@ int main(int args, char ** argv)
     ///// Alphabet
     
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqgen.getParams(), "", false);
-    auto_ptr<GeneticCode> gCode;
+    unique_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqgen.getParams(), "Standard", "", true, true);
@@ -401,7 +401,7 @@ int main(int args, char ** argv)
     
     // Write to file:
     BppOAlignmentWriterFormat bppoWriter(1);
-    auto_ptr<OAlignment> oAln(bppoWriter.read(formats[it->first]));
+    unique_ptr<OAlignment> oAln(bppoWriter.read(formats[it->first]));
     
     ApplicationTools::displayResult("Output alignment file ", filenames[it->first]);
     ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
