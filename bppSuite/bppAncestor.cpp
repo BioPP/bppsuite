@@ -126,7 +126,7 @@ int main(int args, char ** argv)
     map<string, string> unparsedparams;
     
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(allParams, "", false);
-    auto_ptr<GeneticCode> gCode;
+    unique_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", allParams, "Standard", "", true, true);
@@ -213,14 +213,14 @@ int main(int args, char ** argv)
     
     double logL = tl->getValue();
 
-    if (isinf(logL))
+    if (std::isinf(logL))
     {
       // This may be due to null branch lengths, leading to null likelihood!
       ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
       ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
       ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.001.");
       ParameterList pl = tl->getBranchLengthParameters();
-      for (unsigned int i = 0; i < pl.size(); i++)
+      for (size_t i = 0; i < pl.size(); i++)
       {
         if (pl[i].getValue() < 0.001)
           pl[i].setValue(0.001);
@@ -230,7 +230,7 @@ int main(int args, char ** argv)
     }
   
     ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
-    if (isinf(logL))
+    if (std::isinf(logL))
     {
       ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
@@ -258,7 +258,7 @@ int main(int args, char ** argv)
       {
         ApplicationTools::displayWarning("Checking for phyloLikelihood " + TextTools::toString(itm->first));
           
-        if (isinf(itm->second->getValue()))
+        if (std::isinf(itm->second->getValue()))
         {
           AbstractSingleDataPhyloLikelihood* sDP=itm->second;
           /// !!! Not economic
@@ -269,7 +269,7 @@ int main(int args, char ** argv)
             bool f = false;
             size_t s;
             for (size_t i = 0; i < vData->getNumberOfSites(); i++) {
-              if (isinf(sDP->getLogLikelihoodForASite(i))) {
+              if (std::isinf(sDP->getLogLikelihoodForASite(i))) {
                 const Site& site = vData->getSite(i);
                 s = site.size();
                 for (size_t j = 0; j < s; j++) {
@@ -296,7 +296,7 @@ int main(int args, char ** argv)
           } else {
             ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
             for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
-              if (isinf(sDP->getLogLikelihoodForASite(i - 1))) {
+              if (std::isinf(sDP->getLogLikelihoodForASite(i - 1))) {
                 ApplicationTools::displayResult("Ignore saturated site", vData->getSite(i - 1).getPosition());
                 vData->deleteSite(i - 1);
               }
@@ -305,7 +305,7 @@ int main(int args, char ** argv)
 
             sDP->setData(*vData);
             logL = sDP->getValue();
-            if (isinf(logL)) {
+            if (std::isinf(logL)) {
               ApplicationTools::displayError("This should not happen. Exiting now.");
               exit(1);
             }
@@ -558,7 +558,7 @@ int main(int args, char ** argv)
           
           //Write output:
           BppOAlignmentWriterFormat bppoWriter(1);
-          auto_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
+          unique_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
           ApplicationTools::displayResult("Output alignment file ", sequenceFilePath + "_" + TextTools::toString(itm->first));
           ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
           
