@@ -52,6 +52,7 @@ using namespace std;
 
 // From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/CodonSiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
@@ -93,6 +94,15 @@ int main(int args, char** argv)
     // Get alphabet
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bpppopstats.getParams(), "", false, true, true);
 
+    // Get the genetic code, if codon alphabet
+    unique_ptr<GeneticCode> gCode;
+    CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+    if (codonAlphabet) {
+      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bpppopstats.getParams(), "Standard", "", true, true);
+      ApplicationTools::displayResult("Genetic Code", codeDesc);
+      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+    }
+
     // Get the ingroup alignment:
     unique_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
     unique_ptr<PolymorphismSequenceContainer> psc(new PolymorphismSequenceContainer(*sites));
@@ -120,7 +130,7 @@ int main(int args, char** argv)
       // +-------------------+
       // | Watterson's theta |
       // +-------------------+
-      if (cmdName == "Watterson75")
+      else if (cmdName == "Watterson75")
       {
         double thetaW75 = SequenceStatistics::watterson75(*psc, true, true, true);
         ApplicationTools::displayResult("Watterson (1975)'s theta:", thetaW75);
@@ -129,7 +139,7 @@ int main(int args, char** argv)
       // +----------------+
       // | Tajima's theta |
       // +----------------+
-      if (cmdName == "Tajima83")
+      else if (cmdName == "Tajima83")
       {
         double thetaT83 = SequenceStatistics::tajima83(*psc, true, true, true);
         ApplicationTools::displayResult("Tajima (1983)'s theta:", thetaT83);
@@ -138,7 +148,7 @@ int main(int args, char** argv)
       // +------------+
       // | Tajima's D |
       // +------------+
-      if (cmdName == "TajimaD")
+      else if (cmdName == "TajimaD")
       {
         double tajimaD = SequenceStatistics::tajimaDss(*psc, true, true);
         ApplicationTools::displayResult("Tajima (1989)'s D:", tajimaD);
@@ -147,7 +157,7 @@ int main(int args, char** argv)
       // +-----------+
       // | FuAndLiD* |
       // +-----------+
-      if (cmdName == "FuAndLiDStar")
+      else if (cmdName == "FuAndLiDStar")
       {
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
         double flDstar = SequenceStatistics::fuLiDStar(*psc, !useTotMut);
@@ -158,7 +168,7 @@ int main(int args, char** argv)
       // +-----------+
       // | FuAndLiF* |
       // +-----------+
-      if (cmdName == "FuAndLiFStar")
+      else if (cmdName == "FuAndLiFStar")
       {
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
         double flFstar = SequenceStatistics::fuLiFStar(*psc, !useTotMut);
@@ -166,7 +176,31 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
       }
 
-
+      // +---------------------+
+      // | Codon site statistics |
+      // +---------------------+
+      else if (cmdName == "CodonSiteStatistics")
+      {
+        if (!codonAlphabet) {
+          throw Exception("CodonSiteStatstics can only be used with a codon alignment. Check the input alphabet!");
+        }
+        string path = ApplicationTools::getAFilePath("output.file", cmdArgs, true, false);
+        if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics"); 
+        ApplicationTools::displayResult("Site statistics output to:", path);
+        ofstream out(path.c_str(), ios::out);
+        out << "Site\tIsConstant\tIsSynPoly\tIs4Degenerated\tPiN\tPiS" << endl;
+        for (size_t i = 0; i < sites->getNumberOfSites(); ++i) {
+          const Site& site = sites->getSite(i);
+          out << site.getPosition() << "\t";
+          out << SiteTools::isConstant(site) << "\t";
+          out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
+          out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
+          out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
+          out << CodonSiteTools::piSynonymous(site, *gCode) << endl;
+        }
+      }
+      
+      else throw Exception("Unknown operation " + cmdName + ".");
     }
  
     // We're done!

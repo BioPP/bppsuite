@@ -1,0 +1,22 @@
+# Global variables:
+DATA = lysozymeLarge
+
+# ---------------
+# Input sequences
+# ---------------
+
+# The alphabet to use:
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+
+# The sequence file to use (sequences must be aligned!)
+input.sequence.file.ingroup=../Data/$(DATA).fasta
+
+# The file format:
+input.sequence.format.ingroup=Fasta
+
+# ----------------
+# Analysis
+# ----------------
+
+pop.stats=CodonSiteStatistics(output.file=$(DATA).codons.csv)
