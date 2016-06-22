@@ -116,7 +116,8 @@ int main(int args, char** argv)
         }
       }
       ApplicationTools::displayTaskDone();
-      sitesRef = std::move(tmp);
+
+      sitesRef = move(tmp);
     }
 
     // Build alignment indexes:

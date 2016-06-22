@@ -302,7 +302,6 @@ int main(int args, char** argv)
       exit(0);
     }
 
-
     // Old optimization
     
     if (tl_old){

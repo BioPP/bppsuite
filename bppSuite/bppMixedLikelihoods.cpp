@@ -444,14 +444,14 @@ int main(int args, char** argv)
         colNames.push_back("Sites");
 
         Vdouble dval;
-        for (unsigned int i = 0; i < nbcl; i++)
+        for (size_t i = 0; i < nbcl; i++)
         {
           SubstitutionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
           double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
           dval.push_back(valPar);
           colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
         }
-        for (unsigned int i = 0; i < nbcl; i++)
+        for (size_t i = 0; i < nbcl; i++)
           colNames.push_back("Pr_" + parname + "=" + TextTools::toString(dval[i]));
 
         colNames.push_back("mean");
@@ -459,7 +459,7 @@ int main(int args, char** argv)
         DataTable* rates = new DataTable(nSites, colNames.size());
         rates->setColumnNames(colNames);
 
-        for (unsigned int i = 0; i < nSites; i++)
+        for (size_t i = 0; i < nSites; i++)
         {
           const Site* currentSite = &sites->getSite(i);
           int currentSitePosition = currentSite->getPosition();
@@ -505,14 +505,14 @@ int main(int args, char** argv)
           ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
         }
 
-        for (unsigned int j = 0; j < nSites; j++)
+        for (size_t j = 0; j < nSites; j++)
         {
           Vdouble vd;
-          for (unsigned int i = 0; i < nbcl; i++)
+          for (size_t i = 0; i < nbcl; i++)
             vd.push_back(std::log(vsprob[i])+vvd[i][j]);
           
           VectorTools::logNorm(vd);
-          for (unsigned int i = 0; i < nbcl; i++)
+          for (size_t i = 0; i < nbcl; i++)
             (*rates)(j,nbcl + i + 1) = TextTools::toString(std::exp(vd[i]));
           (*rates)(j, 2 * nbcl + 1) = TextTools::toString(VectorTools::sumExp(vd, dval));
         }
