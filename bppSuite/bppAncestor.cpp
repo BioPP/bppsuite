@@ -147,32 +147,6 @@ int main(int args, char ** argv)
     
     map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(allParams, mSites, unparsedparams);
 
-    // Try to write the current tree to file. This will be overwritten
-    // by the optimized tree, but allow to check file existence before
-    // running optimization!
-
-    vector<const Tree*> vcTree;
-    
-    for (map<size_t, Tree*>::const_iterator it = mTree.begin(); it != mTree.end(); it++)
-      vcTree.push_back(it->second);
-    
-    PhylogeneticsApplicationTools::writeTrees(vcTree, allParams);
-
-    
-    bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", allParams, true, "", false, 1);
-    if (!computeLikelihood)
-    {
-      delete alphabet;
-      
-      for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
-        delete itc->second;
-      
-      for (map<size_t, Tree*>::const_iterator it = mTree.begin(); it != mTree.end(); it++)
-        delete it->second;
-      cout << "Bppancestor's done. Bye." << endl;
-      return 0;
-    }
-
     /////////////////
     // Computing stuff
     
