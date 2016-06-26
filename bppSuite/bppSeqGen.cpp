@@ -85,7 +85,8 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
                                           const map<size_t, SequenceEvolution*>& mSeqEvol,
                                           map<string, string>& params,
                                           map<size_t, string>& mfnames,
-                                          map<size_t, string>& mformats)
+                                          map<size_t, string>& mformats,
+                                          map<size_t, size_t>& mlength)
 {
 
   map<size_t, SequenceSimulator*> mSim;
@@ -118,6 +119,7 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
     if (! spc.hasSubstitutionProcessNumber(indProcess))
     {
       if (mSeqEvol.find(indProcess)==mSeqEvol.end())
+
         throw BadIntegerException("bppseqgen::readSimul. Unknown process number:",(int)indProcess);
 
       ss= new EvolutionSequenceSimulator(*mSeqEvol.find(indProcess)->second);
@@ -130,6 +132,8 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
     mfnames[num] = ApplicationTools::getAFilePath("output.sequence.file", args, true, false, "", false, "none", true);
     
     mformats[num] = ApplicationTools::getStringParameter("output.sequence.format", args, "Fasta", "", false, true);
+
+    mlength[num] = (size_t)ApplicationTools::getIntParameter("number_of_sites", args, 0, "", false, 0);
 
     mSim[num]=ss;
   }
@@ -351,8 +355,9 @@ int main(int args, char ** argv)
 
   map<size_t, string> filenames;
   map<size_t, string> formats;
+  map<size_t, size_t> lengths;
   
-  map<size_t, SequenceSimulator*> mSim=readSimul(*SPC, mSeqEvol, bppseqgen.getParams(),filenames, formats);
+  map<size_t, SequenceSimulator*> mSim=readSimul(*SPC, mSeqEvol, bppseqgen.getParams(),filenames, formats, lengths);
   
   for (map<size_t, SequenceSimulator*>::iterator it=mSim.begin(); it!=mSim.end(); it++)
   {
@@ -392,10 +397,12 @@ int main(int args, char ** argv)
     
     else
     {
-      ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
+      size_t nSites=(lengths[it->first]==0?nbSites:lengths[it->first]);
+      
+      ApplicationTools::displayResult("Number of sites", TextTools::toString(nSites));
       ApplicationTools::displayTask("Perform simulations");
 
-      sites = seqsim.simulate(nbSites);
+      sites = seqsim.simulate(nSites);
       ApplicationTools::displayTaskDone();
     }
     
