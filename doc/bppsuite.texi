@@ -328,7 +328,7 @@ data=LSU
 
 @table @command
 @item alphabet =
-@{DNA|RNA|Protein|Binary|Word(letter=@{DNA|RNA|Protein@},length=@{int@})|
+@{DNA|RNA|Protein|Binary|Lexicon(words=(list of words))|Word(letter=@{DNA|RNA|Protein@},length=@{int@})|\
 Codon(letter=@{DNA|RNA@}, type=@{Standard|EchinodermMitochondrial|InvertebrateMitochondrial|\
 VertebrateMitochondrial@})@}
 The alphabet to use when reading sequences. DNA and RNA alphabet can in addition take an argument:
@@ -356,6 +356,13 @@ The following table give the currently implemented codes with their correspondin
 The states of the alphabets are in alphabetical order. For the proteic
 alphabet, the amino-acid are in the order of their 3-letters code
 (ALA, ARG, ASN, ...).
+
+@table @command
+@item Lexicon(words=(list of words))
+builds an alphabet of any set of words, as long as they have the same
+length. Gap (resp. unknown) word is then a word of "-" (resp. "?") of
+the same length.
+@end table
 
 @c ------------------------------------------------------------------------------------------------------------------
 
@@ -868,6 +875,12 @@ proportion of 1 over 0 in the equilibrium distribution. Default:
 @var{kappa}=1. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1BinarySubstitutionModel.html#_details, Bio++ description}.
 
+@end table
+
+@table @command
+@item Equi(["equilibrium frequencies"])
+Build the equiprobable model, between any set of states. See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1EquiprobableSubstitutionModel.html#_details, Bio++ description}.
 
 @end table
 
