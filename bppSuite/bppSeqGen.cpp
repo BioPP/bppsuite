@@ -155,7 +155,7 @@ int main(int args, char ** argv)
   bppseqgen.startTimer();
 
   Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqgen.getParams(), "", false);
-  auto_ptr<GeneticCode> gCode;
+  unique_ptr<GeneticCode> gCode;
   CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
   if (codonAlphabet) {
     string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqgen.getParams(), "Standard", "", true, true);
