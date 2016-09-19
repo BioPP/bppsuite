@@ -1,3 +1,7 @@
+22/05/16 Julien Dutheil
+* bpppopstats now computes codon statistics per site (e.g. PiN, PiS)
+* Added example for bpppopstats.
+
 28/01/15 Julien Dutheil
 * PhySamp now outputs the correct tree!
 

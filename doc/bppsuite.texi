@@ -1158,6 +1158,16 @@ has parameters @var{CodonDistFreq.012_T92.kappa},
 See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistanceFrequenciesSubstitutionModel.html#_details, Bio++ description}.
 
+@item KronDistFreq(model=@{model name@} [,positions=pos1*pos2*...*posn + posx*...*posm + ...)])
+
+@item KronDistFreq(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[,positions=pos1*pos2*...*posn + posx*...*posm + ...])
+
+substitution model on codons as @var{CodonDistFreq} above, words,
+allowing simultaneous substitutions.
+
+Optional argument  @var{positions} can be used to describe which
+substitutions are allowed. See model @xref{Kron}.
+
 @item CodonDistPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
 or
@@ -1220,9 +1230,9 @@ See the
 
 @table @command
 
-@item Word(model=@{model name@} [,relrate1=@{1>real>0@}, ..., relrate@{n-1@}=@{1>real>0@}, "equilibrium frequencies"]) 
+@item Word(model=@{model name@} [,relrate1=@{1>real>0@}, ..., relrate@{n-1@}=@{1>real>0@}]) 
 or 
-@item Word(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[, relrate1=@{1> real>0@}, ..., relrate@{n-1@}=@{1> real>0@}, "equilibrium frequencies"])
+@item Word(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[, relrate1=@{1> real>0@}, ..., relrate@{n-1@}=@{1> real>0@}])
 
 substitution model on words. The arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on single sites such
@@ -1268,6 +1278,67 @@ site follows a HKY85 model. Then the parameters names are
 
 See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1WordSubstitutionModel.html#_details, Bio++ description}.
+
+@item Kron(model=@{model name@} [,positions=pos1*pos2*...*posn + posx*...*posm + ...)])
+@anchor{Kron}
+
+@item Kron(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[,positions=pos1*pos2*...*posn + posx*...*posm + ...])
+
+substitution model on words, allowing simultaneous substitutions. The
+arguments @var{model} and @var{model@{i@}} are for descriptions of
+models on single sites such as nucleotides or proteins. The alphabet
+must be a Word alphabet.
+
+If the argument is @var{model}, the length of the words in the
+substitution model is determined by the length of the words in the
+alphabet, and the @emph{same} single site model is used (ie the
+parameters are shared between all positions).
+
+If the arguments are @var{model1}, ..., @var{model@{n@}}, the length
+of the words in the alphabet must be @var{n}, and each single site
+model stands for a single-site substitution model. In that case, all
+single site models parameters are position dependent.
+
+The rate of a multiple substitution is the product of the rates of the
+single substitutions it is made of.
+
+Without optional argument @var{positions}, all single and multiple
+substitutions are allowed.
+
+Optional argument @var{positions} describes the allowed substitutions.
+It is written as a formula with positions between 1 and the length of
+the word, and symbols '*' (to link positions that must change
+together) and '+' (to link sets of multiple susbtitutions that are
+allowed).
+
+As examples, on a DNA word with 3 positions:
+
+@example
+model=Kron(model=K80(), positions=1*2*3)
+@end example
+allows only substitutions that change the 3 positions.
+
+@example
+model=Kron(model=K80(), positions=1*2+3)
+@end example
+allows only substitutions that change the positions 1 and 2, and the
+ones that change position 3 alone.
+
+@example
+model=Kron(model=K80(), positions=1*2+2*3)
+@end example
+allows only substitutions that change two neighbor positions.
+
+@example
+model=Kron(model=K80(), positions=1+2+3)
+@end example
+allows only substitutions that change one position, i.e. @var{Word}
+model.
+
+
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1KronSubstitutionModel.html#_details, Bio++ description}.
+
 
 @item Triplet(model=@{model description@} [, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 or 

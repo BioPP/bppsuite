@@ -141,58 +141,52 @@ int main(int args, char** argv)
       throw Exception("Missing data input.sequence.file option");
 
     /////// Get the map of initial trees
-    
-    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites, unparsedparams);
+
+    map<size_t, PhyloTree*> mpTree=PhylogeneticsApplicationTools::getPhyloTrees(bppml.getParams(), mSites, unparsedparams);
 
     // Try to write the current tree to file. This will be overwritten
     // by the optimized tree, but allow to check file existence before
     // running optimization!
 
+    map<size_t, PhyloTree*>::const_iterator itp;
     map<size_t, Tree*>::const_iterator it;
-    vector<const Tree*> vcTree;
+    vector<const PhyloTree*> vcpTree;
     
-    for (it = mTree.begin(); it != mTree.end(); it++)
-      vcTree.push_back(it->second);
+    for (itp = mpTree.begin(); itp != mpTree.end(); itp++)
+      vcpTree.push_back(itp->second);
     
-    PhylogeneticsApplicationTools::writeTrees(vcTree, bppml.getParams());
+    PhylogeneticsApplicationTools::writeTrees(vcpTree, bppml.getParams());
 
+    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites, unparsedparams);
     
-    bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", bppml.getParams(), true, "", false, 1);
-    if (!computeLikelihood)
-    {
-      delete alphabet;
-      
-      for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
-        delete itc->second;
-      
-      for (it = mTree.begin(); it != mTree.end(); it++)
-        delete it->second;
-      cout << "BppML's done. Bye." << endl;
-      return 0;
-    }
-
-
     string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "", true, "none", 1);
+
 
     if (treeWIdPath != "none")
     {
       Newick treeWriter;
-      treeWriter.enableExtendedBootstrapProperty("NodeId");
-      ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
+      // treeWriter.enableExtendedBootstrapProperty("NodeId");
+      // ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
 
-      for (it = mTree.begin(); it != mTree.end(); it++)
+      for (itp = mpTree.begin(); itp != mpTree.end(); itp++)
       {
-        TreeTemplate<Node> ttree(*it->second);
-        vector<Node*> nodes = ttree.getNodes();
+        PhyloTree* ttree=itp->second;
+        vector<std::shared_ptr<PhyloNode> > nodes = ttree->getAllNodes();
+        
         for (size_t i = 0; i < nodes.size(); i++)
         {
-          if (nodes[i]->isLeaf())
-            nodes[i]->setName(TextTools::toString(nodes[i]->getId()) + "_" + nodes[i]->getName());
+          if (ttree->isLeaf(nodes[i]))
+            nodes[i]->setName(TextTools::toString(ttree->getNodeIndex(nodes[i]) + "_" + nodes[i]->getName()));
           else
-            nodes[i]->setBranchProperty("NodeId", BppString(TextTools::toString(nodes[i]->getId())));
+          {
+            shared_ptr<PhyloBranch> branch=ttree->hasFather(nodes[i])?ttree->getEdgeToFather(nodes[i]):0;
+            if (branch)
+              branch->setProperty("BranchId", BppString(TextTools::toString(ttree->getNodeIndex(nodes[i]))));
+          }
         }
-        treeWriter.write(ttree, treeWIdPath, it==mTree.begin());
-        delete it->second;
+
+        treeWriter.write(*itp->second, treeWIdPath, itp==mpTree.begin());
+        delete itp->second;
       }
       cout << "BppML's done." << endl;
       exit(0);
@@ -718,7 +712,7 @@ int main(int args, char** argv)
         }
 
         // Write resulting tree:
-        vcTree.clear();
+        vector<const Tree*> vcTree;
     
         for (it = mTree.begin(); it != mTree.end(); it++)
           vcTree.push_back(it->second);
