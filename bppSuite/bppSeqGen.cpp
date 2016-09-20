@@ -5,22 +5,22 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team
+Copyright or ï¿½ or Copr. Bio++ Development Team
 
 This software is a computer program whose purpose is to simulate sequence
 data according to a phylogenetic tree and an evolutionary model.
 
 This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -29,9 +29,9 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
@@ -90,7 +90,7 @@ void readTrees(ifstream& file, vector<Tree*>& trees, vector<double>& pos) throw 
     string tmp = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(file));
     if (tmp.size() == 0 || tmp.substr(0, 1) == "#") continue;
     line += tmp;
-        
+
     index1 = line.find_first_of(" \t");
     if (index1 == string::npos) throw Exception("Error when parsing tree file: now begining position.");
     index2 = line.find_first_of(" \t", index1 + 1);
@@ -142,13 +142,13 @@ int main(int args, char ** argv)
   cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
-  
+
   if(args == 1)
   {
     help();
     return 0;
   }
-  
+
   try {
 
   BppApplication bppseqgen(args, argv, "BppSeqGen");
@@ -160,7 +160,7 @@ int main(int args, char ** argv)
   if (codonAlphabet) {
     string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqgen.getParams(), "Standard", "", true, true);
     ApplicationTools::displayResult("Genetic Code", codeDesc);
-      
+
     gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
   }
 
@@ -169,7 +169,7 @@ int main(int args, char ** argv)
   /* Trees                  */
   /**************************/
 
-  
+
   vector<Tree*> trees;
   vector<double> positions;
   string inputTrees = ApplicationTools::getStringParameter("input.tree.method", bppseqgen.getParams(), "single", "", true, false);
@@ -214,7 +214,7 @@ int main(int args, char ** argv)
   /*  Models                        */
   /**********************************/
 
-  
+
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppseqgen.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
@@ -251,17 +251,17 @@ int main(int args, char ** argv)
       //Markov-Modulated Markov Model...
       unsigned int n = static_cast<unsigned int>(model->getNumberOfStates() / alphabet->getSize());
       rateFreqs = vector<double>(n, 1./static_cast<double>(n)); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-                                                   // we should assume a rate distribution for the root also!!!  
+                                                   // we should assume a rate distribution for the root also!!!
     }
     std::map<std::string, std::string> aliasFreqNames;
     FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), 0, bppseqgen.getParams(), aliasFreqNames, rateFreqs);
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppseqgen.getParams(), "Full(init=observed)");
     if (freqDescription.substr(0,10) == "MVAprotein")
     {
-      dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");   
-      dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model));      
+      dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");
+      dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model));
     }
-    modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, trees[0], aliasFreqNames, globalParameters); 
+    modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, trees[0], aliasFreqNames, globalParameters);
   }
   //General case:
   else if (nhOpt == "general")
@@ -277,7 +277,7 @@ int main(int args, char ** argv)
       VectorSiteContainer* allSitesAln = 0;
       allSitesAln = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
       modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams());
-    } 
+    }
   }
   else throw Exception("Unknown non-homogeneous option: " + nhOpt);
 
@@ -293,13 +293,16 @@ int main(int args, char ** argv)
   SiteContainer* sites = 0;
   size_t nbSites = 0;
 
+  bool outputInternalSequences = ApplicationTools::getBooleanParameter("output.internal.sequences", bppseqgen.getParams(), false, "", true, 1);
+
+
   string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
 
   bool withStates = false;
   bool withRates = false;
   vector<size_t> states;
   vector<double> rates;
-  
+
   if (infosFile != "none")
   {
     ApplicationTools::displayResult("Site information", infosFile);
@@ -311,7 +314,7 @@ int main(int args, char ** argv)
     string stateCol = ApplicationTools::getStringParameter("input.infos.states", bppseqgen.getParams(), "none", "", true, true);
     withRates = rateCol != "none";
     withStates = stateCol != "none";
-  
+
     if (withRates)
     {
       rDist = new ConstantRateDistribution();
@@ -364,11 +367,11 @@ int main(int args, char ** argv)
             vector<size_t> vPos;
             for (size_t p = 0; p < nbSites; ++p)
               vPos.push_back(p);
-          
+
             RandomTools::getSample(vPos, vSite, replace);
           }
         }
-        
+
         nbSites = vSite.size();
 
         vector<size_t> newStates(nbSites);
@@ -390,27 +393,27 @@ int main(int args, char ** argv)
     try {
       VectorSiteContainer* allSeq = 0;
       allSeq = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
-      
+
       if (allSeq->getNumberOfSequences() > 0)
-      {  
+      {
         Sequence* pseq = SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
-        
+
         nbSites = pseq->size();
         states.resize(nbSites);
         withStates = true;
-        
+
 	for (size_t i = 0; i < nbSites; ++i) {
           states[i] = RandomTools::pickOne(modelSet->getModelStates((*pseq)[i]));
         }
         ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
-        
+
         delete pseq;
       }
     }
     catch (Exception& e)
     {
     }
-      
+
   }
 
   if (rDist == 0)
@@ -429,7 +432,7 @@ int main(int args, char ** argv)
 
   if (nbSites == 0)
     nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
-  
+
   /*******************/
   /* Simulations     */
   /*******************/
@@ -439,6 +442,7 @@ int main(int args, char ** argv)
     if (trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
+      seqsim->outputInternalSequences(outputInternalSequences);
       ApplicationTools::displayTask("Perform simulations");
       if (withRates)
         if (withStates)
@@ -448,17 +452,18 @@ int main(int args, char ** argv)
       else
         if (withStates){
           sites = SequenceSimulationTools::simulateSites(*seqsim, states);
-        }      
+        }
         else
           throw Exception("Error! Info file should contain either site specific rates of ancestral states or both.");
-      
-      delete seqsim;    
+
+      delete seqsim;
     }
     else
     {
       ApplicationTools::displayTask("Perform simulations", true);
       ApplicationTools::displayGauge(0, trees.size() - 1, '=');
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
+      seqsim->outputInternalSequences(outputInternalSequences);
       ptrdiff_t previousPos = 0;
       ptrdiff_t currentPos = static_cast<ptrdiff_t>(round(positions[1]*static_cast<double>(nbSites)));
       vector<double> tmpRates;
@@ -480,11 +485,12 @@ int main(int args, char ** argv)
           throw Exception("Error! Info file should contain either site specific rates of ancestral states or both.");
       previousPos = currentPos;
       delete seqsim;
-      
+
       for(size_t i = 1; i < trees.size(); i++)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
+        seqsim->outputInternalSequences(outputInternalSequences);
         currentPos = static_cast<ptrdiff_t>(round(positions[i+1]) * static_cast<double>(nbSites));
         if (withRates)
           tmpRates = vector<double>(rates.begin() + previousPos + 1, rates.begin() + currentPos);
@@ -494,7 +500,7 @@ int main(int args, char ** argv)
         if (withRates)
           if (withStates)
             tmpCont2 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates, tmpStates);
-          else     
+          else
             tmpCont2 = SequenceSimulationTools::simulateSites(*seqsim, tmpRates);
         else
           if (withStates)
@@ -525,10 +531,11 @@ int main(int args, char ** argv)
     {
       rDist = PhylogeneticsApplicationTools::getRateDistribution(bppseqgen.getParams());
     }
-    
+
     if (trees.size() == 1)
     {
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
+      seqsim->outputInternalSequences(outputInternalSequences);
       ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
       ApplicationTools::displayTask("Perform simulations");
       sites = seqsim->simulate(nbSites);
@@ -539,16 +546,18 @@ int main(int args, char ** argv)
       ApplicationTools::displayTask("Perform simulations", true);
       ApplicationTools::displayGauge(0, trees.size() - 1, '=');
       seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[0]);
+      seqsim->outputInternalSequences(outputInternalSequences);
       size_t previousPos = 0;
       size_t currentPos = static_cast<unsigned int>(round(positions[1] * static_cast<double>(nbSites)));
       SequenceContainer* tmpCont1 = seqsim->simulate(currentPos - previousPos);
       previousPos = currentPos;
       delete seqsim;
- 
+
       for (size_t i = 1; i < trees.size(); i++)
       {
         ApplicationTools::displayGauge(i, trees.size() - 1, '=');
         seqsim = new NonHomogeneousSequenceSimulator(modelSet, rDist, trees[i]);
+        seqsim->outputInternalSequences(outputInternalSequences);
         currentPos = static_cast<unsigned int>(round(positions[i+1] * static_cast<double>(nbSites)));
         SequenceContainer* tmpCont2 = seqsim->simulate(currentPos - previousPos);
         previousPos = currentPos;
@@ -564,17 +573,17 @@ int main(int args, char ** argv)
       delete tmpCont1;
     }
   }
-  
+
   // Write to file:
   SequenceApplicationTools::writeAlignmentFile(*sites, bppseqgen.getParams());
-  
+
   delete alphabet;
   for (size_t i = 0; i < trees.size(); i++)
     delete trees[i];
   delete rDist;
 
   bppseqgen.done();
-  
+
 }
   catch (exception& e)
   {
@@ -584,4 +593,3 @@ int main(int args, char ** argv)
 
   return 0;
 }
-
