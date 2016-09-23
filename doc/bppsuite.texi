@@ -1125,11 +1125,30 @@ See the
 
 @item KronDistFreq(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[,positions=pos1*pos2*...*posn + posx*...*posm + ...])
 
-substitution model on codons as @var{CodonDistFreq} above, words,
+substitution model on codons as @var{CodonDistFreq} above,
 allowing simultaneous substitutions.
 
-Optional argument  @var{positions} can be used to describe which
+Optional argument @var{positions} can be used to describe which
 substitutions are allowed. See model @xref{Kron}.
+
+@item KronDist(model=@{model name@} [,positions=pos1*pos2*...*posn + posx*...*posm + ...)])
+
+@item KronDist(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[,positions=pos1*pos2*...*posn + posx*...*posm + ...])
+
+substitution model on codons as @var{CodonDist} above, allowing
+simultaneous substitutions.
+
+Optional argument @var{positions} can be used to describe which
+substitutions are allowed. See model @xref{Kron}.
+
+@item KCM7() and  KCM19() 
+
+Kronecker Codon Model based on a unique (KCM7) or one per position
+(KCM19) GTR model. From Zaheri \& al, MBE, 2014.
+
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1KCM.html#_details, Bio++ description}.
+
 
 @item CodonDistPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
