@@ -47,13 +47,14 @@ using namespace std;
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/TextTools.h>
+#include <Bpp/Numeric/Range.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
-#include <Bpp/Seq/Io.all>
-#include <Bpp/Seq/Container.all>
+#include <Bpp/Seq/Io/Mase.h>
+#include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SequenceTools.h>
 
 using namespace bpp;

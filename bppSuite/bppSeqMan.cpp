@@ -55,11 +55,10 @@ using namespace std;
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainerTools.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
-#include <Bpp/Seq/Io.all>
-#include <Bpp/Seq/Container.all>
 #include <Bpp/Seq/SequenceTools.h>
-#include <Bpp/Seq/GeneticCode.all>
 
 //From bpp-phyl:
 #include <Bpp/Phyl/Tree.h>

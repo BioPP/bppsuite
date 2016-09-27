@@ -55,7 +55,7 @@ using namespace std;
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -63,13 +63,19 @@ using namespace std;
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
-// From PhylLib:
+// From bpp-phyl:
 #include <Bpp/Phyl/Tree.h>
-#include <Bpp/Phyl/Likelihood.all>
+#include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h>
+#include <Bpp/Phyl/Likelihood/RASTools.h>
+#include <Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.h>
+#include <Bpp/Phyl/Likelihood/TreeLikelihoodTools.h>
+#include <Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.h>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSet.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>

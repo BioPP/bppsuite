@@ -55,7 +55,7 @@ using namespace std;
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -63,14 +63,19 @@ using namespace std;
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
-// From PhylLib:
+// From bpp-phyl:
 #include <Bpp/Phyl/Tree.h>
-#include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
-#include <Bpp/Phyl/Model.all>
+#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
+#include <Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/MixtureOfASubstitutionModel.h>
+#include <Bpp/Phyl/Model/MixtureOfSubstitutionModels.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h>
+#include <Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;

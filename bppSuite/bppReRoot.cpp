@@ -50,8 +50,8 @@ using namespace std;
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 
-// From PhylLib:
-#include <Bpp/Phyl/Io.all>
+// From bpp-phyl:
+#include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Tree.h>
 #include <Bpp/Phyl/Node.h>
 #include <Bpp/Phyl/TreeExceptions.h>

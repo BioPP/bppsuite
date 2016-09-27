@@ -1,0 +1,19 @@
+# ---------------
+# Input sequences
+# ---------------
+
+# The alphabet to use:
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+
+# The sequence file to use (sequences must be aligned!)
+input.sequence.file.ingroup=alignment.phy
+
+# The file format:
+input.sequence.format.ingroup=Phylip(order=interleaved, type=classic)
+
+# ----------------
+# Analysis
+# ----------------
+
+pop.stats=CodonSiteStatistics(output.file=alignment.codons.csv)
