@@ -76,9 +76,57 @@ using namespace std;
 using namespace bpp;
 
 /**
- * @brief Read trees from an input file, with segment annotations.
+ * @brief Read trees from an input file, with segment annotations. Hudson's MS format.
  */
-void readTrees(ifstream& file, vector<Tree*>& trees, vector<double>& pos) throw (Exception)
+void readTreesMs(ifstream& file, vector<Tree*>& trees, vector<double>& pos, unsigned int totPos) throw (Exception)
+{
+  string line = "";
+  unsigned int segsize;
+  unsigned int previous = 0;
+  string::size_type index;
+  pos.push_back(0);
+  string newickStr;
+  bool start = false;
+  while (!file.eof() && !start)
+  {
+    line = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(file));
+    start = (line == "//");
+  }
+  
+  while (!file.eof())
+  {
+    line = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(file));
+    if (line.size() == 0 || (line.substr(0, 1) != "[" && line.substr(0, 1) != "(" )) continue;
+
+    if (line.substr(0, 1) == "(") {
+      //This is a single tree, no recombination event
+      TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(line);
+      trees.push_back(t);
+      pos.push_back(1);
+      return;
+    }
+
+    index = line.find("]");
+    if (index == string::npos) throw Exception("Error when parsing tree file: no valid position.");
+    segsize = TextTools::to<unsigned int>(line.substr(1, index - 1));
+    newickStr = line.substr(index + 1);
+    TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(newickStr);
+    if (trees.size() > 0)
+    {
+      //Check leave names:
+      if (!VectorTools::haveSameElements(t->getLeavesNames(), trees[trees.size()-1]->getLeavesNames()))
+        throw Exception("Error: all trees must have the same leaf names.");
+    }
+    trees.push_back(t);
+    previous += segsize;
+    pos.push_back(static_cast<double>(previous) / static_cast<double>(totPos)); //Convert to relative positions
+  }
+}
+
+/**
+ * @brief Read trees from an input file, with segment annotations. Mailund's CoaSim format.
+ */
+void readTreesCoaSim(ifstream& file, vector<Tree*>& trees, vector<double>& pos) throw (Exception)
 {
   string line = "";
   double begin, end;
@@ -93,9 +141,9 @@ void readTrees(ifstream& file, vector<Tree*>& trees, vector<double>& pos) throw 
     line += tmp;
 
     index1 = line.find_first_of(" \t");
-    if (index1 == string::npos) throw Exception("Error when parsing tree file: now begining position.");
+    if (index1 == string::npos) throw Exception("Error when parsing tree file: no begining position.");
     index2 = line.find_first_of(" \t", index1 + 1);
-    if (index2 == string::npos) throw Exception("Error when parsing tree file: now ending position.");
+    if (index2 == string::npos) throw Exception("Error when parsing tree file: no ending position.");
     begin  = TextTools::toDouble(line.substr(0, index1));
     end    = TextTools::toDouble(line.substr(index1 + 1, index2 - index1 - 1));
     index3 = line.find_first_of(";", index2 + 1);
@@ -138,7 +186,7 @@ int main(int args, char ** argv)
   cout << "*            Bio++ Sequence Generator, version 2.2.0             *" << endl;
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                                            *" << endl;
-  cout << "*          B. Boussau                       Last Modif. 25/09/14 *" << endl;
+  cout << "*          B. Boussau                       Last Modif. 06/10/16 *" << endl;
   cout << "*          L. Gueguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
@@ -174,7 +222,10 @@ int main(int args, char ** argv)
   vector<Tree*> trees;
   vector<double> positions;
   string inputTrees = ApplicationTools::getStringParameter("input.tree.method", bppseqgen.getParams(), "single", "", true, false);
-  if (inputTrees == "single")
+  string itName;
+  map<string, string> itArgs;
+  KeyvalTools::parseProcedure(inputTrees, itName, itArgs);
+  if (itName == "single")
   {
     trees.push_back(PhylogeneticsApplicationTools::getTree(bppseqgen.getParams()));
     positions.push_back(0);
@@ -201,15 +252,37 @@ int main(int args, char ** argv)
       exit(0);
     }
   }
-  else if (inputTrees == "multiple")
+  else if (itName == "multiple")
+  {
+    throw Exception("'multiple' option deprecated, use 'coasim' instead.");
+  }
+  else if (itName == "CoaSim")
   {
     string treesPath = ApplicationTools::getAFilePath("input.tree.file", bppseqgen.getParams(), false, true);
     ApplicationTools::displayResult("Trees file", treesPath);
     ifstream treesFile(treesPath.c_str(), ios::in);
-    readTrees(treesFile, trees, positions);
+    readTreesCoaSim(treesFile, trees, positions);
+  }
+  else if (itName == "MS")
+  {
+    string treesPath = ApplicationTools::getAFilePath("input.tree.file", bppseqgen.getParams(), false, true);
+    unsigned int totPos = ApplicationTools::getParameter<unsigned int>("number_of_sites", itArgs, 100);
+    ApplicationTools::displayResult("Total # sites in ARG", totPos); 
+    ApplicationTools::displayResult("Trees file", treesPath);
+    ifstream treesFile(treesPath.c_str(), ios::in);
+    readTreesMs(treesFile, trees, positions, totPos);
   }
   else throw Exception("Unknown input.tree.method option: " + inputTrees);
 
+  // Scaling of trees:
+  double scale = ApplicationTools::getDoubleParameter("input.tree.scale", bppseqgen.getParams(), 1, "", false, false);
+
+  if (scale != 1) {
+    ApplicationTools::displayResult("Trees are scaled by", scale);
+    for (Tree* tree : trees) {
+      tree -> scaleTree(scale);
+    }
+  }
 
   /**********************************/
   /*  Models                        */
@@ -231,7 +304,7 @@ int main(int args, char ** argv)
   //Galtier-Gouy case:
   else if (nhOpt == "one_per_branch")
   {
-    if(inputTrees == "multiple")
+    if(itName == "MS" || itName == "CoaSim")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
     SubstitutionModel* model = 0;
     string modelName = ApplicationTools::getStringParameter("model", bppseqgen.getParams(), "");
@@ -267,7 +340,7 @@ int main(int args, char ** argv)
   //General case:
   else if (nhOpt == "general")
   {
-    if (inputTrees == "multiple")
+    if (itName == "MS" || itName == "CoaSim")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
     string modelName = ApplicationTools::getStringParameter("model1",bppseqgen.getParams(),"");
     if (!TextTools::hasSubstring(modelName,"COaLA"))
@@ -585,7 +658,7 @@ int main(int args, char ** argv)
 
   bppseqgen.done();
 
-}
+  }
   catch (exception& e)
   {
     cout << e.what() << endl;

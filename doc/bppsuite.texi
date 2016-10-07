@@ -2357,6 +2357,19 @@ used to sample from the given sequence (@pxref{Sequences}).
 
 @end table
 
+Addition optional arguments include:
+
+@table @command
+
+@item input.tree.scale = @{float@}
+An optional scaling factor for the branch length (default to 1.0)
+
+@item input.tree.method = @{single|MS|CoaSim@}
+Format of input tree(s). By default, a single tree is expected ('single'). Ancestral recombination graphs (ARGs), in the form of multiple trees, can also be provided in the MS or CoaSim format.
+Note that in the case of MS, ARG are given for a certain number of sites, wich should be provided as additional argument (e.g. @command{MS(number_of_sites=100)}).
+The ARG will be unscaled according to the given size, and rescaled according to the given number of sites to simulate. ARG in CoaSim format are already in relative scale.
+
+@end table
 
 In addition, command line argument @option{--seed=@{int>0@}} can be
 used to set the seed of the random generator.
