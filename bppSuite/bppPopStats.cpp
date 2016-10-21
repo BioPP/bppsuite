@@ -176,6 +176,24 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
       }
 
+      // +-----------+
+      // | PiN / PiS |
+      // +-----------+
+      else if (cmdName == "PiN_PiS")
+      {
+        if (!codonAlphabet) {
+          throw Exception("PiN_PiS can only be used with a codon alignment. Check the input alphabet!");
+        }
+        double piS = SequenceStatistics::piSynonymous(*psc, *gCode);
+        double piN = SequenceStatistics::piNonSynonymous(*psc, *gCode);
+        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*psc, *gCode);
+        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*psc, *gCode);
+        double r = (piN / nbN) / (piS / nbS);
+        ApplicationTools::displayResult("PiN:", piN);
+        ApplicationTools::displayResult("PiS:", piS);
+        ApplicationTools::displayResult("PiN / PiS (corrected for #N and #S):", r);
+      }
+
       // +---------------------+
       // | Codon site statistics |
       // +---------------------+
