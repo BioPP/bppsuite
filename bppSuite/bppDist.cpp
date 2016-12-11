@@ -66,8 +66,12 @@ using namespace std;
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/Io.all>
-#include <Bpp/Phyl/Distance.all>
+#include <Bpp/Phyl/Io/Newick.h>
+#include <Bpp/Phyl/Io/IoDistanceMatrixFactory.h>
+#include <Bpp/Phyl/Distance/DistanceEstimation.h>
+#include <Bpp/Phyl/Distance/PGMA.h>
+#include <Bpp/Phyl/Distance/NeighborJoining.h>
+#include <Bpp/Phyl/Distance/BioNJ.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>

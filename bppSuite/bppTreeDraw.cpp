@@ -42,19 +42,21 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
-// From Utils:
+// From bpp-core:
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Text/KeyvalTools.h>
-#include <Bpp/Graphics.all>
-#include <Bpp/Graphics/Svg.all>
-#include <Bpp/Graphics/Latex.all>
-#include <Bpp/Graphics/Fig.all>
+#include <Bpp/Graphics/Svg/SvgGraphicDevice.h>
+#include <Bpp/Graphics/Latex/PgfGraphicDevice.h>
+#include <Bpp/Graphics/Fig/XFigGraphicDevice.h>
 
-// From PhylLib:
+// From bpp-phyl:
 #include <Bpp/Phyl/Tree/Tree.h>
+
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/Graphics.all>
+#include <Bpp/Phyl/Graphics/PhylogramPlot.h>
+#include <Bpp/Phyl/Graphics/CladogramPlot.h>
+#include <Bpp/Phyl/Graphics/TreeDrawingDisplayControler.h>
 
 using namespace bpp;
 

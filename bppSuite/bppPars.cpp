@@ -50,7 +50,7 @@ using namespace std;
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
@@ -61,7 +61,6 @@ using namespace std;
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/Parsimony.all>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Io/Newick.h>
 

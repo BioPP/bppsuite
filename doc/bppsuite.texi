@@ -1162,11 +1162,30 @@ See the
 
 @item KronDistFreq(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[,positions=pos1*pos2*...*posn + posx*...*posm + ...])
 
-substitution model on codons as @var{CodonDistFreq} above, words,
+substitution model on codons as @var{CodonDistFreq} above,
 allowing simultaneous substitutions.
 
-Optional argument  @var{positions} can be used to describe which
+Optional argument @var{positions} can be used to describe which
 substitutions are allowed. See model @xref{Kron}.
+
+@item KronDist(model=@{model name@} [,positions=pos1*pos2*...*posn + posx*...*posm + ...)])
+
+@item KronDist(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[,positions=pos1*pos2*...*posn + posx*...*posm + ...])
+
+substitution model on codons as @var{CodonDist} above, allowing
+simultaneous substitutions.
+
+Optional argument @var{positions} can be used to describe which
+substitutions are allowed. See model @xref{Kron}.
+
+@item KCM7() and  KCM19() 
+
+Kronecker Codon Model based on a unique (KCM7) or one per position
+(KCM19) GTR model. From Zaheri \& al, MBE, 2014.
+
+See the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1KCM.html#_details, Bio++ description}.
+
 
 @item CodonDistPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
 
@@ -2473,6 +2492,19 @@ used to sample from the given sequence (@pxref{Sequences}).
 
 @end table
 
+Addition optional arguments include:
+
+@table @command
+
+@item input.tree.scale = @{float@}
+An optional scaling factor for the branch length (default to 1.0)
+
+@item input.tree.method = @{single|MS|CoaSim@}
+Format of input tree(s). By default, a single tree is expected ('single'). Ancestral recombination graphs (ARGs), in the form of multiple trees, can also be provided in the MS or CoaSim format.
+Note that in the case of MS, ARG are given for a certain number of sites, wich should be provided as additional argument (e.g. @command{MS(number_of_sites=100)}).
+The ARG will be unscaled according to the given size, and rescaled according to the given number of sites to simulate. ARG in CoaSim format are already in relative scale.
+
+@end table
 
 In addition, command line argument @option{--seed=@{int>0@}} can be
 used to set the seed of the random generator.

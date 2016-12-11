@@ -51,11 +51,12 @@ using namespace std;
 #include <Bpp/App/ApplicationTools.h>
 
 // From PhylLib:
-#include <Bpp/Phyl/Io.all>
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/Tree/Node.h>
 #include <Bpp/Phyl/Tree/TreeExceptions.h>
 #include <Bpp/Phyl/Tree/TreeTemplateTools.h>
+// From bpp-phyl:
+#include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 using namespace bpp;

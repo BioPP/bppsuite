@@ -1,22 +1,11 @@
-# Global variables:
-DATA = lysozymeLarge
-
-# ---------------
-# Input sequences
-# ---------------
-
-# The alphabet to use:
-alphabet=Codon(letter=DNA)
-genetic_code=Standard
-
-# The sequence file to use (sequences must be aligned!)
-input.sequence.file.ingroup=../Data/$(DATA).fasta
-
-# The file format:
-input.sequence.format.ingroup=Fasta
-
-# ----------------
-# Analysis
-# ----------------
-
-pop.stats=CodonSiteStatistics(output.file=$(DATA).codons.csv)
+input.sequence.file.ingroup = alignment.phy
+input.sequence.format.ingroup = Phylip(order=interleaved, type=classic)
+pop.stats= \
+    SiteFrequencies,\
+    Watterson75,\
+    Tajima83,\
+    TajimaD,\
+    FuAndLiDStar(tot_mut=no),\
+    FuAndLiFStar(tot_mut=no),\
+    FuAndLiDStar(tot_mut=yes),\
+    FuAndLiFStar(tot_mut=yes),\
