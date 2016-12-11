@@ -66,7 +66,7 @@ using namespace std;
 #include <Bpp/Seq/Io/BppOAlignmentWriterFormat.h>
 
 // From PhylLib:
-#include <Bpp/Phyl/Tree/Tree.h>
+#include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
@@ -145,7 +145,7 @@ int main(int args, char ** argv)
 
     /////// Get the map of initial trees
     
-    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(allParams, mSites, unparsedparams);
+    map<size_t, PhyloTree*> mTree=PhylogeneticsApplicationTools::getPhyloTrees(allParams, mSites, unparsedparams);
 
     /////////////////
     // Computing stuff
@@ -415,8 +415,8 @@ int main(int args, char ** argv)
           ApplicationTools::displayResult("Phylo " + TextTools::toString(itm->first) + " : Output file for sites", outputSitesFile + "_" + TextTools::toString(itm->first));
           string outF=outputSitesFile + "_" + TextTools::toString(itm->first);
           ofstream out(outF.c_str(), ios::out);
-          TreeTemplate<Node> ttree(sPP->getTree());
-          vector<Node *> nodes = ttree.getNodes();
+          PhyloTree ttree(sPP->getTree());
+          vector<shared_ptr<PhyloNode> > nodes = ttree.getAllNodes();
           size_t nbNodes = nodes.size();
 
           // Get the class with maximum posterior probability:
@@ -437,20 +437,20 @@ int main(int args, char ** argv)
           colNames.push_back("pr");
 
           for (size_t i = 0; i < nbNodes; i++) {
-            Node *node = nodes[i];
-            colNames.push_back("max." + TextTools::toString(node->getId()));
+            shared_ptr<PhyloNode> node = nodes[i];
+            colNames.push_back("max." + TextTools::toString(ttree.getNodeIndex(node)));
             if (probs) {
               probabilities[i] = new VVdouble();
               
               //The cast will have to be updated when more probabilistic method will be available:
-              sequences[i] = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequenceForNode(node->getId(), probabilities[i], false);
+              sequences[i] = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequenceForNode(ttree.getNodeIndex(node), probabilities[i], false);
 
               for (unsigned int j = 0; j < nbStates; j++) {
-                colNames.push_back("prob." + TextTools::toString(node->getId()) + "." + alphabet->intToChar((int)j));
+                colNames.push_back("prob." + TextTools::toString(ttree.getNodeIndex(node)) + "." + alphabet->intToChar((int)j));
               }
             }
             else
-                sequences[i] = asr->getAncestralSequenceForNode(node->getId());
+              sequences[i] = asr->getAncestralSequenceForNode(ttree.getNodeIndex(node));
           }
 
           //Now fill the table:

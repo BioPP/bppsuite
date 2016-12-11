@@ -65,7 +65,7 @@ using namespace std;
 #include <Bpp/Seq/Io/BppOAlignmentWriterFormat.h>
 
 // From PhylLib:
-#include <Bpp/Phyl/Tree/TreeTemplate.h>
+#include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Simulation.all>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
@@ -78,6 +78,8 @@ using namespace std;
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
+
+#include <Bpp/Phyl/Simulation/EvolutionSequenceSimulator.h>
 
 using namespace bpp;
 
@@ -199,7 +201,7 @@ int main(int args, char ** argv)
 
   /////// Get the map of initial trees
     
-  map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppseqgen.getParams(), mSites, unparsedparams);
+  map<size_t, PhyloTree*> mTree=PhylogeneticsApplicationTools::getPhyloTrees(bppseqgen.getParams(), mSites, unparsedparams);
 
 
   /**********************************/
@@ -362,7 +364,7 @@ int main(int args, char ** argv)
   for (map<size_t, SequenceSimulator*>::iterator it=mSim.begin(); it!=mSim.end(); it++)
   {
     SequenceSimulator& seqsim = *it->second;
-    
+
     if (withStates || withRates)
     {
       SimpleSubstitutionProcessSequenceSimulator* ps=dynamic_cast<SimpleSubstitutionProcessSequenceSimulator*>(&seqsim);

@@ -65,6 +65,7 @@ using namespace std;
 
 // From PhylLib:
 #include <Bpp/Phyl/Tree/Tree.h>
+#include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>

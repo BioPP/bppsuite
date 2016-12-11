@@ -67,6 +67,7 @@ using namespace std;
 
 // From bpp-phyl:
 #include <Bpp/Phyl/Tree/Tree.h>
+#include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Likelihood.all>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
@@ -210,6 +211,7 @@ int main(int args, char** argv)
     SubstitutionModel*    model    = 0;
     SubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist    = 0;
+
     Tree* firstTree = mTree.begin()->second;
     
     /// Topology estimation
@@ -256,7 +258,7 @@ int main(int args, char** argv)
 
       map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams);
 
-      SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
+      SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mpTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
 
       mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, bppml.getParams(), unparsedparams);
       
@@ -585,7 +587,7 @@ int main(int args, char** argv)
       }
       
       tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
-      
+
       PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams());
       
       // Write parameters to screen:
@@ -604,10 +606,11 @@ int main(int args, char** argv)
       bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.withalias", bppml.getParams(), true, "", false, 1);
 
       ApplicationTools::displayResult("Process estimates to file", parametersFile);
+      
       if (parametersFile != "none")
       {
         StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
-        
+
         PhylogeneticsApplicationTools::printParameters(*mPhyl, out);
 
         PhylogeneticsApplicationTools::printParameters(SPC, out, 1, withAlias);
@@ -630,7 +633,7 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Alignment information logfile", infosFile);
         PhylogeneticsApplicationTools::printAnalysisInformation(*mPhyl, infosFile);
       }
-              
+
       ////////////////////////////////////////////
       // Bootstrap:
     
