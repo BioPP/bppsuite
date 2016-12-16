@@ -1936,12 +1936,28 @@ used as the name of the phylo-likelihood.
 @item phylo@{number@}=@{Single|Double@}(data=@{number@}, process=@{number@})
 @end table
 
-With parameter @var{useLog=yes}, the computation is done using log
-(default: false).
+with @var{number} at least one.
 
-When several phylo-likelihoods are declared, the computed (and
-optimized) log-likelihood is the sum of the log-likelihoods of all
-these phylo-likelihoods.
+With optional parameter @var{useLog=yes}, the computation is done using log
+(default: false). 
+
+
+When several phylo-likelihoods are declared, they can be mixed in an
+mathematical, which result function will be computed (and
+optimized). For examples:
+
+@example
+result= (phylo1 + phylo2) / (phylo3 - phylo4)
+result= (phylo1 + phylo2) / (phylo3 - phylo4)
+result= (phylo1 + phylo2) / (phylo3 - phylo4)
+@end example
+
+Any parenthesized arithmetic formula is available, plus exp and log
+functions.
+
+If @command{result} is not given, the default result is the sum of the
+values of all the phylo-likelihoods.
+
 
 
 @node Linking,  , Phylo-likelihoods, Likelihoods
