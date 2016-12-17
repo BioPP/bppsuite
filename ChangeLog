@@ -1,3 +1,6 @@
+17/12/16 Julien Dutheil
+* Improved bppPopStats, outgroup analyses, MK table and output to file.
+
 06/10/16 Julien Dutheil
 * bppSeqGen now takes Hudson's MS ARG files as input.
 * new input.tree.scale option to adjust branch lengths.

@@ -58,6 +58,7 @@ using namespace std;
 
 // From bpp-popgen
 #include <Bpp/PopGen/PolymorphismSequenceContainer.h>
+#include <Bpp/PopGen/PolymorphismSequenceContainerTools.h>
 #include <Bpp/PopGen/SequenceStatistics.h>
 
 using namespace bpp;
@@ -91,6 +92,11 @@ int main(int args, char** argv)
     BppApplication bpppopstats(args, argv, "BppPopStats");
     bpppopstats.startTimer();
 
+    string logFile = ApplicationTools::getAFilePath("logfile", bpppopstats.getParams(), false, false);
+    unique_ptr<ofstream> clog;
+    if (logFile != "none")
+      clog.reset(new ofstream(logFile.c_str(), ios::out));
+
     // Get alphabet
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bpppopstats.getParams(), "", false, true, true);
 
@@ -103,10 +109,43 @@ int main(int args, char** argv)
       gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
     }
 
-    // Get the ingroup alignment:
-    unique_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
-    unique_ptr<PolymorphismSequenceContainer> psc(new PolymorphismSequenceContainer(*sites));
+    unique_ptr<PolymorphismSequenceContainer> pscIn;
+    unique_ptr<PolymorphismSequenceContainer> pscOut;
+    if (ApplicationTools::parameterExists("input.sequence.file.ingroup", bpppopstats.getParams())) {
+      // Get the ingroup alignment:
+      unique_ptr<SiteContainer> sitesIn(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
+      pscIn.reset(new PolymorphismSequenceContainer(*sitesIn));
+      if (ApplicationTools::parameterExists("input.sequence.file.outgroup", bpppopstats.getParams())) {
+        // Get the outgroup alignment:
+        unique_ptr<SiteContainer> sitesOut(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".outgroup", false, true));
+        pscOut.reset(new PolymorphismSequenceContainer(*sitesOut));
+      }
+    } else {
+      //Everything in one file
+      unique_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), "", false, true));
+      unique_ptr<PolymorphismSequenceContainer> psc(new PolymorphismSequenceContainer(*sites));
+      if (ApplicationTools::parameterExists("input.sequence.outgroup.index", bpppopstats.getParams())) {
+        vector<size_t> outgroups = ApplicationTools::getVectorParameter<size_t>("input.sequence.outgroup.index", bpppopstats.getParams(), ',', "");
+        for (auto g : outgroups) {
+          psc->setAsOutgroupMember(g);
+        }
+      }
+      if (ApplicationTools::parameterExists("input.sequence.outgroup.name", bpppopstats.getParams())) {
+        vector<string> outgroups = ApplicationTools::getVectorParameter<string>("input.sequence.outgroup.name", bpppopstats.getParams(), ',', "");
+        for (auto g : outgroups) {
+          psc->setAsOutgroupMember(g);
+        }
+      }
+      if (psc->hasOutgroup()) {
+        pscIn.reset(PolymorphismSequenceContainerTools::extractIngroup(*psc));
+        pscOut.reset(PolymorphismSequenceContainerTools::extractOutgroup(*psc));
+      } else {
+        pscIn = std::move(psc);
+      }
+    }
 
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    
     // Compute statistics
     vector<string> actions = ApplicationTools::getVectorParameter<string>("pop.stats", bpppopstats.getParams(), ',', "", "", false, 1);
 
@@ -121,10 +160,16 @@ int main(int args, char** argv)
       // +-------------------+
       if (cmdName == "SiteFrequencies")
       {
-        unsigned int s = SequenceStatistics::numberOfPolymorphicSites(*psc);
+        unsigned int s = SequenceStatistics::numberOfPolymorphicSites(*pscIn);
         ApplicationTools::displayResult("Number of segregating sites:", s);
-        unsigned int nsg = SequenceStatistics::numberOfSingletons(*psc);
+        unsigned int nsg = SequenceStatistics::numberOfSingletons(*pscIn);
         ApplicationTools::displayResult("Number of singletons:", nsg);
+        //Print to logfile:
+        if (logFile != "none") {
+          *clog << "# Site frequencies" << endl;
+          *clog << "NbSegSites = " << s << endl;
+          *clog << "NbSingl = " << nsg << endl;
+        }
       }
 
       // +-------------------+
@@ -132,17 +177,27 @@ int main(int args, char** argv)
       // +-------------------+
       else if (cmdName == "Watterson75")
       {
-        double thetaW75 = SequenceStatistics::watterson75(*psc, true, true, true);
-        ApplicationTools::displayResult("Watterson (1975)'s theta:", thetaW75);
+        double thetaW75 = SequenceStatistics::watterson75(*pscIn, true, true, true);
+        ApplicationTools::displayResult("Watterson's (1975) theta:", thetaW75);
+        //Print to logfile:
+        if (logFile != "none") {
+          *clog << "# Watterson's (1975) theta" << endl;
+          *clog << "thetaW75 = " << thetaW75 << endl;
+        }
       }
 
-      // +----------------+
-      // | Tajima's theta |
-      // +----------------+
+      // +-------------+
+      // | Tajima's pi |
+      // +-------------+
       else if (cmdName == "Tajima83")
       {
-        double thetaT83 = SequenceStatistics::tajima83(*psc, true, true, true);
-        ApplicationTools::displayResult("Tajima (1983)'s theta:", thetaT83);
+        double piT83 = SequenceStatistics::tajima83(*pscIn, true, true, true);
+        ApplicationTools::displayResult("Tajima's (1983) pi:", piT83);
+        //Print to logfile:
+        if (logFile != "none") {
+          *clog << "# Tajima's (1983) pi" << endl;
+          *clog << "piT83 = " << piT83 << endl;
+        }
       }
 
       // +------------+
@@ -150,8 +205,13 @@ int main(int args, char** argv)
       // +------------+
       else if (cmdName == "TajimaD")
       {
-        double tajimaD = SequenceStatistics::tajimaDss(*psc, true, true);
-        ApplicationTools::displayResult("Tajima (1989)'s D:", tajimaD);
+        double tajimaD = SequenceStatistics::tajimaDss(*pscIn, true, true);
+        ApplicationTools::displayResult("Tajima's (1989) D:", tajimaD);
+        //Print to logfile:
+        if (logFile != "none") {
+          *clog << "# Tajima's (1989) D" << endl;
+          *clog << "tajD = " << tajimaD << endl;
+        }
       }
 
       // +-----------+
@@ -160,9 +220,17 @@ int main(int args, char** argv)
       else if (cmdName == "FuAndLiDStar")
       {
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
-        double flDstar = SequenceStatistics::fuLiDStar(*psc, !useTotMut);
-        ApplicationTools::displayResult("Fu and Li (1993)'s D*:", flDstar);
+        double flDstar = SequenceStatistics::fuLiDStar(*pscIn, !useTotMut);
+        ApplicationTools::displayResult("Fu and Li's (1993) D*:", flDstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
+        //Print to logfile:
+        if (logFile != "none") {
+          *clog << "# Fu and Li's (1993) D*" << endl;
+          if (useTotMut)
+            *clog << "fuLiDstarTotMut = " << flDstar << endl;
+          else
+            *clog << "fuLiDstarSegSit = " << flDstar << endl;
+        }
       }
 
       // +-----------+
@@ -171,9 +239,17 @@ int main(int args, char** argv)
       else if (cmdName == "FuAndLiFStar")
       {
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
-        double flFstar = SequenceStatistics::fuLiFStar(*psc, !useTotMut);
+        double flFstar = SequenceStatistics::fuLiFStar(*pscIn, !useTotMut);
         ApplicationTools::displayResult("Fu and Li (1993)'s F*:", flFstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
+        //Print to logfile:
+        if (logFile != "none") {
+          *clog << "# Fu and Li's (1993) F*" << endl;
+          if (useTotMut)
+            *clog << "fuLiFstarTotMut = " << flFstar << endl;
+          else
+            *clog << "fuLiFstarSegSit = " << flFstar << endl;
+        }
       }
 
       // +-----------+
@@ -184,14 +260,46 @@ int main(int args, char** argv)
         if (!codonAlphabet) {
           throw Exception("PiN_PiS can only be used with a codon alignment. Check the input alphabet!");
         }
-        double piS = SequenceStatistics::piSynonymous(*psc, *gCode);
-        double piN = SequenceStatistics::piNonSynonymous(*psc, *gCode);
-        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*psc, *gCode);
-        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*psc, *gCode);
+        double piS = SequenceStatistics::piSynonymous(*pscIn, *gCode);
+        double piN = SequenceStatistics::piNonSynonymous(*pscIn, *gCode);
+        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*pscIn, *gCode);
+        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*pscIn, *gCode);
         double r = (piN / nbN) / (piS / nbS);
         ApplicationTools::displayResult("PiN:", piN);
         ApplicationTools::displayResult("PiS:", piS);
+        ApplicationTools::displayResult("#N:", nbN);
+        ApplicationTools::displayResult("#S:", nbS);
         ApplicationTools::displayResult("PiN / PiS (corrected for #N and #S):", r);
+        if (logFile != "none") {
+          *clog << "# PiN and PiS" << endl;
+          *clog << "PiN = " << piN << endl;
+          *clog << "PiS = " << piS << endl;
+          *clog << "NbN = " << nbN << endl;
+          *clog << "NbS = " << nbS << endl;
+        }
+      }
+
+      // +---------+
+      // | MK test |
+      // +---------+
+      else if (cmdName == "MKT")
+      {
+        if (!codonAlphabet) {
+          throw Exception("MacDonald-Kreitman test can only be performed on a codon alignment. Check the input alphabet!");
+        }
+        if (!pscOut.get()) {
+          throw Exception("MacDonald-Kreitman test requires at least one outgroup sequence.");
+        }
+        vector<unsigned int> mktable = SequenceStatistics::mkTable(*pscIn, *pscOut, *gCode);
+        ApplicationTools::displayResult("MK table, Pa:", mktable[0]);
+        ApplicationTools::displayResult("MK table, Ps:", mktable[1]);
+        ApplicationTools::displayResult("MK table, Da:", mktable[2]);
+        ApplicationTools::displayResult("MK table, Ds:", mktable[3]);
+        if (logFile != "none") {
+          *clog << "# MK table" << endl;
+          *clog << "# Pa Ps Da Ds" << endl;
+          *clog << "MKtable = " << mktable[0] << " " << mktable[1] << " " << mktable[2] << " " << mktable[3] << endl;
+        }
       }
 
       // +---------------------+
@@ -206,11 +314,15 @@ int main(int args, char** argv)
         if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics"); 
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
-        out << "Site\tIsConstant\tIsSynPoly\tIs4Degenerated\tPiN\tPiS" << endl;
+        out << "Site\tIsComplete\tNbAlleles\tMinorAlleleFrequency\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS" << endl;
+        unique_ptr<SiteContainer> sites(pscIn->toSiteContainer());
         for (size_t i = 0; i < sites->getNumberOfSites(); ++i) {
           const Site& site = sites->getSite(i);
           out << site.getPosition() << "\t";
-          out << SiteTools::isConstant(site) << "\t";
+          out << SiteTools::isComplete(site) << "\t";
+          out << SiteTools::getNumberOfDistinctCharacters(site) << "\t";
+          out << SiteTools::getMinorAlleleFrequency(site) << "\t";
+          out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode) << "\t";
           out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
           out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
           out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
