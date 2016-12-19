@@ -87,16 +87,16 @@ int main(int args, char** argv)
     return 0;
   }
 
+  BppApplication bpppopstats(args, argv, "BppPopStats");
+  bpppopstats.startTimer();
+
+  string logFile = ApplicationTools::getAFilePath("logfile", bpppopstats.getParams(), false, false);
+  unique_ptr<ofstream> clog;
+  if (logFile != "none")
+    clog.reset(new ofstream(logFile.c_str(), ios::out));
+
   try
   {
-    BppApplication bpppopstats(args, argv, "BppPopStats");
-    bpppopstats.startTimer();
-
-    string logFile = ApplicationTools::getAFilePath("logfile", bpppopstats.getParams(), false, false);
-    unique_ptr<ofstream> clog;
-    if (logFile != "none")
-      clog.reset(new ofstream(logFile.c_str(), ios::out));
-
     // Get alphabet
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bpppopstats.getParams(), "", false, true, true);
 
@@ -109,25 +109,27 @@ int main(int args, char** argv)
       gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
     }
 
-    unique_ptr<PolymorphismSequenceContainer> pscIn;
-    unique_ptr<PolymorphismSequenceContainer> pscOut;
+    unique_ptr<PolymorphismSequenceContainer> psc;
     if (ApplicationTools::parameterExists("input.sequence.file.ingroup", bpppopstats.getParams())) {
       // Get the ingroup alignment:
       unique_ptr<SiteContainer> sitesIn(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
-      pscIn.reset(new PolymorphismSequenceContainer(*sitesIn));
+      psc.reset(new PolymorphismSequenceContainer(*sitesIn));
       if (ApplicationTools::parameterExists("input.sequence.file.outgroup", bpppopstats.getParams())) {
         // Get the outgroup alignment:
         unique_ptr<SiteContainer> sitesOut(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".outgroup", false, true));
-        pscOut.reset(new PolymorphismSequenceContainer(*sitesOut));
+        SequenceContainerTools::append(*psc, *sitesOut);
+        for (size_t i = sitesIn->getNumberOfSequences(); i < psc->getNumberOfSequences(); ++i) {
+          psc->setAsOutgroupMember(i);
+        }
       }
     } else {
       //Everything in one file
       unique_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), "", false, true));
-      unique_ptr<PolymorphismSequenceContainer> psc(new PolymorphismSequenceContainer(*sites));
+      psc.reset(new PolymorphismSequenceContainer(*sites));
       if (ApplicationTools::parameterExists("input.sequence.outgroup.index", bpppopstats.getParams())) {
         vector<size_t> outgroups = ApplicationTools::getVectorParameter<size_t>("input.sequence.outgroup.index", bpppopstats.getParams(), ',', "");
         for (auto g : outgroups) {
-          psc->setAsOutgroupMember(g);
+          psc->setAsOutgroupMember(g-1);
         }
       }
       if (ApplicationTools::parameterExists("input.sequence.outgroup.name", bpppopstats.getParams())) {
@@ -136,14 +138,46 @@ int main(int args, char** argv)
           psc->setAsOutgroupMember(g);
         }
       }
-      if (psc->hasOutgroup()) {
-        pscIn.reset(PolymorphismSequenceContainerTools::extractIngroup(*psc));
-        pscOut.reset(PolymorphismSequenceContainerTools::extractOutgroup(*psc));
-      } else {
-        pscIn = std::move(psc);
-      }
     }
 
+    // Take care of stop codons:
+    string stopCodonOpt = ApplicationTools::getStringParameter("input.sequence.stop_codons_policy", bpppopstats.getParams(), "Keep", "", true, true);
+    ApplicationTools::displayResult("Stop codons policy", stopCodonOpt);
+
+    if (stopCodonOpt == "Keep") {
+      //do nothing
+    } else if (stopCodonOpt == "RemoveIfLast") {
+      if (CodonSiteTools::hasStop(psc->getSite(psc->getNumberOfSites() - 1), *gCode)) {
+        psc->deleteSite(psc->getNumberOfSites() - 1);
+        ApplicationTools::displayMessage("Info: last site contained a stop codon and was discarded.");
+        if (logFile != "none")
+          *clog << "# Info: last site contained a stop codon and was discarded." << endl;
+      }
+    } else if (stopCodonOpt == "RemoveAll") {
+      size_t l1 = psc->getNumberOfSites();
+      SiteContainerTools::removeStopCodonSites(*psc, *gCode);
+      size_t l2 = psc->getNumberOfSites();
+      if (l2 != l1) {
+        ApplicationTools::displayMessage("Info: discarded " + TextTools::toString(l2 - l1) + " sites with stop codons.");
+        if (logFile != "none")
+          *clog << "# Info: discarded " << (l2 - l1) << " sites with stop codons." << endl;
+      }
+    } else {
+      throw Exception("Unrecognized option for input.sequence.stop_codons_policy: " + stopCodonOpt);
+    }
+
+    unique_ptr<PolymorphismSequenceContainer> pscIn;
+    unique_ptr<PolymorphismSequenceContainer> pscOut;
+
+    if (psc->hasOutgroup()) {
+      pscIn.reset(PolymorphismSequenceContainerTools::extractIngroup(*psc));
+      pscOut.reset(PolymorphismSequenceContainerTools::extractOutgroup(*psc));
+    } else {
+      pscIn = std::move(psc);
+    }
+    ApplicationTools::displayResult("Number of sequences in ingroup", pscIn->getNumberOfSequences());
+    ApplicationTools::displayResult("Number of sequences in outgroup", pscOut.get() ? pscOut->getNumberOfSequences() : 0);
+    
     // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     
     // Compute statistics
@@ -338,6 +372,8 @@ int main(int args, char** argv)
   }
   catch (exception& e)
   {
+    if (logFile != "none")
+      *clog << "# Error: " << e.what() << endl;
     cout << e.what() << endl;
     return 1;
   }
