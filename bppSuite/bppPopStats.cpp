@@ -348,7 +348,7 @@ int main(int args, char** argv)
         if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics"); 
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
-        out << "Site\tIsComplete\tNbAlleles\tMinorAlleleFrequency\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS" << endl;
+        out << "Site\tIsComplete\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS" << endl;
         unique_ptr<SiteContainer> sites(pscIn->toSiteContainer());
         for (size_t i = 0; i < sites->getNumberOfSites(); ++i) {
           const Site& site = sites->getSite(i);
@@ -356,6 +356,9 @@ int main(int args, char** argv)
           out << SiteTools::isComplete(site) << "\t";
           out << SiteTools::getNumberOfDistinctCharacters(site) << "\t";
           out << SiteTools::getMinorAlleleFrequency(site) << "\t";
+          out << SiteTools::getMajorAlleleFrequency(site) << "\t";
+          out << alphabet->intToChar(SiteTools::getMinorAllele(site)) << "\t";
+          out << alphabet->intToChar(SiteTools::getMajorAllele(site)) << "\t";
           out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode) << "\t";
           out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
           out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
