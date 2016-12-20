@@ -336,9 +336,9 @@ int main(int args, char** argv)
         }
       }
 
-      // +---------------------+
+      // +-----------------------+
       // | Codon site statistics |
-      // +---------------------+
+      // +-----------------------+
       else if (cmdName == "CodonSiteStatistics")
       {
         if (!codonAlphabet) {
