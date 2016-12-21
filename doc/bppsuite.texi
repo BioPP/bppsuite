@@ -12,7 +12,6 @@
 * bppdist: (bppdist)            Bio++ Distance Methods.
 * bpppars: (bpppars)            Bio++ Maximum Parsimony.
 * bppconsense: (bppconsense)    Bio++ Consensus Trees.
-* bppphysamp: (bppphysamp)      Bio++ Phylogenetic Sampler.
 * bppreroot: (bppreroot)        Bio++ Serial Tree Re-rooting.
 * bppseqman: (bppseqman)        Bio++ Sequences Manipulation.
 * bppalnscore: (bppalnscore)    Bio++ Alignment Scoring
@@ -62,7 +61,7 @@ Common options encountered in several programs.
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
-* Process::                     
+* Process::
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
@@ -70,11 +69,11 @@ Common options encountered in several programs.
 
 Process specification
 
-* Model::                       
+* Model::
 * Non-homogeneity::             Specific declaration of non-homogeneous modelling.
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
-* Linking::                     
+* Linking::
 
 Setting up the substitution model
 
@@ -95,7 +94,6 @@ Bio++ Program Suite Reference
 * bppdist::                     Bio++ Distance Methods.
 * bpppars::                     Bio++ Maximum Parsimony.
 * bppconsense::                 Bio++ Consensus Trees.
-* bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
 * bppalnscore::                 Bio++ Alignment Scoring
@@ -315,7 +313,7 @@ data=LSU
 * Sequences::                   Loading sequences/alignments.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
-* Process::                     
+* Process::
 * Distribution::                Setting of the discrete distributions.
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
@@ -576,11 +574,11 @@ whether distances should be signed or not.
 @section Process specification
 
 @menu
-* Model::                       
+* Model::
 * Non-homogeneity::             Specific declaration of non-homogeneous modelling.
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
-* Linking::                     
+* Linking::
 @end menu
 
 The substitution model specification over the tree is set up in different parts.
@@ -2144,7 +2142,6 @@ This section now details the specific options for each program in the Bio++ Prog
 * bppdist::                     Bio++ Distance Methods.
 * bpppars::                     Bio++ Maximum Parsimony.
 * bppconsense::                 Bio++ Consensus Trees.
-* bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
 * bppalnscore::                 Bio++ Alignment Scoring
@@ -2513,7 +2510,7 @@ Where to write bootstrap trees.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bppconsense, bppphysamp, bpppars, Reference
+@node bppconsense, bppreroot, bpppars, Reference
 @section BppConsense: Bio++ Consensus Trees
 
 Probably one of the simplest program to use in the suite, just takes a list of trees (for instance produced by BppML, BppDist or BppPars with the bootstrap option enabled) and compute bootstrap values for a reference tree, provided as input, or constructed using a consensus method.
@@ -2541,40 +2538,7 @@ Build a consensus tree according to a given threshold.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bppphysamp, bppreroot, bppconsense, Reference
-@section BppPhySamp: Bio++ Phylogenetic Sampler
- 
-The Bio++ Phylogenetic Sampler samples sequences from a file according to phylogenetic information.
-The goal is to clean a big data set by removing redundant sequences, bringing only few additional information for evolutionary analyses.
-
-The BppPhySamp programs uses the common options for setting the alphabet, loading the sequences (@pxref{Sequences}) and (@pxref{Tree}) and writing the resulting data set (@pxref{WritingSequences}, @pxref{WritingTrees}).
-
-@table @command
-
-@item input.method = @{tree|matrix@}
-The method to provide phylogenetic information, either by a tree or a matrix.
-If the @option{tree} option is used, then the options for reading trees are used (@pxref{Tree}).
-
-@item input.matrix = @{path@} [[input.method = matrix]]
-The input matrix file.
-
-@item deletion_method = @{random|threshold|sample@}
-Method to use to remove sequence. 
-
-@item threshold = @{float>0@} [[deletion_method = threshold ]]
-The minimum distance separating two sequences in the sampled data set.
-Any sequences closer than this threshold in the original data set will be confronted so that only one is kept.
-
-@item sample_size = @{int>0@} [[deletion_method = sample|random ]]
-The number of sequences to keep in the final data set.
-
-@item choice_criterion = @{length|length.complete|random@}
-How to chose between closely related sequences? @option{length} takes the longest (maximum number of non-gap positions), @option{length.complete} takes the sequence with the maximum number of fully resolved positions and @option{random} picks one sequence at random.
-@end table 
-
-@c ------------------------------------------------------------------------------------------------------------------
-
-@node bppreroot, bppseqman, bppphysamp, Reference
+@node bppreroot, bppseqman, bppconsense, Reference
 @section BppReroot: Bio++ Serial Tree Re-rooting
  
 @table @command

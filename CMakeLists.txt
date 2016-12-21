@@ -84,8 +84,6 @@ IF(MAN)
       COMMAND ${DOC_COMPRESS} -f bppancestor.1
       COMMAND cp bppreroot.1.txt bppreroot.1
       COMMAND ${DOC_COMPRESS} -f bppreroot.1
-      COMMAND cp bppphysamp.1.txt bppphysamp.1
-      COMMAND ${DOC_COMPRESS} -f bppphysamp.1
       COMMAND cp bpptreedraw.1.txt bpptreedraw.1
       COMMAND ${DOC_COMPRESS} -f bpptreedraw.1
       COMMAND cp bppalnscore.1.txt bppalnscore.1

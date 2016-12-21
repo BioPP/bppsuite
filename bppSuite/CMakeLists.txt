@@ -38,10 +38,6 @@ ADD_EXECUTABLE(bppreroot bppReRoot.cpp)
 TARGET_LINK_LIBRARIES(bppreroot ${LIBS})
 SET_TARGET_PROPERTIES(bppreroot PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
 
-ADD_EXECUTABLE(bppphysamp bppPhyloSampler.cpp)
-TARGET_LINK_LIBRARIES(bppphysamp ${LIBS})
-SET_TARGET_PROPERTIES(bppphysamp PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
 ADD_EXECUTABLE(bpptreedraw bppTreeDraw.cpp)
 TARGET_LINK_LIBRARIES(bpptreedraw ${LIBS})
 SET_TARGET_PROPERTIES(bpptreedraw PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
@@ -65,7 +61,6 @@ INSTALL(TARGETS
   bppancestor
   bppmixedlikelihoods
   bppreroot
-  bppphysamp
   bpptreedraw
   bppalnscore
   bpppopstats
