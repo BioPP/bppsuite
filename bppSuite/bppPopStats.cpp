@@ -91,9 +91,12 @@ int main(int args, char** argv)
   bpppopstats.startTimer();
 
   string logFile = ApplicationTools::getAFilePath("logfile", bpppopstats.getParams(), false, false);
-  unique_ptr<ofstream> clog;
+  unique_ptr<ofstream> cLog;
   if (logFile != "none")
-    clog.reset(new ofstream(logFile.c_str(), ios::out));
+    cLog.reset(new ofstream(logFile.c_str(), ios::out));
+
+  //This counts instances of each tool, in case one is used several times, for instance with different options:
+  map<string, unsigned int> toolCounter;
 
   try
   {
@@ -151,7 +154,7 @@ int main(int args, char** argv)
         psc->deleteSite(psc->getNumberOfSites() - 1);
         ApplicationTools::displayMessage("Info: last site contained a stop codon and was discarded.");
         if (logFile != "none")
-          *clog << "# Info: last site contained a stop codon and was discarded." << endl;
+          *cLog << "# Info: last site contained a stop codon and was discarded." << endl;
       }
     } else if (stopCodonOpt == "RemoveAll") {
       size_t l1 = psc->getNumberOfSites();
@@ -160,14 +163,14 @@ int main(int args, char** argv)
       if (l2 != l1) {
         ApplicationTools::displayMessage("Info: discarded " + TextTools::toString(l2 - l1) + " sites with stop codons.");
         if (logFile != "none")
-          *clog << "# Info: discarded " << (l2 - l1) << " sites with stop codons." << endl;
+          *cLog << "# Info: discarded " << (l2 - l1) << " sites with stop codons." << endl;
       }
     } else {
       throw Exception("Unrecognized option for input.sequence.stop_codons_policy: " + stopCodonOpt);
     }
 
-    unique_ptr<PolymorphismSequenceContainer> pscIn;
-    unique_ptr<PolymorphismSequenceContainer> pscOut;
+    shared_ptr<PolymorphismSequenceContainer> pscIn;
+    shared_ptr<PolymorphismSequenceContainer> pscOut;
 
     if (psc->hasOutgroup()) {
       pscIn.reset(PolymorphismSequenceContainerTools::extractIngroup(*psc));
@@ -188,6 +191,7 @@ int main(int args, char** argv)
       string cmdName;
       map<string, string> cmdArgs;
       KeyvalTools::parseProcedure(actions[a], cmdName, cmdArgs);
+      toolCounter[cmdName]++;
 
       // +-------------------+
       // | Frequencies       |
@@ -200,9 +204,9 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Number of singletons:", nsg);
         //Print to logfile:
         if (logFile != "none") {
-          *clog << "# Site frequencies" << endl;
-          *clog << "NbSegSites = " << s << endl;
-          *clog << "NbSingl = " << nsg << endl;
+          *cLog << "# Site frequencies" << endl;
+          *cLog << "NbSegSites" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << s << endl;
+          *cLog << "NbSingl" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nsg << endl;
         }
       }
 
@@ -215,8 +219,8 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Watterson's (1975) theta:", thetaW75);
         //Print to logfile:
         if (logFile != "none") {
-          *clog << "# Watterson's (1975) theta" << endl;
-          *clog << "thetaW75 = " << thetaW75 << endl;
+          *cLog << "# Watterson's (1975) theta" << endl;
+          *cLog << "thetaW75" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << thetaW75 << endl;
         }
       }
 
@@ -229,8 +233,8 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Tajima's (1983) pi:", piT83);
         //Print to logfile:
         if (logFile != "none") {
-          *clog << "# Tajima's (1983) pi" << endl;
-          *clog << "piT83 = " << piT83 << endl;
+          *cLog << "# Tajima's (1983) pi" << endl;
+          *cLog << "piT83" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piT83 << endl;
         }
       }
 
@@ -239,12 +243,24 @@ int main(int args, char** argv)
       // +------------+
       else if (cmdName == "TajimaD")
       {
-        double tajimaD = SequenceStatistics::tajimaDss(*pscIn, true, true);
+        string positions = ApplicationTools::getStringParameter("positions", cmdArgs, "all", "", false, 1);
+        shared_ptr<PolymorphismSequenceContainer> pscTmp;
+        if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
+          throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
+        if (positions == "synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "non-synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "all") {
+          pscTmp = pscIn;
+        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+
+        double tajimaD = SequenceStatistics::tajimaDss(*pscTmp, true, true);
         ApplicationTools::displayResult("Tajima's (1989) D:", tajimaD);
         //Print to logfile:
         if (logFile != "none") {
-          *clog << "# Tajima's (1989) D" << endl;
-          *clog << "tajD = " << tajimaD << endl;
+          *cLog << "# Tajima's (1989) D (" << positions << " sites)" << endl;
+          *cLog << "tajD" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << tajimaD << endl;
         }
       }
 
@@ -259,11 +275,11 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
         //Print to logfile:
         if (logFile != "none") {
-          *clog << "# Fu and Li's (1993) D*" << endl;
+          *cLog << "# Fu and Li's (1993) D*" << endl;
           if (useTotMut)
-            *clog << "fuLiDstarTotMut = " << flDstar << endl;
+            *cLog << "fuLiDstarTotMut" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flDstar << endl;
           else
-            *clog << "fuLiDstarSegSit = " << flDstar << endl;
+            *cLog << "fuLiDstarSegSit" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flDstar << endl;
         }
       }
 
@@ -278,11 +294,11 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
         //Print to logfile:
         if (logFile != "none") {
-          *clog << "# Fu and Li's (1993) F*" << endl;
+          *cLog << "# Fu and Li's (1993) F*" << endl;
           if (useTotMut)
-            *clog << "fuLiFstarTotMut = " << flFstar << endl;
+            *cLog << "fuLiFstarTotMut" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flFstar << endl;
           else
-            *clog << "fuLiFstarSegSit = " << flFstar << endl;
+            *cLog << "fuLiFstarSegSit" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flFstar << endl;
         }
       }
 
@@ -305,11 +321,11 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("#S:", nbS);
         ApplicationTools::displayResult("PiN / PiS (corrected for #N and #S):", r);
         if (logFile != "none") {
-          *clog << "# PiN and PiS" << endl;
-          *clog << "PiN = " << piN << endl;
-          *clog << "PiS = " << piS << endl;
-          *clog << "NbN = " << nbN << endl;
-          *clog << "NbS = " << nbS << endl;
+          *cLog << "# PiN and PiS" << endl;
+          *cLog << "PiN" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piN << endl;
+          *cLog << "PiS" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piS << endl;
+          *cLog << "NbN" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nbN << endl;
+          *cLog << "NbS" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nbS << endl;
         }
       }
 
@@ -330,9 +346,9 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("MK table, Da:", mktable[2]);
         ApplicationTools::displayResult("MK table, Ds:", mktable[3]);
         if (logFile != "none") {
-          *clog << "# MK table" << endl;
-          *clog << "# Pa Ps Da Ds" << endl;
-          *clog << "MKtable = " << mktable[0] << " " << mktable[1] << " " << mktable[2] << " " << mktable[3] << endl;
+          *cLog << "# MK table" << endl;
+          *cLog << "# Pa Ps Da Ds" << endl;
+          *cLog << "MKtable" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << mktable[0] << " " << mktable[1] << " " << mktable[2] << " " << mktable[3] << endl;
         }
       }
 
@@ -384,7 +400,7 @@ int main(int args, char** argv)
   catch (exception& e)
   {
     if (logFile != "none")
-      *clog << "# Error: " << e.what() << endl;
+      *cLog << "# Error: " << e.what() << endl;
     cout << e.what() << endl;
     return 1;
   }
