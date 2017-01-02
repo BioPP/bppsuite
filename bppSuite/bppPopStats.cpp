@@ -255,12 +255,21 @@ int main(int args, char** argv)
           pscTmp = pscIn;
         } else throw Exception("Unrecognized option for argument 'positions': " + positions);
 
-        double tajimaD = SequenceStatistics::tajimaDss(*pscTmp, true, true);
-        ApplicationTools::displayResult("Tajima's (1989) D:", tajimaD);
-        //Print to logfile:
-        if (logFile != "none") {
-          *cLog << "# Tajima's (1989) D (" << positions << " sites)" << endl;
-          *cLog << "tajD" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << tajimaD << endl;
+        if (pscTmp->getNumberOfSites() > 0) {
+          double tajimaD = SequenceStatistics::tajimaDss(*pscTmp, true, true);
+          ApplicationTools::displayResult("Tajima's (1989) D:", tajimaD);
+          //Print to logfile:
+          if (logFile != "none") {
+            *cLog << "# Tajima's (1989) D (" << positions << " sites)" << endl;
+            *cLog << "tajD" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << tajimaD << endl;
+          }
+        } else {
+          ApplicationTools::displayResult<string>("Tajima's (1989) D:", "NA (0 valid sites)");
+          if (logFile != "none") {
+            *cLog << "# Tajima's (1989) D (" << positions << " sites)" << endl;
+            *cLog << "tajD" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = NA" << endl;
+          }
+          
         }
       }
 
