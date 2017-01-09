@@ -161,9 +161,9 @@ int main(int args, char** argv)
       SiteContainerTools::removeStopCodonSites(*psc, *gCode);
       size_t l2 = psc->getNumberOfSites();
       if (l2 != l1) {
-        ApplicationTools::displayMessage("Info: discarded " + TextTools::toString(l2 - l1) + " sites with stop codons.");
+        ApplicationTools::displayMessage("Info: discarded " + TextTools::toString(l1 - l2) + " sites with stop codons.");
         if (logFile != "none")
-          *cLog << "# Info: discarded " << (l2 - l1) << " sites with stop codons." << endl;
+          *cLog << "# Info: discarded " << (l1 - l2) << " sites with stop codons." << endl;
       }
     } else {
       throw Exception("Unrecognized option for input.sequence.stop_codons_policy: " + stopCodonOpt);

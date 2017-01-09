@@ -93,14 +93,16 @@ void readTreesMs(ifstream& file, vector<Tree*>& trees, vector<double>& pos, unsi
     start = (line == "//");
   }
   
+  ApplicationTools::displayTask("Reading tress for each partition");
   while (!file.eof())
   {
     line = TextTools::removeSurroundingWhiteSpaces(FileTools::getNextLine(file));
+    ApplicationTools::displayGauge(previous, totPos, '=');
     if (line.size() == 0 || (line.substr(0, 1) != "[" && line.substr(0, 1) != "(" )) continue;
 
     if (line.substr(0, 1) == "(") {
       //This is a single tree, no recombination event
-      TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(line);
+      TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(line, true, TreeTools::BOOTSTRAP, false, false);
       trees.push_back(t);
       pos.push_back(1);
       return;
@@ -110,7 +112,7 @@ void readTreesMs(ifstream& file, vector<Tree*>& trees, vector<double>& pos, unsi
     if (index == string::npos) throw Exception("Error when parsing tree file: no valid position.");
     segsize = TextTools::to<unsigned int>(line.substr(1, index - 1));
     newickStr = line.substr(index + 1);
-    TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(newickStr);
+    TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(newickStr, true, TreeTools::BOOTSTRAP, false, false);
     if (trees.size() > 0)
     {
       //Check leave names:
@@ -121,6 +123,8 @@ void readTreesMs(ifstream& file, vector<Tree*>& trees, vector<double>& pos, unsi
     previous += segsize;
     pos.push_back(static_cast<double>(previous) / static_cast<double>(totPos)); //Convert to relative positions
   }
+  ApplicationTools::displayGauge(totPos, totPos, '=');
+  ApplicationTools::displayTaskDone();
 }
 
 /**
@@ -154,7 +158,7 @@ void readTreesCoaSim(ifstream& file, vector<Tree*>& trees, vector<double>& pos) 
       index3 = line.find_first_of(";", index3);
     }
     newickStr = line.substr(index2 + 1, index3 - index2);
-    TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(newickStr);
+    TreeTemplate<Node>* t = TreeTemplateTools::parenthesisToTree(newickStr, true, TreeTools::BOOTSTRAP, false, false);
     if (trees.size() > 0)
     {
       //Check leave names:
