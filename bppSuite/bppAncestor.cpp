@@ -89,7 +89,6 @@ using namespace std;
 #include <Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
 
 using namespace bpp;
