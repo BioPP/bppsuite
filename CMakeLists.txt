@@ -84,6 +84,8 @@ IF(MAN)
       COMMAND ${DOC_COMPRESS} -f bppancestor.1
       COMMAND cp bppreroot.1.txt bppreroot.1
       COMMAND ${DOC_COMPRESS} -f bppreroot.1
+      COMMAND cp bppphysamp.1.txt bppphysamp.1
+      COMMAND ${DOC_COMPRESS} -f bppphysamp.1
       COMMAND cp bpptreedraw.1.txt bpptreedraw.1
       COMMAND ${DOC_COMPRESS} -f bpptreedraw.1
       COMMAND cp bppalnscore.1.txt bppalnscore.1
@@ -95,7 +97,7 @@ IF(MAN)
     SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "man/bppml.1.${DOC_COMPRESS_EXT};man/bppseqgen.1.${DOC_COMPRESS_EXT};man/bppdist.1.${DOC_COMPRESS_EXT};man/bpppars.1.${DOC_COMPRESS_EXT};man/bppseqman.1.${DOC_COMPRESS_EXT};man/bppconsense.1.${DOC_COMPRESS_EXT};man/bppancestor.1.${DOC_COMPRESS_EXT};man/bppreroot.1.${DOC_COMPRESS_EXT};man/bppphysamp.1.${DOC_COMPRESS_EXT};man/bpptreedraw.1.${DOC_COMPRESS_EXT};man/bppalnscore.1.${DOC_COMPRESS_EXT};man/bppmixedlikelihoods.1.${DOC_COMPRESS_EXT}")
 
   ELSE()
-    MESSAGE(FATAL_ERROR "Program nroff required but not found.")
+    MESSAGE(FATAL_ERROR "Program nroff required for \"MAN\" macro but not found.")
   ENDIF()
 ENDIF(MAN)
 
@@ -119,7 +121,7 @@ IF(INFO)
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
       )
   ELSE(MAKEINFO_EXE)
-    MESSAGE(FATAL_ERROR p"Program makeinfo required but not found.")
+    MESSAGE(FATAL_ERROR "Program makeinfo for \"INFO\" macro required but not found.")
   ENDIF(MAKEINFO_EXE)
 ENDIF(INFO)
 
@@ -177,7 +179,7 @@ ENDIF(CMAKE_INSTALL_PREFIX)
 
 #Find the libraries. The order is very important for static linkage, it won't
 #link if you change it!
-IMPROVED_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree.h)
+IMPROVED_FIND_LIBRARY(LIBS bpp-phyl Bpp/Phyl/Tree/Tree.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-seq Bpp/Seq/Alphabet/Alphabet.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-core Bpp/Clonable.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-popgen Bpp/PopGen/PolymorphismSequenceContainer.h)
