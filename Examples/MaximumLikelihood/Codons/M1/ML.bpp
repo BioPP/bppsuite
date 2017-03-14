@@ -42,7 +42,7 @@ init.brlen.method = Input
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = YNGKP_M1(kappa=1, omega=0.5, frequencies=F1X4, p0=0.5, initFreqs=observed, observedPseudoCount=1)
+model = YNGP_M1(kappa=1, omega=0.5, frequencies=F1X4, p0=0.5, initFreqs=observed, observedPseudoCount=1)
 nonhomogeneous=no
 
 rate_distribution = Constant //Gamma(n=4, alpha=0.358)
@@ -85,7 +85,7 @@ optimization.final = none
 optimization.verbose = 3
 
 # Parameters to ignore (for instance equilibrium frequencies)
-optimization.ignore_parameter = YNGKP_M1.*Full*
+optimization.ignore_parameter = YNGP_M1.*Full*
 
 # Maximum number of likelihood evaluations:
 optimization.max_number_f_eval = 10000

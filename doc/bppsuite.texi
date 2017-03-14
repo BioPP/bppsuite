@@ -900,28 +900,28 @@ Yang and Nielsen (1998) substitution model for codons (default values:
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YN98.html#_details, Bio++ description}.
 
 
-@item YNGKP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
+@item YNGP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
 The M0 model of PAML, ie the same as YN98. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YN98.html#_details, Bio++ description}.
 
 
-@item YNGKP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, "equilibrium frequencies"])
 The M1a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000) (default values: @var{kappa}=1, @var{p0}=0.5,
 @var{omega}=0.5). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M1.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M1.html#_details, Bio++ description}.
 
 
-@item YNGKP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M2a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with  p0=theta1  and
 p1=(1-theta1)*theta2 (default values: @var{kappa}=1, @var{theta1}=0.33333,
 @var{theta2}=0.5, @var{omega0}=0.5, @var{omega2}=0.5). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M2.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M2.html#_details, Bio++ description}.
   
 
-@item YNGKP_M3([genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M3([genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M3 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with @var{n} discrete values, with p0=theta1
@@ -929,24 +929,24 @@ and pk=(1-theta1)*...*(1-thetak)*theta(k+1), and
 omegak=omega0+delta1+....+deltak (default values: @var{n}=3,
 @var{kappa}=1, @var{thetak}=1/(n-k+1), @var{omega0}=0.5,
 @var{deltak}=0.5). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M3.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M3.html#_details, Bio++ description}.
 
 
-@item YNGKP_M7(n=@{integer>0@}, genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
+@item YNGP_M7(n=@{integer>0@}, genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M7 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M7.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M7.html#_details, Bio++ description}.
 
 
-@item YNGKP_M8(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
+@item YNGP_M8(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M8 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
 @var{p0}=0.5, @var{omegas}=2). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M8.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M8.html#_details, Bio++ description}.
 
 
 @end table
