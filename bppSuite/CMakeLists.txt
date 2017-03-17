@@ -1,57 +1,25 @@
 # CMake script for Bio++ Program Suite
-# Author: Julien Dutheil
+# Authors:
+#   Julien Dutheil
+#   Francois Gindraud (2017)
 # Created: 22/08/2009
 
-ADD_EXECUTABLE(bppml bppML.cpp)
-TARGET_LINK_LIBRARIES(bppml ${LIBS})
-SET_TARGET_PROPERTIES(bppml PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
+# Executables of bppsuite.
+# Generation of targets from file name is not automated in case of executables not following the pattern.
+add_executable (bppml bppML.cpp)
+add_executable (bppseqgen bppSeqGen.cpp)
+add_executable (bppdist bppDist.cpp)
+add_executable (bpppars bppPars.cpp)
+add_executable (bppseqman bppSeqMan.cpp)
+add_executable (bppconsense bppConsense.cpp)
+add_executable (bppancestor bppAncestor.cpp)
+add_executable (bppmixedlikelihoods bppMixedLikelihoods.cpp)
+add_executable (bppreroot bppReRoot.cpp)
+add_executable (bpptreedraw bppTreeDraw.cpp)
+add_executable (bppalnscore bppAlnScore.cpp)
+add_executable (bpppopstats bppPopStats.cpp)
 
-ADD_EXECUTABLE(bppseqgen bppSeqGen.cpp)
-TARGET_LINK_LIBRARIES(bppseqgen ${LIBS})
-SET_TARGET_PROPERTIES(bppseqgen PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bppdist bppDist.cpp)
-TARGET_LINK_LIBRARIES(bppdist ${LIBS})
-SET_TARGET_PROPERTIES(bppdist PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bpppars bppPars.cpp)
-TARGET_LINK_LIBRARIES(bpppars ${LIBS})
-SET_TARGET_PROPERTIES(bpppars PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bppseqman bppSeqMan.cpp)
-TARGET_LINK_LIBRARIES(bppseqman ${LIBS})
-SET_TARGET_PROPERTIES(bppseqman PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bppconsense bppConsense.cpp)
-TARGET_LINK_LIBRARIES(bppconsense ${LIBS})
-SET_TARGET_PROPERTIES(bppconsense PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bppancestor bppAncestor.cpp)
-TARGET_LINK_LIBRARIES(bppancestor ${LIBS})
-SET_TARGET_PROPERTIES(bppancestor PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bppmixedlikelihoods bppMixedLikelihoods.cpp)
-TARGET_LINK_LIBRARIES(bppmixedlikelihoods ${LIBS})
-SET_TARGET_PROPERTIES(bppmixedlikelihoods PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bppreroot bppReRoot.cpp)
-TARGET_LINK_LIBRARIES(bppreroot ${LIBS})
-SET_TARGET_PROPERTIES(bppreroot PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bpptreedraw bppTreeDraw.cpp)
-TARGET_LINK_LIBRARIES(bpptreedraw ${LIBS})
-SET_TARGET_PROPERTIES(bpptreedraw PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bppalnscore bppAlnScore.cpp)
-TARGET_LINK_LIBRARIES(bppalnscore ${LIBS})
-SET_TARGET_PROPERTIES(bppalnscore PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-ADD_EXECUTABLE(bpppopstats bppPopStats.cpp)
-TARGET_LINK_LIBRARIES(bpppopstats ${LIBS})
-SET_TARGET_PROPERTIES(bpppopstats PROPERTIES LINK_SEARCH_END_STATIC ${BUILD_STATIC})
-
-# Install progs
-INSTALL(TARGETS
+set (bppsuite-targets
   bppml
   bppseqgen
   bppdist
@@ -64,4 +32,18 @@ INSTALL(TARGETS
   bpptreedraw
   bppalnscore
   bpppopstats
-  DESTINATION bin)
+  )
+
+foreach (target ${bppsuite-targets})
+  # Link (static or shared)
+  if (BUILD_STATIC)
+    target_link_libraries (${target} ${BPP_LIBS_STATIC})
+    set_target_properties (${target} LINK_SEARCH_END_STATIC TRUE)
+  else (BUILD_STATIC)
+    target_link_libraries (${target} ${BPP_LIBS_SHARED})
+  endif (BUILD_STATIC)
+  # Private compile flags
+  target_compile_options (${target} PRIVATE ${private-compile-options})
+endforeach (target)
+
+install (TARGETS ${bppsuite-targets} DESTINATION bin)
