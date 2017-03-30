@@ -58,6 +58,7 @@ using namespace std;
 
 // From bpp-popgen
 #include <Bpp/PopGen/PolymorphismSequenceContainer.h>
+#include <Bpp/PopGen/PolymorphismSequenceContainerTools.h>
 #include <Bpp/PopGen/SequenceStatistics.h>
 
 using namespace bpp;
@@ -86,11 +87,19 @@ int main(int args, char** argv)
     return 0;
   }
 
+  BppApplication bpppopstats(args, argv, "BppPopStats");
+  bpppopstats.startTimer();
+
+  string logFile = ApplicationTools::getAFilePath("logfile", bpppopstats.getParams(), false, false);
+  unique_ptr<ofstream> cLog;
+  if (logFile != "none")
+    cLog.reset(new ofstream(logFile.c_str(), ios::out));
+
+  //This counts instances of each tool, in case one is used several times, for instance with different options:
+  map<string, unsigned int> toolCounter;
+
   try
   {
-    BppApplication bpppopstats(args, argv, "BppPopStats");
-    bpppopstats.startTimer();
-
     // Get alphabet
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bpppopstats.getParams(), "", false, true, true);
 
@@ -103,10 +112,77 @@ int main(int args, char** argv)
       gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
     }
 
-    // Get the ingroup alignment:
-    unique_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
-    unique_ptr<PolymorphismSequenceContainer> psc(new PolymorphismSequenceContainer(*sites));
+    unique_ptr<PolymorphismSequenceContainer> psc;
+    if (ApplicationTools::parameterExists("input.sequence.file.ingroup", bpppopstats.getParams())) {
+      // Get the ingroup alignment:
+      unique_ptr<SiteContainer> sitesIn(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
+      psc.reset(new PolymorphismSequenceContainer(*sitesIn));
+      if (ApplicationTools::parameterExists("input.sequence.file.outgroup", bpppopstats.getParams())) {
+        // Get the outgroup alignment:
+        unique_ptr<SiteContainer> sitesOut(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".outgroup", false, true));
+        SequenceContainerTools::append(*psc, *sitesOut);
+        for (size_t i = sitesIn->getNumberOfSequences(); i < psc->getNumberOfSequences(); ++i) {
+          psc->setAsOutgroupMember(i);
+        }
+      }
+    } else {
+      //Everything in one file
+      unique_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), "", false, true));
+      psc.reset(new PolymorphismSequenceContainer(*sites));
+      if (ApplicationTools::parameterExists("input.sequence.outgroup.index", bpppopstats.getParams())) {
+        vector<size_t> outgroups = ApplicationTools::getVectorParameter<size_t>("input.sequence.outgroup.index", bpppopstats.getParams(), ',', "");
+        for (auto g : outgroups) {
+          psc->setAsOutgroupMember(g-1);
+        }
+      }
+      if (ApplicationTools::parameterExists("input.sequence.outgroup.name", bpppopstats.getParams())) {
+        vector<string> outgroups = ApplicationTools::getVectorParameter<string>("input.sequence.outgroup.name", bpppopstats.getParams(), ',', "");
+        for (auto g : outgroups) {
+          psc->setAsOutgroupMember(g);
+        }
+      }
+    }
 
+    // Take care of stop codons:
+    string stopCodonOpt = ApplicationTools::getStringParameter("input.sequence.stop_codons_policy", bpppopstats.getParams(), "Keep", "", true, true);
+    ApplicationTools::displayResult("Stop codons policy", stopCodonOpt);
+
+    if (stopCodonOpt == "Keep") {
+      //do nothing
+    } else if (stopCodonOpt == "RemoveIfLast") {
+      if (CodonSiteTools::hasStop(psc->getSite(psc->getNumberOfSites() - 1), *gCode)) {
+        psc->deleteSite(psc->getNumberOfSites() - 1);
+        ApplicationTools::displayMessage("Info: last site contained a stop codon and was discarded.");
+        if (logFile != "none")
+          *cLog << "# Info: last site contained a stop codon and was discarded." << endl;
+      }
+    } else if (stopCodonOpt == "RemoveAll") {
+      size_t l1 = psc->getNumberOfSites();
+      SiteContainerTools::removeStopCodonSites(*psc, *gCode);
+      size_t l2 = psc->getNumberOfSites();
+      if (l2 != l1) {
+        ApplicationTools::displayMessage("Info: discarded " + TextTools::toString(l1 - l2) + " sites with stop codons.");
+        if (logFile != "none")
+          *cLog << "# Info: discarded " << (l1 - l2) << " sites with stop codons." << endl;
+      }
+    } else {
+      throw Exception("Unrecognized option for input.sequence.stop_codons_policy: " + stopCodonOpt);
+    }
+
+    shared_ptr<PolymorphismSequenceContainer> pscIn;
+    shared_ptr<PolymorphismSequenceContainer> pscOut;
+
+    if (psc->hasOutgroup()) {
+      pscIn.reset(PolymorphismSequenceContainerTools::extractIngroup(*psc));
+      pscOut.reset(PolymorphismSequenceContainerTools::extractOutgroup(*psc));
+    } else {
+      pscIn = std::move(psc);
+    }
+    ApplicationTools::displayResult("Number of sequences in ingroup", pscIn->getNumberOfSequences());
+    ApplicationTools::displayResult("Number of sequences in outgroup", pscOut.get() ? pscOut->getNumberOfSequences() : 0);
+    
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    
     // Compute statistics
     vector<string> actions = ApplicationTools::getVectorParameter<string>("pop.stats", bpppopstats.getParams(), ',', "", "", false, 1);
 
@@ -115,16 +191,23 @@ int main(int args, char** argv)
       string cmdName;
       map<string, string> cmdArgs;
       KeyvalTools::parseProcedure(actions[a], cmdName, cmdArgs);
+      toolCounter[cmdName]++;
 
       // +-------------------+
       // | Frequencies       |
       // +-------------------+
       if (cmdName == "SiteFrequencies")
       {
-        unsigned int s = SequenceStatistics::numberOfPolymorphicSites(*psc);
+        unsigned int s = SequenceStatistics::numberOfPolymorphicSites(*pscIn);
         ApplicationTools::displayResult("Number of segregating sites:", s);
-        unsigned int nsg = SequenceStatistics::numberOfSingletons(*psc);
+        unsigned int nsg = SequenceStatistics::numberOfSingletons(*pscIn);
         ApplicationTools::displayResult("Number of singletons:", nsg);
+        //Print to logfile:
+        if (logFile != "none") {
+          *cLog << "# Site frequencies" << endl;
+          *cLog << "NbSegSites" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << s << endl;
+          *cLog << "NbSingl" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nsg << endl;
+        }
       }
 
       // +-------------------+
@@ -132,17 +215,27 @@ int main(int args, char** argv)
       // +-------------------+
       else if (cmdName == "Watterson75")
       {
-        double thetaW75 = SequenceStatistics::watterson75(*psc, true, true, true);
-        ApplicationTools::displayResult("Watterson (1975)'s theta:", thetaW75);
+        double thetaW75 = SequenceStatistics::watterson75(*pscIn, true, true, true);
+        ApplicationTools::displayResult("Watterson's (1975) theta:", thetaW75);
+        //Print to logfile:
+        if (logFile != "none") {
+          *cLog << "# Watterson's (1975) theta" << endl;
+          *cLog << "thetaW75" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << thetaW75 << endl;
+        }
       }
 
-      // +----------------+
-      // | Tajima's theta |
-      // +----------------+
+      // +-------------+
+      // | Tajima's pi |
+      // +-------------+
       else if (cmdName == "Tajima83")
       {
-        double thetaT83 = SequenceStatistics::tajima83(*psc, true, true, true);
-        ApplicationTools::displayResult("Tajima (1983)'s theta:", thetaT83);
+        double piT83 = SequenceStatistics::tajima83(*pscIn, true, true, true);
+        ApplicationTools::displayResult("Tajima's (1983) pi:", piT83);
+        //Print to logfile:
+        if (logFile != "none") {
+          *cLog << "# Tajima's (1983) pi" << endl;
+          *cLog << "piT83" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piT83 << endl;
+        }
       }
 
       // +------------+
@@ -150,8 +243,34 @@ int main(int args, char** argv)
       // +------------+
       else if (cmdName == "TajimaD")
       {
-        double tajimaD = SequenceStatistics::tajimaDss(*psc, true, true);
-        ApplicationTools::displayResult("Tajima (1989)'s D:", tajimaD);
+        string positions = ApplicationTools::getStringParameter("positions", cmdArgs, "all", "", false, 1);
+        shared_ptr<PolymorphismSequenceContainer> pscTmp;
+        if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
+          throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
+        if (positions == "synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "non-synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "all") {
+          pscTmp = pscIn;
+        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+
+        if (SequenceStatistics::numberOfPolymorphicSites(*pscTmp) > 0) {
+          double tajimaD = SequenceStatistics::tajimaDss(*pscTmp, true, true);
+          ApplicationTools::displayResult("Tajima's (1989) D:", tajimaD);
+          //Print to logfile:
+          if (logFile != "none") {
+            *cLog << "# Tajima's (1989) D (" << positions << " sites)" << endl;
+            *cLog << "tajD" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << tajimaD << endl;
+          }
+        } else {
+          ApplicationTools::displayResult<string>("Tajima's (1989) D:", "NA (0 polymorphic sites)");
+          if (logFile != "none") {
+            *cLog << "# Tajima's (1989) D (" << positions << " sites)" << endl;
+            *cLog << "tajD" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = NA" << endl;
+          }
+          
+        }
       }
 
       // +-----------+
@@ -160,9 +279,17 @@ int main(int args, char** argv)
       else if (cmdName == "FuAndLiDStar")
       {
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
-        double flDstar = SequenceStatistics::fuLiDStar(*psc, !useTotMut);
-        ApplicationTools::displayResult("Fu and Li (1993)'s D*:", flDstar);
+        double flDstar = SequenceStatistics::fuLiDStar(*pscIn, !useTotMut);
+        ApplicationTools::displayResult("Fu and Li's (1993) D*:", flDstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
+        //Print to logfile:
+        if (logFile != "none") {
+          *cLog << "# Fu and Li's (1993) D*" << endl;
+          if (useTotMut)
+            *cLog << "fuLiDstarTotMut" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flDstar << endl;
+          else
+            *cLog << "fuLiDstarSegSit" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flDstar << endl;
+        }
       }
 
       // +-----------+
@@ -171,9 +298,17 @@ int main(int args, char** argv)
       else if (cmdName == "FuAndLiFStar")
       {
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
-        double flFstar = SequenceStatistics::fuLiFStar(*psc, !useTotMut);
+        double flFstar = SequenceStatistics::fuLiFStar(*pscIn, !useTotMut);
         ApplicationTools::displayResult("Fu and Li (1993)'s F*:", flFstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
+        //Print to logfile:
+        if (logFile != "none") {
+          *cLog << "# Fu and Li's (1993) F*" << endl;
+          if (useTotMut)
+            *cLog << "fuLiFstarTotMut" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flFstar << endl;
+          else
+            *cLog << "fuLiFstarSegSit" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flFstar << endl;
+        }
       }
 
       // +-----------+
@@ -184,19 +319,51 @@ int main(int args, char** argv)
         if (!codonAlphabet) {
           throw Exception("PiN_PiS can only be used with a codon alignment. Check the input alphabet!");
         }
-        double piS = SequenceStatistics::piSynonymous(*psc, *gCode);
-        double piN = SequenceStatistics::piNonSynonymous(*psc, *gCode);
-        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*psc, *gCode);
-        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*psc, *gCode);
+        double piS = SequenceStatistics::piSynonymous(*pscIn, *gCode);
+        double piN = SequenceStatistics::piNonSynonymous(*pscIn, *gCode);
+        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*pscIn, *gCode);
+        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*pscIn, *gCode);
         double r = (piN / nbN) / (piS / nbS);
         ApplicationTools::displayResult("PiN:", piN);
         ApplicationTools::displayResult("PiS:", piS);
+        ApplicationTools::displayResult("#N:", nbN);
+        ApplicationTools::displayResult("#S:", nbS);
         ApplicationTools::displayResult("PiN / PiS (corrected for #N and #S):", r);
+        if (logFile != "none") {
+          *cLog << "# PiN and PiS" << endl;
+          *cLog << "PiN" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piN << endl;
+          *cLog << "PiS" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piS << endl;
+          *cLog << "NbN" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nbN << endl;
+          *cLog << "NbS" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nbS << endl;
+        }
       }
 
-      // +---------------------+
+      // +---------+
+      // | MK test |
+      // +---------+
+      else if (cmdName == "MKT")
+      {
+        if (!codonAlphabet) {
+          throw Exception("MacDonald-Kreitman test can only be performed on a codon alignment. Check the input alphabet!");
+        }
+        if (!pscOut.get()) {
+          throw Exception("MacDonald-Kreitman test requires at least one outgroup sequence.");
+        }
+        vector<unsigned int> mktable = SequenceStatistics::mkTable(*pscIn, *pscOut, *gCode);
+        ApplicationTools::displayResult("MK table, Pa:", mktable[0]);
+        ApplicationTools::displayResult("MK table, Ps:", mktable[1]);
+        ApplicationTools::displayResult("MK table, Da:", mktable[2]);
+        ApplicationTools::displayResult("MK table, Ds:", mktable[3]);
+        if (logFile != "none") {
+          *cLog << "# MK table" << endl;
+          *cLog << "# Pa Ps Da Ds" << endl;
+          *cLog << "MKtable" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << mktable[0] << " " << mktable[1] << " " << mktable[2] << " " << mktable[3] << endl;
+        }
+      }
+
+      // +-----------------------+
       // | Codon site statistics |
-      // +---------------------+
+      // +-----------------------+
       else if (cmdName == "CodonSiteStatistics")
       {
         if (!codonAlphabet) {
@@ -206,11 +373,26 @@ int main(int args, char** argv)
         if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics"); 
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
-        out << "Site\tIsConstant\tIsSynPoly\tIs4Degenerated\tPiN\tPiS" << endl;
+        out << "Site\tIsComplete\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
+        bool outgroup = (psc->hasOutgroup() && pscOut->getNumberOfSequences() == 1);
+        if (outgroup) {
+          out << "\tOutgroupAllele";
+        }
+        out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS" << endl;
+        unique_ptr<SiteContainer> sites(pscIn->toSiteContainer());
         for (size_t i = 0; i < sites->getNumberOfSites(); ++i) {
           const Site& site = sites->getSite(i);
           out << site.getPosition() << "\t";
-          out << SiteTools::isConstant(site) << "\t";
+          out << SiteTools::isComplete(site) << "\t";
+          out << SiteTools::getNumberOfDistinctCharacters(site) << "\t";
+          out << SiteTools::getMinorAlleleFrequency(site) << "\t";
+          out << SiteTools::getMajorAlleleFrequency(site) << "\t";
+          out << alphabet->intToChar(SiteTools::getMinorAllele(site)) << "\t";
+          out << alphabet->intToChar(SiteTools::getMajorAllele(site)) << "\t";
+          if (outgroup) {
+           out << pscOut->getSequence(0).getChar(i) << "\t"; 
+          }
+          out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode) << "\t";
           out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
           out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
           out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
@@ -226,6 +408,8 @@ int main(int args, char** argv)
   }
   catch (exception& e)
   {
+    if (logFile != "none")
+      *cLog << "# Error: " << e.what() << endl;
     cout << e.what() << endl;
     return 1;
   }

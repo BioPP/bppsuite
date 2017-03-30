@@ -12,7 +12,6 @@
 * bppdist: (bppdist)            Bio++ Distance Methods.
 * bpppars: (bpppars)            Bio++ Maximum Parsimony.
 * bppconsense: (bppconsense)    Bio++ Consensus Trees.
-* bppphysamp: (bppphysamp)      Bio++ Phylogenetic Sampler.
 * bppreroot: (bppreroot)        Bio++ Serial Tree Re-rooting.
 * bppseqman: (bppseqman)        Bio++ Sequences Manipulation.
 * bppalnscore: (bppalnscore)    Bio++ Alignment Scoring
@@ -97,7 +96,6 @@ Bio++ Program Suite Reference
 * bppdist::                     Bio++ Distance Methods.
 * bpppars::                     Bio++ Maximum Parsimony.
 * bppconsense::                 Bio++ Consensus Trees.
-* bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
 * bppalnscore::                 Bio++ Alignment Scoring
@@ -939,28 +937,28 @@ Yang and Nielsen (1998) substitution model for codons (default values:
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YN98.html#_details, Bio++ description}.
 
 
-@item YNGKP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
+@item YNGP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
 The M0 model of PAML, ie the same as YN98. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YN98.html#_details, Bio++ description}.
 
 
-@item YNGKP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, "equilibrium frequencies"])
 The M1a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000) (default values: @var{kappa}=1, @var{p0}=0.5,
 @var{omega}=0.5). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M1.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M1.html#_details, Bio++ description}.
 
 
-@item YNGKP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M2a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with  p0=theta1  and
 p1=(1-theta1)*theta2 (default values: @var{kappa}=1, @var{theta1}=0.33333,
 @var{theta2}=0.5, @var{omega0}=0.5, @var{omega2}=0.5). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M2.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M2.html#_details, Bio++ description}.
   
 
-@item YNGKP_M3([genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M3([genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M3 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with @var{n} discrete values, with p0=theta1
@@ -968,24 +966,24 @@ and pk=(1-theta1)*...*(1-thetak)*theta(k+1), and
 omegak=omega0+delta1+....+deltak (default values: @var{n}=3,
 @var{kappa}=1, @var{thetak}=1/(n-k+1), @var{omega0}=0.5,
 @var{deltak}=0.5). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M3.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M3.html#_details, Bio++ description}.
 
 
-@item YNGKP_M7(n=@{integer>0@}, genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
+@item YNGP_M7(n=@{integer>0@}, genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M7 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M7.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M7.html#_details, Bio++ description}.
 
 
-@item YNGKP_M8(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
+@item YNGP_M8(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M8 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
 @var{p0}=0.5, @var{omegas}=2). See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGKP__M8.html#_details, Bio++ description}.
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M8.html#_details, Bio++ description}.
 
 
 @end table
@@ -2276,7 +2274,6 @@ This section now details the specific options for each program in the Bio++ Prog
 * bppdist::                     Bio++ Distance Methods.
 * bpppars::                     Bio++ Maximum Parsimony.
 * bppconsense::                 Bio++ Consensus Trees.
-* bppphysamp::                  Bio++ Phylogenetic Sampler.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
 * bppalnscore::                 Bio++ Alignment Scoring
@@ -2664,7 +2661,7 @@ Where to write bootstrap trees.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bppconsense, bppphysamp, bpppars, Reference
+@node bppconsense, bppreroot, bpppars, Reference
 @section BppConsense: Bio++ Consensus Trees
 
 Probably one of the simplest program to use in the suite, just takes a list of trees (for instance produced by BppML, BppDist or BppPars with the bootstrap option enabled) and compute bootstrap values for a reference tree, provided as input, or constructed using a consensus method.
@@ -2692,40 +2689,7 @@ Build a consensus tree according to a given threshold.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bppphysamp, bppreroot, bppconsense, Reference
-@section BppPhySamp: Bio++ Phylogenetic Sampler
- 
-The Bio++ Phylogenetic Sampler samples sequences from a file according to phylogenetic information.
-The goal is to clean a big data set by removing redundant sequences, bringing only few additional information for evolutionary analyses.
-
-The BppPhySamp programs uses the common options for setting the alphabet, loading the sequences (@pxref{Sequences}) and (@pxref{Tree}) and writing the resulting data set (@pxref{WritingSequences}, @pxref{WritingTrees}).
-
-@table @command
-
-@item input.method = @{tree|matrix@}
-The method to provide phylogenetic information, either by a tree or a matrix.
-If the @option{tree} option is used, then the options for reading trees are used (@pxref{Tree}).
-
-@item input.matrix = @{path@} [[input.method = matrix]]
-The input matrix file.
-
-@item deletion_method = @{random|threshold|sample@}
-Method to use to remove sequence. 
-
-@item threshold = @{float>0@} [[deletion_method = threshold ]]
-The minimum distance separating two sequences in the sampled data set.
-Any sequences closer than this threshold in the original data set will be confronted so that only one is kept.
-
-@item sample_size = @{int>0@} [[deletion_method = sample|random ]]
-The number of sequences to keep in the final data set.
-
-@item choice_criterion = @{length|length.complete|random@}
-How to chose between closely related sequences? @option{length} takes the longest (maximum number of non-gap positions), @option{length.complete} takes the sequence with the maximum number of fully resolved positions and @option{random} picks one sequence at random.
-@end table 
-
-@c ------------------------------------------------------------------------------------------------------------------
-
-@node bppreroot, bppseqman, bppphysamp, Reference
+@node bppreroot, bppseqman, bppconsense, Reference
 @section BppReroot: Bio++ Serial Tree Re-rooting
  
 @table @command
