@@ -301,7 +301,7 @@ int main(int args, char ** argv)
   //Homogeneous case:
   if (nhOpt == "no")
   {
-    SubstitutionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
+    TransitionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
     FrequenciesSet* fSet = new FixedFrequenciesSet(model->getStateMap().clone(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
@@ -310,7 +310,7 @@ int main(int args, char ** argv)
   {
     if(itName == "MS" || itName == "CoaSim")
       throw Exception("Multiple input trees cannot be used with non-homogeneous simulations.");
-    SubstitutionModel* model = 0;
+    TransitionModel* model = 0;
     string modelName = ApplicationTools::getStringParameter("model", bppseqgen.getParams(), "");
     if (!TextTools::hasSubstring(modelName,"COaLA"))
       model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());

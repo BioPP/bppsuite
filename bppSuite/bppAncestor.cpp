@@ -164,7 +164,7 @@ int main(int args, char ** argv)
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppancestor.getParams(), "no", "", true, false);
   ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-  SubstitutionModel    *model    = 0;
+  TransitionModel    *model    = 0;
   SubstitutionModelSet *modelSet = 0;
   DiscreteDistribution *rDist    = 0;
   size_t nbStates;

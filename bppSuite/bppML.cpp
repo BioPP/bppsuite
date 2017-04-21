@@ -244,7 +244,7 @@ int main(int args, char** argv)
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, 1);
     unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppml.getParams(), 0, "", true, 1);
 
-    SubstitutionModel*    model    = 0;
+    TransitionModel*    model    = 0;
     SubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist    = 0;
 
