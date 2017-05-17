@@ -11,16 +11,16 @@ This software is a computer program whose purpose is to simulate sequence
 data according to a phylogenetic tree and an evolutionary model.
 
 This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -29,9 +29,9 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
@@ -92,17 +92,21 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
 
   vector<string> vSimulName=ApplicationTools::matchingParameters("simul*", params);
 
+  if (vSimulName.size() == 0) {
+    ApplicationTools::displayWarning("Did not find any parameters matching `simul*`, so simulation is a no-op.");
+  }
+
   SequenceSimulator* ss;
-  
+
   for (size_t nS=0; nS< vSimulName.size(); nS++)
   {
     size_t poseq=vSimulName[nS].find("=");
     string suff = vSimulName[nS].substr(5,poseq-5);
 
     size_t num=static_cast<size_t>(TextTools::toInt(suff));
-    
+
     string simulDesc=ApplicationTools::getStringParameter(vSimulName[nS], params, "", "", true, true);
-    
+
     map<string, string> args;
     string simulName;
 
@@ -114,7 +118,7 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
       throw BadIntegerException("bppseqgen::readSimul. Missing process argument for simul:",(int)num);
 
     size_t indProcess=(size_t)ApplicationTools::getIntParameter("process", args, 1, "", true, 0);
-  
+
     if (! spc.hasSubstitutionProcessNumber(indProcess))
     {
       if (mSeqEvol.find(indProcess)==mSeqEvol.end())
@@ -124,11 +128,11 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
     }
     else
       ss=new SimpleSubstitutionProcessSequenceSimulator(spc.getSubstitutionProcess(indProcess));
-    
+
     // output
-    
+
     mfnames[num] = ApplicationTools::getAFilePath("output.sequence.file", args, true, false, "", false, "none", true);
-    
+
     mformats[num] = ApplicationTools::getStringParameter("output.sequence.format", args, "Fasta", "", false, true);
 
     mSim[num]=ss;
@@ -159,13 +163,13 @@ int main(int args, char ** argv)
   cout << "*          M. Groussin                                           *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
-  
+
   if(args == 1)
   {
     help();
     return 0;
   }
-  
+
   try {
 
     BppApplication bppseqgen(args, argv, "BppSeqGen");
@@ -173,38 +177,38 @@ int main(int args, char ** argv)
     map<string, string> unparsedparams;
 
     ///// Alphabet
-    
+
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqgen.getParams(), "", false);
     auto_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqgen.getParams(), "Standard", "", true, true);
       ApplicationTools::displayResult("Genetic Code", codeDesc);
-      
+
     gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
   }
 
 
-  ////// Get the map of the sequences 
+  ////// Get the map of the sequences
 
   map<size_t, SiteContainer*> mSites; // = SequenceApplicationTools::getSiteContainers(alphabet, bppseqgen.getParams());
 
-    
+
   // if (mSites.size() == 0)
   //   throw Exception("Missing data input.sequence.file option");
 
   /////// Get the map of initial trees
-    
+
   map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppseqgen.getParams(), mSites, unparsedparams);
 
 
   /**********************************/
   /*  Processes                     */
   /**********************************/
-  
+
   SubstitutionProcessCollection* SPC = 0;
   map<size_t, SequenceEvolution*> mSeqEvol;
-  
+
   map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(bppseqgen.getParams());
 
   map<size_t, SubstitutionModel*> mMod = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), mSites, bppseqgen.getParams(), unparsedparams);
@@ -229,7 +233,7 @@ int main(int args, char ** argv)
   vector<size_t> states;
   vector<double> rates;
 
-  
+
   if (infosFile != "none")
   {
     ApplicationTools::displayResult("Site information", infosFile);
@@ -241,7 +245,7 @@ int main(int args, char ** argv)
     string stateCol = ApplicationTools::getStringParameter("input.infos.states", bppseqgen.getParams(), "none", "", true, true);
     withRates = rateCol != "none";
     withStates = stateCol != "none";
-  
+
     if (withRates)
     {
       rates.resize(nbSites);
@@ -293,11 +297,11 @@ int main(int args, char ** argv)
             vector<size_t> vPos;
             for (size_t p = 0; p < nbSites; ++p)
               vPos.push_back(p);
-          
+
             RandomTools::getSample(vPos, vSite, replace);
           }
         }
-        
+
         nbSites = vSite.size();
 
         vector<size_t> newStates(nbSites);
@@ -316,52 +320,46 @@ int main(int args, char ** argv)
   }
   else
   {
-    try {
-      VectorSiteContainer* allSeq = 0;
-      allSeq = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
-      
-      if (allSeq->getNumberOfSequences() > 0)
-      {  
-        Sequence* pseq = SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
-        
-        nbSites = pseq->size();
-        states.resize(nbSites);
-        withStates = true;
-        
-	for (size_t i = 0; i < nbSites; ++i) {
-          states[i] = RandomTools::pickOne<size_t>(mMod.begin()->second->getModelStates((*pseq)[i]));
-        }
-        ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
-        
-        delete pseq;
-      }
-    }
-    catch (Exception& e)
+    VectorSiteContainer* allSeq = 0;
+    allSeq = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
+
+    if (allSeq->getNumberOfSequences() > 0)
     {
+      Sequence* pseq = SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
+
+      nbSites = pseq->size();
+      states.resize(nbSites);
+      withStates = true;
+
+      for (size_t i = 0; i < nbSites; ++i) {
+        states[i] = RandomTools::pickOne<size_t>(mMod.begin()->second->getModelStates((*pseq)[i]));
+      }
+      ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
+
+      delete pseq;
     }
-      
   }
 
   if (nbSites == 0)
     nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
-  
+
   /*******************/
   /* Simulations     */
   /*******************/
 
   map<size_t, string> filenames;
   map<size_t, string> formats;
-  
+
   map<size_t, SequenceSimulator*> mSim=readSimul(*SPC, mSeqEvol, bppseqgen.getParams(),filenames, formats);
-  
+
   for (map<size_t, SequenceSimulator*>::iterator it=mSim.begin(); it!=mSim.end(); it++)
   {
     SequenceSimulator& seqsim = *it->second;
-    
+
     if (withStates || withRates)
     {
       SimpleSubstitutionProcessSequenceSimulator* ps=dynamic_cast<SimpleSubstitutionProcessSequenceSimulator*>(&seqsim);
-      
+
       if (ps)
       {
         if (withStates)
@@ -375,7 +373,7 @@ int main(int args, char ** argv)
       else
       {
         SubstitutionProcessSequenceSimulator* pss=dynamic_cast<SubstitutionProcessSequenceSimulator*>(&seqsim);
-        
+
         if (pss)
         {
           if (withStates)
@@ -389,7 +387,7 @@ int main(int args, char ** argv)
       }
       ApplicationTools::displayTaskDone();
     }
-    
+
     else
     {
       ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
@@ -398,23 +396,23 @@ int main(int args, char ** argv)
       sites = seqsim.simulate(nbSites);
       ApplicationTools::displayTaskDone();
     }
-    
+
     // Write to file:
     BppOAlignmentWriterFormat bppoWriter(1);
     auto_ptr<OAlignment> oAln(bppoWriter.read(formats[it->first]));
-    
+
     ApplicationTools::displayResult("Output alignment file ", filenames[it->first]);
     ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
 
     oAln->writeAlignment(filenames[it->first], *sites, true);
 
   }
-  
+
   for (map<size_t, SequenceSimulator*>::iterator it=mSim.begin(); it!=mSim.end(); it++)
     delete it->second;
-  
+
   delete alphabet;
-  
+
   bppseqgen.done();
   }
   catch (exception& e)
@@ -422,7 +420,7 @@ int main(int args, char ** argv)
     cout << e.what() << endl;
     return 1;
   }
-  
+
   return 0;
 }
 
