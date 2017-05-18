@@ -1,5 +1,5 @@
 %define _basename bppsuite
-%define _version 2.2.0
+%define _version 2.3.0
 %define _release 1
 %define _prefix /usr
 
@@ -19,8 +19,8 @@ Requires: libbpp-seq9 = %{_version}
 Requires: libbpp-core2 = %{_version}
 
 BuildRoot: %{_builddir}/%{_basename}-root
-BuildRequires: cmake >= 2.6.0
-BuildRequires: gcc-c++ >= 4.0.0
+BuildRequires: cmake >= 2.8.11
+BuildRequires: gcc-c++ >= 4.7.0
 BuildRequires: groff
 BuildRequires: texinfo >= 4.0.0
 BuildRequires: libbpp-core2 = %{_version}
@@ -55,10 +55,10 @@ Bio++ program suite includes programs:
  - BppPars for parsimony analysis,
  - BppSeqMan for file conversion and sequence manipulation,
  - BppConsense for building consensus tree and computing bootstrap values,
- - BppPhySamp for phylogenetic sampling,
  - BppReRoot for tree rerooting.
  - BppTreeDraw for tree drawing.
  - BppAlnScore for comparing alignments and computing alignment scores.
+ - BppPopStats for population genetics.
  - BppMixedLikelioods for computing the site per site likelihoods of submodels from a mixture model.
  
 %prep
@@ -101,10 +101,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/bin/bpppars
 %{_prefix}/bin/bppseqman
 %{_prefix}/bin/bppconsense
-%{_prefix}/bin/bppphysamp
 %{_prefix}/bin/bppreroot
 %{_prefix}/bin/bpptreedraw
 %{_prefix}/bin/bppalnscore
+%{_prefix}/bin/bpppopstats
 %{_prefix}/bin/bppmixedlikelihoods
 %{_prefix}/share/info/bppsuite.info.%{zipext}
 %{_prefix}/share/man/man1/bppml.1.%{zipext}
@@ -115,12 +115,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/bppconsense.1.%{zipext}
 %{_prefix}/share/man/man1/bppseqman.1.%{zipext}
 %{_prefix}/share/man/man1/bppreroot.1.%{zipext}
-%{_prefix}/share/man/man1/bppphysamp.1.%{zipext}
 %{_prefix}/share/man/man1/bpptreedraw.1.%{zipext}
 %{_prefix}/share/man/man1/bppalnscore.1.%{zipext}
+%{_prefix}/share/man/man1/bpppopstats.1.%{zipext}
 %{_prefix}/share/man/man1/bppmixedlikelihoods.1.%{zipext}
 
 %changelog
+* Wed May 10 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.0-1
+- New BppPopStats program
+- BppPhySamp is now distributed separately
+- Several bugs fixed and improvements
 * Mon Sep 28 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
 - Compatibility update. Bio++ Program Suite version number is now indexed
   on Bio++'s version.

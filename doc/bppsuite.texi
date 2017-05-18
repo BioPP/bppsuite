@@ -14,7 +14,7 @@
 * bppconsense: (bppconsense)    Bio++ Consensus Trees.
 * bppreroot: (bppreroot)        Bio++ Serial Tree Re-rooting.
 * bppseqman: (bppseqman)        Bio++ Sequences Manipulation.
-* bppalnscore: (bppalnscore)    Bio++ Alignment Scoring
+* bppalnscore: (bppalnscore)    Bio++ Alignment Scoring.
 * bpppopstats: (bpppopstats)    Bio++ Population Genetics.
 * bpptreedraw: (bpptreedraw)    Bio++ Tree Drawing.
 @end direntry
@@ -45,7 +45,6 @@ Copyright @copyright{} 2007-2017 Bio++ development team
 @top The Bio++ Program Suite Manual
 
 @insertcopying
-@end ifnottex
 
 @menu
 * Introduction::                Introducing the Bio++ Program Suite and this manual.                
@@ -104,6 +103,7 @@ Bio++ Program Suite Reference
 @end detailmenu
 @end menu
 
+@end ifnottex
 @c ------------------------------------------------------------------------------------------------------------------
 
 @node Introduction, Syntax, Top, Top
@@ -2774,11 +2774,11 @@ This option is only recognized if @command{input.sequence.file.ingroup} was not 
 @item input.sequence.format = @{string@}
 Alignment input format, following standard options.
 
-@item input.sequence.outgroup.index = @{[int>0]}
+@item input.sequence.outgroup.index = @{[int>0]@}
 Vector of positions indicating the positions of the outgroup sequences in the alignment.
 This option is only recognized if @command{input.sequence.file.ingroup} was not specified.
 
-@item input.sequence.outgroup.name = @{[string]}
+@item input.sequence.outgroup.name = @{[string]@}
 Vector of sequence names indicating the positions of the outgroup sequences in the alignment.
 This option is only recognized if @command{input.sequence.file.ingroup} was not specified.
 
