@@ -187,7 +187,7 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*            Bio++ Sequence Generator, version 2.2.0             *" << endl;
+  cout << "*            Bio++ Sequence Generator, version 2.3.0             *" << endl;
   cout << "*                                                                *" << endl;
   cout << "* Authors: J. Dutheil                                            *" << endl;
   cout << "*          B. Boussau                       Last Modif. 06/10/16 *" << endl;

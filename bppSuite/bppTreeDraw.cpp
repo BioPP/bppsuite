@@ -74,7 +74,7 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Tree Drawing program, version 2.2.0.               *" << endl;
+  cout << "*       Bio++ Tree Drawing program, version 2.3.0.               *" << endl;
   cout << "*                                                                *" << endl; 
   cout << "* Authors: J. Dutheil                       Last Modif. 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;

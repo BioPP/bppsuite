@@ -70,7 +70,7 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Consensus and Bootstrap Methods, version 2.2.0     *" << endl;
+  cout << "*       Bio++ Consensus and Bootstrap Methods, version 2.3.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created     06/06/07 *" << endl;
   cout << "*          N. Galtier                       Last Modif. 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;

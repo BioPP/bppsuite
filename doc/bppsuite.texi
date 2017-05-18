@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename bppsuite.info
-@settitle BppSuite Manual 2.2.0
+@settitle BppSuite Manual 2.3.0
 @documentencoding UTF-8
 @afourpaper
 @dircategory Science Biology Genetics
@@ -15,14 +15,15 @@
 * bppreroot: (bppreroot)        Bio++ Serial Tree Re-rooting.
 * bppseqman: (bppseqman)        Bio++ Sequences Manipulation.
 * bppalnscore: (bppalnscore)    Bio++ Alignment Scoring
+* bpppopstats: (bpppopstats)    Bio++ Population Genetics.
 * bpptreedraw: (bpptreedraw)    Bio++ Tree Drawing.
 @end direntry
 @c %**end of header
 
 @copying
-This is the manual of the Bio++ Program Suite, version 2.2.0.
+This is the manual of the Bio++ Program Suite, version 2.3.0.
 
-Copyright @copyright{} 2007-2014 Bio++ development team
+Copyright @copyright{} 2007-2017 Bio++ development team
 @end copying
 
 @titlepage
@@ -57,23 +58,23 @@ Copyright @copyright{} 2007-2014 Bio++ development team
 
 Common options encountered in several programs.
 
-* Alphabet::                    Alphabets and genetic codes.
-* Sequences::                   Loading sequences/alignments.
-* Tree::                        Loading trees.
-* AlphabetIndex::               Setting biochemical properties and distances. 
-* Process::
-* Distribution::                Setting of the discrete distributions.
-* Estimation::                  Estimating parameters by maximizing a likelihood function.
-* WritingSequences::            Writing sequences/alignments to files. 
-* WritingTrees::                Writing trees to files. 
+* Alphabet::                    Alphabets and genetic codes
+* Sequences::                   Loading sequences/alignments
+* Tree::                        Loading trees
+* AlphabetIndex::               Setting biochemical properties and distances 
+* Process::                     Specifying the substitution process
+* Distribution::                Setting of the discrete distributions
+* Estimation::                  Estimating parameters by maximizing a likelihood function
+* WritingSequences::            Writing sequences/alignments to files
+* WritingTrees::                Writing trees to files
 
 Process specification
 
-* Model::
-* Non-homogeneity::             Specific declaration of non-homogeneous modelling.
+* Model::                       Substitution process
+* Non-homogeneity::             Specific declaration of non-homogeneous modelling
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
-* Linking::
+* Linking::                     Aliasing parameters
 
 Setting up the substitution model
 
@@ -87,17 +88,18 @@ Setting up the substitution model
 
 Bio++ Program Suite Reference
 
-* bppml::                       Bio++ Maximum Likelihood.
-* bppseqgen::                   Bio++ Sequence Generator.
-* bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction.
-* bppmixedlikelihoods::         Bio++ Site-Likelihoods Inside Mixed Models.
-* bppdist::                     Bio++ Distance Methods.
-* bpppars::                     Bio++ Maximum Parsimony.
-* bppconsense::                 Bio++ Consensus Trees.
-* bppreroot::                   Bio++ Serial Tree Re-rooting.
-* bppseqman::                   Bio++ Sequences Manipulation.
+* bppml::                       Bio++ Maximum Likelihood
+* bppseqgen::                   Bio++ Sequence Generator
+* bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction
+* bppmixedlikelihoods::         Bio++ Site-Likelihoods Inside Mixed Models
+* bppdist::                     Bio++ Distance Methods
+* bpppars::                     Bio++ Maximum Parsimony
+* bppconsense::                 Bio++ Consensus Trees
+* bppreroot::                   Bio++ Serial Tree Re-rooting
+* bppseqman::                   Bio++ Sequences Manipulation
 * bppalnscore::                 Bio++ Alignment Scoring
-* bpptreedraw::                 Bio++ Tree Drawing.
+* bpppopstats::                 Bio++ Population Genetics
+* bpptreedraw::                 Bio++ Tree Drawing
 
 @end detailmenu
 @end menu
@@ -2145,6 +2147,7 @@ This section now details the specific options for each program in the Bio++ Prog
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
 * bppalnscore::                 Bio++ Alignment Scoring
+* bpppopstats::
 * bpptreedraw::                 Bio++ Tree Drawing.
 @end menu
 
@@ -2683,7 +2686,7 @@ sequence.manip=KeepComplete(maxGapAllowed=30%),GapToUnknown
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bppalnscore, bpptreedraw, bppseqman, Reference
+@node bppalnscore, bpppopstats, bppseqman, Reference
 @section BppAlnScore: Bio++ Alignment Scoring
 
 This program compares two alignments and computes column scores.
@@ -2737,7 +2740,127 @@ word in all sequences will be used to determine the phase.
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node bpptreedraw,  , bppalnscore, Reference
+@node bpppopstats, bpptreedraw, bppalnscore, Reference
+@section BppPopStats: Bio++ Population Genetics Statistics
+
+The @command{BppPopStats} program computes population genetics statistics from a sequence input alignement.
+It can compute glabal alignment statistics, as well as site-specific statistics. In the first case, results
+are output on screen or in a log file. In the second case, results are written in a table file, with one site per line.
+Statistics available also depend on the type on input data (coding or non-coding).
+
+@command{BppPopStats} recognizes the standard options for alphabet and genetic code, in case a codon alphabet was specified.
+Sequences will be considered as coding if encoded with a codon alphabet, and non-coding otherwise.
+
+@subsection Specific options
+
+@table @command
+
+@item input.sequence.file.ingroup = @{path@}
+Path toward the file containing the ingroup sequences.
+
+@item input.sequence.format.ingroup = @{string@}
+Alignment input format, following standard options.
+
+@item input.sequence.file.outgroup = @{path@}
+Path toward the file containing the outgroup sequences.
+
+@item input.sequence.format.outgroup = @{string@}
+Alignment input format, following standard options.
+
+@item input.sequence.file = @{path@}
+Path toward the file containing all sequences.
+This option is only recognized if @command{input.sequence.file.ingroup} was not specified.
+
+@item input.sequence.format = @{string@}
+Alignment input format, following standard options.
+
+@item input.sequence.outgroup.index = @{[int>0]}
+Vector of positions indicating the positions of the outgroup sequences in the alignment.
+This option is only recognized if @command{input.sequence.file.ingroup} was not specified.
+
+@item input.sequence.outgroup.name = @{[string]}
+Vector of sequence names indicating the positions of the outgroup sequences in the alignment.
+This option is only recognized if @command{input.sequence.file.ingroup} was not specified.
+
+@item input.sequence.stop_codons_policy = Keep|RemoveIfLast|RemoveAll
+Tells what to do with positions containing at least one stop codon: keep them, remove them only if they are at the end of the alignment, or remove them all.
+
+@item pop.stats = @{[string]@}
+The list of statistics to compute. The next section describes all available statistics.
+
+@item logfile = @{path@}
+Optional file where to output results.
+
+@end table
+
+@subsection Available statistics
+
+@table @command
+
+@item SiteFrequencies
+Output the number of segregating sites as well as the number of singletons.
+ 
+@item Watterson75
+Compute Watterson's nucleotide diversity estimator (theta, averaged per site).
+
+@item Tajima83
+Compute Tajima's nucleotide diversity estimator (pi, averaged per site).
+
+@item TajimaD
+Compute Tajima's D. If a codon alignment is specified (and alphabet is set to codon type),
+the @command{positions} argument further allow to compute Tajima's D on synonymous sites only
+(@command{positions=synonymous}), non-synonymous sites (@command{positions=non-synonymous}).
+Default is to use all sites (@command{positions=all}).
+
+@item FuAndLiDStar | FuAndLiFStar
+Compute Fu and Li's (1993) D and F statistics. If argument @command{tot_mut} is set to yes,
+then the total number of mutations is used in the calculation, instead of the number of segregating sites (default).
+
+@item PiN_PiS
+For codon sequences only, obviously. Compute nucleotide diversity at synonymous and non-synonymous site,
+the number of synonymous and non-synonymous sites, as well as the weighted ratio (PiN / NbN) / (PiS / NbS). 
+
+@item MKT
+Compute the MacDonald-Kreitman table, for codon sequences with outgroup.
+
+@item CodonSitesStatistics
+Generate a table with codon-site specifics statistics, including:
+
+@itemize @bullet
+
+@item Whether the site is complete or not
+
+@item Number of distinct states
+
+@item Minor allele frequency
+
+@item Major allele frequency
+
+@item Minor allele
+
+@item Major allele
+
+@item State in the first outgroup sequence, if any
+
+@item Mean number of synonymous positions
+
+@item Whether the site is synonymous polymorphic
+
+@item Whether the site is four-fold degenerated
+
+@item Non-synonymous diversity (piN)
+
+@item Synonymous diversity (piS)
+
+@end itemize
+
+The @command{output.file} argument allows to specify the output file (mandatory).
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+
+@node bpptreedraw,  , bpppopstats, Reference
 @section BppTreeDraw: Bio++ Tree Drawing
 
 This is a simple program that outputs a tree in various vector formats.

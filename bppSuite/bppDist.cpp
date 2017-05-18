@@ -91,7 +91,7 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*              Bio++ Distance Methods, version 2.2.0             *" << endl;
+  cout << "*              Bio++ Distance Methods, version 2.3.0             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
   cout << "*                                           Last Modif. 04/02/15 *" << endl;
   cout << "******************************************************************" << endl;

@@ -78,7 +78,7 @@ int main(int args, char ** argv)
 {
   
   cout << "******************************************************************" << endl;
-  cout << "*                  Bio++ ReRoot, version 2.2.0                   *" << endl;
+  cout << "*                  Bio++ ReRoot, version 2.3.0                   *" << endl;
   cout << "* Author: C. Scornavacca                    Created     15/01/08 *" << endl;
   cout << "*                                           Last Modif. 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;

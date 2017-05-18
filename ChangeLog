@@ -1,3 +1,8 @@
+10/05/17 -*- Version 2.3.0 -*- 
+
+21/12/16 Julien Dutheil
+* BppPhySamp migrated to its own package.
+
 17/12/16 Julien Dutheil
 * Improved bppPopStats, outgroup analyses, MK table and output to file.
 
@@ -9,6 +14,9 @@
 * bpppopstats now computes codon statistics per site (e.g. PiN, PiS)
 * Added example for bpppopstats.
 
+29/06/15 Julien Dutheil
+* New program bppPopStats
+
 28/01/15 Julien Dutheil
 * PhySamp now outputs the correct tree!
 
@@ -17,7 +25,7 @@
 * bppalnscore site selection works with codon alphabets.
 
 24/11/14 Julien Dutheil
-* bppSeqMan can now read alignments and perform site seleciton priori to any analysis.
+* bppSeqMan can now read alignments and perform site selection priori to any analysis.
 
 28/09/14 -*- Version 2.2.0 -*- 
 

@@ -98,7 +98,7 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 2.2.0     *" << endl;
+  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 2.3.0     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
   cout << "*          B. Boussau                       Last Modif: 25/09/14 *" << endl;
   cout << "******************************************************************" << endl;

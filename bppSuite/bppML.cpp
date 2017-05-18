@@ -98,9 +98,9 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 2.2.0      *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version 2.3.0      *" << endl;
   cout << "*                                                                *" << endl;
-  cout << "* Authors: J. Dutheil                       Last Modif. 29/01/13 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. 10/05/17 *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
   cout << "*          L. Guéguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;
