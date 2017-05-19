@@ -43,8 +43,8 @@ if (CMAKE_INSTALL_PREFIX)
   set (CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
 endif (CMAKE_INSTALL_PREFIX)
 
-find_package (bpp-phyl 9.1.3 REQUIRED)
-find_package (bpp-popgen 6.0.0 REQUIRED)
+find_package (bpp-phyl 9.1.4 REQUIRED)
+find_package (bpp-popgen 6.0.1 REQUIRED)
 
 # Subdirectories
 add_subdirectory (bppSuite)

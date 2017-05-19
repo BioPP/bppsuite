@@ -29,6 +29,8 @@ BuildRequires: libbpp-seq9 = %{_version}
 BuildRequires: libbpp-seq-devel = %{_version}
 BuildRequires: libbpp-phyl9 = %{_version}
 BuildRequires: libbpp-phyl-devel = %{_version}
+BuildRequires: libbpp-popgen6 = %{_version}
+BuildRequires: libbpp-popgen-devel = %{_version}
 
 
 AutoReq: yes
