@@ -301,7 +301,7 @@ int main(int args, char ** argv)
   //Homogeneous case:
   if (nhOpt == "no")
   {
-    TransitionModel* model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
+    TransitionModel* model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
     FrequenciesSet* fSet = new FixedFrequenciesSet(model->getStateMap().clone(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
@@ -313,13 +313,13 @@ int main(int args, char ** argv)
     TransitionModel* model = 0;
     string modelName = ApplicationTools::getStringParameter("model", bppseqgen.getParams(), "");
     if (!TextTools::hasSubstring(modelName,"COaLA"))
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
+      model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
     else
     {
       //COaLA model
       VectorSiteContainer* allSitesAln = 0;
       allSitesAln = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams());
+      model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams());
     }
 
     vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
