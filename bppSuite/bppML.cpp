@@ -125,25 +125,25 @@ int main(int args, char** argv)
     bppml.startTimer();
 
     map<string, string> unparsedparams;
-    
+
     ///// Alphabet
-    
+
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppml.getParams(), "", false);
     unique_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppml.getParams(), "Standard", "", true, true);
       ApplicationTools::displayResult("Genetic Code", codeDesc);
-      
+
       gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
     }
 
 
-    ////// Get the map of the sequences 
+    ////// Get the map of the sequences
 
     map<size_t, SiteContainer*> mSites = SequenceApplicationTools::getSiteContainers(alphabet, bppml.getParams());
 
-    
+
     if (mSites.size() == 0)
       throw Exception("Missing data input.sequence.file option");
 
@@ -167,7 +167,6 @@ int main(int args, char** argv)
     map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites, unparsedparams);
     
     string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "", true, "none", 1);
-
 
     if (treeWIdPath != "none")
     {
@@ -201,7 +200,7 @@ int main(int args, char** argv)
 
     /////////////////
     // Computing stuff
-    
+
     DiscreteRatesAcrossSitesTreeLikelihood* tl_old = 0;
     PhyloLikelihood* tl_new = 0;
     SubstitutionProcessCollection* SPC = 0;
@@ -212,33 +211,33 @@ int main(int args, char** argv)
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, 1);
     unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppml.getParams(), 0, "", true, 1);
     string collection = ApplicationTools::getStringParameter("collection", bppml.getParams(), "", "", true, 1);
-    
-    
-    SubstitutionModel*    model    = 0;
+
+
+    TransitionModel*    model    = 0;
     SubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist    = 0;
 
     Tree* firstTree = mTree.begin()->second;
-    
+
     /// Topology estimation
-    
+
     if (optimizeTopo || nbBS > 0)
     {
       if (collection != "")
         throw Exception("Topology estimation in collections not supported yet, sorry.");
-      
+
       string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);
       ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
-      
-      model = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams)[0];
-      
+
+      model = PhylogeneticsApplicationTools::getTransitionModels(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams)[0];
+
       if (model->getName() != "RE08")
         for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
           SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
-      
+
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
@@ -253,21 +252,21 @@ int main(int args, char** argv)
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
     }
-      
+
     /// Constant Topology
-      
+
     else
     {
       map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(bppml.getParams());
 
-      map<size_t, SubstitutionModel*> mMod = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams);
+      map<size_t, TransitionModel*> mMod = PhylogeneticsApplicationTools::getTransitionModels(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams);
 
       map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams);
 
       SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mpTree, mMod, mRootFreq, mDist, bppml.getParams(), unparsedparams);
 
       mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, bppml.getParams(), unparsedparams);
-      
+
       for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
         SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
 
@@ -289,7 +288,7 @@ int main(int args, char** argv)
     if (paramNameFile != "none") {
       ApplicationTools::displayResult("List parameters to", paramNameFile);
       ofstream pnfile(paramNameFile.c_str(), ios::out);
-        
+
       ParameterList pl;
       if (tl_old)
         pl=tl_old->getParameters();
@@ -305,7 +304,7 @@ int main(int args, char** argv)
     }
 
     // Old optimization
-    
+
     if (tl_old){
       //Check initial likelihood:
       double logL = tl_old->getValue();
@@ -375,13 +374,13 @@ int main(int args, char** argv)
           ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
         }
       }
-        
+
       tl_old = dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(
         PhylogeneticsApplicationTools::optimizeParameters(tl_old, tl_old->getParameters(), bppml.getParams()));
-        
+
       Tree* tree = new TreeTemplate<Node>(tl_old->getTree());
       PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
-        
+
       // Write parameters to screen:
       ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_old->getValue(), 15));
       ParameterList parameters = tl_old->getSubstitutionModelParameters();
@@ -394,10 +393,10 @@ int main(int args, char** argv)
       {
         ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
       }
-        
+
       // Checking convergence:
       PhylogeneticsApplicationTools::checkEstimatedParameters(tl_old->getParameters());
-      
+
       // Write parameters to file:
       string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
       ApplicationTools::displayResult("Output estimates to file", parametersFile);
@@ -430,27 +429,27 @@ int main(int args, char** argv)
         rDist->matchParametersValues(tl_old->getParameters());
         PhylogeneticsApplicationTools::printParameters(rDist, out);
       }
-        
+
       // Getting posterior rate class distribution:
       DiscreteDistribution* prDist = RASTools::getPosteriorRateDistribution(*tl_old);
       ApplicationTools::displayMessage("\nPosterior rate distribution for dataset:\n");
       if (ApplicationTools::message) prDist->print(*ApplicationTools::message);
       ApplicationTools::displayMessage("\n");
       delete prDist;
-        
+
       // Write infos to file:
       string infosFile = ApplicationTools::getAFilePath("output.infos", bppml.getParams(), false, false);
       if (infosFile != "none")
       {
         ApplicationTools::displayResult("Alignment information logfile", infosFile);
         ofstream out(infosFile.c_str(), ios::out);
-          
+
         // Get the rate class with maximum posterior probability:
         vector<size_t> classes = tl_old->getRateClassWithMaxPostProbOfEachSite();
-          
+
         // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
         Vdouble rates = tl_old->getPosteriorRateOfEachSite();
-          
+
         vector<string> colNames;
         colNames.push_back("Sites");
         colNames.push_back("is.complete");
@@ -460,7 +459,7 @@ int main(int args, char** argv)
         colNames.push_back("pr");
         vector<string> row(6);
         DataTable* infos = new DataTable(colNames);
-          
+
         for (unsigned int i = 0; i < mSites.begin()->second->getNumberOfSites(); i++)
         {
           double lnL = tl_old->getLogLikelihoodForASite(i);
@@ -480,14 +479,14 @@ int main(int args, char** argv)
           row[5] = TextTools::toString(rates[i]);
           infos->addRow(row);
         }
-          
+
         DataTable::write(*infos, out, "\t");
-          
+
         delete infos;
       }
     }
     // New optimization
-    else // tl_new!=0 
+    else // tl_new!=0
     {
       //Check initial likelihood:
       double logL = tl_new->getValue();
@@ -512,7 +511,7 @@ int main(int args, char** argv)
         ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
         map<size_t, AbstractSingleDataPhyloLikelihood*> mSD;
-        
+
         if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl_new)!=NULL)
           mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl_new);
         else{
@@ -540,7 +539,7 @@ int main(int args, char** argv)
             AbstractSingleDataPhyloLikelihood* sDP=itm->second;
             /// !!! Not economic
             SiteContainer* vData=sDP->getData()->clone();
-            
+
             if (codonAlphabet)
             {
               bool f = false;
@@ -560,7 +559,7 @@ int main(int args, char** argv)
               if (f)
                 exit(-1);
             }
-            
+
             bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
             if (!removeSaturated) {
               ApplicationTools::displayError("!!! Looking at each site:");
@@ -591,11 +590,15 @@ int main(int args, char** argv)
           }
         }
       }
-      
-      tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
+
+      // First `true` means that default is to optimize model parameters.
+      if(ApplicationTools::getBooleanParameter("optimization.model_parameters", bppml.getParams(), true, "", true, 1))
+        tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
+      else
+        tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getBranchLengthParameters(), bppml.getParams());
 
       PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams());
-      
+
       // Write parameters to screen:
       ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_new->getValue(), 15));
       ParameterList parameters = tl_new->getParameters();
@@ -603,10 +606,10 @@ int main(int args, char** argv)
               
       for (size_t i = 0; i < parameters.size(); i++)
         ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-      
+
       // Checking convergence:
       PhylogeneticsApplicationTools::checkEstimatedParameters(tl_new->getParameters());
-      
+
       // Write parameters to file:
       string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
       bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.withalias", bppml.getParams(), true, "", false, 1);
@@ -642,7 +645,7 @@ int main(int args, char** argv)
 
       ////////////////////////////////////////////
       // Bootstrap:
-    
+
       string optimizeClock = ApplicationTools::getStringParameter("optimization.clock", bppml.getParams(), "None", "", true, false);
       if (nbBS > 0 && optimizeClock != "None")
       {
@@ -725,7 +728,7 @@ int main(int args, char** argv)
     
         for (it = mTree.begin(); it != mTree.end(); it++)
           vcTree.push_back(it->second);
-    
+
         PhylogeneticsApplicationTools::writeTrees(vcTree, bppml.getParams());
       }
 
@@ -733,10 +736,10 @@ int main(int args, char** argv)
 
       for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
         delete itc->second;
-      
+
       for (it = mTree.begin(); it != mTree.end(); it++)
         delete it->second;
-      
+
       if (model) delete model;
       if (modelSet) delete modelSet;
       delete rDist;
@@ -752,7 +755,7 @@ int main(int args, char** argv)
     cout << e.what() << endl;
     return 1;
   }
-  
+
 return 0;
 }
 

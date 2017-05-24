@@ -162,7 +162,7 @@ int main(int args, char ** argv)
 
     map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(allParams);
 
-    map<size_t, SubstitutionModel*> mMod = PhylogeneticsApplicationTools::getSubstitutionModels(alphabet, gCode.get(), mSites, allParams, unparsedparams);
+    map<size_t, TransitionModel*> mMod = PhylogeneticsApplicationTools::getTransitionModels(alphabet, gCode.get(), mSites, allParams, unparsedparams);
 
     map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, allParams, unparsedparams);
 
