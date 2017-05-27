@@ -9,7 +9,7 @@
 # Html doc is proposed as a "html" optional target if makeinfo is found.
 # Pdf doc is proposed as a "pdf" optional target if makeinfo AND texi2dvi are found.
 
-find_program (MAKEINFO NAMES makeinfoi texi2any DOC "makeinfo doc generator program")
+find_program (MAKEINFO NAMES makeinfo texi2any DOC "makeinfo doc generator program")
 if (NOT MAKEINFO)
   message (STATUS "makeinfo program not found: 'info' and 'html' target disabled (builds info/html doc)")
 else (NOT MAKEINFO)

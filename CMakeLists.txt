@@ -8,7 +8,7 @@ cmake_minimum_required (VERSION 2.8.11)
 project (bppsuite CXX)
 
 # Compile options
-set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
+SET (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -35,7 +35,7 @@ IF(NOT BUILD_STATIC)
 ENDIF()
 IF(BUILD_STATIC)
   MESSAGE("-- Static linkage requested.")
-  SET (CMAKE_CXX_FLAGS "-static -static-libgcc ${CMAKE_CXX_FLAGS}")
+  SET(CMAKE_CXX_FLAGS "-static -static-libgcc ${CMAKE_CXX_FLAGS}")
 ENDIF()
 
 # Find dependencies (add install directory to search)

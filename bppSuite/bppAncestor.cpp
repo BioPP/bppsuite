@@ -171,7 +171,7 @@ int main(int args, char ** argv)
 
   if (nhOpt == "no")
   {  
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams());
+    model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppancestor.getParams());
     if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
@@ -191,7 +191,7 @@ int main(int args, char ** argv)
   }
   else if (nhOpt == "one_per_branch")
   {
-    model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppancestor.getParams());
+    model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppancestor.getParams());
     if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {

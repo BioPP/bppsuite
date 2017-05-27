@@ -252,7 +252,7 @@ int main(int args, char** argv)
     {
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
+      model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppml.getParams());
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
@@ -270,7 +270,7 @@ int main(int args, char** argv)
     }
     else if (nhOpt == "no")
     {
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
+      model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppml.getParams());
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
@@ -312,7 +312,7 @@ int main(int args, char** argv)
     }
     else if (nhOpt == "one_per_branch")
     {
-      model = PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppml.getParams());
+      model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppml.getParams());
       if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
