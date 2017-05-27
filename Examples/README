@@ -27,7 +27,6 @@ These option files are split in their respective program directory:
   SeqGenNonHomogeneousModel.bpp  File included by SeqGen.bpp. Not to be used directly.
   Consense.bpp                   BppConsense option file.
   SeqMan.bpp                     BppSeqMan option file.
-  PhySamp.bpp                    BppPhyloSampler option file.
   ReRoot.bpp                     BppReRoot option file.
   AlnScores.bpp                  BppAlnscore option file.
 
