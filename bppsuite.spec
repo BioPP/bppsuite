@@ -1,5 +1,5 @@
 %define _basename bppsuite
-%define _version 2.3.0
+%define _version 2.3.1
 %define _release 1
 %define _prefix /usr
 
@@ -14,22 +14,22 @@ Source: http://biopp.univ-montp2.fr/repos/sources/%{_basename}-%{_version}.tar.g
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
 
-Requires: libbpp-phyl9 = %{_version}
-Requires: libbpp-seq9 = %{_version}
-Requires: libbpp-core2 = %{_version}
+Requires: libbpp-phyl11 = %{_version}
+Requires: libbpp-seq11 = %{_version}
+Requires: libbpp-core3 = %{_version}
 
 BuildRoot: %{_builddir}/%{_basename}-root
 BuildRequires: cmake >= 2.8.11
 BuildRequires: gcc-c++ >= 4.7.0
 BuildRequires: groff
 BuildRequires: texinfo >= 4.0.0
-BuildRequires: libbpp-core2 = %{_version}
+BuildRequires: libbpp-core3 = %{_version}
 BuildRequires: libbpp-core-devel = %{_version}
-BuildRequires: libbpp-seq9 = %{_version}
+BuildRequires: libbpp-seq11 = %{_version}
 BuildRequires: libbpp-seq-devel = %{_version}
-BuildRequires: libbpp-phyl9 = %{_version}
+BuildRequires: libbpp-phyl11 = %{_version}
 BuildRequires: libbpp-phyl-devel = %{_version}
-BuildRequires: libbpp-popgen6 = %{_version}
+BuildRequires: libbpp-popgen7 = %{_version}
 BuildRequires: libbpp-popgen-devel = %{_version}
 
 
@@ -123,6 +123,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/bppmixedlikelihoods.1.%{zipext}
 
 %changelog
+* Tue Jun 06 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.1-1
 * Wed May 10 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.0-1
 - New BppPopStats program
 - BppPhySamp is now distributed separately
