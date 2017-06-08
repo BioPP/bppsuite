@@ -45,6 +45,8 @@
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
@@ -98,9 +100,9 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 2.3.0      *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version " << BPP_VERSION << "      *" << endl;
   cout << "*                                                                *" << endl;
-  cout << "* Authors: J. Dutheil                       Last Modif. 10/05/17 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. " << BPP_REL_DATE << " *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
   cout << "*          L. Guéguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;

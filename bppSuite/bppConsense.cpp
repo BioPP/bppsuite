@@ -44,13 +44,15 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/KeyvalTools.h>
 
-// From PhylLib:
+// From bpp-phyl:
 #include <Bpp/Phyl/Tree.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
@@ -70,9 +72,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Consensus and Bootstrap Methods, version 2.3.0     *" << endl;
+  cout << "*       Bio++ Consensus and Bootstrap Methods, version " << BPP_VERSION << "     *" << endl;
   cout << "* Authors: J. Dutheil                       Created     06/06/07 *" << endl;
-  cout << "*          N. Galtier                       Last Modif. 25/09/14 *" << endl;
+  cout << "*          N. Galtier                       Last Modif. " << BPP_REL_DATE << " *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 

@@ -44,6 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
@@ -98,9 +100,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 2.3.0     *" << endl;
+  cout << "*     Bio++ Ancestral Sequence Reconstruction, version " << BPP_VERSION << "     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
-  cout << "*          B. Boussau                       Last Modif: 25/09/14 *" << endl;
+  cout << "*          B. Boussau                       Last Modif: " << BPP_REL_DATE << " *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 

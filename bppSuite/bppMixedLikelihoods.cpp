@@ -44,6 +44,8 @@
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
@@ -96,8 +98,8 @@ int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*     Bio++ Computation of site likelihoods inside mixed models  *" << endl;
-  cout << "*                        Version 2.3.0.                          *" << endl;
-  cout << "* Author: L. Guéguen                       Last Modif.: 25/09/14 *" << endl;
+  cout << "*                        Version " << BPP_VERSION << ".                          *" << endl;
+  cout << "* Author: L. Guéguen                       Last Modif.: " << BPP_REL_DATE << " *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
