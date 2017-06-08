@@ -38,14 +38,14 @@ AutoProv: yes
 %if 0%{?mdkversion}
 %if 0%{?mdkversion} >= 201100
 BuildRequires: xz
-%define zipext xz
+%define compress_program xz
 %else
 BuildRequires: lzma
-%define zipext lzma
+%define compress_program lzma
 %endif
 %else
 BuildRequires: gzip
-%define zipext gz
+%define compress_program gzip
 %endif
 
 %description
@@ -67,21 +67,10 @@ Bio++ program suite includes programs:
 %setup -q
 
 %build
-CFLAGS="-I%{_prefix}/include $RPM_OPT_FLAGS"
-CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=%{_prefix}"
-if [ %{_lib} == 'lib64' ] ; then
-  CMAKE_FLAGS="$CMAKE_FLAGS -DLIB_SUFFIX=64"
-fi
-if [ %{zipext} == 'lzma' ] ; then
-  CMAKE_FLAGS="$CMAKE_FLAGS -DDOC_COMPRESS=lzma -DDOC_COMPRESS_EXT=lzma"
-fi
-if [ %{zipext} == 'xz' ] ; then
-  CMAKE_FLAGS="$CMAKE_FLAGS -DDOC_COMPRESS=xz -DDOC_COMPRESS_EXT=xz"
-fi
-
+CFLAGS="$RPM_OPT_FLAGS"
+CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=%{_prefix} -DCOMPRESS_PROGRAM=%{compress_program}"
 cmake $CMAKE_FLAGS .
 make
-make info
 
 %install
 make DESTDIR=$RPM_BUILD_ROOT install
@@ -96,31 +85,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc AUTHORS.txt COPYING.txt INSTALL.txt ChangeLog
-%{_prefix}/bin/bppml
-%{_prefix}/bin/bppseqgen
-%{_prefix}/bin/bppancestor
-%{_prefix}/bin/bppdist
-%{_prefix}/bin/bpppars
-%{_prefix}/bin/bppseqman
-%{_prefix}/bin/bppconsense
-%{_prefix}/bin/bppreroot
-%{_prefix}/bin/bpptreedraw
-%{_prefix}/bin/bppalnscore
-%{_prefix}/bin/bpppopstats
-%{_prefix}/bin/bppmixedlikelihoods
-%{_prefix}/share/info/bppsuite.info.%{zipext}
-%{_prefix}/share/man/man1/bppml.1.%{zipext}
-%{_prefix}/share/man/man1/bppseqgen.1.%{zipext}
-%{_prefix}/share/man/man1/bppancestor.1.%{zipext}
-%{_prefix}/share/man/man1/bpppars.1.%{zipext}
-%{_prefix}/share/man/man1/bppdist.1.%{zipext}
-%{_prefix}/share/man/man1/bppconsense.1.%{zipext}
-%{_prefix}/share/man/man1/bppseqman.1.%{zipext}
-%{_prefix}/share/man/man1/bppreroot.1.%{zipext}
-%{_prefix}/share/man/man1/bpptreedraw.1.%{zipext}
-%{_prefix}/share/man/man1/bppalnscore.1.%{zipext}
-%{_prefix}/share/man/man1/bpppopstats.1.%{zipext}
-%{_prefix}/share/man/man1/bppmixedlikelihoods.1.%{zipext}
+%{_prefix}/bin/*
+%{_prefix}/share/info/*.info*
+%{_prefix}/share/man/man1/*.1*
 
 %changelog
 * Tue Jun 06 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.1-1

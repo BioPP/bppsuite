@@ -38,11 +38,42 @@ IF(BUILD_STATIC)
   SET(CMAKE_CXX_FLAGS "-static -static-libgcc ${CMAKE_CXX_FLAGS}")
 ENDIF()
 
+# Check compression program
+# COMPRESS_PROGRAM controls the choice of program
+# COMPRESS_EXT can be used to override the file extension
+if (NOT COMPRESS_PROGRAM)
+  set (COMPRESS_PROGRAM gzip CACHE STRING "Set program for compressing documentation" FORCE)
+endif ()
+find_program (COMPRESS_BIN NAMES ${COMPRESS_PROGRAM} DOC "${COMPRESS_PROGRAM} compression program")
+if (NOT COMPRESS_BIN)
+  message (STATUS "${COMPRESS_PROGRAM} program not found, text doc will not be compressed")
+else ()
+  # Deduce COMPRESS_EXT for known compression programs if not set
+  if (NOT COMPRESS_EXT)
+    if (${COMPRESS_PROGRAM} STREQUAL "gzip")
+      set (COMPRESS_EXT "gz")
+    elseif (${COMPRESS_PROGRAM} STREQUAL "bzip2")
+      set (COMPRESS_EXT "bz2")
+    else ()
+      set (COMPRESS_EXT "${COMPRESS_PROGRAM}") # Default: program name (works for xz/lzma)
+    endif ()
+  endif ()
+  # Generate command line args (always add -c to output compressed file to stdout)
+  if (${COMPRESS_PROGRAM} STREQUAL "gzip")
+    # -n for no timestamp in files (reproducible builds)
+    set (COMPRESS_ARGS -c -n)
+  else ()
+    set (COMPRESS_ARGS -c)
+  endif ()
+  message (STATUS "Found ${COMPRESS_BIN} compression program, using file extension .${COMPRESS_EXT}")
+endif ()
+
 # Find dependencies (add install directory to search)
 if (CMAKE_INSTALL_PREFIX)
   set (CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
 endif (CMAKE_INSTALL_PREFIX)
 
+include (GNUInstallDirs)
 find_package (bpp-phyl 11.0.0 REQUIRED)
 find_package (bpp-popgen 7.0.0 REQUIRED)
 
