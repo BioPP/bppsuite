@@ -44,4 +44,4 @@ foreach (target ${bppsuite-targets})
   endif (BUILD_STATIC)
 endforeach (target)
 
-install (TARGETS ${bppsuite-targets} DESTINATION bin)
+install (TARGETS ${bppsuite-targets} DESTINATION ${CMAKE_INSTALL_BINDIR})
