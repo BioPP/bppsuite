@@ -3,14 +3,14 @@
 %define _release 1
 %define _prefix /usr
 
-URL: http://home.gna.org/bppsuite/
+URL: https://github.com/BioPP
 
 Name: %{_basename}
 Version: %{_version}
 Release: %{_release}
 License: CECILL-2.0
 Vendor: The Bio++ Project
-Source: http://biopp.univ-montp2.fr/repos/sources/%{_basename}-%{_version}.tar.gz
+Source: %{_basename}-%{_version}.tar.gz
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
 
