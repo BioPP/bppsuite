@@ -84,6 +84,7 @@ Setting up the substitution model
 * Multiple::                    General multiple site models
 * Meta::                        Meta models
 * Mixture::                     Mixture of models
+* Conditioned::                 Models conditioned by events
 
 Bio++ Program Suite Reference
 
@@ -611,6 +612,7 @@ of site-specific rate.
 * Multiple::                    General multiple site models
 * Meta::                        Meta models
 * Mixture::                     Mixture of models
+* Conditioned::                 Models conditioned by events
 @end menu
 
 @table @command
@@ -1416,7 +1418,7 @@ is the insertion rate, while @var{mu} is the deletion rate. See the
 
 @end table
 
-@node Mixture,  , Meta, Model
+@node Mixture, Conditioned , Meta, Model
 @subsubsection Mixture of models
 
 @table @command
@@ -1504,9 +1506,30 @@ See the
 
 @end table
 
+@node Conditioned, , Mixture, Model
+@subsubsection Conditioned models
 
+The transition probabilities on the branches are conditioned by the
+occurence of given events. The model is then no-markovian, but
+semi-markovian. The sets of considered events follow the one (ie
+register) defined for substitution mapping (see the testnh manual).
 
+@table @command
 
+@item OneChange(model=@{model description@})
+The transition probabilities along each branch are conditioned by the
+fact that there has been at least one substitution on this branch with
+thid model.
+
+@item OneChange(model=@{model description@}, register=@{register
+name@}, numReg=num1+num2+...)
+
+The transition probabilities along each branch are conditioned by the
+fact that there has been on this branch at least one substitution
+of the specific types in the register. The "+" permits the declaration
+of several types.
+
+@end table
 
 @node Non-homogeneity, FrequenciesSet, Model, Process
 @subsection Setting up non-stationary / non-homogeneous models
