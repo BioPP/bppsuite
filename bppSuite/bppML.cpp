@@ -385,7 +385,7 @@ int main(int args, char** argv)
     {
       modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppml.getParams());
 
-      if (modelSet->getModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+      if (modelSet->getTransitionModel(0)->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
       
       if (modelSet->getNumberOfStates() >= 2 * modelSet->getAlphabet()->getSize())
       {
