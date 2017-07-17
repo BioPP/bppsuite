@@ -44,6 +44,8 @@
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
@@ -108,7 +110,7 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*     Bio++ Ancestral Sequence Reconstruction, version 2.2.0     *" << endl;
+  cout << "*     Bio++ Ancestral Sequence Reconstruction, version " << BPP_VERSION << "     *" << endl;
   cout << "* Authors: J. Dutheil                       Created on: 10/09/08 *" << endl;
   cout << "*          B. Boussau                       Last Modif: 25/09/14 *" << endl;
   cout << "*          L. Guéguen                       Last Modif: 22/12/14 *" << endl;
@@ -143,7 +145,7 @@ int main(int args, char ** argv)
   
     ////// Get the map of the sequences 
 
-    map<size_t, AlignedValuesContainer*> mSites = SequenceApplicationTools::getSiteContainers(alphabet, allParams);
+    map<size_t, AlignedValuesContainer*> mSites = SequenceApplicationTools::getAlignedContainers(alphabet, allParams);
 
     if (mSites.size() == 0)
       throw Exception("Missing data input.sequence.file option");
@@ -173,8 +175,8 @@ int main(int args, char ** argv)
 // Missing check
 //  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
-    for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
-      SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
+    for (auto itc : mSites)
+      SiteContainerTools::changeGapsToUnknownCharacters(*itc.second);
 
     // get the recursive phylo likelihoods
 
@@ -241,20 +243,43 @@ int main(int args, char ** argv)
         {
           AbstractSingleDataPhyloLikelihood* sDP=itm->second;
           /// !!! Not economic
-          SiteContainer* vData=sDP->getData()->clone();
-            
+          AlignedValuesContainer* vData=sDP->getData()->clone();
+
           if (codonAlphabet)
           {
+            SiteContainer* vSC=dynamic_cast<SiteContainer*>(vData);
+            ProbabilisticSiteContainer* pSC=dynamic_cast<ProbabilisticSiteContainer*>(vData);
+
             bool f = false;
             size_t s;
             for (size_t i = 0; i < vData->getNumberOfSites(); i++) {
               if (std::isinf(sDP->getLogLikelihoodForASite(i))) {
-                const Site& site = vData->getSite(i);
-                s = site.size();
-                for (size_t j = 0; j < s; j++) {
-                  if (gCode->isStop(site.getValue(j))) {
-                    (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vData->getSequence(j).getName()).endLine();
-                    f = true;
+                if (vSC)
+                {
+                  const Site& site = vSC->getSite(i);
+                  s = site.size();
+                  for (size_t j = 0; j < s; j++) {
+                    if (gCode->isStop(site.getValue(j))) {
+                      (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vData->getName(j)).endLine();
+                      f = true;
+                    }
+                  }
+                }
+                else
+                {
+                  const std::shared_ptr<ProbabilisticSite> site = pSC->getSite(i);
+                  s = site->size();
+                  for (size_t j = 0; j < s; j++)
+                  {
+                    bool g=false;
+                    for (int st = 0; !g && st < (int)alphabet->getSize(); st++)
+                      g = (site->getStateValueAt(j,st)!=0 && !gCode->isStop(st));
+                    
+                    if (!g)
+                    {
+                      (*ApplicationTools::error << "Only stop Codons at site " << site->getPosition() << " in sequence " << vData->getName(j)).endLine();
+                      f = true;
+                    }
                   }
                 }
               }
@@ -262,12 +287,13 @@ int main(int args, char ** argv)
             if (f)
               exit(-1);
           }
+          
             
           bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", allParams, false, "", true, false);
           if (!removeSaturated) {
             ApplicationTools::displayError("!!! Looking at each site:");
             for (unsigned int i = 0; i < vData->getNumberOfSites(); i++) {
-              (*ApplicationTools::error << "Site " << vData->getSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
+              (*ApplicationTools::error << "Site " << vData->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
             }
             ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
             ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
@@ -276,8 +302,8 @@ int main(int args, char ** argv)
             ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
             for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
               if (std::isinf(sDP->getLogLikelihoodForASite(i - 1))) {
-                ApplicationTools::displayResult("Ignore saturated site", vData->getSite(i - 1).getPosition());
-                vData->deleteSite(i - 1);
+                ApplicationTools::displayResult("Ignore saturated site", vData->getSymbolListSite(i - 1).getPosition());
+                vData->deleteSites(i - 1,1);
               }
             }
             ApplicationTools::displayResult("Number of sites retained", mSites.begin()->second->getNumberOfSites());
@@ -393,7 +419,7 @@ int main(int args, char ** argv)
         continue;
       }
 
-      const SiteContainer* sites;
+      const AlignedValuesContainer* sites;
       if (sPP!=NULL)
         sites=sPP->getData();
       else
@@ -467,13 +493,13 @@ int main(int args, char ** argv)
           for (size_t i = 0; i < sites->getNumberOfSites(); i++)
           {
             double lnL = sPP->getLogLikelihoodForASite(i);
-            const Site* currentSite = &sites->getSite(i);
-            int currentSitePosition = currentSite->getPosition();
+            const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
+            int currentSitePosition = currentSite.getPosition();
             string isCompl = "NA";
             string isConst = "NA";
-            try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+            try { isCompl = (SiteTools::isComplete(currentSite) ? "1" : "0"); }
             catch(EmptySiteException& ex) {}
-            try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+            try { isConst = (SiteTools::isConstant(currentSite) ? "1" : "0"); }
             catch(EmptySiteException& ex) {}
             row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
             row[1] = isCompl;
@@ -501,17 +527,17 @@ int main(int args, char ** argv)
         
           delete infos;
         }
-
+        
         ////////////////////////////////////////////////
         /// Ancestral sequences
-
+        
         if (sequenceFilePath!="none")
         {
           SiteContainer* asSites = 0;
           
           if (sample)
           {
-            asSites = new AlignedSequenceContainer(alphabet);
+            asSites = new VectorSiteContainer(alphabet);
             
             for (unsigned int i = 0; i < nbSamples; i++)
             {
@@ -532,8 +558,14 @@ int main(int args, char ** argv)
             asSites = asr->getAncestralSequences();
           
           //Add existing sequence to output?
-          if (addSitesExtant) 
-            SequenceContainerTools::append(*asSites, *sites);
+          if (addSitesExtant)
+          {
+            const SiteContainer* vSC=dynamic_cast<const SiteContainer*>(sites);
+            if (!vSC)
+              ApplicationTools::displayMessage("Output sequences not possible with probabilistic sequences.");
+            else
+              SequenceContainerTools::append(*asSites, *vSC);
+          }
           
           //Write output:
           BppOAlignmentWriterFormat bppoWriter(1);

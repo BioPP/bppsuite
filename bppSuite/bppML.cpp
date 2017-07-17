@@ -45,6 +45,8 @@
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
@@ -104,9 +106,9 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*       Bio++ Maximum Likelihood Computation, version 2.2.0      *" << endl;
+  cout << "*       Bio++ Maximum Likelihood Computation, version " << BPP_VERSION << "      *" << endl;
   cout << "*                                                                *" << endl;
-  cout << "* Authors: J. Dutheil                       Last Modif. 10/02/14 *" << endl;
+  cout << "* Authors: J. Dutheil                       Last Modif. " << BPP_REL_DATE << " *" << endl;
   cout << "*          B. Boussau                                            *" << endl;
   cout << "*          L. Guéguen                                            *" << endl;
   cout << "*          M. Groussin                                           *" << endl;
@@ -141,7 +143,7 @@ int main(int args, char** argv)
 
     ////// Get the map of the sequences
 
-    map<size_t, SiteContainer*> mSites = SequenceApplicationTools::getSiteContainers(alphabet, bppml.getParams());
+    map<size_t, AlignedValuesContainer*> mSites = SequenceApplicationTools::getAlignedContainers(alphabet, bppml.getParams());
 
 
     if (mSites.size() == 0)
@@ -235,8 +237,8 @@ int main(int args, char** argv)
       model = PhylogeneticsApplicationTools::getTransitionModels(alphabet, gCode.get(), mSites, bppml.getParams(), unparsedparams)[0];
 
       if (model->getName() != "RE08")
-        for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
-          SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
+        for (auto  itc : mSites)
+          SiteContainerTools::changeGapsToUnknownCharacters(*itc.second);
 
       if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
       {
@@ -267,8 +269,8 @@ int main(int args, char** argv)
 
       mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, bppml.getParams(), unparsedparams);
 
-      for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
-        SiteContainerTools::changeGapsToUnknownCharacters(*itc->second);
+      for (auto  itc : mSites)
+        SiteContainerTools::changeGapsToUnknownCharacters(*itc.second);
 
       mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(*SPC, mSeqEvol, mSites, bppml.getParams());
 
@@ -329,16 +331,39 @@ int main(int args, char** argv)
         ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
         if (codonAlphabet)
         {
+          SiteContainer* vSC=dynamic_cast<SiteContainer*>(mSites.begin()->second);
+          ProbabilisticSiteContainer* pSC=dynamic_cast<ProbabilisticSiteContainer*>(mSites.begin()->second);
+          
           bool f = false;
           size_t s;
           for (size_t i = 0; i < mSites.begin()->second->getNumberOfSites(); i++) {
             if (std::isinf(tl_old->getLogLikelihoodForASite(i))) {
-              const Site& site = mSites.begin()->second->getSite(i);
-              s = site.size();
-              for (size_t j = 0; j < s; j++) {
-                if (gCode->isStop(site.getValue(j))) {
-                  (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << mSites.begin()->second->getSequence(j).getName()).endLine();
-                  f = true;
+              if (vSC)
+              {
+                const Site& site = vSC->getSite(i);
+                s = site.size();
+                for (size_t j = 0; j < s; j++) {
+                  if (gCode->isStop(site.getValue(j))) {
+                    (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << mSites.begin()->second->getName(j)).endLine();
+                    f = true;
+                  }
+                }
+              }
+              else
+              {
+                const std::shared_ptr<ProbabilisticSite> site = pSC->getSite(i);
+                s = site->size();
+                for (size_t j = 0; j < s; j++)
+                {
+                  bool g=false;
+                  for (int st = 0; !g && st < (int)alphabet->getSize(); st++)
+                    g = (site->getStateValueAt(j,st)!=0 && !gCode->isStop(st));
+                  
+                  if (!g)
+                  {
+                    (*ApplicationTools::error << "Only stop Codons at site " << site->getPosition() << " in sequence " << mSites.begin()->second->getName(j)).endLine();
+                    f = true;
+                  }
                 }
               }
             }
@@ -346,11 +371,13 @@ int main(int args, char** argv)
           if (f)
             exit(-1);
         }
+
+        
         bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppml.getParams(), false, "", true, false);
         if (!removeSaturated) {
           ApplicationTools::displayError("!!! Looking at each site:");
           for (unsigned int i = 0; i < mSites.begin()->second->getNumberOfSites(); i++) {
-            (*ApplicationTools::error << "Site " << mSites.begin()->second->getSite(i).getPosition() << "\tlog likelihood = " << tl_old->getLogLikelihoodForASite(i)).endLine();
+            (*ApplicationTools::error << "Site " << mSites.begin()->second->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << tl_old->getLogLikelihoodForASite(i)).endLine();
           }
           ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
           ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
@@ -359,8 +386,8 @@ int main(int args, char** argv)
           ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
           for (size_t i = mSites.begin()->second->getNumberOfSites(); i > 0; --i) {
             if (std::isinf(tl_old->getLogLikelihoodForASite(i - 1))) {
-              ApplicationTools::displayResult("Ignore saturated site", mSites.begin()->second->getSite(i - 1).getPosition());
-              mSites.begin()->second->deleteSite(i - 1);
+              ApplicationTools::displayResult("Ignore saturated site", mSites.begin()->second->getSymbolListSite(i - 1).getPosition());
+              mSites.begin()->second->deleteSites(i - 1, 1);
             }
           }
           ApplicationTools::displayResult("Number of sites retained", mSites.begin()->second->getNumberOfSites());
@@ -463,13 +490,13 @@ int main(int args, char** argv)
         for (unsigned int i = 0; i < mSites.begin()->second->getNumberOfSites(); i++)
         {
           double lnL = tl_old->getLogLikelihoodForASite(i);
-          const Site* currentSite = &mSites.begin()->second->getSite(i);
-          int currentSitePosition = currentSite->getPosition();
+          const CruxSymbolListSite& currentSite = mSites.begin()->second->getSymbolListSite(i);
+          int currentSitePosition = currentSite.getPosition();
           string isCompl = "NA";
           string isConst = "NA";
-          try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
+          try { isCompl = (SiteTools::isComplete(currentSite) ? "1" : "0"); }
           catch(EmptySiteException& ex) {}
-          try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
+          try { isConst = (SiteTools::isConstant(currentSite) ? "1" : "0"); }
           catch(EmptySiteException& ex) {}
           row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
           row[1] = isCompl;
@@ -538,7 +565,10 @@ int main(int args, char** argv)
           {
             AbstractSingleDataPhyloLikelihood* sDP=itm->second;
             /// !!! Not economic
-            SiteContainer* vData=sDP->getData()->clone();
+            AlignedValuesContainer* vData=sDP->getData()->clone();
+
+            SiteContainer* vSC=dynamic_cast<SiteContainer*>(vData);
+            ProbabilisticSiteContainer* pSC=dynamic_cast<ProbabilisticSiteContainer*>(vData);
 
             if (codonAlphabet)
             {
@@ -546,12 +576,32 @@ int main(int args, char** argv)
               size_t s;
               for (size_t i = 0; i < vData->getNumberOfSites(); i++) {
                 if (std::isinf(sDP->getLogLikelihoodForASite(i))) {
-                  const Site& site = vData->getSite(i);
-                  s = site.size();
-                  for (size_t j = 0; j < s; j++) {
-                    if (gCode->isStop(site.getValue(j))) {
-                      (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vData->getSequence(j).getName()).endLine();
-                      f = true;
+                  if (vSC)
+                  {
+                    const Site& site = vSC->getSite(i);
+                    s = site.size();
+                    for (size_t j = 0; j < s; j++) {
+                      if (gCode->isStop(site.getValue(j))) {
+                        (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vData->getName(j)).endLine();
+                        f = true;
+                      }
+                    }
+                  }
+                  else
+                  {
+                    const std::shared_ptr<ProbabilisticSite> site = pSC->getSite(i);
+                    s = site->size();
+                    for (size_t j = 0; j < s; j++)
+                    {
+                      bool g=false;
+                      for (int st = 0; !g && st < (int)alphabet->getSize(); st++)
+                        g = (site->getStateValueAt(j,st)!=0 && !gCode->isStop(st));
+                    
+                      if (!g)
+                      {
+                        (*ApplicationTools::error << "Only stop Codons at site " << site->getPosition() << " in sequence " << vData->getName(j)).endLine();
+                        f = true;
+                      }
                     }
                   }
                 }
@@ -564,7 +614,7 @@ int main(int args, char** argv)
             if (!removeSaturated) {
               ApplicationTools::displayError("!!! Looking at each site:");
               for (unsigned int i = 0; i < vData->getNumberOfSites(); i++) {
-                (*ApplicationTools::error << "Site " << vData->getSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
+                (*ApplicationTools::error << "Site " << vData->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
               }
               ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
               ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
@@ -573,8 +623,8 @@ int main(int args, char** argv)
               ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
               for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
                 if (std::isinf(sDP->getLogLikelihoodForASite(i - 1))) {
-                  ApplicationTools::displayResult("Ignore saturated site", vData->getSite(i - 1).getPosition());
-                  vData->deleteSite(i - 1);
+                  ApplicationTools::displayResult("Ignore saturated site", vData->getSymbolListSite(i - 1).getPosition());
+                  vData->deleteSites(i - 1, i);
                 }
               }
               ApplicationTools::displayResult("Number of sites retained", mSites.begin()->second->getNumberOfSites());
@@ -686,7 +736,7 @@ int main(int args, char** argv)
         for (unsigned int i = 0; i < nbBS; i++)
         {
           ApplicationTools::displayGauge(i, nbBS - 1, '=');
-          VectorSiteContainer* sample = SiteContainerTools::bootstrapSites(*mSites.begin()->second);
+          AlignedValuesContainer* sample = SiteContainerTools::bootstrapSites(*mSites.begin()->second);
           if (!approx)
           {
             model->setFreqFromData(*sample);
@@ -734,8 +784,8 @@ int main(int args, char** argv)
 
       delete alphabet;
 
-      for (map<size_t, SiteContainer*>::iterator itc=mSites.begin(); itc != mSites.end(); itc++)
-        delete itc->second;
+      for (auto itc : mSites)
+        delete itc.second;
 
       for (it = mTree.begin(); it != mTree.end(); it++)
         delete it->second;

@@ -44,6 +44,8 @@
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
@@ -97,8 +99,8 @@ int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*     Bio++ Computation of site likelihoods inside mixed models  *" << endl;
-  cout << "*                        Version 2.2.0.                          *" << endl;
-  cout << "* Author: L. Guéguen                       Last Modif.: 25/09/14 *" << endl;
+  cout << "*                        Version " << BPP_VERSION << ".                          *" << endl;
+  cout << "* Author: L. Guéguen                       Last Modif.: " << BPP_REL_DATE << " *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -125,9 +127,9 @@ int main(int args, char** argv)
 
     // get the data
 
-    VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppmixedlikelihoods.getParams());
+    AlignedValuesContainer* allSites = SequenceApplicationTools::getAlignedContainer(alphabet, bppmixedlikelihoods.getParams());
 
-    VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppmixedlikelihoods.getParams(), "", true, false);
+    AlignedValuesContainer* sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppmixedlikelihoods.getParams(), "", true, false);
     delete allSites;
 
     ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
@@ -253,7 +255,7 @@ int main(int args, char** argv)
       ApplicationTools::displayError("!!! Looking at each site:");
       for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
       {
-        (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
+        (*ApplicationTools::error << "Site " << sites->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
       }
       ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
       exit(-1);
@@ -294,7 +296,7 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    MixedSubstitutionModel* p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getModel(nummodel - 1));
+    MixedSubstitutionModel* p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getSubstitutionModel(nummodel - 1));
 
     if (!p0)
     {
@@ -335,8 +337,8 @@ int main(int args, char** argv)
 
       for (unsigned int i = 0; i < nSites; i++)
       {
-        const Site* currentSite = &sites->getSite(i);
-        int currentSitePosition = currentSite->getPosition();
+        const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
+        int currentSitePosition = currentSite.getPosition();
         (*rates)(i, "Sites") = string("[" + TextTools::toString(currentSitePosition) + "]");
       }
 
@@ -467,8 +469,8 @@ int main(int args, char** argv)
 
         for (size_t i = 0; i < nSites; i++)
         {
-          const Site* currentSite = &sites->getSite(i);
-          int currentSitePosition = currentSite->getPosition();
+          const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
+          int currentSitePosition = currentSite.getPosition();
           (*rates)(i,"Sites")=TextTools::toString(currentSitePosition);
         }
 

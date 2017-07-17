@@ -43,6 +43,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
@@ -79,9 +81,9 @@ int main(int args, char ** argv)
 {
   
   cout << "******************************************************************" << endl;
-  cout << "*                  Bio++ ReRoot, version 2.2.0                   *" << endl;
+  cout << "*                  Bio++ ReRoot, version " << BPP_VERSION << "                   *" << endl;
   cout << "* Author: C. Scornavacca                    Created     15/01/08 *" << endl;
-  cout << "*                                           Last Modif. 25/09/14 *" << endl;
+  cout << "*                                           Last Modif. " << BPP_REL_DATE << " *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 

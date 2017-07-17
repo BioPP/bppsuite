@@ -44,6 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace std;
 
+// From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
@@ -79,8 +81,8 @@ void help()
 int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*           Bio++ Sequence Manipulator, version 2.3.0.           *" << endl;
-  cout << "* Author: J. Dutheil                        Last Modif. 25/11/14 *" << endl;
+  cout << "*           Bio++ Sequence Manipulator, version " << BPP_VERSION << ".           *" << endl;
+  cout << "* Author: J. Dutheil                        Last Modif. " << BPP_REL_DATE << " *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
   
@@ -106,7 +108,7 @@ int main(int args, char** argv)
 
   if (aligned) {
     VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppseqman.getParams());
-    sequences = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppseqman.getParams(), "", true, false);
+    sequences = dynamic_cast<VectorSiteContainer*>(SequenceApplicationTools::getSitesToAnalyse(*allSites, bppseqman.getParams(), "", true, false));
     delete allSites;
   } else {
     SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);

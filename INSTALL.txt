@@ -1,12 +1,17 @@
-This software needs cmake >= 2.8.12 to build.
+This software needs cmake >= 2.8.11 and a C++11 capable compiler to build
 
 After installing cmake, run it with the following command:
-cmake -DCMAKE_INSTALL_PREFIX=[where to install, for instance /usr/local or $HOME/.local] .
+$ cmake -DCMAKE_INSTALL_PREFIX=[where to install, for instance /usr/local or $HOME/.local] .
 
 If available, you can also use ccmake instead of cmake for a more user-friendly interface.
 
-Then compile and install the software with
-make install
+Then compile and install the software with:
+$ make install
 
 You may also consider installing and using the software checkinstall for easier system administration.
 
+If you install Bio++ in a non standard path (not /usr/), and compile bppsuite with shared libraries,
+you must also tell programs where to find them at startup:
+-> either by adding the path to LD_LIBRARY_PATH environment variable.
+-> or by using RPATHs to hard code the path in the executable (generates NON PORTABLE executables !)
+  -> install Bio++ with the "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE" option

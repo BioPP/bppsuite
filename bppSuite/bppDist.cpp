@@ -46,6 +46,7 @@
 using namespace std;
 
 // From bpp-core:
+#include <Bpp/Version.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/App/BppApplication.h>
@@ -91,9 +92,9 @@ void help()
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
-  cout << "*              Bio++ Distance Methods, version 2.2.0             *" << endl;
+  cout << "*              Bio++ Distance Methods, version " << BPP_VERSION << "             *" << endl;
   cout << "* Author: J. Dutheil                        Created     05/05/07 *" << endl;
-  cout << "*                                           Last Modif. 04/02/15 *" << endl;
+  cout << "*                                           Last Modif. " << BPP_REL_DATE << " *" << endl;
   cout << "******************************************************************" << endl;
   cout << endl;
 
@@ -118,9 +119,9 @@ int main(int args, char ** argv)
       gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
     }
 
-    VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppdist.getParams());
+    AlignedValuesContainer* allSites = SequenceApplicationTools::getAlignedContainer(alphabet, bppdist.getParams());
   
-    VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppdist.getParams());
+    AlignedValuesContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppdist.getParams());
     delete allSites;
 
     ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
@@ -333,7 +334,7 @@ int main(int args, char ** argv)
       for(unsigned int i = 0; i < nbBS; i++)
       {
         ApplicationTools::displayGauge(i, nbBS-1, '=');
-        VectorSiteContainer * sample = SiteContainerTools::bootstrapSites(*sites);
+        AlignedValuesContainer * sample = SiteContainerTools::bootstrapSites(*sites);
         if(approx) model->setFreqFromData(*sample);
         distEstimation.setData(sample);
         bsTrees[i] = OptimizationTools::buildDistanceTree(
