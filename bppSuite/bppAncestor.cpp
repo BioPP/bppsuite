@@ -143,7 +143,7 @@ int main(int args, char ** argv)
   
     ////// Get the map of the sequences 
 
-    map<size_t, SiteContainer*> mSites = SequenceApplicationTools::getSiteContainers(alphabet, allParams);
+    map<size_t, AlignedValuesContainer*> mSites = SequenceApplicationTools::getSiteContainers(alphabet, allParams);
 
     if (mSites.size() == 0)
       throw Exception("Missing data input.sequence.file option");
