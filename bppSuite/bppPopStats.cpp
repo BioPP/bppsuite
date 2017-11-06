@@ -199,6 +199,7 @@ int main(int args, char** argv)
     
     bool estimateTsTv = ApplicationTools::getBooleanParameter("estimate.kappa", bpppopstats.getParams(), false, "", false, 1);
     double kappa = 1;
+    double omega = -1;
     
     bool estimateAncestor = ApplicationTools::getBooleanParameter("estimate.ancestor", bpppopstats.getParams(), false, "", false, 1);
     if (estimateAncestor & ! pscOut)
@@ -279,17 +280,12 @@ int main(int args, char** argv)
 	ApplicationTools::displayResult("Transition / transversions ratio", kappa);
       }
       if (estimateAncestor) {
-    cout << "ok1" << endl;
         MarginalAncestralStateReconstruction asr(treeLik);
-    cout << "ok2" << endl;
-    cout << pscOut->getSequence(0).getName() << endl;
 	int outgroupId = tree->getLeafId(pscOut->getSequence(0).getName());
-    cout << "ok3" << endl;
 	ancestralSequence.reset(asr.getAncestralSequenceForNode(tree->getFatherId(outgroupId)));
-    cout << "ok4" << endl;
       }
+      omega = model->getParameter("omega").getValue();
     }
-    cout << "ok5" << endl;
     if (treeLik)
       delete treeLik; //Not needed anymore.
 
@@ -441,12 +437,19 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("#N:", nbN);
         ApplicationTools::displayResult("#S:", nbS);
         ApplicationTools::displayResult("PiN / PiS (corrected for #N and #S):", r);
+	if (fitModel) {
+          ApplicationTools::displayResult("Omega (YN98 model):", omega);
+	}
+
         if (logFile != "none") {
           *cLog << "# PiN and PiS" << endl;
           *cLog << "PiN" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piN << endl;
           *cLog << "PiS" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piS << endl;
           *cLog << "NbN" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nbN << endl;
           *cLog << "NbS" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nbS << endl;
+	  if (fitModel) {
+            *cLog << "Omega" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << omega << endl;
+	  }
         }
       }
 
