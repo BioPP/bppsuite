@@ -130,6 +130,9 @@ int main(int args, char** argv)
       gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
     }
 
+    //////////////////////////////////////////////
+    // DATA
+    
     VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppml.getParams());
 
     VectorSiteContainer* sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppml.getParams(), "", true, false);
@@ -138,6 +141,10 @@ int main(int args, char** argv)
     ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
     ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 
+
+    /////////////////////////////////////////
+    // TREE
+    
     // Get the initial tree
     Tree* tree = 0;
     string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bppml.getParams(), "user", "", false, 1);
@@ -158,16 +165,6 @@ int main(int args, char** argv)
     // Try to write the current tree to file. This will be overwritten by the optimized tree,
     // but allow to check file existence before running optimization!
     PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
-
-    bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", bppml.getParams(), true, "", false, 1);
-    if (!computeLikelihood)
-    {
-      delete alphabet;
-      delete sites;
-      delete tree;
-      cout << "BppML's done. Bye." << endl;
-      return 0;
-    }
 
     // Setting branch lengths?
     string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", bppml.getParams(), "Input", "", true, 1);
@@ -238,6 +235,24 @@ int main(int args, char** argv)
       exit(0);
     }
 
+
+    /////////////////////////
+    // MODEL  & LIKELIHOOD
+    
+    // Check if likelihood
+    
+    bool computeLikelihood = ApplicationTools::getBooleanParameter("compute.likelihood", bppml.getParams(), true, "", false, 1);
+    if (!computeLikelihood)
+    {
+      delete alphabet;
+      delete sites;
+      delete tree;
+      cout << "BppML's done. Bye." << endl;
+      return 0;
+    }
+
+
+
     DiscreteRatesAcrossSitesTreeLikelihood* tl;
     string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, 1);
     ApplicationTools::displayResult("Heterogeneous model", nhOpt);
@@ -250,6 +265,9 @@ int main(int args, char** argv)
     SubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist    = 0;
 
+    ////////////
+    // If optimize topology
+    
     if (optimizeTopo || nbBS > 0)
     {
       if (nhOpt != "no")
@@ -270,6 +288,12 @@ int main(int args, char** argv)
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
     }
+
+    //////////////////////
+    // If not topology optimization
+
+    
+    ///// homogeneous modeling
     else if (nhOpt == "no")
     {
       model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppml.getParams());
@@ -312,6 +336,9 @@ int main(int args, char** argv)
       }
       else throw Exception("Unknown recursion option: " + recursion);
     }
+
+    
+    ///// one per branch modeling
     else if (nhOpt == "one_per_branch")
     {
       model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppml.getParams());
@@ -381,6 +408,8 @@ int main(int args, char** argv)
       }
       else throw Exception("Unknown recursion option: " + recursion);
     }
+
+    /////// hand made modeling
     else if (nhOpt == "general")
     {
       modelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppml.getParams());
