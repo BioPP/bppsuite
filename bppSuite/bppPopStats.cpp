@@ -67,6 +67,7 @@ using namespace std;
 #include <Bpp/Phyl/Distance/DistanceEstimation.h>
 #include <Bpp/Phyl/Distance/BioNJ.h>
 #include <Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 // From bpp-popgen
@@ -196,19 +197,42 @@ int main(int args, char** argv)
    
     // Shall we estimate some parameters first?
     
-    bool estimateTsTv = ApplicationTools::getBooleanParameter("estimate.kappa", bpppopstats.getParams(), false);
+    bool estimateTsTv = ApplicationTools::getBooleanParameter("estimate.kappa", bpppopstats.getParams(), false, "", false, 1);
     double kappa = 1;
     
-    bool fitModel = estimateTsTv;
+    bool estimateAncestor = ApplicationTools::getBooleanParameter("estimate.ancestor", bpppopstats.getParams(), false, "", false, 1);
+    if (estimateAncestor & ! pscOut)
+      throw Exception("Error: an outgroup sequence is needed for estimating ancestral states.");
+
+    bool fitModel = estimateTsTv || estimateAncestor;
 
     // Fit a model for later use:
     unique_ptr<Tree> tree;
     unique_ptr<SubstitutionModel> model;
     unique_ptr<DiscreteDistribution> rDist;
-    DRTreeLikelihood* treeLik;
+    DRTreeLikelihood* treeLik = nullptr;
+    unique_ptr<Sequence> ancestralSequence;
     if (fitModel) {
       // Get the alignment:
-      unique_ptr<AlignedSequenceContainer> aln(new AlignedSequenceContainer(*pscIn));
+      bool sampleIngroup = ApplicationTools::getBooleanParameter("estimate.sample_ingroup", bpppopstats.getParams(), true);
+      size_t sampleIngroupSize = 0;
+      if (sampleIngroup) {
+	sampleIngroupSize = ApplicationTools::getParameter<size_t>("estimate.sample_ingroup.size", bpppopstats.getParams(), 10);
+	if (sampleIngroupSize > pscIn->getNumberOfSequences()) {
+          ApplicationTools::displayWarning("Sample size higher than number of sequence. No sampling performed.");
+	  sampleIngroup = false;
+        }
+      }
+      unique_ptr<AlignedSequenceContainer> aln;
+      if (sampleIngroup) {
+	ApplicationTools::displayResult("Nb of ingroup sequences for model fitting", sampleIngroupSize);
+	aln.reset(new AlignedSequenceContainer(pscIn->getAlphabet()));
+	vector<string> selection(sampleIngroupSize);
+	RandomTools::getSample(pscIn->getSequencesNames(), selection, false); 
+	SequenceContainerTools::getSelectedSequences(*pscIn, selection ,*aln);
+      } else {
+        aln.reset(new AlignedSequenceContainer(*pscIn));
+      }
       if (pscOut) {
 	aln->addSequence(pscOut->getSequence(0)); //As for now, we only consider one sequence as outgroup, the first one.
       }
@@ -225,13 +249,15 @@ int main(int args, char** argv)
       if (treeOpt == "user") {
         tree.reset(PhylogeneticsApplicationTools::getTree(bpppopstats.getParams()));
       } else if (treeOpt == "bionj") {
-        DistanceEstimation distEstimation(model->clone(), rDist->clone(), aln.get(), 1, false);
-        BioNJ bionj(false, true);
         ApplicationTools::displayTask("Estimating distance matrix", true);
-        distEstimation.computeMatrix();
-        unique_ptr<DistanceMatrix> matrix(distEstimation.getMatrix());
+        //DistanceEstimation distEstimation(model->clone(), rDist->clone(), aln.get(), 1, false);
+        //distEstimation.computeMatrix();
+	//unique_ptr<DistanceMatrix> matrix(distEstimation.getMatrix());
+	unique_ptr<DistanceMatrix> matrix(SiteContainerTools::computeSimilarityMatrix(*aln, true, SiteContainerTools::SIMILARITY_NOGAP, true));
+        
         ApplicationTools::displayTaskDone();
         ApplicationTools::displayTask("Computing BioNJ tree", true);
+        BioNJ bionj(false, true);
 	bionj.setDistanceMatrix(*matrix);
 	bionj.computeTree();
         ApplicationTools::displayTaskDone();
@@ -252,7 +278,20 @@ int main(int args, char** argv)
         kappa = model->getParameter("kappa").getValue();
 	ApplicationTools::displayResult("Transition / transversions ratio", kappa);
       }
+      if (estimateAncestor) {
+    cout << "ok1" << endl;
+        MarginalAncestralStateReconstruction asr(treeLik);
+    cout << "ok2" << endl;
+    cout << pscOut->getSequence(0).getName() << endl;
+	int outgroupId = tree->getLeafId(pscOut->getSequence(0).getName());
+    cout << "ok3" << endl;
+	ancestralSequence.reset(asr.getAncestralSequenceForNode(tree->getFatherId(outgroupId)));
+    cout << "ok4" << endl;
+      }
     }
+    cout << "ok5" << endl;
+    if (treeLik)
+      delete treeLik; //Not needed anymore.
 
     // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     
@@ -452,6 +491,12 @@ int main(int args, char** argv)
         if (outgroup) {
           out << "\tOutgroupAllele";
         }
+	if (estimateAncestor) {
+          out << "\tAncestralAllele";
+	}
+        if (outgroup) {
+          out << "\tMeanNumberSynPosDiv\tdN\tdS";
+        }
 	out << endl;
 
         unique_ptr<SiteContainer> sites(pscIn->toSiteContainer());
@@ -492,7 +537,11 @@ int main(int args, char** argv)
 	  out << maxFreq << "\t";
           out << alphabet->intToChar(minState) << "\t";
           out << alphabet->intToChar(maxState) << "\t";
-          out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
+	  if (estimateAncestor) {
+            out << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa) << "\t";
+	  } else {
+            out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
+	  }
           out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
           out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
           out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
@@ -500,6 +549,39 @@ int main(int args, char** argv)
           if (outgroup) {
            out << "\t" << pscOut->getSequence(0).getChar(i); 
           }
+	  if (estimateAncestor) {
+           out << "\t" << ancestralSequence->getChar(i); 
+	  }
+          if (outgroup) {
+            //Add divergence
+	    int outgroupState = pscOut->getSequence(0)[i];
+	    if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState)) {
+              out << "\tNA\tNA\tNA";
+	    } else {
+	      if (estimateAncestor) {
+		//This is the same value as for polymorphism, we add it for having consistent output format
+		out << "\t" << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa);
+	      } else {
+                //Also average over outgroup (Note: minState and maxState are identical in this case)
+		out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
+			       	CodonSiteTools::numberOfSynonymousPositions(minState, *gCode, kappa)) / 2.;
+	      }
+	      if (nbAlleles == 1) {
+	        //Compare with outgroup:
+	        if (site[0] == outgroupState) {
+                  out << "\t0\t0" << endl;
+	        } else {
+                  //This is a real substitution:
+		  double nt = CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet);
+		  double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, minState, *gCode); 
+		  out << "\t" << ns << "\t" << (nt - ns);
+	        }
+	      } else {
+	        //Site is polymorphic, this is not a substitution    
+                out << "\t0\t0" << endl;
+	      }
+	    }
+	  }
 	  out << endl;
         }
       }
