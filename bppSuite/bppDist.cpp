@@ -129,7 +129,7 @@ int main(int args, char ** argv)
   
   TransitionModel* model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppdist.getParams());
   
-	DiscreteDistribution* rDist = 0;
+  DiscreteDistribution* rDist = 0;
   if (model->getNumberOfStates() > model->getAlphabet()->getSize())
   {
     //Markov-modulated Markov model!
@@ -137,7 +137,7 @@ int main(int args, char ** argv)
   }
   else
   {
-	  rDist = PhylogeneticsApplicationTools::getRateDistribution(bppdist.getParams());
+    rDist = PhylogeneticsApplicationTools::getRateDistribution(bppdist.getParams());
   }
    
   DistanceEstimation distEstimation(model, rDist, sites, 1, false);
@@ -177,33 +177,33 @@ int main(int args, char ** argv)
   else if (type == "iterations") type = OptimizationTools::DISTANCEMETHOD_ITERATIONS;
   else throw Exception("Unknown parameter estimation procedure '" + type + "'.");
   
-	unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", bppdist.getParams(), 2);
-	
-	string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", bppdist.getParams(), false, false);
-	OutputStream* messenger = 
-		(mhPath == "none") ? 0 :
-			(mhPath == "std") ? ApplicationTools::message :
-				new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
-	ApplicationTools::displayResult("Message handler", mhPath);
+  unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", bppdist.getParams(), 2);
+  
+  string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", bppdist.getParams(), false, false);
+  OutputStream* messenger = 
+    (mhPath == "none") ? 0 :
+      (mhPath == "std") ? ApplicationTools::message :
+        new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
+  ApplicationTools::displayResult("Message handler", mhPath);
 
-	string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
-	OutputStream* profiler = 
-		(prPath == "none") ? 0 :
-			(prPath == "std") ? ApplicationTools::message :
-				new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
-	if(profiler) profiler->setPrecision(20);
-	ApplicationTools::displayResult("Profiler", prPath);
+  string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
+  OutputStream* profiler = 
+    (prPath == "none") ? 0 :
+      (prPath == "std") ? ApplicationTools::message :
+        new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
+  if(profiler) profiler->setPrecision(20);
+  ApplicationTools::displayResult("Profiler", prPath);
 
-	// Should I ignore some parameters?
+  // Should I ignore some parameters?
   ParameterList allParameters = model->getParameters();
   allParameters.addParameters(rDist->getParameters());
-	ParameterList parametersToIgnore;
+  ParameterList parametersToIgnore;
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", bppdist.getParams(), "", "", true, false);
-	bool ignoreBrLen = false;
+  bool ignoreBrLen = false;
   StringTokenizer st(paramListDesc, ",");
-	while (st.hasMoreToken())
+  while (st.hasMoreToken())
   {
-		try
+    try
     {
       string param = st.nextToken();
       if (param == "BrLen")
@@ -217,19 +217,19 @@ int main(int args, char ** argv)
         }
         else ApplicationTools::displayWarning("Parameter '" + param + "' not found."); 
       }
-		} 
+    } 
     catch (ParameterNotFoundException& pnfe)
     {
-			ApplicationTools::displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
-		}
-	}
-	
-	unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", bppdist.getParams(), 1000000);
-	ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
-	
-	double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", bppdist.getParams(), .000001);
-	ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
-	
+      ApplicationTools::displayError("Parameter '" + pnfe.getParameter() + "' not found, and so can't be ignored!");
+    }
+  }
+  
+  unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", bppdist.getParams(), 1000000);
+  ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
+  
+  double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", bppdist.getParams(), .000001);
+  ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
+  
   //Here it is:
   ofstream warn("warnings", ios::out);
   ApplicationTools::warning = new StlOutputStreamWrapper(&warn);
@@ -277,18 +277,18 @@ int main(int args, char ** argv)
     ParameterList parameters = model->getParameters();
     for (unsigned int i = 0; i < parameters.size(); i++)
     {
-		  ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
     parameters = rDist->getParameters();
     for (unsigned int i = 0; i < parameters.size(); i++)
     {
-		  ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
     }
     // Write parameters to file:
-	  string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppdist.getParams(), false, false);
+    string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppdist.getParams(), false, false);
     if (parametersFile != "none")
     {
-		  ofstream out(parametersFile.c_str(), ios::out);
+      ofstream out(parametersFile.c_str(), ios::out);
       parameters = model->getParameters();
       for (unsigned int i = 0; i < parameters.size(); i++)
       {

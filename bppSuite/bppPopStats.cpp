@@ -56,7 +56,18 @@ using namespace std;
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/CodonSiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
+
+// From bpp-phyl:
+#include <Bpp/Phyl/Tree.h>
+#include <Bpp/Phyl/Model/Nucleotide/K80.h>
+#include <Bpp/Phyl/Model/Codon/YN98.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Distance/DistanceEstimation.h>
+#include <Bpp/Phyl/Distance/BioNJ.h>
+#include <Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 // From bpp-popgen
 #include <Bpp/PopGen/PolymorphismSequenceContainer.h>
@@ -182,7 +193,67 @@ int main(int args, char** argv)
     }
     ApplicationTools::displayResult("Number of sequences in ingroup", pscIn->getNumberOfSequences());
     ApplicationTools::displayResult("Number of sequences in outgroup", pscOut.get() ? pscOut->getNumberOfSequences() : 0);
+   
+    // Shall we estimate some parameters first?
     
+    bool estimateTsTv = ApplicationTools::getBooleanParameter("estimate.kappa", bpppopstats.getParams(), false);
+    double kappa = 1;
+    
+    bool fitModel = estimateTsTv;
+
+    // Fit a model for later use:
+    unique_ptr<Tree> tree;
+    unique_ptr<SubstitutionModel> model;
+    unique_ptr<DiscreteDistribution> rDist;
+    DRTreeLikelihood* treeLik;
+    if (fitModel) {
+      // Get the alignment:
+      unique_ptr<AlignedSequenceContainer> aln(new AlignedSequenceContainer(*pscIn));
+      if (pscOut) {
+	aln->addSequence(pscOut->getSequence(0)); //As for now, we only consider one sequence as outgroup, the first one.
+      }
+
+      // Get a tree:
+      string treeOpt = ApplicationTools::getStringParameter("input.tree.method", bpppopstats.getParams(), "bionj", "");
+      if (codonAlphabet) {
+        unique_ptr<FrequenciesSet> freqSet(new FixedCodonFrequenciesSet(gCode.get()));
+        model.reset(new YN98(gCode.get(), freqSet.release()));
+      } else {
+        model.reset(new K80(&AlphabetTools::DNA_ALPHABET));
+      } //Note: proteins not supported!
+      rDist.reset(new ConstantRateDistribution()); 
+      if (treeOpt == "user") {
+        tree.reset(PhylogeneticsApplicationTools::getTree(bpppopstats.getParams()));
+      } else if (treeOpt == "bionj") {
+        DistanceEstimation distEstimation(model->clone(), rDist->clone(), aln.get(), 1, false);
+        BioNJ bionj(false, true);
+        ApplicationTools::displayTask("Estimating distance matrix", true);
+        distEstimation.computeMatrix();
+        unique_ptr<DistanceMatrix> matrix(distEstimation.getMatrix());
+        ApplicationTools::displayTaskDone();
+        ApplicationTools::displayTask("Computing BioNJ tree", true);
+	bionj.setDistanceMatrix(*matrix);
+	bionj.computeTree();
+        ApplicationTools::displayTaskDone();
+	tree.reset(bionj.getTree());
+      } else {
+        throw Exception("Invalid input.tree.method. Should be either 'user' or 'bionj'.");
+      }
+
+      // Create a likelihood object:
+      treeLik = new DRHomogeneousTreeLikelihood(*tree, *aln, model.get(), rDist.get());
+      treeLik->initialize();
+
+      // Optimize parameters:
+      treeLik = dynamic_cast<DRTreeLikelihood*>(PhylogeneticsApplicationTools::optimizeParameters(treeLik, treeLik->getParameters(), bpppopstats.getParams(), "", true, true, 2));
+
+      // Get kappa:	      
+      if (estimateTsTv) {
+        kappa = model->getParameter("kappa").getValue();
+	ApplicationTools::displayResult("Transition / transversions ratio", kappa);
+      }
+    }
+
     // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     
     // Compute statistics
@@ -348,7 +419,7 @@ int main(int args, char** argv)
         if (!codonAlphabet) {
           throw Exception("MacDonald-Kreitman test can only be performed on a codon alignment. Check the input alphabet!");
         }
-        if (!pscOut.get()) {
+        if (!pscOut) {
           throw Exception("MacDonald-Kreitman test requires at least one outgroup sequence.");
         }
         vector<unsigned int> mktable = SequenceStatistics::mkTable(*pscIn, *pscOut, *gCode);
@@ -375,30 +446,61 @@ int main(int args, char** argv)
         if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics"); 
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
-        out << "Site\tIsComplete\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
-        bool outgroup = (psc->hasOutgroup() && pscOut->getNumberOfSequences() == 1);
+        out << "Site\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
+        out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS";
+        bool outgroup = (pscOut && pscOut->getNumberOfSequences() == 1);
         if (outgroup) {
           out << "\tOutgroupAllele";
         }
-        out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS" << endl;
+	out << endl;
+
         unique_ptr<SiteContainer> sites(pscIn->toSiteContainer());
         for (size_t i = 0; i < sites->getNumberOfSites(); ++i) {
           const Site& site = sites->getSite(i);
-          out << site.getPosition() << "\t";
-          out << SiteTools::isComplete(site) << "\t";
-          out << SiteTools::getNumberOfDistinctCharacters(site) << "\t";
-          out << SiteTools::getMinorAlleleFrequency(site) << "\t";
-          out << SiteTools::getMajorAlleleFrequency(site) << "\t";
-          out << alphabet->intToChar(SiteTools::getMinorAllele(site)) << "\t";
-          out << alphabet->intToChar(SiteTools::getMajorAllele(site)) << "\t";
-          if (outgroup) {
-           out << pscOut->getSequence(0).getChar(i) << "\t"; 
-          }
-          out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode) << "\t";
+	  map<int, size_t> counts;
+          SymbolListTools::getCounts(site, counts);
+          size_t minFreq = site.size() + 1;
+          size_t maxFreq = 0;
+	  int minState = -1;
+	  int maxState = -1;
+	  size_t nbAlleles = 0;
+	  size_t nbMissing = 0;
+          for (map<int, size_t>::iterator it = counts.begin(); it != counts.end(); it++)
+          {
+	    if (!alphabet->isUnresolved(it->first)
+	      && !alphabet->isGap(it->first)) {
+	      nbAlleles++; 
+              if (it->second != 0) {
+                if (it->second < minFreq) {
+                  minFreq = it->second;
+                  minState = it->first;	
+	        }
+                if (it->second > maxFreq) {
+                  maxFreq = it->second;
+                  maxState = it->first;
+		}
+	      }
+            } else {
+	      nbMissing += it->second;	    
+	    }
+	  }
+          
+	  out << site.getPosition() << "\t";
+          out << nbMissing << "\t";
+          out << nbAlleles << "\t";
+	  out << minFreq << "\t";
+	  out << maxFreq << "\t";
+          out << alphabet->intToChar(minState) << "\t";
+          out << alphabet->intToChar(maxState) << "\t";
+          out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
           out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
           out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
           out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
-          out << CodonSiteTools::piSynonymous(site, *gCode) << endl;
+          out << CodonSiteTools::piSynonymous(site, *gCode);
+          if (outgroup) {
+           out << "\t" << pscOut->getSequence(0).getChar(i); 
+          }
+	  out << endl;
         }
       }
       
