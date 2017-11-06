@@ -57,23 +57,23 @@ Copyright @copyright{} 2007-2017 Bio++ development team
 
 Common options encountered in several programs.
 
-* Alphabet::                    Alphabets and genetic codes
-* Sequences::                   Loading sequences/alignments
-* Tree::                        Loading trees
-* AlphabetIndex::               Setting biochemical properties and distances 
-* Process::                     Specifying the substitution process
-* Distribution::                Setting of the discrete distributions
-* Estimation::                  Estimating parameters by maximizing a likelihood function
-* WritingSequences::            Writing sequences/alignments to files
-* WritingTrees::                Writing trees to files
+* Alphabet::                    Alphabets and genetic codes.
+* Sequences::                   Loading sequences/alignments.
+* Tree::                        Loading trees.
+* AlphabetIndex::               Setting biochemical properties and distances. 
+* Process::
+* Distribution::                Setting of the discrete distributions.
+* Estimation::                  Estimating parameters by maximizing a likelihood function.
+* WritingSequences::            Writing sequences/alignments to files. 
+* WritingTrees::                Writing trees to files. 
 
 Process specification
 
-* Model::                       Substitution process
-* Non-homogeneity::             Specific declaration of non-homogeneous modelling
+* Model::
+* Non-homogeneity::             Specific declaration of non-homogeneous modelling.
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
-* Linking::                     Aliasing parameters
+* Linking::
 
 Setting up the substitution model
 
@@ -88,18 +88,18 @@ Setting up the substitution model
 
 Bio++ Program Suite Reference
 
-* bppml::                       Bio++ Maximum Likelihood
-* bppseqgen::                   Bio++ Sequence Generator
-* bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction
-* bppmixedlikelihoods::         Bio++ Site-Likelihoods Inside Mixed Models
-* bppdist::                     Bio++ Distance Methods
-* bpppars::                     Bio++ Maximum Parsimony
-* bppconsense::                 Bio++ Consensus Trees
-* bppreroot::                   Bio++ Serial Tree Re-rooting
-* bppseqman::                   Bio++ Sequences Manipulation
+* bppml::                       Bio++ Maximum Likelihood.
+* bppseqgen::                   Bio++ Sequence Generator.
+* bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction.
+* bppmixedlikelihoods::         Bio++ Site-Likelihoods Inside Mixed Models.
+* bppdist::                     Bio++ Distance Methods.
+* bpppars::                     Bio++ Maximum Parsimony.
+* bppconsense::                 Bio++ Consensus Trees.
+* bppreroot::                   Bio++ Serial Tree Re-rooting.
+* bppseqman::                   Bio++ Sequences Manipulation.
 * bppalnscore::                 Bio++ Alignment Scoring
-* bpppopstats::                 Bio++ Population Genetics
-* bpptreedraw::                 Bio++ Tree Drawing
+* bpppopstats::
+* bpptreedraw::                 Bio++ Tree Drawing.
 
 @end detailmenu
 @end menu
@@ -329,8 +329,7 @@ data=LSU
 @table @command
 @item alphabet =
 @{DNA|RNA|Protein|Binary|Word(letter=@{DNA|RNA|Protein@},length=@{int@})|
-Codon(letter=@{DNA|RNA@}, type=@{Standard|EchinodermMitochondrial|InvertebrateMitochondrial|\
-VertebrateMitochondrial@})@}
+Codon(letter=@{DNA|RNA@})@}
 The alphabet to use when reading sequences. DNA and RNA alphabet can in addition take an argument:
 
 @table @command
@@ -339,8 +338,10 @@ Tell is exclamation mark should be considered as a gap character. The default is
 @end table
 
 @item genetic_code = @{translation table@}
-Where 'translation table' specifies the code to use, either as a text description, or as the NCBI number.
-The following table give the currently implemented codes with their corresponding names:
+The genetic code used for codon alphabet, where 'translation table'
+specifies the code to use, either as a text description, or as the
+NCBI number. The following table give the currently implemented codes
+with their corresponding names:
 
 @multitable @columnfractions 0.5 0.5
 @item Standard @tab 1
@@ -351,6 +352,7 @@ The following table give the currently implemented codes with their correspondin
 @item EchinodermMitochondrial @tab 9
 @item AscidianMitochondrial @tab 13
 @end multitable
+
 @end table
 
 The states of the alphabets are in alphabetical order. For the proteic
@@ -852,10 +854,7 @@ proportion of 1 over 0 in the equilibrium distribution. Default:
 @node Codon, Multiple, Miscellaneous, Model
 @subsubsection Codon models
 
-Standard codon models: the global @var{genetic_code} argument
-describes the genetic code and has to be specified.
-
-Codon models also take as argument a @var{frequencies} option
+Some codon models also take as argument a @var{frequencies} option
 specifying the equilibrium frequencies of the model. Any frequencies
 description can be used here, but the syntax also supports options
 similar to the ones used in the PAML software:
@@ -886,37 +885,37 @@ models, in the case of non stationarity.
 
 @table @command
 
-@item GY94([genetic_code=@{genetic code description@}, kappa=@{real>0@}, V=@{real>0@}, "equilibrium frequencies"])
+@item GY94([kappa=@{real>0@}, V=@{real>0@}, "equilibrium frequencies"])
 Goldman and Yang (1994) substitution model for codons (default values:
 @var{kappa}=1 and @var{V}=10000). See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1GY94.html#_details, Bio++ description}.
 
 
-@item MG94([genetic_code=@{genetic code descrition@}, rho=@{real>0@}, "equilibrium frequencies"])
+@item MG94([rho=@{real>0@}, "equilibrium frequencies"])
 Muse and Gaut (1994) substitution model for codons (default values:
 @var{rho}=1). See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1MG94.html#_details, Bio++ description}.
 
 
-@item YN98([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
+@item YN98([kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
 Yang and Nielsen (1998) substitution model for codons (default values:
 @var{kappa}=1 and @var{omega}=1). See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YN98.html#_details, Bio++ description}.
 
 
-@item YNGP_M0([genetic_code=@{genetic code description@}, kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
+@item YNGP_M0([kappa=@{real>0@}, omega=@{real>0@}, "equilibrium frequencies"])
 The M0 model of PAML, ie the same as YN98. See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YN98.html#_details, Bio++ description}.
 
 
-@item YNGP_M1([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M1([kappa=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, "equilibrium frequencies"])
 The M1a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000) (default values: @var{kappa}=1, @var{p0}=0.5,
 @var{omega}=0.5). See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M1.html#_details, Bio++ description}.
 
 
-@item YNGP_M2([genetic_code=@{genetic code description@},kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M2([kappa=@{real>0@}, omega0=@{real>0 and <1@}, theta1=@{real>0 and <1 @}],  omega1=@{real>1@},  theta2=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M2a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with  p0=theta1  and
@@ -925,7 +924,7 @@ p1=(1-theta1)*theta2 (default values: @var{kappa}=1, @var{theta1}=0.33333,
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M2.html#_details, Bio++ description}.
   
 
-@item YNGP_M3([genetic_code=@{genetic code description@}, n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}, "equilibrium frequencies"])
+@item YNGP_M3([n=@{integer>0@}, kappa=@{real>0@}, omega0=@{real>0 and <1@}, delta1=@{real>0@}, ..., delta@var{n-1}=@{real>0@}, theta1=@{real>0 and <1 @}, ..., theta@var{n-1}1=@{real>0 and <1 @}, "equilibrium frequencies"])
 
 The M3 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with @var{n} discrete values, with p0=theta1
@@ -936,7 +935,7 @@ omegak=omega0+delta1+....+deltak (default values: @var{n}=3,
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M3.html#_details, Bio++ description}.
 
 
-@item YNGP_M7(n=@{integer>0@}, genetic_code=@{genetic code description@},kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
+@item YNGP_M7(n=@{integer>0@}, kappa=@{real>0@}, p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M7 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
@@ -944,7 +943,7 @@ classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2). See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1YNGP__M7.html#_details, Bio++ description}.
 
 
-@item YNGP_M8(n=@{integer>0@}, [genetic_code=@{genetic code description@},kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
+@item YNGP_M8(n=@{integer>0@}, [kappa=@{real>0@}, omegas=@{real>1@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, "equilibrium frequencies"])
 
 The M8 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
@@ -957,7 +956,8 @@ classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
 
 It is also possible to setup more specific models, by specifying a
 nucleotide model for each position. Model parameters names then take
-the form of <codon model name>.<position set>_<position model name>.<position specific parameter name>.
+the form of <codon model name>.<position set>_<position model
+name>.<position specific parameter name>.
 
 In the following models, the arguments @var{model} and
 @var{model@{i@}} are for descriptions of models on bases.
@@ -979,13 +979,20 @@ the whole triplet alphabet, and then the substitution rates to and
 from stop codons are set to zero and the generator is normalized with
 this modification.
 
+The model names est defined through several words that can be mixed
+together to build models at hand. Some words are exclusive. The
+model description must begin with @var{Codon}.
+
+
+@var{Rate} and @var{Prot} and @var{Dist} words define how the models
+are mixed, either with specific rates, or using proteic models, or
+with non-synonymous vs synonymous substitution rates. They are
+exclusive, and one of the three must be used. The default model is
+@var{Rate}.
+
 @table @command
+@item Rate(model... [, relrate1=@{real>0@}, relrate2=@{real>0@}]) 
 
-@item CodonRate(model=@{model name@} [, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
-
-or 
-
-@item CodonRate(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}[, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
 
 Substitution model on codons with position specific evolution rates.
 
@@ -994,7 +1001,8 @@ of the sites. Default: @var{relrate@{i@}=1/@{4-i@}}, such that the rate
 of each site is 1/3.
 
 @example
-alphabet=Codon(letter=DNA, type=Standard)
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
 model=CodonRate(model=T92)
 @end example
 builds a model on codons, such all sites follow the same T92 model.
@@ -1002,7 +1010,8 @@ The parameters names are @var{CodonRate.123_T92.kappa},
 @var{CodonRate.relrate1}, @var{CodonRate.relrate2}.
 
 @example
-alphabet=Codon(letter=DNA, type=Standard)
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
 model=CodonRate(model1=T92, model2=T92, model3=JC69)
 @end example
 builds a model on codons, such that first and second sites follow
@@ -1019,11 +1028,8 @@ model=CodonRate(model1=T92(theta=0.5, kappa=2), \
 See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonRateSubstitutionModel.html#_details, Bio++ description}.
 
-@item CodonDist(model=@{model name@}[, genetic_code=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
 
-or
-
-@item CodonDist(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}[, geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"]) 
+@item Dist(model...[, beta=@{real>0@}])
 
 Substitution model on codons that takes into account the difference
 between synonymous and non-synonymous substitutions.
@@ -1032,7 +1038,8 @@ Optional argument @var{beta} is the ratio between non-synonymous
 substitution rate and synonymous substitution rate. Default value: 1.
 
 @example
-alphabet=Codon(letter=DNA, type=Standard)
+alphabet=Codon(letter=DNA)
+
 model=CodonDist(model=T92)
 @end example
 builds a model on codons, such all sites follow the same T92 model.
@@ -1052,67 +1059,48 @@ See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistanceSubstitutionModel.html#_details, Bio++ description}.
 
 
-@item CodonRateFreq(model=@{model name@}, frequencies=@{frequencies set description@}[, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
-or 
-@item CodonRateFreq(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [, relrate1=@{real>0@}, relrate2=@{real>0@}, "equilibrium frequencies"]) 
+@item Prot(model..., protmodel=@{proteic model name@}[, beta=@{real>0@}])
+
+Substitution model on codons that takes into account the substitution
+rates in a protein model. Those rates are multiplied by a
+non-synonymous susbtitution factor, aka @var{beta}.
+
+@var{Prot} and @var{Dist} words are exclusive.
 
 
-Substitution model on codons with position specific evolution rates,
-where the sustitution rates are multiplied by the frequency of the
-target codon in the given frequencies set.
-
-This model should be used with nucleotidic models which equilibrium
-distribution is fixed, ans does not depend on the parameters.
-Otherwise there may be problems of identifiability of the parameters.
-
-The multiplicative distribution of the model is described by the
-@var{frequencies} argument. See the description of the Frequencies Set
-below.
-
-Each single site model is normalized and the substitution rates
-between codons that differ on more than one letter are null.
-
-Arguments @var{relrate@{i@}} stands for the relative substitution rates
-of the sites. Default: @var{relrate@{i@}=1/@{4-i@}}, such that the rate
-of each site is 1/3.
+Optional argument @var{beta} is the ratio between average substitution
+rate between amino-acids and synonymous substitution rate. Default
+value: 1.
 
 @example
-alphabet=Codon(letter=DNA, type=Standard)
-model=CodonRateFreq(frequencies=Full())
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+model=CodonProt(model=T92, protmodel=LG08)
 @end example
-has parameters @var{CodonRateFreq.123_K80.kappa},
-@var{CodonRateFreq.Full.theta_1}, ...,
-@var{CodonRateFreq.Full.theta_60},
-@var{CodonRateFreq.relrate1},
-@var{CodonRateFreq.relrate2}.
+builds a model on codons, such all sites follow the same T92 model,
+and amino-acid rates are proportional to LG08 substition matrice.
+The parameters names are @var{CodonProt.123_T92.kappa} and 
+@var{CodonProt.beta}.
 
-See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonRateFrequenciesSubstitutionModel.html#_details, Bio++ description}.
+@end table
 
-@item CodonDistFreq(model=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
-
-or 
-
-@item CodonDistFreq(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [geneticcode=@{genetic code description@}, beta=@{real>0@}, "equilibrium frequencies"])
-
-Substitution model on codons that takes into account the difference
-between synonymous and non-synonymous substitutions. Moreover, the
-sustitution rates are multiplied by the frequency of the target codon
-in the given frequencies set.
-
-This model should be used with nucleotidic models which equilibrium
-distribution is fixed, ans does not depend on the parameters.
+Optional words to describe the use of equilibrium frequencies
+sets. This word should be used with nucleotidic models which
+equilibrium distribution is fixed, ans does not depend on parameters.
 Otherwise there may be problems of identifiability of the parameters.
 
-The multiplicative distribution of the model is described by the
+@table @command
+@item Freq(frequencies=@{frequencies set description@})
+
+Sustitution rates are multiplied by the frequency of the target codon
+in the given frequencies set. This factor is described by the
 @var{frequencies} argument. See the description of the Frequencies Set
 below.
 
-Optional argument @var{beta} is the ratio between non-synonymous
-substitution rate and synonymous substitution rate. Default value: 1.
 
 @example
-alphabet=Codon(letter=DNA, type=Standard)
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
 model=CodonDistFreq(frequencies=Full())
 @end example
 has parameters @var{CodonDistFreq.012_T92.kappa},
@@ -1123,12 +1111,33 @@ has parameters @var{CodonDistFreq.012_T92.kappa},
 See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistanceFrequenciesSubstitutionModel.html#_details, Bio++ description}.
 
+@item PhasFreq(frequencies=@{frequencies set description@})
+
+The sustitution rates are multiplied by the product of the frequencies
+of the changed nucleotides -- conditioned on the phase -- in the given
+frequencies set. This factor is described by the @var{frequencies}
+argument. See the description of the Frequencies Set below.
+
+
+For example, see the
+@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistancePhaseFrequenciesSubstitutionModel.html#_details, Bio++ description}.
+
+@end table
+
+
+
+In addition some models are defined that allow multiple substitions,
+with similar logic of included words. These models are prefixed by @var{Kron}.
+
+
+@table @command
+
 @item KronDistFreq(model=@{model name@} [,positions=pos1*pos2*...*posn + posx*...*posm + ...)])
 
 @item KronDistFreq(model1=@{model name@}, model1=@{model name@}, ..., modeln=@{model name@}[,positions=pos1*pos2*...*posn + posx*...*posm + ...])
 
-substitution model on codons as @var{CodonDistFreq} above,
-allowing simultaneous substitutions.
+substitution model on codons as @var{CodonDistFreq} above, allowing
+simultaneous substitutions.
 
 Optional argument @var{positions} can be used to describe which
 substitutions are allowed. See model @xref{Kron}.
@@ -1152,59 +1161,6 @@ See the
 @uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1KCM.html#_details, Bio++ description}.
 
 
-@item CodonDistPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
-
-or
-
-@item CodonDistPhasFreq(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
-
-Substitution model on codons that takes into account the difference
-between synonymous and non-synonymous substitutions. Moreover, the
-sustitution rates are multiplied by the product of the frequencies of
-the changed nucleotides -- conditioned on the phase -- in the given
-frequencies set.
-
-This model should be used with nucleotidic models in which equilibrium
-distribution is fixed, ans does not depend on the parameters.
-Otherwise there may be problems of identifiability of the parameters.
-
-The multiplicative distribution of the model is described by the
-@var{frequencies} argument. See the description of the Frequencies Set
-below.
-
-Optional argument @var{beta} is the ratio between non-synonymous
-substitution rate and synonymous substitution rate. Default value: 1.
-
-See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistancePhaseFrequenciesSubstitutionModel.html#_details, Bio++ description}.
-
-@item CodonDistFitPhasFreq(model=@{model name@}, frequencies=@{frequencies set description@}, fitness=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
-
-or
-
-@item CodonDistFitPhasFreq(model1=@{model name@}, model2=@{model name@}, model3=@{model name@}, frequencies=@{frequencies set description@}, fitness=@{frequencies set description@} [, geneticcode=@{genetic code description@}, beta=@{real>0@}])
-
-Substitution model on codons that takes into account the difference
-between synonymous and non-synonymous substitutions and the difference
-between synonymous codons, in the same manner as in Yang and Nielsen's
-2008 substitution model. The sustitution rates are multiplied by the
-product of the frequencies of the changed nucleotides -- conditioned
-on the phase -- in the given frequencies set, and by ratios of
-fitnesses of the codons.
-
-This model should be used with nucleotidic models in which equilibrium
-distribution is fixed, ans does not depend on the parameters.
-Otherwise there may be problems of identifiability of the parameters.
-
-The multiplicative distribution of the model is described by the
-@var{frequencies} and @var{fitness} arguments. See the description of
-the Frequencies Set below.
-
-Optional argument @var{beta} is the ratio between non-synonymous
-substitution rate and synonymous substitution rate. Default value: 1.
-
-See the
-@uref{http://biopp.univ-montp2.fr/Documents/ClassDocumentation/bpp-phyl/html/classbpp_1_1CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.html#_details, Bio++ description}.
 
 @end table
 
@@ -1349,7 +1305,8 @@ of the sites. Default: @var{relrate@{i@}=1/@{4-i@}}, such that the rate
 of each site is 1/3.
 
 @example
-alphabet=Codon(letter=DNA, type=Standard)
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
 model=Triplet(model=T92)
 @end example
 builds a model on codons, such all sites follow the same T92 model.
@@ -1741,18 +1698,18 @@ frequency set parameters are position dependent.
 
 @example
 alphabet=Word(letter=DNA,length=4)
-Word(frequency=GC())
+nonhomogeneous.root_freq=Word(frequency=GC())
 @end example
-builds a frequency set on 4 bases words, such that all sites
+builds a root frequency set on 4 bases words, such that all sites
 frequencies follow the same GC frequency set model. The parameter
 name is @var{1234_GC.theta}.
 
 @example
 alphabet=Word(letter=DNA,length=4)
-Word(frequency1=GC(),frequency2=GC(),frequency3=Fixed(),\
-                      frequency4=Full())
+nonhomogeneous.root_freq=Word(frequency1=GC(),frequency2=GC(),\
+                      frequency3=Fixed(),frequency4=Full())
 @end example
-builds a frequency set on 4 bases words, such first and second sites
+builds a root frequency set on 4 bases words, such first and second sites
 follow independent GC frequency sets, third site follows a Fixed
 frequency set, and fourth site follows a Full frequency set. Then the
 parameters names are @var{1_GC.theta},
@@ -1780,16 +1737,18 @@ that case, all single site frequency set parameters are position
 dependent.
 
 @example
-alphabet=Codon(letter=DNA, type=Standard)
-Codon(frequency=GC())
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+nonhomogeneous.root_freq=Codon(frequency=GC())
 @end example
 builds a frequency set on codons, such that all sites frequencies
 follow the same GC frequency set model. The parameter name is
 @var{123_GC.theta}.
 
 @example
-alphabet=Codon(letter=DNA, type=Standard)
-Codon(frequency1=GC(),frequency2=GC(),frequency3=Fixed())
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+nonhomogeneous.root_freq=Codon(frequency1=GC(),frequency2=GC(),frequency3=Fixed())
 @end example
 
 builds a frequency set on codons, such that first and second sites
