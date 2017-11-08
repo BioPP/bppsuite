@@ -608,7 +608,7 @@ int main(int args, char** argv)
                   out << "\t0\t0" << endl;
                 } else {
                   //This is a real substitution:
-                  double nt = CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet);
+                  int nt = (int)CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet);
                   double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, minState, *gCode); 
                   out << "\t" << ns << "\t" << (nt - ns);
                 }
