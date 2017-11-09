@@ -270,7 +270,8 @@ int main(int args, char** argv)
       // Create a likelihood object:
       treeLik = new DRHomogeneousTreeLikelihood(*tree, *aln, model.get(), rDist.get());
       treeLik->initialize();
-
+      if (isinf(treeLik->getValue()))
+        throw Exception("Error: null likelihood. Possible cause: stop codon or numerical underflow (too many sequences).");
       // Optimize parameters:
       treeLik = dynamic_cast<DRTreeLikelihood*>(PhylogeneticsApplicationTools::optimizeParameters(treeLik, treeLik->getParameters(), bpppopstats.getParams(), "", true, true, 2));
 
