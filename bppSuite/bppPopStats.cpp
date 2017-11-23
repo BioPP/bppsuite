@@ -285,7 +285,9 @@ int main(int args, char** argv)
         int outgroupId = tree->getLeafId(pscOut->getSequence(0).getName());
         ancestralSequence.reset(asr.getAncestralSequenceForNode(tree->getFatherId(outgroupId)));
       }
-      omega = model->getParameter("omega").getValue();
+      if (codonAlphabet) {
+        omega = model->getParameter("omega").getValue();
+      }
     }
     if (treeLik)
       delete treeLik; //Not needed anymore.
