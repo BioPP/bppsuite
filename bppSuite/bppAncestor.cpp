@@ -47,65 +47,27 @@ using namespace std;
 // From bpp-core:
 #include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
-#include <Bpp/App/ApplicationTools.h>
-#include <Bpp/Io/FileTools.h>
-#include <Bpp/Text/TextTools.h>
-#include <Bpp/Text/KeyvalTools.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
-#include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
-#include <Bpp/Numeric/Matrix/MatrixTools.h>
-#include <Bpp/Numeric/VectorTools.h>
-#include <Bpp/Numeric/AutoParameter.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/SiteTools.h>
-#include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
-#include <Bpp/Seq/Container/SiteContainerTools.h>
-#include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/Io/BppOAlignmentWriterFormat.h>
 
 // From PhylLib:
-#include <Bpp/Phyl/Tree/PhyloTree.h>
-#include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/RASTools.h>
-#include <Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.h>
-#include <Bpp/Phyl/Likelihood/TreeLikelihoodTools.h>
-#include <Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.h>
-#include <Bpp/Phyl/PatternTools.h>
-#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/OptimizationTools.h>
-#include <Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h>
-#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
-#include <Bpp/Phyl/Model/SubstitutionModelSet.h>
-#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Io/Newick.h>
 
 // From Newlik:
-#include <Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.h>
-#include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
 #include <Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h>
+
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
+
+#include "bppTools.h"
 
 using namespace bpp;
 
 /******************************************************************************/
-
-void help()
-{
-  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
-  (*ApplicationTools::message << "bppancestor parameter1_name=parameter1_value ").endLine();
-  (*ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file").endLine();
-  (*ApplicationTools::message).endLine();
-  (*ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options.").endLine();
-  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
-}
 
 int main(int args, char ** argv)
 {
@@ -119,222 +81,38 @@ int main(int args, char ** argv)
 
   if (args == 1)
   {
-    help();
+    bppTools::help("bppAncestor");
     return 0;
   }
   
   try {
 
     
-    BppApplication bppancestor(args, argv, "BppAncestor");
+    BppApplication bppancestor(args, argv, "bppancestor");
     bppancestor.startTimer();
 
     map<string, string> allParams=bppancestor.getParams();
     map<string, string> unparsedparams;
-    
-    Alphabet* alphabet = SequenceApplicationTools::getAlphabet(allParams, "", false);
-    unique_ptr<GeneticCode> gCode;
-    CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
-    if (codonAlphabet) {
-      string codeDesc = ApplicationTools::getStringParameter("genetic_code", allParams, "Standard", "", true, true);
-      ApplicationTools::displayResult("Genetic Code", codeDesc);
-      
-      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
-    }
 
-  
-    ////// Get the map of the sequences 
+    unique_ptr<Alphabet> alphabet(bppTools::getAlphabet(allParams));
+    unique_ptr<GeneticCode> gCode(bppTools::getGeneticCode(allParams, alphabet.get()));
 
-    map<size_t, AlignedValuesContainer*> mSites = SequenceApplicationTools::getAlignedContainers(alphabet, allParams);
-
-    if (mSites.size() == 0)
-      throw Exception("Missing data input.sequence.file option");
-
-    /////// Get the map of initial trees
-    
-    map<size_t, PhyloTree*> mTree=PhylogeneticsApplicationTools::getPhyloTrees(allParams, mSites, unparsedparams);
-
-    /////////////////
-    // Computing stuff
-    
-    PhyloLikelihood* tl = 0;
-    SubstitutionProcessCollection* SPC = 0;
-  
-    string collection = ApplicationTools::getStringParameter("collection", allParams, "", "", true, 1);
-
-    map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(allParams);
-
-    map<size_t, TransitionModel*> mMod = PhylogeneticsApplicationTools::getTransitionModels(alphabet, gCode.get(), mSites, allParams, unparsedparams);
-
-    map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, allParams, unparsedparams);
-
-    SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, allParams, unparsedparams);
-
-    map<size_t, SequenceEvolution*> mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, allParams, unparsedparams);
-    
 // Missing check
 //  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
-    for (auto itc : mSites)
-      SiteContainerTools::changeGapsToUnknownCharacters(*itc.second);
+    // get the result phylo likelihood
 
-    // get the recursive phylo likelihoods
-
-    PhyloLikelihoodContainer* mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(*SPC, mSeqEvol, mSites, allParams);
-
-    // filter to Single Data PhyloLikelihoods
-
-    if (!mPhyl->hasPhyloLikelihood(0))
-      throw Exception("Missing phyloLikelihoods.");
-
-    tl=(*mPhyl)[0];
-
-    //////////////////////////////////////////////
-    /// Infinite likelihood
+    unique_ptr<PhyloLikelihood> tl(bppTools::getResultPhyloLikelihood(allParams, alphabet.get(), gCode.get(), unparsedparams));
     
-    double logL = tl->getValue();
-
-    if (std::isinf(logL))
-    {
-      // This may be due to null branch lengths, leading to null likelihood!
-      ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
-      ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
-      ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.001.");
-      ParameterList pl = tl->getBranchLengthParameters();
-      for (size_t i = 0; i < pl.size(); i++)
-      {
-        if (pl[i].getValue() < 0.001)
-          pl[i].setValue(0.001);
-      }
-      tl->matchParametersValues(pl);
-      logL = tl->getValue();
-    }
-  
-    ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
-    if (std::isinf(logL))
-    {
-      ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
-
-      map<size_t, AbstractSingleDataPhyloLikelihood*> mSD;
-
-      if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl)!=NULL)
-        mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl);
-      else{
-        SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl);
-        if (sOAP!=NULL)
-        {
-          const vector<size_t>& nSD=sOAP->getNumbersOfPhyloLikelihoods();
-          
-          for (size_t iSD=0; iSD< nSD.size(); iSD++)
-          {
-            AbstractSingleDataPhyloLikelihood* pASDP=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(sOAP->getAbstractPhyloLikelihood(nSD[iSD]));
-            
-            if (pASDP!=NULL)
-              mSD[nSD[iSD]]=pASDP;
-          }
-        }
-      }
-      
-      for (map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
-      {
-        ApplicationTools::displayWarning("Checking for phyloLikelihood " + TextTools::toString(itm->first));
-          
-        if (std::isinf(itm->second->getValue()))
-        {
-          AbstractSingleDataPhyloLikelihood* sDP=itm->second;
-          /// !!! Not economic
-          AlignedValuesContainer* vData=sDP->getData()->clone();
-
-          if (codonAlphabet)
-          {
-            SiteContainer* vSC=dynamic_cast<SiteContainer*>(vData);
-            ProbabilisticSiteContainer* pSC=dynamic_cast<ProbabilisticSiteContainer*>(vData);
-
-            bool f = false;
-            size_t s;
-            for (size_t i = 0; i < vData->getNumberOfSites(); i++) {
-              if (std::isinf(sDP->getLogLikelihoodForASite(i))) {
-                if (vSC)
-                {
-                  const Site& site = vSC->getSite(i);
-                  s = site.size();
-                  for (size_t j = 0; j < s; j++) {
-                    if (gCode->isStop(site.getValue(j))) {
-                      (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << vData->getName(j)).endLine();
-                      f = true;
-                    }
-                  }
-                }
-                else
-                {
-                  const std::shared_ptr<ProbabilisticSite> site = pSC->getSite(i);
-                  s = site->size();
-                  for (size_t j = 0; j < s; j++)
-                  {
-                    bool g=false;
-                    for (int st = 0; !g && st < (int)alphabet->getSize(); st++)
-                      g = (site->getStateValueAt(j,st)!=0 && !gCode->isStop(st));
-                    
-                    if (!g)
-                    {
-                      (*ApplicationTools::error << "Only stop Codons at site " << site->getPosition() << " in sequence " << vData->getName(j)).endLine();
-                      f = true;
-                    }
-                  }
-                }
-              }
-            }
-            if (f)
-              exit(-1);
-          }
-          
-            
-          bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", allParams, false, "", true, false);
-          if (!removeSaturated) {
-            ApplicationTools::displayError("!!! Looking at each site:");
-            for (unsigned int i = 0; i < vData->getNumberOfSites(); i++) {
-              (*ApplicationTools::error << "Site " << vData->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
-            }
-            ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
-            ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
-            exit(1);
-          } else {
-            ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
-            for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
-              if (std::isinf(sDP->getLogLikelihoodForASite(i - 1))) {
-                ApplicationTools::displayResult("Ignore saturated site", vData->getSymbolListSite(i - 1).getPosition());
-                vData->deleteSites(i - 1,1);
-              }
-            }
-            ApplicationTools::displayResult("Number of sites retained", mSites.begin()->second->getNumberOfSites());
-
-            sDP->setData(*vData);
-            logL = sDP->getValue();
-            if (std::isinf(logL)) {
-              ApplicationTools::displayError("This should not happen. Exiting now.");
-              exit(1);
-            }
-            ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
-          }
-        }
-      }
-    }
-
-    // Write parameters to screen:
-    //    ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl->getValue(), 15));
-    ParameterList parameters = tl->getParameters();
-    parameters.deleteParameters(tl->getBranchLengthParameters().getParameterNames(),false);
-              
-    for (unsigned int i = 0; i < parameters.size(); i++)
-      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-
+    bppTools::fixLikelihood(allParams, alphabet.get(), gCode.get(), tl.get());
+    
+    bppTools::displayParameters(*tl);
 
     // Reconstruct ancestral sequences:
     string reconstruction = ApplicationTools::getStringParameter("asr.method", bppancestor.getParams(), "marginal", "", true, false);
     ApplicationTools::displayResult("Ancestral state reconstruction method", reconstruction);
     bool probs = false;
 
-  
     bool probMethod = false;
     if (reconstruction == "none")
     {
@@ -357,10 +135,10 @@ int main(int args, char ** argv)
     /// map of the Single Process 
     map<size_t, AbstractSingleDataPhyloLikelihood*> mSD;
         
-    if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl)!=NULL)
-      mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl);
+    if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl.get())!=NULL)
+      mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl.get());
     else{
-      SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl);
+      SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl.get());
       if (sOAP)
       {
         const vector<size_t>& nSD=sOAP->getNumbersOfPhyloLikelihoods();
@@ -425,16 +203,16 @@ int main(int args, char ** argv)
       else
         sites=oPSP->getData();
         
-      AbstractLikelihoodTreeCalculation* pDR;
+      unique_ptr<AbstractLikelihoodTreeCalculation> pDR;
       
       if (sPP!=NULL)
-        pDR=dynamic_cast<AbstractLikelihoodTreeCalculation*>(sPP->getLikelihoodCalculation());
+        pDR.reset(dynamic_cast<AbstractLikelihoodTreeCalculation*>(sPP->getLikelihoodCalculation()));
       else
-        pDR=dynamic_cast<AbstractLikelihoodTreeCalculation*>(oPSP->getLikelihoodCalculation());
+        pDR.reset(dynamic_cast<AbstractLikelihoodTreeCalculation*>(oPSP->getLikelihoodCalculation()));
 
       if (probMethod)
       {    
-        AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR);
+        AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR.get());
 
         size_t nbStates=sPP->getNumberOfStates();
 
@@ -537,7 +315,7 @@ int main(int args, char ** argv)
           
           if (sample)
           {
-            asSites = new VectorSiteContainer(alphabet);
+            asSites = new VectorSiteContainer(alphabet.get());
             
             for (unsigned int i = 0; i < nbSamples; i++)
             {
@@ -626,7 +404,6 @@ int main(int args, char ** argv)
       }
     }
   
-    delete alphabet;
     bppancestor.done();
   
   }

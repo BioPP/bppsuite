@@ -47,41 +47,20 @@ using namespace std;
 // From bpp-core:
 #include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
-#include <Bpp/App/ApplicationTools.h>
-#include <Bpp/Io/FileTools.h>
-#include <Bpp/Numeric/Number.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
-#include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
-#include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/App/NumCalcApplicationTools.h>
 
 // From bpp-seq:
-#include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/VectorSiteContainer.h>
-#include <Bpp/Seq/Container/SequenceContainerTools.h>
-#include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Seq/Io/BppOAlignmentWriterFormat.h>
 
 // From PhylLib:
-#include <Bpp/Phyl/Tree/PhyloTree.h>
-#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Simulation/SequenceSimulationTools.h>
-#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
-#include <Bpp/Phyl/Io/Newick.h>
-
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
-
 #include <Bpp/Phyl/Simulation/EvolutionSequenceSimulator.h>
+
+#include "bppTools.h"
+
 
 using namespace bpp;
 
@@ -150,16 +129,6 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
 }
 
 
-void help()
-{
-  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
-  (*ApplicationTools::message << "bppseqgen parameter1_name=parameter1_value").endLine();
-  (*ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file").endLine();
-  (*ApplicationTools::message).endLine();
-  (*ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options.").endLine();
-  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
-}
-
 int main(int args, char ** argv)
 {
   cout << "******************************************************************" << endl;
@@ -174,66 +143,27 @@ int main(int args, char ** argv)
 
   if(args == 1)
   {
-    help();
+    bppTools::help("bppSeqGen");
     return 0;
   }
 
   try {
 
-    BppApplication bppseqgen(args, argv, "BppSeqGen");
+    BppApplication bppseqgen(args, argv, "bppseqgen");
     bppseqgen.startTimer();
     map<string, string> unparsedparams;
 
-    ///// Alphabet
+    Alphabet* alphabet = bppTools::getAlphabet(bppseqgen.getParams());
 
-    Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqgen.getParams(), "", false);
-    unique_ptr<GeneticCode> gCode;
-    CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
-    if (codonAlphabet) {
-      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqgen.getParams(), "Standard", "", true, true);
-      ApplicationTools::displayResult("Genetic Code", codeDesc);
-
-      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
-    }
-
+    unique_ptr<GeneticCode> gCode(bppTools::getGeneticCode(bppseqgen.getParams(), alphabet));
 
     ////// Get the map of the sequences
     
-    map<size_t, AlignedValuesContainer*> mSites=SequenceApplicationTools::getAlignedContainers(alphabet, bppseqgen.getParams());
+    map<size_t, AlignedValuesContainer*> mSites = bppTools::getAlignmentsMap(bppseqgen.getParams(), alphabet, true, true);
 
-    if (mSites.size() == 0)
-      throw Exception("Missing data input.sequence.file option");
+    SubstitutionProcessCollection* SPC = bppTools::getCollection(bppseqgen.getParams(), alphabet, gCode.get(), mSites, unparsedparams);
 
-    /////// Get the map of initial trees
-    map<size_t, PhyloTree*> mTree=PhylogeneticsApplicationTools::getPhyloTrees(bppseqgen.getParams(), mSites, unparsedparams);
-
-    // Scaling of trees:
-    double scale = ApplicationTools::getDoubleParameter("input.tree.scale", bppseqgen.getParams(), 1, "", false, false);
-
-    if (scale != 1) {
-      ApplicationTools::displayResult("Trees are scaled by", scale);
-    
-      for (auto it : mTree) {
-        it.second -> scaleTree(scale);
-      }
-    }
-
-    /**********************************/
-    /*  Processes                     */
-    /**********************************/
-
-    SubstitutionProcessCollection* SPC = 0;
-    map<size_t, SequenceEvolution*> mSeqEvol;
-
-    map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(bppseqgen.getParams());
-
-    map<size_t, TransitionModel*> mMod = PhylogeneticsApplicationTools::getTransitionModels(alphabet, gCode.get(), mSites, bppseqgen.getParams(), unparsedparams);
-
-    map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode.get(), mSites, bppseqgen.getParams(), unparsedparams);
-
-    SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode.get(), mTree, mMod, mRootFreq, mDist, bppseqgen.getParams(), unparsedparams);
-
-    mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, bppseqgen.getParams(), unparsedparams);
+    map<size_t, SequenceEvolution*> mSeqEvol = bppTools::getProcesses(bppseqgen.getParams(), *SPC, unparsedparams);
 
     /*******************************************/
     /*     Starting sequence                   */
@@ -244,13 +174,14 @@ int main(int args, char ** argv)
 
     bool outputInternalSequences = ApplicationTools::getBooleanParameter("output.internal.sequences", bppseqgen.getParams(), false, "", true, 1);
 
-
     string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
 
     bool withStates = false;
     bool withRates = false;
     vector<size_t> states;
     vector<double> rates;
+
+    const TransitionModel* tm=SPC->getModel(0);
 
     if (infosFile != "none")
     {
@@ -276,6 +207,7 @@ int main(int args, char ** argv)
       if (withStates)
       {
         vector<string> ancestralStates = infos->getColumn(stateCol);
+        
         states.resize(nbSites);
         for (size_t i = 0; i < nbSites; i++)
         {
@@ -283,7 +215,7 @@ int main(int args, char ** argv)
           //If a generic character is provided, we pick one state randomly from the possible ones:
           if (alphabet->isUnresolved(alphabetState))
             alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
-          states[i] = RandomTools::pickOne<size_t>(mMod.begin()->second->getModelStates(alphabetState));
+          states[i] = RandomTools::pickOne<size_t>(tm->getModelStates(alphabetState));
         }
 
         string siteSet = ApplicationTools::getStringParameter("input.site.selection", bppseqgen.getParams(), "none", "", true, 1);
@@ -351,7 +283,7 @@ int main(int args, char ** argv)
           withStates = true;
 
           for (size_t i = 0; i < nbSites; ++i) {
-            states[i] = RandomTools::pickOne<size_t>(mMod.begin()->second->getModelStates((*pseq)[i]));
+            states[i] = RandomTools::pickOne<size_t>(tm->getModelStates((*pseq)[i]));
           }
           ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
 

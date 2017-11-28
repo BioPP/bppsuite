@@ -46,29 +46,16 @@ using namespace std;
 
 #include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
-#include <Bpp/App/ApplicationTools.h>
-#include <Bpp/Text/TextTools.h>
 #include <Bpp/Numeric/Range.h>
 
-// From bpp-seq:
-#include <Bpp/Seq/SiteTools.h>
-#include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/App/SequenceApplicationTools.h>
+// // From bpp-seq:
 #include <Bpp/Seq/Io/Mase.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SequenceTools.h>
 
-using namespace bpp;
+#include "bppTools.h"
 
-void help()
-{
-  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
-  (*ApplicationTools::message << "bppalnscore parameter1_name=parameter1_value").endLine();
-  (*ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file").endLine();
-  (*ApplicationTools::message).endLine();
-  (*ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options.").endLine();
-  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
-}
+using namespace bpp;
 
 int main(int args, char** argv)
 {
@@ -80,7 +67,7 @@ int main(int args, char** argv)
 
   if (args == 1)
   {
-    help();
+    bppTools::help("bppalnscore");
     return 0;
   }
 
@@ -90,13 +77,13 @@ int main(int args, char** argv)
     bppalnscore.startTimer();
 
     // Get alphabet
-    Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppalnscore.getParams(), "", false, true, true);
+    unique_ptr<Alphabet> alphabet(bppTools::getAlphabet(bppalnscore.getParams()));
 
     // Get the test alignment:
-    unique_ptr<SiteContainer> sitesTest(SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".test", false, true));
+    unique_ptr<SiteContainer> sitesTest(SequenceApplicationTools::getSiteContainer(alphabet.get(), bppalnscore.getParams(), ".test", false, true));
 
     // Get the reference alignment:
-    unique_ptr<SiteContainer> sitesRef(SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".ref", false, true));
+    unique_ptr<SiteContainer> sitesRef(SequenceApplicationTools::getSiteContainer(alphabet.get(), bppalnscore.getParams(), ".ref", false, true));
 
     // We check if the two alignments are compatible:
     vector<string> namesTest = sitesTest->getSequencesNames();
