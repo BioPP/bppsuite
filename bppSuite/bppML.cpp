@@ -128,9 +128,12 @@ int main(int args, char** argv)
     // Computing stuff
 
     unique_ptr<DiscreteRatesAcrossSitesTreeLikelihood> tl_old;
-    unique_ptr<PhyloLikelihood> tl_new = 0;
+
+    PhyloLikelihood* tl_new = 0;
+    
     unique_ptr<SubstitutionProcessCollection> SPC;
     map<size_t, SequenceEvolution*> mSeqEvol;
+
     unique_ptr<PhyloLikelihoodContainer> mPhyl=0;
     
     bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, 2);
@@ -193,7 +196,7 @@ int main(int args, char** argv)
       if (!mPhyl->hasPhyloLikelihood(0))
         throw Exception("Missing phyloLikelihoods.");
 
-      tl_new.reset((*mPhyl)[0]);
+      tl_new=(*mPhyl)[0];
     }
     
     ApplicationTools::displayMessage("");
@@ -428,13 +431,13 @@ int main(int args, char** argv)
     {
       //Check initial likelihood:
       
-      bppTools::fixLikelihood(bppml.getParams(), alphabet.get(), gCode.get(), tl_new.get());
+      bppTools::fixLikelihood(bppml.getParams(), alphabet.get(), gCode.get(), tl_new);
 
       // First `true` means that default is to optimize model parameters.
       if(ApplicationTools::getBooleanParameter("optimization.model_parameters", bppml.getParams(), true, "", true, 1))
-        tl_new.reset(PhylogeneticsApplicationTools::optimizeParameters(tl_new.get(), tl_new->getParameters(), bppml.getParams()));
+        tl_new=PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
       else
-        tl_new.reset(PhylogeneticsApplicationTools::optimizeParameters(tl_new.get(), tl_new->getBranchLengthParameters(), bppml.getParams()));
+        tl_new=PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getBranchLengthParameters(), bppml.getParams());
 
       PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams());
 

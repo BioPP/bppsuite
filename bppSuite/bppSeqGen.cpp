@@ -77,7 +77,7 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
   vector<string> vSimulName=ApplicationTools::matchingParameters("simul*", params);
 
   if (vSimulName.size() == 0) {
-    ApplicationTools::displayWarning("Did not find any parameters matching `simul*`, so simulation is a no-op.");
+    ApplicationTools::displayWarning("Did not find any descriptor matching `simul*`, so no simulation performed.");
   }
 
   SequenceSimulator* ss;
@@ -112,19 +112,23 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
       ss= new EvolutionSequenceSimulator(*mSeqEvol.find(indProcess)->second);
     }
     else
+    {
       ss=new SimpleSubstitutionProcessSequenceSimulator(spc.getSubstitutionProcess(indProcess));
-
+    }
+    
+    
     // output
 
     mfnames[num] = ApplicationTools::getAFilePath("output.sequence.file", args, true, false, "", false, "none", true);
 
     mformats[num] = ApplicationTools::getStringParameter("output.sequence.format", args, "Fasta", "", false, true);
 
-    mlength[num] = (size_t)ApplicationTools::getIntParameter("number_of_sites", args, 0, "", false, 0);
+    mlength[num] = (size_t)ApplicationTools::getIntParameter("number_of_sites", args, 100, "", false, 0);
 
     mSim[num]=ss;
   }
 
+  
   return mSim;
 }
 
@@ -157,10 +161,13 @@ int main(int args, char ** argv)
 
     unique_ptr<GeneticCode> gCode(bppTools::getGeneticCode(bppseqgen.getParams(), alphabet));
 
-    ////// Get the map of the sequences
+    ////// Get the optional map of the sequences
     
     map<size_t, AlignedValuesContainer*> mSites = bppTools::getAlignmentsMap(bppseqgen.getParams(), alphabet, true, true);
 
+
+    /// collection
+    
     SubstitutionProcessCollection* SPC = bppTools::getCollection(bppseqgen.getParams(), alphabet, gCode.get(), mSites, unparsedparams);
 
     map<size_t, SequenceEvolution*> mSeqEvol = bppTools::getProcesses(bppseqgen.getParams(), *SPC, unparsedparams);
@@ -174,15 +181,15 @@ int main(int args, char ** argv)
 
     bool outputInternalSequences = ApplicationTools::getBooleanParameter("output.internal.sequences", bppseqgen.getParams(), false, "", true, 1);
 
-    string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
-
     bool withStates = false;
     bool withRates = false;
     vector<size_t> states;
     vector<double> rates;
 
-    const TransitionModel* tm=SPC->getModel(0);
-
+    const StateMap& sm=SPC->getModel(1)->getStateMap();
+    
+    string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
+    
     if (infosFile != "none")
     {
       ApplicationTools::displayResult("Site information", infosFile);
@@ -215,7 +222,7 @@ int main(int args, char ** argv)
           //If a generic character is provided, we pick one state randomly from the possible ones:
           if (alphabet->isUnresolved(alphabetState))
             alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
-          states[i] = RandomTools::pickOne<size_t>(tm->getModelStates(alphabetState));
+          states[i] = RandomTools::pickOne<size_t>(sm.getModelStates(alphabetState));
         }
 
         string siteSet = ApplicationTools::getStringParameter("input.site.selection", bppseqgen.getParams(), "none", "", true, 1);
@@ -272,8 +279,9 @@ int main(int args, char ** argv)
     {
       try {
         VectorSiteContainer* allSeq = 0;
+        
         allSeq = SequenceApplicationTools::getSiteContainer(alphabet, bppseqgen.getParams());
-
+        
         if (allSeq->getNumberOfSequences() > 0)
         {
           Sequence* pseq = SequenceTools::getSequenceWithCompleteSites(allSeq->getSequence(0));
@@ -283,7 +291,7 @@ int main(int args, char ** argv)
           withStates = true;
 
           for (size_t i = 0; i < nbSites; ++i) {
-            states[i] = RandomTools::pickOne<size_t>(tm->getModelStates((*pseq)[i]));
+            states[i] = RandomTools::pickOne<size_t>(sm.getModelStates((*pseq)[i]));
           }
           ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
 
@@ -292,13 +300,13 @@ int main(int args, char ** argv)
       }
       catch (Exception& e)
       {
-        cout << e.what() << endl;
-        return 1;
+        // cout << e.what() << endl;
+        // return 1;
       }
     }
   
-    if (nbSites == 0)
-      nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
+    // if (nbSites == 0)
+    //   nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
 
     /*******************/
     /* Simulations     */
@@ -307,12 +315,12 @@ int main(int args, char ** argv)
     map<size_t, string> filenames;
     map<size_t, string> formats;
     map<size_t, size_t> lengths;
-  
+
     map<size_t, SequenceSimulator*> mSim=readSimul(*SPC, mSeqEvol, bppseqgen.getParams(),filenames, formats, lengths);
-  
-    for (map<size_t, SequenceSimulator*>::iterator it=mSim.begin(); it!=mSim.end(); it++)
+
+    for (auto& it : mSim)
     {
-      SequenceSimulator& seqsim = *it->second;
+      SequenceSimulator& seqsim = *it.second;
 
       if (withStates || withRates)
       {
@@ -350,7 +358,7 @@ int main(int args, char ** argv)
 
       else
       {
-        size_t nSites=(lengths[it->first]==0?nbSites:lengths[it->first]);
+        size_t nSites=(lengths[it.first]==0?nbSites:lengths[it.first]);
       
         ApplicationTools::displayResult("Number of sites", TextTools::toString(nSites));
         ApplicationTools::displayTask("Perform simulations");
@@ -361,16 +369,16 @@ int main(int args, char ** argv)
 
       // Write to file:
       BppOAlignmentWriterFormat bppoWriter(1);
-      unique_ptr<OAlignment> oAln(bppoWriter.read(formats[it->first]));
-      ApplicationTools::displayResult("Output alignment file ", filenames[it->first]);
+      unique_ptr<OAlignment> oAln(bppoWriter.read(formats[it.first]));
+      ApplicationTools::displayResult("Output alignment file ", filenames[it.first]);
       ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
 
-      oAln->writeAlignment(filenames[it->first], *sites, true);
+      oAln->writeAlignment(filenames[it.first], *sites, true);
 
     }
 
-    for (map<size_t, SequenceSimulator*>::iterator it=mSim.begin(); it!=mSim.end(); it++)
-      delete it->second;
+    for (auto& it : mSim)
+      delete it.second;
 
     delete alphabet;
 

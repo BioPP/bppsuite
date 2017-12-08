@@ -102,9 +102,9 @@ int main(int args, char ** argv)
 
     // get the result phylo likelihood
 
-    unique_ptr<PhyloLikelihood> tl(bppTools::getResultPhyloLikelihood(allParams, alphabet.get(), gCode.get(), unparsedparams));
+    PhyloLikelihood* tl=bppTools::getResultPhyloLikelihood(allParams, alphabet.get(), gCode.get(), unparsedparams);
     
-    bppTools::fixLikelihood(allParams, alphabet.get(), gCode.get(), tl.get());
+    bppTools::fixLikelihood(allParams, alphabet.get(), gCode.get(), tl);
     
     bppTools::displayParameters(*tl);
 
@@ -135,10 +135,10 @@ int main(int args, char ** argv)
     /// map of the Single Process 
     map<size_t, AbstractSingleDataPhyloLikelihood*> mSD;
         
-    if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl.get())!=NULL)
-      mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl.get());
+    if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl)!=NULL)
+      mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl);
     else{
-      SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl.get());
+      SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl);
       if (sOAP)
       {
         const vector<size_t>& nSD=sOAP->getNumbersOfPhyloLikelihoods();
@@ -203,16 +203,16 @@ int main(int args, char ** argv)
       else
         sites=oPSP->getData();
         
-      unique_ptr<AbstractLikelihoodTreeCalculation> pDR;
+      AbstractLikelihoodTreeCalculation* pDR;
       
       if (sPP!=NULL)
-        pDR.reset(dynamic_cast<AbstractLikelihoodTreeCalculation*>(sPP->getLikelihoodCalculation()));
+        pDR=dynamic_cast<AbstractLikelihoodTreeCalculation*>(sPP->getLikelihoodCalculation());
       else
-        pDR.reset(dynamic_cast<AbstractLikelihoodTreeCalculation*>(oPSP->getLikelihoodCalculation()));
+        pDR=dynamic_cast<AbstractLikelihoodTreeCalculation*>(oPSP->getLikelihoodCalculation());
 
       if (probMethod)
       {    
-        AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR.get());
+        AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR);
 
         size_t nbStates=sPP->getNumberOfStates();
 
