@@ -1,71 +1,82 @@
-[[Category:BppSuite]]
+# BppSuite presentation
 
 BppSuite is a suite of ready-to-use programs for phylogenetic and sequence analysis. 
 
-[http://biopp.univ-montp2.fr/forge/bppsuite Here] is the forge where the programs are described.
+## Installation 
 
-== Installation ==
+### Standalone executables 
 
-=== Standalone executables ===
+Standalone executables are available for [linux64](http://biopp.univ-montp2.fr/repos/exe/lin64/).
 
-Standalone executables are available for [http://biopp.univ-montp2.fr/repos/exe/lin32/ linux32], [http://biopp.univ-montp2.fr/repos/exe/lin64/ linux64], [http://biopp.univ-montp2.fr/repos/exe/win32/ win32], [http://biopp.univ-montp2.fr/repos/exe/win64/ win64] and [http://biopp.univ-montp2.fr/repos/exe/mac/ Mac].
+[//]: [win32](http://biopp.univ-montp2.fr/repos/exe/win32/), [win64](http://biopp.univ-montp2.fr/repos/exe/win64/) and [Mac](http://biopp.univ-montp2.fr/repos/exe/mac/)
 
-=== From source files ===
+### From source files 
 
-===== Getting the sources =====
+#### Get the sources 
 
 This is done with <tt>git</tt>, for example in directory <tt>$bpp_dir</tt>:
 
+<h5>
 <pre>
 cd $bpp_dir
 git clone https://github.com/BioPP/bppsuite
 </pre>
+</h5>
 
-===== Compiling =====
+#### Compiling 
 
-Bio++ libraries shoud be installed beforehand, for example in <tt>$bpp_dir</tt>.
+Bio++ libraries need to be installed beforehand, for example in <tt>$bpp_dir</tt>. The needed libraries are [bpp-core](https://github.com/BioPP/bpp-core), [bpp-seq](https://github.com/BioPP/bpp-seq), [bpp-phyl](https://github.com/BioPP/bpp-phyl), [bpp-popgen](https://github.com/BioPP/bpp-popgen).
 
+After, you proceed:
+
+<h5>
 <pre>
 cd bppsuite
 cmake -DCMAKE_INSTALL_PREFIX=$bpp_dir ./ # prepare compilation
 make # compile
 make install # move files to the installation directory (this will create a $bpp_dir/bin/ directory)
 </pre>
+</h5>
 
 That's it ! The executables are now installed in <tt>$bpp_dir/bin</tt>. 
-For more information on how to compile and run Bio++ dependent programs, see the [[:Category:Usage|Usage]] pages.
 
-* Without the option <tt>-DCMAKE_INSTALL_PREFIX=$bpp_dir</tt>, the standard <tt>/usr/local</tt> directory will be used, and the executables installed in  <tt>/usr/local/bin</tt>, a location which requires superuser access rights.
+Without the option <tt>-DCMAKE_INSTALL_PREFIX=$bpp_dir</tt>, the standard <tt>/usr/local</tt> directory will be used, and the executables installed in  <tt>/usr/local/bin</tt>, a location which requires superuser access rights.
 
-===== Usage =====
+## Usage
 
 Bppsuite executables should know where the dynamic libraries are.  A way to check it is the command:
 
+<h5>
 <pre>
 ldd $bpp_dir$/bin/bppml
 </pre>
+</h5>
 
-To configure this, set in the .bashrc the environment variable :
+To configure this, set in the shell environment variable :
 
+<h5>
 <pre>
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$bpp_dir
 </pre>
+</h5>
 
-(and source this  file or relog).
+(and source the configuration file or relog).
 
-===== Documentation =====
+## Documentation
 
 You can also generate the pdf documentation by typing :
 
+<h5>
 <pre>
 make pdf
 </pre>
+</h5>
 
-== Examples ==
+### Examples
 
 Many examples are available in the subdirectory of <tt>Examples</tt>.
 
-== Documentation ==
+### Documentation 
 
-Documentation can be found at [http://biopp.univ-montp2.fr/manual/html/bppsuite/ http://biopp.univ-montp2.fr/manual/html/bppsuite/].
+Documentation can be found at http://github.com/bppsuite.
  
