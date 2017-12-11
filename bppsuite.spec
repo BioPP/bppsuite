@@ -1,5 +1,5 @@
 %define _basename bppsuite
-%define _version 2.3.1
+%define _version 2.3.2
 %define _release 1
 %define _prefix /usr
 
