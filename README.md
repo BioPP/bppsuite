@@ -78,5 +78,5 @@ Many examples are available in the subdirectory of <tt>Examples</tt>.
 
 ### Documentation 
 
-Documentation can be found at http://github.com/bppsuite.
+Documentation can be found at http://github.com/bppsuite/releases in pdf or html.
  
