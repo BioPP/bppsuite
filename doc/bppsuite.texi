@@ -1000,30 +1000,38 @@ Arguments @var{relrate@{i@}} stands for the relative substitution rates
 of the sites. Default: @var{relrate@{i@}=1/@{4-i@}}, such that the rate
 of each site is 1/3.
 
+@cartouche
 @example
 alphabet=Codon(letter=DNA)
 genetic_code=Standard
 model=CodonRate(model=T92)
 @end example
+@end cartouche
+
 builds a model on codons, such all sites follow the same T92 model.
 The parameters names are @var{CodonRate.123_T92.kappa},
 @var{CodonRate.relrate1}, @var{CodonRate.relrate2}.
 
+@cartouche
 @example
 alphabet=Codon(letter=DNA)
 genetic_code=Standard
 model=CodonRate(model1=T92, model2=T92, model3=JC69)
 @end example
+@end cartouche
+
 builds a model on codons, such that first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
 parameters names are @var{CodonRate.1_T92.kappa},
 @var{CodonRate.2_T92.kappa}, @var{CodonRate.relrate1},
 @var{CodonRate.relrate2}, and can be initialized as is:
 
+@cartouche
 @example
 model=CodonRate(model1=T92(theta=0.5, kappa=2), \
                 model2=T92(theta=0.4, kappa=2), model3=JC69)
 @end example
+@end cartouche
 
 See the
 @uref{http://bioweb.me/bpp-phyl-doc/classbpp_1_1CodonRateSubstitutionModel.html#details, Bio++ description, Bio++ description}.
@@ -1037,19 +1045,24 @@ between synonymous and non-synonymous substitutions.
 Optional argument @var{beta} is the ratio between non-synonymous
 substitution rate and synonymous substitution rate. Default value: 1.
 
+@cartouche
 @example
 alphabet=Codon(letter=DNA)
-
 model=CodonDist(model=T92)
 @end example
+@end cartouche
+
 builds a model on codons, such all sites follow the same T92 model.
 The parameters names are @var{CodonDist.123_T92.kappa} and 
 @var{CodonDist.beta}.
 
+@cartouche 
 @example
 alphabet=Codon(letter=DNA, type=Standard)
 model=CodonDist(model1=T92, model2=T92, model3=JC69)
 @end example
+@end cartouche
+
 builds a model on codons, such that first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
 parameters names are @var{CodonDist.1_T92.kappa},
@@ -1072,11 +1085,14 @@ Optional argument @var{beta} is the ratio between average substitution
 rate between amino-acids and synonymous substitution rate. Default
 value: 1.
 
+@cartouche
 @example
 alphabet=Codon(letter=DNA)
 genetic_code=Standard
 model=CodonProt(model=T92, protmodel=LG08)
 @end example
+@end cartouche
+
 builds a model on codons, such all sites follow the same T92 model,
 and amino-acid rates are proportional to LG08 substition matrice.
 The parameters names are @var{CodonProt.123_T92.kappa} and 
@@ -1098,11 +1114,14 @@ in the given frequencies set. This factor is described by the
 below.
 
 
+@cartouche
 @example
 alphabet=Codon(letter=DNA)
 genetic_code=Standard
 model=CodonDistFreq(frequencies=Full())
 @end example
+@end cartouche
+
 has parameters @var{CodonDistFreq.012_T92.kappa},
 @var{CodonDistFreq.Full.theta_1}, ...,
 @var{CodonDistFreq.Full.theta_60},
@@ -1195,19 +1214,25 @@ Arguments @var{relrate@{i@}} stands for the relative substitution rates
 of the sites. Default: @var{relrate@{i@}=1/@{n-i+1@}}, such that the rate
 of each site is 1/n.
 
+@cartouche
 @example
 alphabet=Word(letter=DNA,length=4)
 model=Word(model=T92())
 @end example
+@end cartouche
+
 builds a model on 4 bases words, such all sites follow the same T92
 model. The parameters names are @var{Word.1234_T92.kappa},
 @var{Word.relrate1}, @var{Word.relrate2}, @var{Word.relrate3}.
 
+@cartouche
 @example
 alphabet=Word(letter=DNA,length=4)
 model=Word(model1=T92(), model2=T92(), model3=JC69(), \
            model4=HKY85())
 @end example
+@end cartouche
+
 builds a model on 4 bases words, such first and second sites follow
 independent T92 models, third site follows a JC69 model, and fourth
 site follows a HKY85 model. Then the parameters names are
@@ -1253,25 +1278,33 @@ allowed).
 
 As examples, on a DNA word with 3 positions:
 
+@cartouche
 @example
 model=Kron(model=K80(), positions=1*2*3)
 @end example
+@end cartouche
 allows only substitutions that change the 3 positions.
 
+@cartouche
 @example
 model=Kron(model=K80(), positions=1*2+3)
 @end example
+@end cartouche
 allows only substitutions that change the positions 1 and 2, and the
 ones that change position 3 alone.
 
+@cartouche
 @example
 model=Kron(model=K80(), positions=1*2+2*3)
 @end example
+@end cartouche
 allows only substitutions that change two neighbor positions.
 
+@cartouche
 @example
 model=Kron(model=K80(), positions=1+2+3)
 @end example
+@end cartouche
 allows only substitutions that change one position, i.e. @var{Word}
 model.
 
@@ -1304,19 +1337,23 @@ Arguments @var{relrate@{i@}} stands for the relative substitution rates
 of the sites. Default: @var{relrate@{i@}=1/@{4-i@}}, such that the rate
 of each site is 1/3.
 
+@cartouche
 @example
 alphabet=Codon(letter=DNA)
 genetic_code=Standard
 model=Triplet(model=T92)
 @end example
+@end cartouche
 builds a model on codons, such all sites follow the same T92 model.
 The parameters names are @var{Triplet.123_T92.kappa},
 @var{Triplet.relrate1}, @var{Triplet.relrate2}.
 
+@cartouche
 @example
 alphabet=Word(letter=DNA, length=3)
 model=Triplet(model1=T92, model2=T92, model3=JC69)
 @end example
+@end cartouche
 builds a model on 3 bases words, such first and second sites follow
 independent T92 models, and third site follows a JC69 model. Then the
 parameters names are @var{Triplet.1_T92.kappa},
@@ -1427,11 +1464,13 @@ parameters distributions is described below. In case the range of a
 parameter is limited, the domain of the corresponding distribution is
 truncated accordingly.
 
+@cartouche
 @example
 model=MixedModel(model=TN93(kappa1=Gamma(n=4,alpha=3,beta=1),\
                             kappa2=Exponential(lambda=2),\
                             theta=0.5,theta1=0.2,theta2=0.1))
 @end example
+@end cartouche
 has parameters @var{TN93.kappa1_Gamma.alpha},
 @var{TN93.kappa1_Gamma.beta},
 @var{TN93.kappa2_Exponential.lamba},
@@ -1451,9 +1490,11 @@ order the models are given). Default: @var{relproba@{i@}=1/@{n-i+1@}},
 such that the probabilty of each site is 1/n, and
 @var{relrate@{i@}=1/@{n-i+1@}} such that the rate of each site is 1.
 
+@cartouche
 @example
 model=Mixture(model1=GY94(), model2=YN98(), relrate1=0.1)
 @end example
+@end cartouche
 has parameters@var{Mixture.relrate1}, @var{Mixture.relproba1},
 @var{Mixture.1_GY94.kappa}, @var{Mixture.1_GY94.V},
 @var{Mixture.2_YN98.kappa}, @var{Mixture.2_YN98.omega}.
@@ -1520,9 +1561,11 @@ Set the number of distinct models to use.
 
 You now have to configure each model individually, using the syntax introduced for the homogeneous case, excepted that model will be numbered, for instance:
 
+@cartouche
 @example
 model1 = T92(theta=0.39, kappa=2.79)
 @end example
+@end cartouche
 
 The additional option is available to attach the model to branches in the tree, specified by the id of the upper node in the tree:
 
@@ -1552,18 +1595,22 @@ file.
 To define constraints for sites between submodels, we can set "paths"
 that any site must follow. For example, in the following description:
 
+@cartouche
 @example
 nonhomogeneous = general
 nonhomogeneous.number_of_models = 3
 
 model1=T92()
-model2=MixedModel(model=T92(kappa=Simple(values=(4,10,20),probas=(0.1,0.5,0.4))))
-model3=MixedModel(model=TN93(theta1=Simple(values=(0.1,0.5,0.9),probas=(0.3,0.2,0.5))))
+model2=MixedModel(model=T92(kappa=Simple(values=(4,10,20),\
+                                probas=(0.1,0.5,0.4))))
+model3=MixedModel(model=TN93(theta1=Simple(values=(0.1,0.5,0.9),\
+                                probas=(0.3,0.2,0.5))))
 
 model1.nodes_id=0:1
 model2.nodes_id=2:3
 model3.nodes_id=4:5
 @end example
+@end cartouche
 
 In this case, on branches 2 & 3 a site follows any submodel of model 2
 (but the same submodel on both branches), and on branches 4 & 5, a
@@ -1579,20 +1626,25 @@ are free (in this case it means that @var{T92.kappa=20} in model 2 is
 linked with @var{TN93.theta1=0.5} in model 3), then we can use the
 declarations:
 
+@cartouche
 @example
 site.number_of_paths=2
 site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2]
 site.path2=model2[T92.kappa_2] & model3[TN93.theta1_3]
 @end example
+@end cartouche
 
 The third path (for the remaining submodels) is automatically
 computed.
 
 It is possible to link mixtures of submodels. For example,
 
+@cartouche
 @example 
-site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2] & model3[TN93.theta1_3]
+site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2]\
+                               & model3[TN93.theta1_3]
 @end example
+@end cartouche
 
 means that a site that has @var{T92.kappa=4} in model2 has either
 @var{TN93.theta1=0.5} or @var{TN93.theta1=0.9} in model3.
@@ -1618,6 +1670,7 @@ identifiability of several parameters (here the probabilities in model
 Another example in the case of mixtures of mixed models, where the
 submodels are defined by their names;
 
+@cartouche
 @example
 nonhomogeneous = general
 nonhomogeneous.number_of_models = 2
@@ -1627,8 +1680,10 @@ model2=LLG08_UL3()
 
 site.number_of_paths=2
 site.path1=model1[LLG08_UL2.M2] & model2[LLG08_UL3.Q1]
-site.path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] & model2[LLG08_UL3.Q3]
+site.path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] \
+                                & model2[LLG08_UL3.Q3]
 @end example
+@end cartouche
 
 When nonhomogeneity option is @option{one_per_branch}, each site is
 constrained to follow the same submodel from leaves to root.
@@ -1696,19 +1751,23 @@ length of the words in the alphabet must be @var{n}, and all single
 site frequency sets are independent. In that case, all single site
 frequency set parameters are position dependent.
 
+@cartouche
 @example
 alphabet=Word(letter=DNA,length=4)
 nonhomogeneous.root_freq=Word(frequency=GC())
 @end example
+@end cartouche
 builds a root frequency set on 4 bases words, such that all sites
 frequencies follow the same GC frequency set model. The parameter
 name is @var{1234_GC.theta}.
 
+@cartouche
 @example
 alphabet=Word(letter=DNA,length=4)
 nonhomogeneous.root_freq=Word(frequency1=GC(),frequency2=GC(),\
                       frequency3=Fixed(),frequency4=Full())
 @end example
+@end cartouche
 builds a root frequency set on 4 bases words, such first and second sites
 follow independent GC frequency sets, third site follows a Fixed
 frequency set, and fourth site follows a Full frequency set. Then the
@@ -1736,20 +1795,25 @@ If the arguments are @var{frequency1}, @var{frequency2},
 that case, all single site frequency set parameters are position
 dependent.
 
+@cartouche
 @example
 alphabet=Codon(letter=DNA)
 genetic_code=Standard
 nonhomogeneous.root_freq=Codon(frequency=GC())
 @end example
+@end cartouche
 builds a frequency set on codons, such that all sites frequencies
 follow the same GC frequency set model. The parameter name is
 @var{123_GC.theta}.
 
+@cartouche
 @example
 alphabet=Codon(letter=DNA)
 genetic_code=Standard
-nonhomogeneous.root_freq=Codon(frequency1=GC(),frequency2=GC(),frequency3=Fixed())
+nonhomogeneous.root_freq=Codon(frequency1=GC(),frequency2=GC(),\
+                               frequency3=Fixed())
 @end example
+@end cartouche
 
 builds a frequency set on codons, such that first and second sites
 follow independent GC frequency sets, third site follows a Fixed
@@ -1815,9 +1879,11 @@ with a probability @var{p}.
 It is possible to reduce the parameter space by putting extra
 constraints on parameters, using for instance
 
+@cartouche
 @example
 model=TN93(kappa1=1.0, kappa2=kappa1, theta=0.5)
 @end example
+@end cartouche
 
 In that particular case the resulting model is strictly equivalent to
 the HKY85 model. This syntax however allows to define a larger set of
@@ -1827,33 +1893,41 @@ As long as their range match, parameters of several objects (models,
 root frequencies, rates, etc) can be linked.
 
 For instance:
+@cartouche
 @example
 model1 = T92(theta=GC.theta, kappa=3)
 model2 = T92(theta=0.39, kappa=T92.kappa_1)
 
 nonhomogeneous.root_freq=GC
 @end example
+@end cartouche
 
 In the case of nonhomogeneous modelling, a specific syntax is available:
 
+@cartouche
 @example
 nonhomogeneous.alias = @{list of aliases@}
 @end example
+@end cartouche
 
 where each alias is described as `param1->param2'. The full name of the parameters have to be used, see for example:
 
+@cartouche
 @example
 model1 = T92(theta=0.4, kappa=4)
 model2 = GTR(theta=0.4, a = 1.1, b=0.4, c=0.4, d=0.25, e=0.1)
 nonhomogeneous.alias=GTR.theta1->T92.theta1
 @end example
+@end cartouche
 
 This option can be used to link parameters of the root frequencies if the model is non-stationary:
+@cartouche
 @example
 model1=GTR(theta1=0.7)
 nonhomogeneous.root_freq=Full(init=balanced)
 nonhomogeneous.alias=Full.theta1->GTR.theta1_1
 @end example
+@end cartouche
 
 Note that this option is only available with the 'general' nonhomogeneous substitution models and will be ignored if used with "one_per_branch".
 
@@ -1920,9 +1994,11 @@ a Mixture of a given discrete distributution and a 0 Dirac. @var{p} is
 the probability of this 0 Dirac.
 
 For example :
+@cartouche
 @example
 Invariant(dist=Gaussian(n=4,2,0.5),p=0.1)
 @end example
+@end cartouche
 builds a mixture of a gaussian distribution with 4 categories (and
 probability 0.9) and a 0 Dirac with probability 0.1. Overall, there
 are 5 categories. The parameters names are
@@ -1939,10 +2015,12 @@ distributions prefixed by @var{Mixture.i_} where @var{i} is the order
 of the distribution.
 
 For example:
+@cartouche
 @example
 Mixture(probas=(0.3,0.7),dist1=Beta(n=5,alpha=2,beta=3),\
                        dist2=Gamma(n=10,alpha=9,beta=2)) 
 @end example
+@end cartouche
 builds a mixture of a discrete beta distribution and of a discrete
 gamma distribution, with a total of 15 classes. The parameters names
 are @var{Mixture.theta1}, @var{Mixture.1_Beta.alpha},
@@ -2048,9 +2126,12 @@ parameters whose name has @command{theta} in it.
 A list of parameters on which the authorized values are limited to a
 given interval. 
 
+@cartouche
 @example
-optimization.constrain_parameter = YN98.omega = [-inf;1.9[, *theta* = [0.1;0.7[, BrLen*=[0.01;inf]
-@end example 
+optimization.constrain_parameter = YN98.omega = [-inf;1.9[,\
+                       *theta* = [0.1;0.7[, BrLen*=[0.01;inf]
+@end example
+@end cartouche 
 
 @item optimization.tolerance = @{float>0@}
 The precision on the log-likelihood to reach.
@@ -2640,29 +2721,39 @@ Examples of use:
 @itemize @bullet
 
 @item Just change file format:
+@cartouche
 @example
 sequence.manip=
 @end example
+@end cartouche
 
 @item Change DNA to RNA:
+@cartouche
 @example
 sequence.manip=Switch
 @end example
+@end cartouche
 
 @item Unalign sequences, perform transcription and translate to proteins:
+@cartouche
 @example
 sequence.manip=RemoveGaps,Transcript,Translate
 @end example
+@end cartouche
 
 @item Change all unresolved characters to gaps and keep only positions with less than 5 gaps:
+@cartouche
 @example
 sequence.manip=UnknownToGap,KeepComplete(maxGapAllowed=5)
 @end example
+@end cartouche
 
 @item Keep only positions with less than 30% of gaps, and change them to unresolved characters:
+@cartouche
 @example
 sequence.manip=KeepComplete(maxGapAllowed=30%),GapToUnknown
 @end example
+@end cartouche
 
 @end itemize
 
