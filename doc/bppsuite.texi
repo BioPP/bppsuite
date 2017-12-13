@@ -97,8 +97,8 @@ Bio++ Program Suite Reference
 * bppconsense::                 Bio++ Consensus Trees.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
-* bppalnscore::                 Bio++ Alignment Scoring
-* bpppopstats::
+* bppalnscore::                 Bio++ Alignment Scoring.
+* bpppopstats::                 Bio++ Population Genetics Statistics.
 * bpptreedraw::                 Bio++ Tree Drawing.
 
 @end detailmenu
@@ -2209,8 +2209,8 @@ This section now details the specific options for each program in the Bio++ Prog
 * bppconsense::                 Bio++ Consensus Trees.
 * bppreroot::                   Bio++ Serial Tree Re-rooting.
 * bppseqman::                   Bio++ Sequences Manipulation.
-* bppalnscore::                 Bio++ Alignment Scoring
-* bpppopstats::
+* bppalnscore::                 Bio++ Alignment Scoring.
+* bpppopstats::                 Bio++ Population Genetics Statistics.
 * bpptreedraw::                 Bio++ Tree Drawing.
 @end menu
 
@@ -2858,6 +2858,13 @@ This option is only recognized if @command{input.sequence.file.ingroup} was not 
 @item input.sequence.stop_codons_policy = Keep|RemoveIfLast|RemoveAll
 Tells what to do with positions containing at least one stop codon: keep them, remove them only if they are at the end of the alignment, or remove them all.
 
+@item estimate.kappa = @{[boolean]@}
+Tells if the ratio of transitions / transversion should be estimated from the data and used for further analyses. If yes, kappa will be estimated by maximum likelihood using a model of (codon) sequence evolution.
+
+@item estimate.ancestor =@{[boolean]@}
+If an outgroup sequence is present, it will be used to estimate the ancestral allele for each polymorphic position.
+A model of (codon) sequence evolution will be used with a marginal ancestral state reconstruction method.
+
 @item pop.stats = @{[string]@}
 The list of statistics to compute. The next section describes all available statistics.
 
@@ -2893,6 +2900,10 @@ then the total number of mutations is used in the calculation, instead of the nu
 For codon sequences only, obviously. Compute nucleotide diversity at synonymous and non-synonymous site,
 the number of synonymous and non-synonymous sites, as well as the weighted ratio (PiN / NbN) / (PiS / NbS). 
 
+@item dN_dS
+For codon sequences only. Build the consensus sequence of both ingroup and outgroup alignments and fit a Yang and Nielsen model of codon sequence evolution with a maximum likelihood approach.
+Reports the estimated parameters omega (dN / dS ratio) and kappa (transitions / transversions ratio), as well as the divergence between the two sequences. 
+
 @item MKT
 Compute the MacDonald-Kreitman table, for codon sequences with outgroup.
 
@@ -2915,7 +2926,9 @@ Generate a table with codon-site specifics statistics, including:
 
 @item State in the first outgroup sequence, if any
 
-@item Mean number of synonymous positions
+@item Ancestral state, if computed
+
+@item Mean number of synonymous positions for polymorphism
 
 @item Whether the site is synonymous polymorphic
 
@@ -2924,6 +2937,12 @@ Generate a table with codon-site specifics statistics, including:
 @item Non-synonymous diversity (piN)
 
 @item Synonymous diversity (piS)
+
+@item Mean number of synonymous positions for divergence
+
+@item dN, if an outgroup is available
+
+@item dS, if an outgroup is available
 
 @end itemize
 
