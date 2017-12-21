@@ -6,17 +6,20 @@
 
 # Executables of bppsuite.
 # Generation of targets from file name is not automated in case of executables not following the pattern.
-add_executable (bppml bppML.cpp bppTools.cpp)
-add_executable (bppseqgen bppSeqGen.cpp bppTools.cpp)
+
+add_library(bppTools bppTools.cpp)
+
+add_executable (bppml bppML.cpp)
+add_executable (bppseqgen bppSeqGen.cpp)
 add_executable (bppdist bppDist.cpp)
 add_executable (bpppars bppPars.cpp)
 add_executable (bppseqman bppSeqMan.cpp)
 add_executable (bppconsense bppConsense.cpp)
-add_executable (bppancestor bppAncestor.cpp bppTools.cpp)
+add_executable (bppancestor bppAncestor.cpp)
 add_executable (bppmixedlikelihoods bppMixedLikelihoods.cpp)
 add_executable (bppreroot bppReRoot.cpp)
 add_executable (bpptreedraw bppTreeDraw.cpp)
-add_executable (bppalnscore bppAlnScore.cpp bppTools.cpp)
+add_executable (bppalnscore bppAlnScore.cpp)
 add_executable (bpppopstats bppPopStats.cpp)
 
 set (bppsuite-targets
@@ -37,10 +40,10 @@ set (bppsuite-targets
 foreach (target ${bppsuite-targets})
   # Link (static or shared)
   if (BUILD_STATIC)
-    target_link_libraries (${target} ${BPP_LIBS_STATIC})
+    target_link_libraries (${target} ${BPP_LIBS_STATIC} bppTools)
     set_target_properties (${target} PROPERTIES LINK_SEARCH_END_STATIC TRUE)
   else (BUILD_STATIC)
-    target_link_libraries (${target} ${BPP_LIBS_SHARED})
+    target_link_libraries (${target} ${BPP_LIBS_SHARED} bppTools)
   endif (BUILD_STATIC)
 endforeach (target)
 

@@ -85,7 +85,7 @@ GeneticCode* bppTools::getGeneticCode(const map<string, string>& params,
 map<size_t, AlignedValuesContainer*> bppTools::getAlignmentsMap(const map<string, string>& params,
                                                                 const Alphabet* alphabet,
                                                                 bool changeGapsToUnknownCharacters,
-  bool optionalData)
+                                                                bool optionalData)
 {
   map<size_t, AlignedValuesContainer*> mSites = SequenceApplicationTools::getAlignedContainers(alphabet, params);
   
@@ -157,7 +157,8 @@ map<size_t, SequenceEvolution*> bppTools::getProcesses(const map<string, string>
 {
   return PhylogeneticsApplicationTools::getSequenceEvolutions(collection, params, unparsedparams);
 }
-    
+
+
 PhyloLikelihoodContainer* bppTools::getPhyloLikelihoods(const map<string, string>& params,
                                                         map<size_t, SequenceEvolution*> mSeqEvol, 
                                                         SubstitutionProcessCollection& collection,
@@ -172,7 +173,7 @@ PhyloLikelihood* bppTools::getResultPhyloLikelihood(const std::map<std::string, 
                                                     const GeneticCode* gCode,
                                                     std::map<std::string, std::string>& unparsedparams)
 {
-  map<size_t, AlignedValuesContainer*> mSites = getAlignmentsMap(params, alphabet);
+  map<size_t, AlignedValuesContainer*> mSites = getAlignmentsMap(params, alphabet, true);
 
   map<size_t, PhyloTree*> mTrees = bppTools::getPhyloTreesMap(params, mSites, unparsedparams);
 
@@ -211,7 +212,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
     phylolik->matchParametersValues(pl);
     logL = phylolik->getValue();
   }
-      
+  
   ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
   if (std::isinf(logL))
   {
