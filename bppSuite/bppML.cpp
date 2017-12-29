@@ -120,7 +120,9 @@ int main(int args, char** argv)
       vcpTree.push_back(pTree.second);
     
     PhylogeneticsApplicationTools::writeTrees(vcpTree, bppml.getParams());
-    
+
+    ApplicationTools::displayWarning("Reading trees for oldlik version : to be removed when not needed.");
+
     map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites, unparsedparams);
     
 
@@ -212,7 +214,10 @@ int main(int args, char** argv)
         pl=tl_old->getParameters();
       else
         pl=tl_new->getParameters();
-        
+
+      for (auto& it : mSeqEvol)
+        delete it.second;
+      
       for (size_t i = 0; i < pl.size(); ++i) {
         pnfile << pl[i].getName() << endl;
       }
@@ -566,10 +571,16 @@ int main(int args, char** argv)
         PhylogeneticsApplicationTools::writeTrees(vcTree, bppml.getParams());
       }
 
+      for (auto& it : mSeqEvol)
+        delete it.second;
+
       for (auto& itc : mSites)
         delete itc.second;
 
       for (const auto& tree : mTree)
+        delete tree.second;
+
+      for (const auto& tree : mpTree)
         delete tree.second;
 
       bppml.done();
