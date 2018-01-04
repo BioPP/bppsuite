@@ -229,9 +229,9 @@ int main(int args, char ** argv)
           size_t nbNodes = nodes.size();
 
           // Get the class with maximum posterior probability:
-          vector<size_t> classes = sPP->getClassWithMaxPostProbOfEachSite();
+          vector<size_t> classes = sPP->getClassWithMaxPostProbPerSite();
           // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
-          Vdouble rates = sPP->getPosteriorRateOfEachSite();
+          Vdouble rates = sPP->getPosteriorRatePerSite();
 
           // Get the ancestral sequences:
           vector<Sequence*> sequences(nbNodes);

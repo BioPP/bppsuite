@@ -362,7 +362,7 @@ int main(int args, char** argv)
 
         tl->initialize();
         logL = tl->getValue();
-        Vdouble Vd = tl->getLogLikelihoodForEachSite();
+        Vdouble Vd = tl->getLogLikelihoodPerSite();
         for (unsigned int j = 0; j < nSites; j++)
         {
           (*rates)(j, modname) = TextTools::toString(Vd[j]);
@@ -499,7 +499,7 @@ int main(int args, char** argv)
 
           tl->initialize();
           logL = tl->getValue();
-          Vdouble vd = tl->getLogLikelihoodForEachSite();
+          Vdouble vd = tl->getLogLikelihoodPerSite();
 
           for (unsigned int j = 0; j < nSites; j++)
             (*rates)(j, i + 1) = TextTools::toString(vd[j]);

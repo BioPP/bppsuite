@@ -393,10 +393,10 @@ int main(int args, char** argv)
         ofstream out(infosFile.c_str(), ios::out);
 
         // Get the rate class with maximum posterior probability:
-        vector<size_t> classes = tl_old->getRateClassWithMaxPostProbOfEachSite();
+        vector<size_t> classes = tl_old->getRateClassWithMaxPostProbPerSite();
 
         // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
-        Vdouble rates = tl_old->getPosteriorRateOfEachSite();
+        Vdouble rates = tl_old->getPosteriorRatePerSite();
 
         vector<string> colNames;
         colNames.push_back("Sites");
