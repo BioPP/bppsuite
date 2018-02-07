@@ -41,6 +41,7 @@ foreach (target ${bppsuite-targets})
     set_target_properties (${target} PROPERTIES LINK_SEARCH_END_STATIC TRUE)
   else (BUILD_STATIC)
     target_link_libraries (${target} ${BPP_LIBS_SHARED})
+    set_target_properties (${target} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
   endif (BUILD_STATIC)
 endforeach (target)
 
