@@ -265,7 +265,6 @@ int main(int args, char ** argv)
       else
         ApplicationTools::displayWarning("Argument 'Phylip#type' not found. Default used instead: not extended.");
     
-
       ODistanceMatrix* odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT, extended);
       odm->write(*distEstimation.getMatrix(), matrixPath, true);
       delete odm;

@@ -296,7 +296,7 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    MixedSubstitutionModel* p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getSubstitutionModel(nummodel - 1));
+    MixedSubstitutionModel* p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getModel(nummodel - 1));
 
     if (!p0)
     {

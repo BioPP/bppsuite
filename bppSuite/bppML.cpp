@@ -150,6 +150,9 @@ int main(int args, char** argv)
 
     /// Topology estimation
 
+    ////////////
+    // If optimize topology
+    
     if (optimizeTopo || nbBS > 0)
     {
       string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppml.getParams(), "no", "", true, false);

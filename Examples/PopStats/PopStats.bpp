@@ -1,5 +1,6 @@
 input.sequence.file.ingroup = alignment.phy
 input.sequence.format.ingroup = Phylip(order=interleaved, type=classic)
+estimate.kappa = yes
 pop.stats= \
     SiteFrequencies,\
     Watterson75,\
