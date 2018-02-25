@@ -79,7 +79,7 @@ using namespace bpp;
 /**
  * @brief Read trees from an input file, with segment annotations. Hudson's MS format.
  */
-void readTreesMs(ifstream& file, vector<Tree*>& trees, vector<double>& pos, unsigned int totPos) throw (Exception)
+void readTreesMs(ifstream& file, vector<Tree*>& trees, vector<double>& pos, unsigned int totPos)
 {
   string line = "";
   unsigned int segsize;
@@ -131,7 +131,7 @@ void readTreesMs(ifstream& file, vector<Tree*>& trees, vector<double>& pos, unsi
 /**
  * @brief Read trees from an input file, with segment annotations. Mailund's CoaSim format.
  */
-void readTreesCoaSim(ifstream& file, vector<Tree*>& trees, vector<double>& pos) throw (Exception)
+void readTreesCoaSim(ifstream& file, vector<Tree*>& trees, vector<double>& pos) 
 {
   string line = "";
   double begin, end;
