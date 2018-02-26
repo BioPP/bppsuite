@@ -14,6 +14,7 @@ Source: %{_basename}-%{_version}.tar.gz
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
 
+Requires: libbpp-popgen8 = %{_version}
 Requires: libbpp-phyl12 = %{_version}
 Requires: libbpp-seq12 = %{_version}
 Requires: libbpp-core4 = %{_version}
