@@ -14,9 +14,9 @@ Source: %{_basename}-%{_version}.tar.gz
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
 
-Requires: libbpp-phyl11 = %{_version}
-Requires: libbpp-seq11 = %{_version}
-Requires: libbpp-core3 = %{_version}
+Requires: libbpp-phyl12 = %{_version}
+Requires: libbpp-seq12 = %{_version}
+Requires: libbpp-core4 = %{_version}
 
 BuildRoot: %{_builddir}/%{_basename}-root
 BuildRequires: cmake >= 2.8.11
@@ -29,7 +29,7 @@ BuildRequires: libbpp-seq12 = %{_version}
 BuildRequires: libbpp-seq-devel = %{_version}
 BuildRequires: libbpp-phyl12 = %{_version}
 BuildRequires: libbpp-phyl-devel = %{_version}
-BuildRequires: libbpp-popgen7 = %{_version}
+BuildRequires: libbpp-popgen8 = %{_version}
 BuildRequires: libbpp-popgen-devel = %{_version}
 
 
