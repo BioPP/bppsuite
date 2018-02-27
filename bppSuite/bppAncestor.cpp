@@ -138,11 +138,10 @@ int main(int args, char ** argv)
     
     // Ancestral data
     
-    string outputSitesFile;
-    outputSitesFile = ApplicationTools::getAFilePath("output.sites.file", allParams, false, false);
+    string outputSitesFile = ApplicationTools::getAFilePath("output.sites.file", allParams, false, false);
 
     bool addNodesExtant = false;
-    outputNodesFile = ApplicationTools::getAFilePath("output.nodes.file", allParams, false, false);
+    string outputNodesFile = ApplicationTools::getAFilePath("output.nodes.file", allParams, false, false);
     if (outputNodesFile!="none")
       addNodesExtant = ApplicationTools::getBooleanParameter("output.nodes.add_extant", allParams, false, "", true, false);    
 
