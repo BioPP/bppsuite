@@ -1845,6 +1845,10 @@ Site substitution processes are numbered like this:
 
 @item process@{number@} = @{NonHomogeneous@}(tree=@{number@}, model@{number@}=@{number@}, model@{number@}.nodes_id=(@{number@},...,@{number@}), rate=@{number@} [, root_freq=@{number@}]) 
 
+@item process@{number@} = @{OnePerBranch@}(tree=@{number@}, model@{number@}=@{number@},
+                         rate=@{number@} [, root_freq=@{number@},
+                         shared_parameters=@{vector of strings@}]) 
+
 @end table
 
 The @command{Homogeneous} type is used for homogeneous process. The
@@ -1852,6 +1856,12 @@ The @command{Homogeneous} type is used for homogeneous process. The
 instance Galtier and Gouy 97 for branch GC content, or PAML branch
 model), and the @command{NonHomogeneous} type for the more general
 case, including PAML clade models.
+
+With @command{OnePerBranch}, the model is cloned to have one
+independent model per branch. Optional argument
+@option{shared_parameters} is the vector of model parameters that are
+aliased between all models.
+
 
 With @command{NonHomogeneous} option, several models can be declared
 in the process, using successive model index (starting with 1), and
@@ -1881,9 +1891,6 @@ rate_distribution1 = Gamma(n=4)
 
 process2=NonHomogeneous(model1=1,model1.nodes_id=(1:4,6:9),model2=2,model2.nodes_id=5,tree=2,rate=1.2)
 @end example
-
-Note : @command{OnePerBranch} type is not implemented yet. Just ask
-the developpers.
 
 
 Sequence substitution processes set up an organization of site

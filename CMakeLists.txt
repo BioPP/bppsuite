@@ -76,7 +76,7 @@ endif (CMAKE_INSTALL_PREFIX)
 
 include (GNUInstallDirs)
 find_package (bpp-phyl 12.0.0 REQUIRED)
-find_package (bpp-popgen 7.0.0 REQUIRED)
+find_package (bpp-popgen 8.0.0 REQUIRED)
 
 # Subdirectories
 add_subdirectory (bppSuite)
