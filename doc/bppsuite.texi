@@ -2601,8 +2601,35 @@ Specific options are:
 @c @item asr.method = @{none|marginal@}
 @c Marginal is the only option for now. If set to "none", only nodes frequencies can be output.
 
-@item asr.probabilities = @{boolean@}
+@item output.sites.file = @{@{path@}|none@}
+Alignment information log file (site specific rates, probabilities, etc).
+
+@item output.sites.probabilities = @{boolean@}
 Tells if we should output the site specific probabilities in each case.
+@item asr.probabilities = @{boolean@}
+Tells if we should output the site specific probabilities in each case
+(on the way to deprecation).
+
+@item output.nodes.file = @{@{path@}|none@}
+Ancestral nodes information: expected frequencies (prefix exp) (see Galtier & Gouy
+1998) and a posteriori probabilities of ancestral states (prefix eb).
+
+@item output.nodes.add_extant = @{boolean@}
+Tell if leaf nodes should be added to the output file.
+
+
+
+@item asr.sequence.file = @{path@}
+The output file where to write the sequences (has priority on
+@option{output.sequence.file} option).
+
+@item asr.sequence.format = @{sequence format description@}
+The output file format, using the same syntax as for reading
+(@pxref{Sequences}). Only formats Fasta, Mase and Phylip are supported
+for writing. In addition, most of the formats support the
+@command{length} argument, that specifies the maximum number of
+sequence characters to output on each line (default set to 100) (has
+priority on @option{output.sequence.format} option).
 
 @item asr.sample = @{boolean@}
 Tell if we should sample from the posterior distribution instead of using the maximum probability.
@@ -2611,20 +2638,11 @@ Tell if we should sample from the posterior distribution instead of using the ma
 Number of sample sequences to output.
 
 @item asr.add_extant = @{boolean@}
-Should extant (observed) sequences be added to the output sequence file?
-The sequences added are the ones which are used for the actual calculation.
-It they contained gaps for instance, and that these have been replaced by the unknown character (N or X for example),
-then the sequence with unknown characters will be used.
-
-@item output.sites.file = @{@{path@}|none@}
-Alignment information log file (site specific rates, probabilities, etc).
-
-@item output.nodes.file = @{@{path@}|none@}
-Ancestral nodes information: expected frequencies (prefix exp) (see Galtier & Gouy
-1998) and a posteriori probabilities of ancestral states (prefix eb).
-
-@item output.nodes.add_extant = @{boolean@}
-Tell if leaf nodes should be added to the output file.
+Should extant (observed) sequences be added to the output sequence
+file? The sequences added are the ones which are used for the actual
+calculation. It they contained gaps for instance, and that these have
+been replaced by the unknown character (N or X for example), then the
+sequence with unknown characters will be used.
 
 @end table
 

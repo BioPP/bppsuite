@@ -213,6 +213,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
     logL = phylolik->getValue();
   }
   
+  ApplicationTools::displayMessage("");
   ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
   if (std::isinf(logL))
   {
@@ -329,10 +330,11 @@ void bppTools::fixLikelihood(const map<string, string>& params,
 }
 
 
-void bppTools::displayParameters(const PhyloLikelihood& tl)
+void bppTools::displayParameters(const PhyloLikelihood& tl, bool displaylL)
 {
   // Write parameters to screen:
-  ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl.getValue(), 15));
+  if (displaylL)
+    ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl.getValue(), 15));
 
   if (tl.getNumberOfParameters()-tl.getBranchLengthParameters().size()>=30)
     ApplicationTools::displayMessage("Too many parameters for screen output!");

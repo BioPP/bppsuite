@@ -187,10 +187,11 @@ namespace bpp
     
     /*
      * @brief Display parameter values.
-     *
+     * @param tl the phylolikelihood
+     * @param displaylL if log-likelihood is displayed (default: true)
      */
 
-    static void displayParameters(const PhyloLikelihood& tl);
+    static void displayParameters(const PhyloLikelihood& tl, bool displaylL = true);
     
   };
 } // end of namespace

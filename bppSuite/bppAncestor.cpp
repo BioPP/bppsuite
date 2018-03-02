@@ -106,7 +106,7 @@ int main(int args, char ** argv)
     
     bppTools::fixLikelihood(allParams, alphabet.get(), gCode.get(), tl);
     
-    bppTools::displayParameters(*tl);
+    bppTools::displayParameters(*tl, false);
 
 
     //////////////////////////////////////
@@ -136,40 +136,62 @@ int main(int args, char ** argv)
     /// Options
 
     
-    // Ancestral data
+    ApplicationTools::displayMessage("\nASR\n");
+
+    // Ancestral information
+    // Sites
     
     string outputSitesFile = ApplicationTools::getAFilePath("output.sites.file", allParams, false, false);
 
-    bool addNodesExtant = false;
-    string outputNodesFile = ApplicationTools::getAFilePath("output.nodes.file", allParams, false, false);
-    if (outputNodesFile!="none")
-      addNodesExtant = ApplicationTools::getBooleanParameter("output.nodes.add_extant", allParams, false, "", true, false);    
+    bool probs(false);
 
+    if (outputSitesFile!="none")
+    {
+      probs = ApplicationTools::getBooleanParameter("output.sites.probabilities", allParams, false, "", true, 1);
+      if (!probs)
+        probs = ApplicationTools::getBooleanParameter("asr.probabilities", allParams, false, "", true, 1);
+        
+      ApplicationTools::displayResult("Output site probabilities", probs ? "yes" : "no");
+    }
+    
+    // Nodes
+    
+    bool addNodesExtant = false;
+    string outputNodesFile = ApplicationTools::getAFilePath("output.nodes.file", allParams, false, false, "", false, "none", 1);
+    if (outputNodesFile!="none")
+    {
+      addNodesExtant = ApplicationTools::getBooleanParameter("output.nodes.add_extant", allParams, false, "", true, 1);    
+      ApplicationTools::displayResult("Output extant nodes", addNodesExtant ? "yes" : "no");
+    }
+    
     
     // ASR
     
-    string sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file", allParams, false, false, "", false, "none", 1);
-    string sequenceFormat="";
-    if (sequenceFilePath!="none")
-      sequenceFormat   = ApplicationTools::getStringParameter("output.sequence.format", allParams, "Fasta", "", false, 1);
-
+    string sequenceFilePath = ApplicationTools::getAFilePath("asr.sequence.file", allParams, false, false, "", false, "none", 1);
+    if (sequenceFilePath=="none")
+      sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file", allParams, false, false, "", false, "none", 1);
     
+    string sequenceFormat="";
     bool sample=false;
     unsigned int nbSamples=0;
     bool addSitesExtant=false;
-  
-    bool probs = ApplicationTools::getBooleanParameter("asr.probabilities", allParams, false, "", true, false);
-    ApplicationTools::displayResult("Output probabilities", probs ? "yes" : "no");
+
+    if (sequenceFilePath!="none")
+    {
+      sequenceFormat   = ApplicationTools::getStringParameter("asr.sequence.format", allParams, "none", "", false, 1);
+      if (sequenceFormat=="none")
+        sequenceFormat   = ApplicationTools::getStringParameter("output.sequence.format", allParams, "Fasta", "", false, 1);
+
+      sample = ApplicationTools::getBooleanParameter("asr.sample", allParams, false, "", true, 1);
     
+      ApplicationTools::displayResult("Sample from posterior distribution", sample ? "yes" : "no");
     
-    sample = ApplicationTools::getBooleanParameter("asr.sample", allParams, false, "", true, false);
-    
-    ApplicationTools::displayResult("Sample from posterior distribution", sample ? "yes" : "no");
-    
-    if (sample)
-      nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", allParams, 1, "", true, false);
-    
-    addSitesExtant = ApplicationTools::getBooleanParameter("asr.add_extant", allParams, false, "", true, false);
+      if (sample)
+        nbSamples = ApplicationTools::getParameter<unsigned int>("asr.sample.number", allParams, 1, "", true, false);
+      
+      addSitesExtant = ApplicationTools::getBooleanParameter("asr.add_extant", allParams, false, "", true, 1);
+      ApplicationTools::displayResult("ASR extant", addSitesExtant ? "yes" : "no");
+    }
     
 
     /////////////////////////////////  
@@ -201,12 +223,14 @@ int main(int args, char ** argv)
 
       size_t nbStates=sPP?sPP->getNumberOfStates():oPSP->getNumberOfStates();
 
+      ApplicationTools::displayMessage("\nPhylo " + TextTools::toString(itm.first));
+          
       /////////////////////////////////////
       // Write sites infos to file:
       
       if (outputSitesFile != "none")
       {
-        ApplicationTools::displayResult("Phylo " + TextTools::toString(itm.first) + " : Output file for sites", outputSitesFile + "_" + TextTools::toString(itm.first));
+        ApplicationTools::displayResult(" Output file for sites", outputSitesFile + "_" + TextTools::toString(itm.first));
         string outF=outputSitesFile + "_" + TextTools::toString(itm.first);
         ofstream out(outF.c_str(), ios::out);
         PhyloTree ttree(sPP?sPP->getTree():oPSP->getTree());
@@ -296,7 +320,7 @@ int main(int args, char ** argv)
 
       if (outputNodesFile != "none")
       {        
-        ApplicationTools::displayResult("Output file for nodes", outputNodesFile + "_" + TextTools::toString(itm.first));
+        ApplicationTools::displayResult(" Output file for nodes", outputNodesFile + "_" + TextTools::toString(itm.first));
         string outF=outputNodesFile  + "_" + TextTools::toString(itm.first);
         
         ofstream out(outF.c_str(), ios::out);
@@ -346,10 +370,16 @@ int main(int args, char ** argv)
       {
         SiteContainer* asSites = 0;
         
+        //Write output:
+        BppOAlignmentWriterFormat bppoWriter(1);
+        unique_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
+        ApplicationTools::displayResult(" Output alignment file ", sequenceFilePath + "_" + TextTools::toString(itm.first));
+        ApplicationTools::displayResult(" Output alignment format ", oAln->getFormatName());
+
         if (sample)
         {
           asSites = new VectorSiteContainer(alphabet.get());
-            
+          
           for (unsigned int i = 0; i < nbSamples; i++)
           {
             ApplicationTools::displayGauge(i, nbSamples-1, '=');
@@ -359,7 +389,8 @@ int main(int args, char ** argv)
               names[j] += "_" + TextTools::toString(i+1);
             }
               
-            sampleSites->setSequencesNames(names, false);
+            sampleSites->setSequencesNames(names, true);
+
             SequenceContainerTools::append(*asSites, *sampleSites);
             delete sampleSites;
           }
@@ -373,16 +404,11 @@ int main(int args, char ** argv)
         {
           const SiteContainer* vSC=dynamic_cast<const SiteContainer*>(sites);
           if (!vSC)
-            ApplicationTools::displayMessage("Output sequences not possible with probabilistic sequences.");
+            ApplicationTools::displayWarning("Output extant sequences not possible with probabilistic sequences.");
           else
             SequenceContainerTools::append(*asSites, *vSC);
         }
           
-        //Write output:
-        BppOAlignmentWriterFormat bppoWriter(1);
-        unique_ptr<OAlignment> oAln(bppoWriter.read(sequenceFormat));
-        ApplicationTools::displayResult("Output alignment file ", sequenceFilePath + "_" + TextTools::toString(itm.first));
-        ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
           
         // Write sequences:
         oAln->writeAlignment(sequenceFilePath + "_" + TextTools::toString(itm.first), *asSites, true);
@@ -395,6 +421,7 @@ int main(int args, char ** argv)
 
     }
   
+    ApplicationTools::displayMessage("");
     bppancestor.done();
   
   }
