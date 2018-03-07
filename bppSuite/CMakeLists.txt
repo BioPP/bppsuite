@@ -37,6 +37,14 @@ set (bppsuite-targets
   bpppopstats
   )
 
+if (BUILD_STATIC)
+  target_link_libraries (bppTools ${BPP_LIBS_STATIC})
+  set_target_properties (bppTools PROPERTIES LINK_SEARCH_END_STATIC TRUE)
+else (BUILD_STATIC)
+  target_link_libraries (bppTools ${BPP_LIBS_SHARED})
+  set_target_properties (bppTools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+endif (BUILD_STATIC)
+
 foreach (target ${bppsuite-targets})
   # Link (static or shared)
   if (BUILD_STATIC)
