@@ -153,6 +153,7 @@ int main(int args, char** argv)
       if (ApplicationTools::parameterExists("input.sequence.outgroup.name", bpppopstats.getParams())) {
         vector<string> outgroups = ApplicationTools::getVectorParameter<string>("input.sequence.outgroup.name", bpppopstats.getParams(), ',', "");
         for (auto g : outgroups) {
+          ApplicationTools::displayResult("Sequence from outgroup", g);
           psc->setAsOutgroupMember(g);
         }
       }
