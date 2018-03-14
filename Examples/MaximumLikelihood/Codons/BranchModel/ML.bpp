@@ -95,7 +95,7 @@ optimization.final = none
 optimization.verbose = 3
 
 # Parameters to ignore (for instance equilibrium frequencies)
-optimization.ignore_parameter = 
+optimization.ignore_parameters = 
 
 # Maximum number of likelihood evaluations:
 optimization.max_number_f_eval = 10000

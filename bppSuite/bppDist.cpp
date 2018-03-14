@@ -182,14 +182,14 @@ int main(int args, char ** argv)
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", bppdist.getParams(), false, false);
   OutputStream* messenger = 
     (mhPath == "none") ? 0 :
-      (mhPath == "std") ? ApplicationTools::message :
+      (mhPath == "std") ? ApplicationTools::message.get() :
         new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
   ApplicationTools::displayResult("Message handler", mhPath);
 
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
   OutputStream* profiler = 
     (prPath == "none") ? 0 :
-      (prPath == "std") ? ApplicationTools::message :
+      (prPath == "std") ? ApplicationTools::message.get() :
         new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
   if(profiler) profiler->setPrecision(20);
   ApplicationTools::displayResult("Profiler", prPath);
@@ -232,11 +232,11 @@ int main(int args, char ** argv)
   
   //Here it is:
   ofstream warn("warnings", ios::out);
-  ApplicationTools::warning = new StlOutputStreamWrapper(&warn);
+  shared_ptr<OutputStream> wout = ApplicationTools::warning;
+  ApplicationTools::warning.reset(new StlOutputStreamWrapper(&warn));
   tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
   warn.close();
-  delete ApplicationTools::warning;
-  ApplicationTools::warning = ApplicationTools::message;
+  ApplicationTools::warning = wout;
 
   string matrixPath = ApplicationTools::getAFilePath("output.matrix.file", bppdist.getParams(), false, false, "", false);
   if (matrixPath != "none")

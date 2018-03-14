@@ -1,5 +1,5 @@
 %define _basename bppsuite
-%define _version 2.3.1
+%define _version 2.4.0
 %define _release 1
 %define _prefix /usr
 
@@ -14,22 +14,23 @@ Source: %{_basename}-%{_version}.tar.gz
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
 
-Requires: libbpp-phyl11 = %{_version}
-Requires: libbpp-seq11 = %{_version}
-Requires: libbpp-core3 = %{_version}
+Requires: libbpp-popgen8 = %{_version}
+Requires: libbpp-phyl12 = %{_version}
+Requires: libbpp-seq12 = %{_version}
+Requires: libbpp-core4 = %{_version}
 
 BuildRoot: %{_builddir}/%{_basename}-root
 BuildRequires: cmake >= 2.8.11
 BuildRequires: gcc-c++ >= 4.7.0
 BuildRequires: groff
 BuildRequires: texinfo >= 4.0.0
-BuildRequires: libbpp-core3 = %{_version}
+BuildRequires: libbpp-core4 = %{_version}
 BuildRequires: libbpp-core-devel = %{_version}
-BuildRequires: libbpp-seq11 = %{_version}
+BuildRequires: libbpp-seq12 = %{_version}
 BuildRequires: libbpp-seq-devel = %{_version}
-BuildRequires: libbpp-phyl11 = %{_version}
+BuildRequires: libbpp-phyl12 = %{_version}
 BuildRequires: libbpp-phyl-devel = %{_version}
-BuildRequires: libbpp-popgen7 = %{_version}
+BuildRequires: libbpp-popgen8 = %{_version}
 BuildRequires: libbpp-popgen-devel = %{_version}
 
 
@@ -90,12 +91,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/*.1*
 
 %changelog
+* Thu Feb 22 2018 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.4.0-1
 * Tue Jun 06 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.1-1
 * Wed May 10 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.0-1
 - New BppPopStats program
 - BppPhySamp is now distributed separately
 - Several bugs fixed and improvements
-* Mon Sep 28 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
+* Mon Sep 29 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
 - Compatibility update. Bio++ Program Suite version number is now indexed
   on Bio++'s version.
 - Programs support the --seed argument for setting the random seed.
@@ -112,5 +114,5 @@ rm -rf $RPM_BUILD_ROOT
 * Thu Mar 25 2010 Julien Dutheil <julien.dutheil@univ-montp2.fr> 0.5.0-1
 * Wed Jun 10 2009 Julien Dutheil <jdutheil@birc.au.dk> 0.4.0-1
 * Thu Dec 11 2008 Julien Dutheil <jdutheil@birc.au.dk> 0.3.1-1
-* Thu Sep 23 2008 Julien Dutheil <jdutheil@birc.au.dk> 0.3.0-1
+* Tue Sep 23 2008 Julien Dutheil <jdutheil@birc.au.dk> 0.3.0-1
 - Initial spec file.

@@ -100,7 +100,7 @@ optimization.topology.tolerance.before=100
 optimization.topology.tolerance.during=100
 optimization.scale_first=no
 optimization.verbose=3
-optimization.ignore_parameter=
+optimization.ignore_parameters=
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
