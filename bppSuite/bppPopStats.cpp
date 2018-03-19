@@ -615,7 +615,7 @@ int main(int args, char** argv)
                   //This is a real substitution:
                   int nt = (int)CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet);
                   double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, minState, *gCode); 
-                  out << "\t" << ns << "\t" << (nt - ns);
+                  out << "\t" << (nt - ns) << "\t" << ns;
                 }
               } else {
                 //Site is polymorphic, this is not a substitution    
