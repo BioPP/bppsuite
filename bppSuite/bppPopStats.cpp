@@ -599,21 +599,16 @@ int main(int args, char** argv)
             if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState)) {
               out << "\tNA\tNA\tNA";
             } else {
-              if (estimateAncestor) {
-                //This is the same value as for polymorphism, we add it for having consistent output format
-                out << "\t" << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa);
-              } else {
-                //Also average over outgroup (Note: minState and maxState are identical in this case)
-                out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
-                                       CodonSiteTools::numberOfSynonymousPositions(minState, *gCode, kappa)) / 2.;
-              }
+              //Average over outgroup (Note: minState and maxState are identical in this case)
+              out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
+                                     CodonSiteTools::numberOfSynonymousPositions(minState, *gCode, kappa)) / 2.;
               if (nbAlleles == 1) {
                 //Compare with outgroup:
                 if (site[0] == outgroupState) {
                   out << "\t0\t0";
                 } else {
                   //This is a real substitution:
-                  int nt = (int)CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet);
+                  double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet));
                   double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, minState, *gCode); 
                   out << "\t" << (nt - ns) << "\t" << ns;
                 }
