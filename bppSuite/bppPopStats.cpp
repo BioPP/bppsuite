@@ -610,7 +610,7 @@ int main(int args, char** argv)
               if (nbAlleles == 1) {
                 //Compare with outgroup:
                 if (site[0] == outgroupState) {
-                  out << "\t0\t0" << endl;
+                  out << "\t0\t0";
                 } else {
                   //This is a real substitution:
                   int nt = (int)CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet);
@@ -619,7 +619,7 @@ int main(int args, char** argv)
                 }
               } else {
                 //Site is polymorphic, this is not a substitution    
-                out << "\t0\t0" << endl;
+                out << "\t0\t0";
               }
             }
           }
