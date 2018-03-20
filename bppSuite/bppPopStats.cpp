@@ -433,8 +433,8 @@ int main(int args, char** argv)
         }
         double piS = SequenceStatistics::piSynonymous(*pscIn, *gCode);
         double piN = SequenceStatistics::piNonSynonymous(*pscIn, *gCode);
-        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*pscIn, *gCode);
-        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*pscIn, *gCode);
+        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*pscIn, *gCode, kappa);
+        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*pscIn, *gCode, kappa);
         double r = (piN / nbN) / (piS / nbS);
         ApplicationTools::displayResult("PiN:", piN);
         ApplicationTools::displayResult("PiS:", piS);
