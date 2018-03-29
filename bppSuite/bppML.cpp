@@ -119,7 +119,7 @@ int main(int args, char** argv)
     for (const auto& pTree : mpTree)
       vcpTree.push_back(pTree.second);
     
-    PhylogeneticsApplicationTools::writeTrees(vcpTree, bppml.getParams());
+    PhylogeneticsApplicationTools::writeTrees(vcpTree, bppml.getParams(),"output.","",true,false,true);
 
     ApplicationTools::displayWarning("Reading trees for oldlik version : to be removed when not needed.");
 
@@ -225,6 +225,19 @@ int main(int args, char** argv)
         pnfile << pl[i].getName() << endl;
       }
       pnfile.close();
+      cout << "BppML's done." << endl;
+      exit(0);
+    }
+
+    //Output trees
+    string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "", true, "none", 1);
+    if (treeWIdPath != "none")
+    {
+      bppml.getParams()["output_ids.tree.file"]=treeWIdPath;
+      
+      PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams(), "output_ids.", "", true, true, false, true);
+
+      ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath + "_...");
       cout << "BppML's done." << endl;
       exit(0);
     }
@@ -447,7 +460,7 @@ int main(int args, char** argv)
       else
         tl_new=PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getBranchLengthParameters(), bppml.getParams());
 
-      PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams());
+      PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams(), "output.", "", true, true, true);
 
       // Write parameters to screen:
       bppTools::displayParameters(*tl_new);

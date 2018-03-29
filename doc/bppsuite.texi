@@ -558,8 +558,9 @@ A tree file in newick format, with node ids instead of bootstrap
 values, and leaf names with their id as suffix.
 @end table
 
-In case it is supported by the program, the use of that option will
-cause the program to exit just after producing the tagged tree.
+In case it is supported by the program (only bppml), the use of that
+option will cause the program to exit just after producing the tagged
+tree.
 
 
 @c ------------------------------------------------------------------------------------------------------------------
@@ -2234,7 +2235,7 @@ standard output or none for no output).
 @item optimization.message_handler = @{@{path@}|std|none@}
 A file where to dump warning messages.
 
-@item optimization.max_number_f_eval = @{int<0@}
+@item optimization.max_number_f_eval = @{int>0@}
 The maximum number of likelihood evaluations to perform.
 
 @item optimization.ignore_parameter = @{list<chars>@}
