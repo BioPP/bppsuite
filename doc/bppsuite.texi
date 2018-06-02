@@ -3024,9 +3024,15 @@ Tells what to do with positions containing at least one stop codon: keep them, r
 @item estimate.kappa = @{[boolean]@}
 Tells if the ratio of transitions / transversion should be estimated from the data and used for further analyses. If yes, kappa will be estimated by maximum likelihood using a model of (codon) sequence evolution.
 
-@item estimate.ancestor =@{[boolean]@}
+@item estimate.ancestor = @{[boolean]@}
 If an outgroup sequence is present, it will be used to estimate the ancestral allele for each polymorphic position.
 A model of (codon) sequence evolution will be used with a marginal ancestral state reconstruction method.
+
+@item estimate.sample_ingroup = @{[bollean]@}
+Tell if a random subset of ingroup sequences should be used to fit model (speeds up calculations in case of large data sets).
+
+@item estimate.sample_ingroup.size = @{[integer]@}
+Number of ingroup sequences to sample.
 
 @item pop.stats = @{[string]@}
 The list of statistics to compute. The next section describes all available statistics.

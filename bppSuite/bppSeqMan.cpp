@@ -298,6 +298,8 @@ int main(int args, char** argv)
     // +--------------+
     else if (cmdName == "RemoveStops")
     {
+      if (!codonAlphabet)
+        throw Exception("RemoveStops: requires a codon alphabet.");
       if (!gCode.get()) {
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
@@ -338,6 +340,8 @@ int main(int args, char** argv)
       {
         throw Exception("'RemoveColumnsWithStops' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
+      if (!codonAlphabet)
+        throw Exception("RemoveColumnsWithStops: requires a codon alphabet.");
       if (!gCode.get()) {
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
@@ -356,6 +360,8 @@ int main(int args, char** argv)
     // +---------+
     else if (cmdName == "GetCDS")
     {
+      if (!codonAlphabet)
+        throw Exception("GetCDS: requires a codon alphabet.");
       if (!gCode.get()) {
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);

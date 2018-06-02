@@ -1,36 +1,34 @@
-%define _basename bppsuite
-%define _version 2.4.0
-%define _release 1
 %define _prefix /usr
 
 URL: https://github.com/BioPP
 
-Name: %{_basename}
-Version: %{_version}
-Release: %{_release}
+Name: bppsuite
+Version: 2.4.0
+Release: 1%{?dist}
 License: CECILL-2.0
 Vendor: The Bio++ Project
-Source: %{_basename}-%{_version}.tar.gz
+Source: %{name}-%{version}.tar.gz
 Summary: The Bio++ Program Suite
 Group: Productivity/Scientific/Other
 
-Requires: libbpp-phyl11 = %{_version}
-Requires: libbpp-seq11 = %{_version}
-Requires: libbpp-core3 = %{_version}
+Requires: libbpp-popgen8 = %{version}
+Requires: libbpp-phyl12 = %{version}
+Requires: libbpp-seq12 = %{version}
+Requires: libbpp-core4 = %{version}
 
-BuildRoot: %{_builddir}/%{_basename}-root
+BuildRoot: %{_builddir}/%{name}-root
 BuildRequires: cmake >= 2.8.11
 BuildRequires: gcc-c++ >= 4.7.0
 BuildRequires: groff
 BuildRequires: texinfo >= 4.0.0
-BuildRequires: libbpp-core4 = %{_version}
-BuildRequires: libbpp-core-devel = %{_version}
-BuildRequires: libbpp-seq12 = %{_version}
-BuildRequires: libbpp-seq-devel = %{_version}
-BuildRequires: libbpp-phyl12 = %{_version}
-BuildRequires: libbpp-phyl-devel = %{_version}
-BuildRequires: libbpp-popgen7 = %{_version}
-BuildRequires: libbpp-popgen-devel = %{_version}
+BuildRequires: libbpp-core4 = %{version}
+BuildRequires: libbpp-core-devel = %{version}
+BuildRequires: libbpp-seq12 = %{version}
+BuildRequires: libbpp-seq-devel = %{version}
+BuildRequires: libbpp-phyl12 = %{version}
+BuildRequires: libbpp-phyl-devel = %{version}
+BuildRequires: libbpp-popgen8 = %{version}
+BuildRequires: libbpp-popgen-devel = %{version}
 
 
 AutoReq: yes
@@ -90,7 +88,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/*.1*
 
 %changelog
-* Thu Feb 22 2018 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.4.0-1
+* Mon Mar 12 2018 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.4.0-1
 * Tue Jun 06 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.1-1
 * Wed May 10 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.0-1
 - New BppPopStats program

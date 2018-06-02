@@ -64,6 +64,7 @@ using namespace std;
 
 using namespace bpp;
 
+
 map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& spc,
                                           const map<size_t, SequenceEvolution*>& mSeqEvol,
                                           map<string, string>& params,
@@ -79,9 +80,9 @@ map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& s
   if (vSimulName.size() == 0) {
     ApplicationTools::displayWarning("Did not find any descriptor matching `simul*`, so no simulation performed.");
   }
-
+  
   SequenceSimulator* ss;
-
+  
   for (size_t nS=0; nS< vSimulName.size(); nS++)
   {
     size_t poseq=vSimulName[nS].find("=");

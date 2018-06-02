@@ -153,6 +153,7 @@ int main(int args, char** argv)
       if (ApplicationTools::parameterExists("input.sequence.outgroup.name", bpppopstats.getParams())) {
         vector<string> outgroups = ApplicationTools::getVectorParameter<string>("input.sequence.outgroup.name", bpppopstats.getParams(), ',', "");
         for (auto g : outgroups) {
+          ApplicationTools::displayResult("Sequence from outgroup", g);
           psc->setAsOutgroupMember(g);
         }
       }
@@ -432,8 +433,8 @@ int main(int args, char** argv)
         }
         double piS = SequenceStatistics::piSynonymous(*pscIn, *gCode);
         double piN = SequenceStatistics::piNonSynonymous(*pscIn, *gCode);
-        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*pscIn, *gCode);
-        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*pscIn, *gCode);
+        double nbS = SequenceStatistics::meanNumberOfSynonymousSites(*pscIn, *gCode, kappa);
+        double nbN = SequenceStatistics::meanNumberOfNonSynonymousSites(*pscIn, *gCode, kappa);
         double r = (piN / nbN) / (piS / nbS);
         ApplicationTools::displayResult("PiN:", piN);
         ApplicationTools::displayResult("PiS:", piS);
@@ -598,27 +599,22 @@ int main(int args, char** argv)
             if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState)) {
               out << "\tNA\tNA\tNA";
             } else {
-              if (estimateAncestor) {
-                //This is the same value as for polymorphism, we add it for having consistent output format
-                out << "\t" << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa);
-              } else {
-                //Also average over outgroup (Note: minState and maxState are identical in this case)
-                out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
-                                       CodonSiteTools::numberOfSynonymousPositions(minState, *gCode, kappa)) / 2.;
-              }
+              //Average over outgroup (Note: minState and maxState are identical in this case)
+              out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
+                                     CodonSiteTools::numberOfSynonymousPositions(minState, *gCode, kappa)) / 2.;
               if (nbAlleles == 1) {
                 //Compare with outgroup:
                 if (site[0] == outgroupState) {
-                  out << "\t0\t0" << endl;
+                  out << "\t0\t0";
                 } else {
                   //This is a real substitution:
-                  int nt = (int)CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet);
+                  double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet));
                   double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, minState, *gCode); 
-                  out << "\t" << ns << "\t" << (nt - ns);
+                  out << "\t" << (nt - ns) << "\t" << ns;
                 }
               } else {
                 //Site is polymorphic, this is not a substitution    
-                out << "\t0\t0" << endl;
+                out << "\t0\t0";
               }
             }
           }
