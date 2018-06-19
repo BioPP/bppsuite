@@ -1688,6 +1688,17 @@ alphabet - 1 - the number of stop codons, whose frequencies are set to
 0. For nucleotide sequences, theta is the GC content, theta1 is the
 proportion of A over A+T, and theta2 is the proportion of G over G+C.
 
+@item Empirical(file=@{path@} [,col=@{int@}])
+Read frequencies from a file. Each frequencies is set as plain column
+in the file. If several columns are in the file, the number of the
+column can be given with @{col@} argument (default: 1).
+
+@item Empirical+F(name=@{chars@}, file=@{path@}, [theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
+Build a protein substitution model from a file in PAML format, and use
+free equilibrium frequencies. 'name' will be used as a parameter
+namespace, including for frequencies.
+
+
 @item Word(frequency=@{frequency set description@})
 
 or 
