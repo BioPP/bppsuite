@@ -78,5 +78,8 @@ Many examples are available in the subdirectory of <tt>Examples</tt>.
 
 ### Documentation 
 
-Documentation can be found at https://github.com/BioPP/bppsuite/releases/tag/v2.3.2 in pdf or html.
+
+Documentation can be found in one page at: http://bioweb.me/bppsuite-doc
+
+Or on github: https://github.com/BioPP/bppsuite/releases/tag/v2.3.2 in pdf or html.
  
