@@ -1610,6 +1610,31 @@ See the
 @c identifiability of several parameters (here the probabilities in model
 @c 3), so the user should be careful about this. 
 
+@c When the submodel is aliased behind a model name, the paths should be
+@c defined as combinations of the model that is mixed. For example,
+@c YNGP_M2 is made of 3 YN98 models, depending of three @var{omega}
+@c values: <1, =1, >1. If we want a site to switch between <1 and >1
+@c omega values between two sets of branches:
+
+@c @cartouche
+@c @example
+@c nonhomogeneous = general
+@c nonhomogeneous.number_of_models = 2
+
+@c model1=YNGP_M2(frequencies=F1X4)
+@c model2=YNGP_M2(frequencies=F1X4)
+
+@c model1.nodes_id=0:1
+@c model2.nodes_id=2:3
+
+@c site.number_of_paths=3
+@c site.path1=model1[YN98.omega_1] & model2[YN98.omega_3]
+@c site.path2=model1[YN98.omega_2] & model2[YN98.omega_2]
+@c site.path3=model1[YN98.omega_3] & model2[YN98.omega_1]
+
+@c @end example
+@c @end cartouche
+
 @c Another example in the case of mixtures of mixed models, where the
 @c submodels are defined by their names;
 
