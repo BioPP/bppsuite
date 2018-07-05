@@ -1667,8 +1667,34 @@ Concerning the optimization procedure, this choice may entail the non-
 identifiability of several parameters (here the probabilities in model
 3), so the user should be careful about this. 
 
+
+When the submodel is aliased behind a model name, the paths should be
+defined as combinations of the model that is mixed. For example,
+YNGP_M2 is made of 3 YN98 models, depending of three @var{omega}
+values: <1, =1, >1. If we want a site to switch between <1 and >1
+omega values between two sets of branches:
+
+@cartouche
+@example
+nonhomogeneous = general
+nonhomogeneous.number_of_models = 2
+
+model1=YNGP_M2(frequencies=F1X4)
+model2=YNGP_M2(frequencies=F1X4)
+
+model1.nodes_id=0:1
+model2.nodes_id=2:3
+
+site.number_of_paths=3
+site.path1=model1[YN98.omega_1] & model2[YN98.omega_3]
+site.path2=model1[YN98.omega_2] & model2[YN98.omega_2]
+site.path3=model1[YN98.omega_3] & model2[YN98.omega_1]
+
+@end example
+@end cartouche
+
 Another example in the case of mixtures of mixed models, where the
-submodels are defined by their names;
+submodels are defined by their names:
 
 @cartouche
 @example
