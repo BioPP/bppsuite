@@ -488,6 +488,8 @@ int main(int args, char** argv)
           out.endLine();
         }
 
+        PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams(), "output.", "");
+
       }
 
       // Write infos to file:
