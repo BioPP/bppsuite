@@ -488,7 +488,7 @@ int main(int args, char** argv)
           out.endLine();
         }
 
-        PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams(), "output.", "");
+        PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams(), "output.", "",true,true,false,false);
 
       }
 
