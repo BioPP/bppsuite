@@ -88,6 +88,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/man/man1/*.1*
 
 %changelog
+* Wed Aug 15 2018 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.4.1-1
 * Mon Mar 12 2018 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.4.0-1
 * Tue Jun 06 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.1-1
 * Wed May 10 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.0-1
