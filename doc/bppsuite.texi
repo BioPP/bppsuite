@@ -1667,8 +1667,34 @@ Concerning the optimization procedure, this choice may entail the non-
 identifiability of several parameters (here the probabilities in model
 3), so the user should be careful about this. 
 
+
+When the submodel is aliased behind a model name, the paths should be
+defined as combinations of the model that is mixed. For example,
+YNGP_M2 is made of 3 YN98 models, depending of three @var{omega}
+values: <1, =1, >1. If we want a site to switch between <1 and >1
+omega values between two sets of branches:
+
+@cartouche
+@example
+nonhomogeneous = general
+nonhomogeneous.number_of_models = 2
+
+model1=YNGP_M2(frequencies=F1X4)
+model2=YNGP_M2(frequencies=F1X4)
+
+model1.nodes_id=0:1
+model2.nodes_id=2:3
+
+site.number_of_paths=3
+site.path1=model1[YN98.omega_1] & model2[YN98.omega_3]
+site.path2=model1[YN98.omega_2] & model2[YN98.omega_2]
+site.path3=model1[YN98.omega_3] & model2[YN98.omega_1]
+
+@end example
+@end cartouche
+
 Another example in the case of mixtures of mixed models, where the
-submodels are defined by their names;
+submodels are defined by their names:
 
 @cartouche
 @example
@@ -1729,6 +1755,17 @@ For nucleotides only, set the G content equal to the C content.
 @item Full(theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., thetaN=@{real]0,1[@})
 Full parametrization. Contains N free parameters, where N is equal to the size of the alphabet - 1. For codon models, N is the size of the alphabet - 1 - the number of stop codons, whose frequencies are set to 0.
 For nucleotide sequences, theta is the GC content, theta1 is the proportion of A over A+T, and theta2 is the proportion of G over G+C.
+
+@item Empirical(file=@{path@} [,col=@{int@}])
+Read frequencies from a file. Each frequencies is set as plain column
+in the file. If several columns are in the file, the number of the
+column can be given with @{col@} argument (default: 1).
+
+@item Empirical+F(name=@{chars@}, file=@{path@}, [theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., "equilibrium frequencies"])
+Build a protein substitution model from a file in PAML format, and use
+free equilibrium frequencies. 'name' will be used as a parameter
+namespace, including for frequencies.
+
 
 @item Word(frequency=@{frequency set description@})
 
