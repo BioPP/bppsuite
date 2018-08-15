@@ -23,7 +23,7 @@ IF(NOT NO_DEP_CHECK)
 ENDIF(NOT NO_DEP_CHECK)
 
 IF(NO_DEP_CHECK)
-  MESSAGE("-- Dependencies checking disabled. Only distribution can be built.")
+  MESSAGE(STATUS "Dependencies checking disabled. Only distribution can be built.")
 ELSE(NO_DEP_CHECK)
 
 
@@ -34,7 +34,7 @@ IF(NOT BUILD_STATIC)
       FORCE)
 ENDIF()
 IF(BUILD_STATIC)
-  MESSAGE("-- Static linkage requested.")
+  MESSAGE(STATUS "Static linkage requested.")
   SET(CMAKE_CXX_FLAGS "-static -static-libgcc ${CMAKE_CXX_FLAGS}")
 ENDIF()
 
