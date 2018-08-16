@@ -3,7 +3,7 @@
 URL: https://github.com/BioPP
 
 Name: bppsuite
-Version: 2.4.0
+Version: 2.4.1
 Release: 1%{?dist}
 License: CECILL-2.0
 Vendor: The Bio++ Project
