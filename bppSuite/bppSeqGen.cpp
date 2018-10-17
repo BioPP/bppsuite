@@ -324,7 +324,11 @@ int main(int args, char ** argv)
       model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams());
     }
 
-    vector<string> descGlobalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
+    string descGlobal = ApplicationTools::getStringParameter("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), "", "", true, 1);
+
+    NestedStringTokenizer nst(descGlobal,"[","]",",");
+    const deque<string>& descGlobalParameters=nst.getTokens();
+
     map<string, vector<Vint> > globalParameters;
     for (const auto& desc:descGlobalParameters)
     {
@@ -334,7 +338,7 @@ int main(int args, char ** argv)
       else
       {
         string key=desc.substr(0,post);
-        Vint sint=NumCalcApplicationTools::seqFromString(desc.substr(post+1));
+        Vint sint=NumCalcApplicationTools::seqFromString(desc.substr(post+2, desc.size()-post-3));
         if (globalParameters.find(key)==globalParameters.end())
           globalParameters[key]=vector<Vint>(1, sint);
         else
@@ -347,7 +351,7 @@ int main(int args, char ** argv)
       ApplicationTools::displayResult("Global parameter", globpar.first);
       if (globpar.second.size()==0)
       {
-        string all="all";
+        string all="All nodes";
         ApplicationTools::displayResult(" set to nodes", all);
       }
       else

@@ -411,7 +411,7 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Global parameter", globpar.first);
         if (globpar.second.size()==0)
         {
-          string all="all";
+          string all="All nodes";
           ApplicationTools::displayResult(" shared between nodes", all);
         }
         else
