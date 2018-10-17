@@ -48,6 +48,7 @@ using namespace std;
 #include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
+#include <Bpp/App/NumCalcApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -216,7 +217,37 @@ int main(int args, char ** argv)
     std::map<std::string, std::string> aliasFreqNames;
     FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppancestor.getParams(), aliasFreqNames, rateFreqs);
     
-    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppancestor.getParams(), ',', "");
+    vector<string> descGlobalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppancestor.getParams(), ',', "");
+    map<string, vector<Vint> > globalParameters;
+    for (const auto& desc:descGlobalParameters)
+    {
+      size_t post=desc.rfind("_");
+      if (post==std::string::npos || post==desc.size()-1 || desc[post+1]!='[')
+        globalParameters[desc]={};
+      else
+      {
+        string key=desc.substr(0,post);
+        Vint sint=NumCalcApplicationTools::seqFromString(desc.substr(post+1));
+        if (globalParameters.find(key)==globalParameters.end())
+          globalParameters[key]=vector<Vint>(1, sint);
+        else
+          globalParameters[key].push_back(sint);
+      }
+    }
+
+    for (const auto& globpar:globalParameters)
+    {
+      ApplicationTools::displayResult("Global parameter", globpar.first);
+      if (globpar.second.size()==0)
+      {
+        string all="all";
+        ApplicationTools::displayResult(" set to nodes", all);
+      }
+      else
+        for (const auto& vint:globpar.second)
+          ApplicationTools::displayResult(" set to nodes", VectorTools::paste(vint,","));
+    }
+    
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, aliasFreqNames, globalParameters); 
     model = 0;
     if (dynamic_cast<MixedSubstitutionModelSet*>(modelSet))
