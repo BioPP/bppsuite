@@ -349,6 +349,7 @@ with their corresponding names:
 @item YeastMitochondrial @tab 3
 @item MoldMitochondrial @tab 4
 @item InvertebrateMitochondrial @tab 5
+@item CiliateNuclear @tab 6
 @item EchinodermMitochondrial @tab 9
 @item AscidianMitochondrial @tab 13
 @end multitable
