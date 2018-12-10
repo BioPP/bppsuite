@@ -1540,9 +1540,12 @@ You can specify a wide range of non-homogeneous models, by combining different o
 This option share the same parameters as the homogeneous case, since the same kind of model is used for each branch. The additional options are the following:
 @table @command
 
-@item nonhomogeneous_one_per_branch.shared_parameters = @{list<chars>@}
-List the names of the parameters that are shared by all branches.
-In Galtier & Gouy model, that would be @var{T92.kappa}, since only the theta parameter is branch-specific.
+@item nonhomogeneous_one_per_branch.shared_parameters = @{list<chars>@}, @{list<chars>_[list<int>]@}
+
+List the names of the parameters that are shared by all branches, or
+by a set of branches, defined by nodes ids between brackets. In
+Galtier & Gouy model, that would be @var{T92.kappa}, since only the
+theta parameter is branch-specific.
 
 The '*' wildcard can be used, as in @command{*theta*} for all the
 parameters whose name has @command{theta} in it.
@@ -1712,8 +1715,8 @@ site.path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] \
 @end example
 @end cartouche
 
-When nonhomogeneity option is @option{one_per_branch}, each site is
-constrained to follow the same submodel from leaves to root.
+@c When nonhomogeneity option is @option{one_per_branch}, each site is
+@c constrained to follow the same submodel from leaves to root.
 
 @subsubsection Root frequencies
 
