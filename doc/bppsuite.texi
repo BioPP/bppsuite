@@ -445,7 +445,7 @@ Basic operations can be performed on the sequences:
 
 @item input.sequence.sites_to_use = @{all|nogap|complete@}
 This option only works if the program requires an alignment.
-Tells which sites to use.
+Tells which sites to use (default: 'complete').
 The @option{nogap} option removes all sites containing at least one
 gap, and the @option{complete} option removes all sites containing at
 least one gap or one generic character, as 'X' for instance.
