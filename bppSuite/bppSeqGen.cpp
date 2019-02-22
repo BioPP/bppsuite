@@ -304,7 +304,7 @@ int main(int args, char ** argv)
   if (nhOpt == "no")
   {
     TransitionModel* model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
-    FrequenciesSet* fSet = new FixedFrequenciesSet(model->getStateMap().clone(), model->getFrequencies());
+    FrequenciesSet* fSet = new FixedFrequenciesSet(model->shareStateMap(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
   //Galtier-Gouy case:
