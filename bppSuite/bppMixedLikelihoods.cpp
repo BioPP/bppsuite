@@ -48,6 +48,7 @@ using namespace std;
 #include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
+#include <Bpp/App/NumCalcApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -73,10 +74,10 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.h>
-#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
-#include <Bpp/Phyl/Model/MixtureOfASubstitutionModel.h>
-#include <Bpp/Phyl/Model/MixtureOfSubstitutionModels.h>
+#include <Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.h>
+#include <Bpp/Phyl/Model/MixedTransitionModel.h>
+#include <Bpp/Phyl/Model/MixtureOfATransitionModel.h>
+#include <Bpp/Phyl/Model/MixtureOfTransitionModels.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
@@ -145,7 +146,7 @@ int main(int args, char** argv)
     string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppmixedlikelihoods.getParams(), "no", "", true, false);
     ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-    MixedSubstitutionModel* model       = 0;
+    MixedTransitionModel* model       = 0;
     MixedSubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist         = 0;
 
@@ -153,7 +154,7 @@ int main(int args, char** argv)
 
     if (nhOpt == "no")
     {
-      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
+      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
@@ -174,7 +175,7 @@ int main(int args, char** argv)
     }
     else if (nhOpt == "one_per_branch")
     {
-      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
+      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
@@ -205,7 +206,7 @@ int main(int args, char** argv)
       FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), aliasFreqNames, rateFreqs);
 
       string descGlobal = ApplicationTools::getStringParameter("nonhomogeneous_one_per_branch.shared_parameters", bppmixedlikelihoods.getParams(), "", "", true, 1);
- 
+
       NestedStringTokenizer nst(descGlobal,"[","]",",");
       const deque<string>& descGlobalParameters=nst.getTokens();
 
@@ -332,7 +333,7 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    MixedSubstitutionModel* p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getModel(nummodel - 1));
+    MixedTransitionModel* p0 = dynamic_cast<MixedTransitionModel*>(model ? model : modelSet->getModel(nummodel - 1));
 
     if (!p0)
     {
@@ -340,7 +341,7 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    const AbstractBiblioMixedSubstitutionModel* ptmp = dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(p0);
+    const AbstractBiblioMixedTransitionModel* ptmp = dynamic_cast<const AbstractBiblioMixedTransitionModel*>(p0);
     if (ptmp) {
       p0 = ptmp->getMixedModel().clone();
 
@@ -355,7 +356,7 @@ int main(int args, char** argv)
     //////////////////////////////////////////////////
     // Case of a MixtureOfSubstitutionModels
 
-    MixtureOfSubstitutionModels* pMSM = dynamic_cast<MixtureOfSubstitutionModels*>(p0);
+    MixtureOfTransitionModels* pMSM = dynamic_cast<MixtureOfTransitionModels*>(p0);
 
     if (pMSM)
     {
@@ -418,7 +419,7 @@ int main(int args, char** argv)
 
     else
     {
-      MixtureOfASubstitutionModel* pMSM2 = dynamic_cast<MixtureOfASubstitutionModel*>(p0);
+      MixtureOfATransitionModel* pMSM2 = dynamic_cast<MixtureOfATransitionModel*>(p0);
       if (pMSM2 != NULL)
       {
         size_t nummod = pMSM2->getNumberOfModels();
@@ -490,7 +491,7 @@ int main(int args, char** argv)
         Vdouble dval;
         for (size_t i = 0; i < nbcl; i++)
         {
-          SubstitutionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
+          const TransitionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
           double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
           dval.push_back(valPar);
           colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));

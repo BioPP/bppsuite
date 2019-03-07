@@ -351,6 +351,7 @@ with their corresponding names:
 @item YeastMitochondrial @tab 3
 @item MoldMitochondrial @tab 4
 @item InvertebrateMitochondrial @tab 5
+@item CiliateNuclear @tab 6
 @item EchinodermMitochondrial @tab 9
 @item AscidianMitochondrial @tab 13
 @end multitable
@@ -464,7 +465,7 @@ Basic operations can be performed on the sequences:
 
 @item sites_to_use = @{all|nogap|complete@}
 This option only works if the program requires an alignment.
-Tells which sites to use.
+Tells which sites to use (default: 'complete').
 The @option{nogap} option removes all sites containing at least one
 gap, and the @option{complete} option removes all sites containing at
 least one gap or one generic character, as 'X' for instance.
@@ -1884,7 +1885,7 @@ Site substitution processes are numbered like this:
 
 @item process@{number@} = @{OnePerBranch@}(tree=@{number@}, model@{number@}=@{number@},
                          rate=@{number@} [, root_freq=@{number@},
-                         shared_parameters=@{vector of strings@}]) 
+                         shared_parameters=@{vector of @{list<chars>@}, @{list<chars>_[list<int>]@}@}]) 
 
 @end table
 
@@ -1897,7 +1898,8 @@ case, including PAML clade models.
 With @command{OnePerBranch}, the model is cloned to have one
 independent model per branch. Optional argument
 @option{shared_parameters} is the vector of model parameters that are
-aliased between all models.
+shared by all branches, or by a set of branches, defined by nodes ids
+between brackets.
 
 
 With @command{NonHomogeneous} option, several models can be declared
@@ -1996,13 +1998,6 @@ process7=Partition(process1=2, process2=5, process1.sites=(1,5:20,24-35), proces
 @end example
 
 @end table
-
-@c @item nonhomogeneous_one_per_branch.shared_parameters = @{list<chars>@}
-@c List the names of the parameters that are shared by all branches.
-@c In Galtier & Gouy model, that would be @var{T92.kappa}, since only the theta parameter is branch-specific.
-
-@c The '*' wildcard can be used, as in @command{*theta*} for all the
-@c parameters whose name has @command{theta} in it.
 
 
 @node Phylo-likelihoods, Linking, Process, Likelihoods

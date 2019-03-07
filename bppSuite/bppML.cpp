@@ -51,7 +51,6 @@ using namespace std;
 #include <Bpp/App/BppApplication.h>
 
 // // From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/SiteTools.h>
 
@@ -60,7 +59,7 @@ using namespace std;
 #include <Bpp/Phyl/Likelihood/RASTools.h>
 #include <Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.h>
 
-#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
 #include "bppTools.h"
@@ -176,7 +175,7 @@ int main(int args, char** argv)
       {
         rDist.reset(PhylogeneticsApplicationTools::getRateDistributions(bppml.getParams())[0]);
       }
-      if (dynamic_cast<MixedSubstitutionModel*>(model.get()) == 0)
+      if (dynamic_cast<MixedTransitionModel*>(model.get()) == 0)
         tl_old.reset(new NNIHomogeneousTreeLikelihood(*firstTree, *mSites.begin()->second, model.get(), rDist.get(), checkTree, true));
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
@@ -552,7 +551,7 @@ int main(int args, char** argv)
             model->setFreqFromData(*sample);
           }
 
-          if (dynamic_cast<MixedSubstitutionModel*>(model.get()) != NULL)
+          if (dynamic_cast<MixedTransitionModel*>(model.get()) != NULL)
             throw Exception("Bootstrap estimation with Mixed model not supported yet, sorry :(");
 
           unique_ptr<NNIHomogeneousTreeLikelihood> tlRep(new NNIHomogeneousTreeLikelihood(*initTree, *sample, model.get(), rDist.get(), true, false));
