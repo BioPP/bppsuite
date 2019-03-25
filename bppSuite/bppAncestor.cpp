@@ -78,7 +78,7 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h>
-#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSet.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
@@ -185,7 +185,7 @@ int main(int args, char ** argv)
     {
       rDist = PhylogeneticsApplicationTools::getRateDistribution(bppancestor.getParams());
     }
-    if (dynamic_cast<MixedSubstitutionModel*>(model))
+    if (dynamic_cast<MixedTransitionModel*>(model))
       tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
     else
       tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);

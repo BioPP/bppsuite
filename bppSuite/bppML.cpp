@@ -78,7 +78,7 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Model/Protein/CoalaCore.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
@@ -284,7 +284,7 @@ int main(int args, char** argv)
       {
         rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
-      if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
+      if (dynamic_cast<MixedTransitionModel*>(model) == 0)
         tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true);
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
@@ -315,13 +315,13 @@ int main(int args, char** argv)
         string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, 2);
         ApplicationTools::displayResult("Likelihood data compression", compression);
         if (compression == "simple")
-          if (dynamic_cast<MixedSubstitutionModel*>(model))
+          if (dynamic_cast<MixedTransitionModel*>(model))
             tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, false);
           else
             tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, false);
 
         else if (compression == "recursive")
-          if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
+          if (dynamic_cast<MixedTransitionModel*>(model) == 0)
             tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
           else
             tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
@@ -330,7 +330,7 @@ int main(int args, char** argv)
       }
       else if (recursion == "double")
       {
-        if (dynamic_cast<MixedSubstitutionModel*>(model))
+        if (dynamic_cast<MixedTransitionModel*>(model))
           tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree);
         else
           tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);
@@ -724,7 +724,7 @@ int main(int args, char** argv)
           model->setFreqFromData(*sample);
         }
 
-        if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
+        if (dynamic_cast<MixedTransitionModel*>(model) != NULL)
           throw Exception("Bootstrap estimation with Mixed model not supported yet, sorry :(");
 
         NNIHomogeneousTreeLikelihood* tlRep = new NNIHomogeneousTreeLikelihood(*initTree, *sample, model, rDist, true, false);
