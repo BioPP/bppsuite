@@ -58,6 +58,8 @@ using namespace std;
 #include <Bpp/Phyl/NewLikelihood/SequenceEvolution.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
 
+#include <Bpp/NewPhyl/DataFlow.h>
+
 #ifndef TOOLS_H
 #define TOOLS_H
 
@@ -155,6 +157,7 @@ namespace bpp
      */
 
     static PhyloLikelihoodContainer* getPhyloLikelihoods(const std::map<std::string, std::string>& params,
+                                                         dataflow::Context& context,
                                                          std::map<size_t, SequenceEvolution*> mSeqEvol, 
                                                          SubstitutionProcessCollection& collection,
                                                          const std::map<size_t, AlignedValuesContainer*>& mSites);
@@ -166,6 +169,7 @@ namespace bpp
      */
     
     static PhyloLikelihood* getResultPhyloLikelihood(const std::map<std::string, std::string>& params,
+                                                     dataflow::Context& context,
                                                      const Alphabet* alphabet,
                                                      const GeneticCode* gCode,
                                                      std::map<std::string, std::string>& unparsedparams);

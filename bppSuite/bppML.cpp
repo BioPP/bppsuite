@@ -52,6 +52,7 @@ using namespace std;
 
 // // From bpp-seq:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SiteTools.h>
 
 // // From bpp-phyl:
@@ -61,6 +62,8 @@ using namespace std;
 
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Io/Newick.h>
+
+#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
 
 #include "bppTools.h"
 
@@ -93,6 +96,8 @@ int main(int args, char** argv)
 
     map<string, string> unparsedparams;
 
+    dataflow::Context context;
+    
     ///// Alphabet
 
     unique_ptr<Alphabet> alphabet(bppTools::getAlphabet(bppml.getParams()));
@@ -160,7 +165,7 @@ int main(int args, char** argv)
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
 
-      model.reset(PhylogeneticsApplicationTools::getTransitionModels(alphabet.get(), gCode.get(), mSites, bppml.getParams(), unparsedparams)[0]);
+      model.reset(PhylogeneticsApplicationTools::getTransitionModels(alphabet.get(), gCode.get(), mSites, bppml.getParams(), unparsedparams).begin()->second);
 
       if (model->getName() != "RE08")
         for (auto  itc : mSites)
@@ -192,8 +197,8 @@ int main(int args, char** argv)
       SPC.reset(bppTools::getCollection(bppml.getParams(), alphabet.get(), gCode.get(), mSites, mpTree, unparsedparams));
 
       mSeqEvol = bppTools::getProcesses(bppml.getParams(), *SPC, unparsedparams);
-
-      mPhyl.reset(bppTools::getPhyloLikelihoods(bppml.getParams(), mSeqEvol, *SPC, mSites));
+      
+      mPhyl.reset(bppTools::getPhyloLikelihoods(bppml.getParams(), context, mSeqEvol, *SPC, mSites));
       
       // retrieve Phylo 0, aka result phylolikelihood
       
@@ -207,6 +212,7 @@ int main(int args, char** argv)
     
     //Listing parameters
     string paramNameFile = ApplicationTools::getAFilePath("output.parameter_names.file", bppml.getParams(), false, false, "", true, "none", 1);
+
     if (paramNameFile != "none") {
       ApplicationTools::displayResult("List parameters to", paramNameFile);
       ofstream pnfile(paramNameFile.c_str(), ios::out);
@@ -458,7 +464,7 @@ int main(int args, char** argv)
         tl_new=PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
       else
         tl_new=PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getBranchLengthParameters(), bppml.getParams());
-
+      
       PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams(), "output.", "", true, true, true);
 
       // Write parameters to screen:

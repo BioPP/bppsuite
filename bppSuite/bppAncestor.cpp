@@ -87,6 +87,7 @@ int main(int args, char ** argv)
   
   try {
 
+    dataflow::Context context;
     
     BppApplication bppancestor(args, argv, "bppancestor");
     bppancestor.startTimer();
@@ -102,7 +103,7 @@ int main(int args, char ** argv)
 
     // get the result phylo likelihood
 
-    PhyloLikelihood* tl=bppTools::getResultPhyloLikelihood(allParams, alphabet.get(), gCode.get(), unparsedparams);
+    PhyloLikelihood* tl=bppTools::getResultPhyloLikelihood(allParams, context, alphabet.get(), gCode.get(), unparsedparams);
     
     bppTools::fixLikelihood(allParams, alphabet.get(), gCode.get(), tl);
     

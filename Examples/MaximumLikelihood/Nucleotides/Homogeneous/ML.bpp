@@ -11,56 +11,28 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=../../../Data/$(DATA).phy
+input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
 
-# The alignment format:
-input.sequence.format=Phylip(order=sequential, type=extended, split=spaces)
-
-#Sites to use:
-# all, nogap or complete (=only resolved chars)
-input.sequence.sites_to_use = all
-# Specify a maximum amount of gaps: may be an absolute number or a percentage.
-input.sequence.max_gap_allowed = 50%
-input.sequence.max_unresolved_allowed = 100%
 
 # ----------------------------------------------------------------------------------------
 #                                     Input tree file
 # ----------------------------------------------------------------------------------------
 
 # user or random
-init.tree = user
-
-input.tree.file = ../../../Data/$(DATA).dnd
-input.tree.format = Newick
-
-init.brlen.method = Input
+input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = HKY85(kappa=2.843, initFreqs=observed)
+model1 = HKY85(kappa=2.843, initFreqs=observed, data=1)
 
-rate_distribution = Gamma(n=4, alpha=0.358)
+rate_distribution1 = Gamma(n=4, alpha=0.358)
 
-# Likelihood recursion option:
-# - simple: derivatives takes more time to compute, but likelihood computation is faster.
-#   For big data sets, it can save a lot of memory usage too, particularly when the data are compressed.
-# - double: Uses more memory and need more time to compute likelihood, due to the double recursion.
-#   Analytical derivatives are however faster to compute.
-# This option has no effect in the following cases:
-# - Topology estimation: this requires a double recursive algorithm,
-# - Optimization with a molecular clock: a simple recursion with data compression is used in this case,
-#   due to the impossibility of computing analytical derivatives.
-likelihood.recursion = simple
+process1 = Homogeneous(model=1, tree=1, rate=1)
 
-# Site compression for the simple recursion:
-# - simple: identical sites are not computed twice
-# - recursive: look for site patterns to save computation time during optimization, but
-#   requires extra time for building the patterns.
-#   This is usually the best option, particularly for nucleotide data sets.
-likelihood.recursion_simple.compression = recursive
+phylo1 = Single(process=1, data=1)
 
 # ----------------------------------------------------------------------------------------
 #                                     Optimization
@@ -101,7 +73,7 @@ optimization.message_handler = $(DATA).messages
 optimization.profiler = $(DATA).profile
 
 # Shall we optimize tree topology as well?
-optimization.topology = yes
+optimization.topology = no
 
 # Algorithm to use for topology estimation: only NNI for now
 optimization.topology.algorithm = NNI

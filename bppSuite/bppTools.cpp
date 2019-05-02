@@ -48,6 +48,8 @@
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 
+#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
+
 using namespace std;
 using namespace bpp;
 
@@ -160,15 +162,17 @@ map<size_t, SequenceEvolution*> bppTools::getProcesses(const map<string, string>
 
 
 PhyloLikelihoodContainer* bppTools::getPhyloLikelihoods(const map<string, string>& params,
+                                                        dataflow::Context& context,
                                                         map<size_t, SequenceEvolution*> mSeqEvol, 
                                                         SubstitutionProcessCollection& collection,
                                                         const map<size_t, AlignedValuesContainer*>& mSites)
 {
-  return PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(collection, mSeqEvol, mSites, params);
+  return PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, collection, mSeqEvol, mSites, params);
 }
 
 
 PhyloLikelihood* bppTools::getResultPhyloLikelihood(const std::map<std::string, std::string>& params,
+                                                    dataflow::Context& context,
                                                     const Alphabet* alphabet,
                                                     const GeneticCode* gCode,
                                                     std::map<std::string, std::string>& unparsedparams)
@@ -181,7 +185,7 @@ PhyloLikelihood* bppTools::getResultPhyloLikelihood(const std::map<std::string, 
 
   map<size_t, SequenceEvolution*> mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, params, unparsedparams);
 
-  PhyloLikelihoodContainer* mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(*SPC, mSeqEvol, mSites, params);
+  PhyloLikelihoodContainer* mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, *SPC, mSeqEvol, mSites, params);
 
   if (!mPhyl->hasPhyloLikelihood(0))
     throw Exception("Missing phyloLikelihoods.");
