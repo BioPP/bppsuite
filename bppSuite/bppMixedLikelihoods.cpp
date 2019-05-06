@@ -363,7 +363,7 @@ int main(int args, char** argv)
       size_t nummod = pMSM->getNumberOfModels();
       for (unsigned int i = 0; i < nummod; i++)
       {
-        colNames.push_back(pMSM->getNModel(i)->getName());
+        colNames.push_back(pMSM->getNModel(i)->getName()+"_"+TextTools::toString(i+1));
       }
 
       DataTable* rates = new DataTable(nSites, colNames.size());
@@ -379,7 +379,7 @@ int main(int args, char** argv)
       Vdouble vprob = pMSM->getProbabilities();
       for (unsigned int i = 0; i < nummod; i++)
       {
-        string modname = pMSM->getNModel(i)->getName();
+        string modname = pMSM->getNModel(i)->getName()+"_"+TextTools::toString(i+1);
 
         for (unsigned int j = 0; j < nummod; j++)
         {
