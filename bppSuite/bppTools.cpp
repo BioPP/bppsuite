@@ -48,8 +48,6 @@
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 
-#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
-
 using namespace std;
 using namespace bpp;
 

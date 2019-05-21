@@ -26,9 +26,9 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model1 = HKY85(kappa=2.843, initFreqs=observed, data=1)
+model1 = HKY85(kappa=3, initFreqs=observed, data=1)
 
-rate_distribution1 = Gamma(n=4, alpha=0.358)
+rate_distribution1 = Gamma(n=4, alpha=1)
 
 process1 = Homogeneous(model=1, tree=1, rate=1)
 

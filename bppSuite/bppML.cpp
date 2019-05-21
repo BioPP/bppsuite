@@ -63,8 +63,6 @@ using namespace std;
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
-#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
-
 #include "bppTools.h"
 
 using namespace bpp;
@@ -464,9 +462,12 @@ int main(int args, char** argv)
         tl_new=PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
       else
         tl_new=PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getBranchLengthParameters(), bppml.getParams());
+
+      SPC->matchParametersValues(tl_new->getParameters());
       
       PhylogeneticsApplicationTools::writeTrees(*SPC, bppml.getParams(), "output.", "", true, true, true);
 
+      
       // Write parameters to screen:
       bppTools::displayParameters(*tl_new);
 
