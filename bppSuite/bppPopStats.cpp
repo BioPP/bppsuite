@@ -528,7 +528,7 @@ int main(int args, char** argv)
         ofstream out(path.c_str(), ios::out);
         out << "Site\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
         out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS";
-        bool outgroup = (pscOut && pscOut->getNumberOfSequences() == 1);
+        bool outgroup = (pscOut && pscOut->getNumberOfSequences() > 0);
         if (outgroup) {
           out << "\tOutgroupAllele";
         }
