@@ -570,28 +570,34 @@ int main(int args, char** argv)
               nbMissing += it->second;            
             }
           }
-          
+
           out << site.getPosition() << "\t";
           out << nbMissing << "\t";
           out << nbAlleles << "\t";
-          out << minFreq << "\t";
-          out << maxFreq << "\t";
-          out << alphabet->intToChar(minState) << "\t";
-          out << alphabet->intToChar(maxState) << "\t";
-          if (estimateAncestor) {
-            out << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa) << "\t";
+          if (nbAlleles > 0) {
+            //The site is not exclusively made of missing data        
+            out << minFreq << "\t";
+            out << maxFreq << "\t";
+            out << alphabet->intToChar(minState) << "\t";
+            out << alphabet->intToChar(maxState) << "\t";
+            if (estimateAncestor) {
+              out << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa) << "\t";
+            } else {
+              out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
+            }
+            out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
+            out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
+            out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
+            out << CodonSiteTools::piSynonymous(site, *gCode);
           } else {
-            out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
+            out << "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA";        
           }
-          out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
-          out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
-          out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
-          out << CodonSiteTools::piSynonymous(site, *gCode);
+
           if (outgroup) {
            out << "\t" << pscOut->getSequence(0).getChar(i); 
           }
           if (estimateAncestor) {
-           out << "\t" << ancestralSequence->getChar(i); 
+           out << "\t" << (nbAlleles == 0 ? "NNN" : ancestralSequence->getChar(i)); 
           }
           if (outgroup) {
             //Add divergence
