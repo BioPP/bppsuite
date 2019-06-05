@@ -391,8 +391,20 @@ int main(int args, char** argv)
       // +-----------+
       else if (cmdName == "FuAndLiDStar")
       {
+        string positions = ApplicationTools::getStringParameter("positions", cmdArgs, "all", "", false, 1);
+        shared_ptr<PolymorphismSequenceContainer> pscTmp;
+        if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
+          throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
+        if (positions == "synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "non-synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "all") {
+          pscTmp = pscIn;
+        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
-        double flDstar = SequenceStatistics::fuLiDStar(*pscIn, !useTotMut);
+        double flDstar = SequenceStatistics::fuLiDStar(*pscTmp, !useTotMut);
         ApplicationTools::displayResult("Fu and Li's (1993) D*:", flDstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
         //Print to logfile:
@@ -410,8 +422,20 @@ int main(int args, char** argv)
       // +-----------+
       else if (cmdName == "FuAndLiFStar")
       {
+        string positions = ApplicationTools::getStringParameter("positions", cmdArgs, "all", "", false, 1);
+        shared_ptr<PolymorphismSequenceContainer> pscTmp;
+        if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
+          throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
+        if (positions == "synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "non-synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "all") {
+          pscTmp = pscIn;
+        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
-        double flFstar = SequenceStatistics::fuLiFStar(*pscIn, !useTotMut);
+        double flFstar = SequenceStatistics::fuLiFStar(*pscTmp, !useTotMut);
         ApplicationTools::displayResult("Fu and Li (1993)'s F*:", flFstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
         //Print to logfile:
@@ -423,6 +447,7 @@ int main(int args, char** argv)
             *cLog << "fuLiFstarSegSit" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flFstar << endl;
         }
       }
+
       // +-----------+
       // | PiN / PiS |
       // +-----------+
