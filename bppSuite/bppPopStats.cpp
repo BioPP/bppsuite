@@ -627,7 +627,7 @@ int main(int args, char** argv)
           if (outgroup) {
             //Add divergence
             int outgroupState = pscOut->getSequence(0)[i];
-            if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState)) {
+            if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState) || nbAlleles == 0) {
               out << "\tNA\tNA\tNA";
             } else {
               //Average over outgroup (Note: minState and maxState are identical in this case)
