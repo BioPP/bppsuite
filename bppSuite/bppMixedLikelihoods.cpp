@@ -569,6 +569,8 @@ int main(int args, char** argv)
         // column names
         vector<string> colNames;
         colNames.push_back("Sites");
+
+        colNames.push_back("Ll");
         
         for (const auto& val:mVal)
           colNames.push_back("Ll_" + parname + "=" + TextTools::toString(val.first));
@@ -592,6 +594,13 @@ int main(int args, char** argv)
           
           (*rates)(j,"Sites")=TextTools::toString(currentSitePosition);
 
+          // Site ll
+          Vdouble vll;
+          for (size_t i = 0; i < nbcl; i++)
+            vll.push_back(vvLogL[i][j]);
+          
+          (*rates)(j, "Ll")= TextTools::toString(VectorTools::logSumExp(vll, vsprob));
+
           Vdouble vsp;
           
           size_t i=0;
@@ -607,14 +616,15 @@ int main(int args, char** argv)
             double sl=VectorTools::logSumExp(vl);
             double sp=VectorTools::sumExp(vp);
             
-            (*rates)(j, i + 1) = TextTools::toString(sl);
-            (*rates)(j, nbVal + i + 1) = TextTools::toString(sp);
+            (*rates)(j, i + 2) = TextTools::toString(sl);
+            (*rates)(j, nbVal + i + 2) = TextTools::toString(sp);
 
             vsp.push_back(sp);
             i++;
           }
+
           
-          (*rates)(j, 2 * nbVal + 1) = TextTools::toString(VectorTools::sumProd(vsp, lVal));
+          (*rates)(j, 2 * nbVal + 2) = TextTools::toString(VectorTools::sumProd(vsp, lVal));
         }
 
        DataTable::write(*rates, out, "\t");
