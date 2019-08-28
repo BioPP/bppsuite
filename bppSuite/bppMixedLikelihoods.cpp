@@ -118,6 +118,7 @@ int main(int args, char** argv)
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppmixedlikelihoods.getParams(), "", false);
     unique_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppmixedlikelihoods.getParams(), "Standard", "", true, true);
       ApplicationTools::displayResult("Genetic Code", codeDesc);
@@ -199,6 +200,7 @@ int main(int args, char** argv)
       
       std::map<std::string, std::string> aliasFreqNames;
 
+      
       FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), aliasFreqNames, rateFreqs);
 
       
@@ -377,6 +379,7 @@ int main(int args, char** argv)
       }
 
       Vdouble vprob = pMSM->getProbabilities();
+      
       for (unsigned int i = 0; i < nummod; i++)
       {
         string modname = pMSM->getNModel(i)->getName()+"_"+TextTools::toString(i+1);
@@ -467,50 +470,33 @@ int main(int args, char** argv)
         
         Vdouble vprob = pMSM2->getProbabilities();
 
-        vector<vector<double> > vvprob;
-        vector<double> vsprob;
+        VVdouble vvprob; //vvector of probabilities of the submodels
+        Vdouble vsprob;  // vector of sums of probabilities for each
+                         // parameter class
         
         for (size_t i = 0; i < nbcl; i++)
         {
           vector<double> vprob2;
           for (size_t j = 0; j < vvnmod[i].size(); j++)
-          {
             vprob2.push_back(vprob[static_cast<size_t>(vvnmod[i][j])]);
-          }
 
           vvprob.push_back(vprob2);
           vsprob.push_back(VectorTools::sum(vvprob[i]));
         }
 
-        vector<string> colNames;
-        colNames.push_back("Sites");
-
+        /* values of the parameter in the mixture */
+        
         Vdouble dval;
         for (size_t i = 0; i < nbcl; i++)
         {
           const TransitionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
           double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
           dval.push_back(valPar);
-          colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
-        }
-        for (size_t i = 0; i < nbcl; i++)
-          colNames.push_back("Pr_" + parname + "=" + TextTools::toString(dval[i]));
-
-        colNames.push_back("mean");
-
-        DataTable* rates = new DataTable(nSites, colNames.size());
-        rates->setColumnNames(colNames);
-
-        for (size_t i = 0; i < nSites; i++)
-        {
-          const Site* currentSite = &sites->getSite(i);
-          int currentSitePosition = currentSite->getPosition();
-          (*rates)(i,"Sites")=TextTools::toString(currentSitePosition);
         }
 
-        VVdouble vvd;
-
-          
+        
+        VVdouble vvLogL; /* classes X sites */
+        
         vector<double> vRates = pMSM2->getVRates();
 
         for (size_t i = 0; i < nbcl; ++i)
@@ -532,13 +518,9 @@ int main(int args, char** argv)
             tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, false, true);
 
           tl->initialize();
-          logL = tl->getValue();
-          Vdouble vd = tl->getLogLikelihoodForEachSite();
 
-          for (unsigned int j = 0; j < nSites; j++)
-            (*rates)(j, i + 1) = TextTools::toString(vd[j]);
-
-          vvd.push_back(vd);
+          
+          vvLogL.push_back(tl->getLogLikelihoodForEachSite());
 
           ApplicationTools::displayMessage("\n");
           ApplicationTools::displayMessage("Parameter " + par2 + "=" + TextTools::toString(dval[i]) + " with rate=" + TextTools::toString(vRates[i]));
@@ -547,19 +529,95 @@ int main(int args, char** argv)
           ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
         }
 
+        ////////////////
+        // posterior probabilities
+        
+        VVdouble vvPProb; /* sites X classes  */
+
         for (size_t j = 0; j < nSites; j++)
         {
           Vdouble vd;
           for (size_t i = 0; i < nbcl; i++)
-            vd.push_back(std::log(vsprob[i])+vvd[i][j]);
-          
+            vd.push_back(std::log(vsprob[i])+vvLogL[i][j]);
+
           VectorTools::logNorm(vd);
-          for (size_t i = 0; i < nbcl; i++)
-            (*rates)(j,nbcl + i + 1) = TextTools::toString(std::exp(vd[i]));
-          (*rates)(j, 2 * nbcl + 1) = TextTools::toString(VectorTools::sumExp(vd, dval));
+          vvPProb.push_back(vd);
         }
 
-        DataTable::write(*rates, out, "\t");
+        //////////////////////////
+        //output
+
+        // Check for equal parameter values
+        map<string, pair<double, Vuint>> mVal;
+        for (size_t i=0;i<dval.size();i++)
+        {
+          auto sval=TextTools::toString(dval[i]);
+          if (mVal.find(sval)==mVal.end())
+            mVal[sval]=pair<double, Vuint>(dval[i],Vuint(1,(uint)i));
+          else
+            mVal[sval].second.push_back((uint)i);
+        }
+
+        // list of values 
+        std::vector<double> lVal;
+        std::transform(
+          mVal.begin(),
+          mVal.end(),
+          std::back_inserter(lVal),
+          [](const std::pair<string, pair<double, Vuint>>& pair){return pair.second.first;});
+
+        // column names
+        vector<string> colNames;
+        colNames.push_back("Sites");
+        
+        for (const auto& val:mVal)
+          colNames.push_back("Ll_" + parname + "=" + TextTools::toString(val.first));
+
+        for (const auto& val:mVal)
+          colNames.push_back("Pr_" + parname + "=" + TextTools::toString(val.first));
+        
+        colNames.push_back("mean");
+
+
+        // build datatable
+        DataTable* rates = new DataTable(nSites, colNames.size());
+        rates->setColumnNames(colNames);
+
+        size_t nbVal=mVal.size();
+        
+        for (size_t j = 0; j < nSites; j++)
+        {
+          const Site* currentSite = &sites->getSite(j);
+          int currentSitePosition = currentSite->getPosition();
+          
+          (*rates)(j,"Sites")=TextTools::toString(currentSitePosition);
+
+          Vdouble vsp;
+          
+          size_t i=0;
+          for (const auto& val:mVal)
+          {
+            Vdouble vl, vp;
+            for (const auto& ind:val.second.second)
+            {
+              vl.push_back(vvLogL[ind][j]);
+              vp.push_back(vvPProb[j][ind]);
+            }
+
+            double sl=VectorTools::logSumExp(vl);
+            double sp=VectorTools::sumExp(vp);
+            
+            (*rates)(j, i + 1) = TextTools::toString(sl);
+            (*rates)(j, nbVal + i + 1) = TextTools::toString(sp);
+
+            vsp.push_back(sp);
+            i++;
+          }
+          
+          (*rates)(j, 2 * nbVal + 1) = TextTools::toString(VectorTools::sumProd(vsp, lVal));
+        }
+
+       DataTable::write(*rates, out, "\t");
       }
     }
 
