@@ -1715,8 +1715,8 @@ site.path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] \
 @end example
 @end cartouche
 
-When nonhomogeneity option is @option{one_per_branch}, each site is
-constrained to follow the same submodel from leaves to root.
+@c When nonhomogeneity option is @option{one_per_branch}, each site is
+@c constrained to follow the same submodel from leaves to root.
 
 @subsubsection Root frequencies
 
