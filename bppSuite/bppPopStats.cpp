@@ -143,7 +143,8 @@ int main(int args, char** argv)
     } else {
       //Everything in one file
       unique_ptr<SiteContainer> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), "", false, true));
-      psc.reset(new PolymorphismSequenceContainer(*sites));
+      unique_ptr<SiteContainer> sites2(SequenceApplicationTools::getSitesToAnalyse(*sites, bpppopstats.getParams(), "", false, true));
+      psc.reset(new PolymorphismSequenceContainer(*sites2));
       if (ApplicationTools::parameterExists("input.sequence.outgroup.index", bpppopstats.getParams())) {
         vector<size_t> outgroups = ApplicationTools::getVectorParameter<size_t>("input.sequence.outgroup.index", bpppopstats.getParams(), ',', "");
         for (auto g : outgroups) {
@@ -283,6 +284,18 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Transition / transversions ratio", kappa);
       }
       if (estimateAncestor) {
+        // if subsampling was used, need to create a likelihood object with all data:
+        if (sampleIngroup) {
+          delete treeLik;
+          aln.reset(new AlignedSequenceContainer(*pscIn));
+          if (pscOut) {
+            aln->addSequence(pscOut->getSequence(0)); //As for now, we only consider one sequence as outgroup, the first one.
+          }
+          treeLik = new DRHomogeneousTreeLikelihood(*tree, *aln, model.get(), rDist.get());
+          treeLik->initialize();
+          if (std::isinf(treeLik->getValue()))
+            throw Exception("Error: null likelihood. Possible cause: stop codon or numerical underflow (too many sequences).");
+        }
         MarginalAncestralStateReconstruction asr(treeLik);
         int outgroupId = tree->getLeafId(pscOut->getSequence(0).getName());
         ancestralSequence.reset(asr.getAncestralSequenceForNode(tree->getFatherId(outgroupId)));
