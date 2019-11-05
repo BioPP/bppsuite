@@ -2935,13 +2935,17 @@ Compute Tajima's nucleotide diversity estimator (pi, averaged per site).
 
 @item TajimaD
 Compute Tajima's D. If a codon alignment is specified (and alphabet is set to codon type),
-the @command{positions} argument further allow to compute Tajima's D on synonymous sites only
-(@command{positions=synonymous}), non-synonymous sites (@command{positions=non-synonymous}).
+the @command{positions} argument further allows to compute Tajima's D on synonymous sites only
+(@command{positions=synonymous}), or non-synonymous sites (@command{positions=non-synonymous}).
 Default is to use all sites (@command{positions=all}).
 
 @item FuAndLiDStar | FuAndLiFStar
 Compute Fu and Li's (1993) D and F statistics. If argument @command{tot_mut} is set to yes,
 then the total number of mutations is used in the calculation, instead of the number of segregating sites (default).
+The @command{positions} argument further allows to compute Fu and Li's statistics on synonymous sites only
+(@command{positions=synonymous}), or non-synonymous sites (@command{positions=non-synonymous}).
+Default is to use all sites (@command{positions=all}).
+
 
 @item PiN_PiS
 For codon sequences only, obviously. Compute nucleotide diversity at synonymous and non-synonymous site,
