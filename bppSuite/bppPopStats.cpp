@@ -567,7 +567,9 @@ int main(int args, char** argv)
         out << "Site\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
         out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS";
         bool outgroup = (pscOut && pscOut->getNumberOfSequences() > 0);
+        bool minChange = ApplicationTools::getBooleanParameter("complex_codon.min_change", cmdArgs, false);
         if (outgroup) {
+          ApplicationTools::displayResult("Complex codons path", minChange ? "min non-synonymous" : "equal weight");
           out << "\tOutgroupAllele";
         }
         if (estimateAncestor) {
@@ -658,7 +660,7 @@ int main(int args, char** argv)
                                      CodonSiteTools::numberOfSynonymousPositions(ingroupState, *gCode, kappa)) / 2.;
               //Compare with outgroup:
               double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, ingroupState, *codonAlphabet));
-              double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, ingroupState, *gCode, true); 
+              double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, ingroupState, *gCode, minChange); 
               out << "\t" << (nt - ns) << "\t" << ns;
               //double nt2 = CodonSiteTools::numberOfSubstitutions(consensus->getSite(i), *gCode);
               //double nn2 = CodonSiteTools::numberOfNonSynonymousSubstitutions(consensus->getSite(i), *gCode);
