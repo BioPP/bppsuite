@@ -578,9 +578,19 @@ int main(int args, char** argv)
         }
         out << endl;
 
-        unique_ptr<SiteContainer> sites(pscIn->toSiteContainer());
-        for (size_t i = 0; i < sites->getNumberOfSites(); ++i) {
-          const Site& site = sites->getSite(i);
+        unique_ptr<SiteContainer> sitesIn(pscIn->toSiteContainer());
+        unique_ptr<SiteContainer> sitesOut;
+        unique_ptr<SiteContainer> consensus(new VectorSiteContainer(pscIn->getAlphabet()));
+        if (outgroup) {
+          sitesOut.reset(pscOut->toSiteContainer());
+          unique_ptr<Sequence> inseq(SiteContainerTools::getConsensus(*sitesIn, "ingroup", true, false));
+          consensus->addSequence(*inseq, false);
+          unique_ptr<Sequence> outseq(SiteContainerTools::getConsensus(*sitesOut, "outgroup", true, false));
+          consensus->addSequence(*outseq, false);
+        }
+
+        for (size_t i = 0; i < sitesIn->getNumberOfSites(); ++i) {
+          const Site& site = sitesIn->getSite(i);
           map<int, size_t> counts;
           SymbolListTools::getCounts(site, counts);
           size_t minFreq = site.size() + 1;
@@ -632,34 +642,27 @@ int main(int args, char** argv)
           }
 
           if (outgroup) {
-           out << "\t" << pscOut->getSequence(0).getChar(i); 
+            out << "\t" << pscOut->getSequence(0).getChar(i); 
           }
           if (estimateAncestor) {
-           out << "\t" << (nbAlleles == 0 ? "NNN" : ancestralSequence->getChar(i)); 
+            out << "\t" << (nbAlleles == 0 ? "NNN" : ancestralSequence->getChar(i)); 
           }
           if (outgroup) {
             //Add divergence
-            int outgroupState = pscOut->getSequence(0)[i];
+            int ingroupState = consensus->getSequence(0)[i];
+            int outgroupState = consensus->getSequence(1)[i];
             if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState) || nbAlleles == 0) {
               out << "\tNA\tNA\tNA";
             } else {
-              //Average over outgroup (Note: minState and maxState are identical in this case)
               out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
-                                     CodonSiteTools::numberOfSynonymousPositions(minState, *gCode, kappa)) / 2.;
-              if (nbAlleles == 1) {
-                //Compare with outgroup:
-                if (site[0] == outgroupState) {
-                  out << "\t0\t0";
-                } else {
-                  //This is a real substitution:
-                  double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet));
-                  double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, minState, *gCode); 
-                  out << "\t" << (nt - ns) << "\t" << ns;
-                }
-              } else {
-                //Site is polymorphic, this is not a substitution    
-                out << "\t0\t0";
-              }
+                                     CodonSiteTools::numberOfSynonymousPositions(ingroupState, *gCode, kappa)) / 2.;
+              //Compare with outgroup:
+              double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, ingroupState, *codonAlphabet));
+              double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, ingroupState, *gCode, true); 
+              out << "\t" << (nt - ns) << "\t" << ns;
+              //double nt2 = CodonSiteTools::numberOfSubstitutions(consensus->getSite(i), *gCode);
+              //double nn2 = CodonSiteTools::numberOfNonSynonymousSubstitutions(consensus->getSite(i), *gCode);
+              //out << "\t" << nn2 << "\t" << (nt2 - nn2);
             }
           }
           out << endl;
