@@ -39,19 +39,9 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 #                                     Model specification
 # ----------------------------------------------------------------------------------------
 
-# Homogeneous model?
-# no => Homogeneous case
-# one_per_branch => Galtier & Gouy 97 series of NH models
-# general => Specify the model by hand.
-nonhomogeneous = general
-
 root_freq1=Full(init=balanced, data=1)
 
 rate_distribution1 = Gamma(n=4, alpha=0.358)
-
-# Now the general heterogeneous case:
-# Specify the number of distincts models.
-nonhomogeneous.number_of_models = 2
 
 # Set up each model:
 model1 = GTR(initFreqs=observed, data=1)

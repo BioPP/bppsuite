@@ -18,66 +18,33 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=../../../Data/$(DATA).phy
-
-# The alignment format:
-input.sequence.format=Phylip(order=sequential, type=extended)
-
-#Sites to use:
-# all, nogap or complete (=only resolved chars)
-input.sequence.sites_to_use = complete
-# Specify a maximum amount of gaps: may be an absolute number or a percentage.
-input.sequence.max_gap_allowed = 100%
+input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended), sites_to_use = complete, max_gap_allowed = 100%)
 
 # ----------------------------------------------------------------------------------------
 #                                     Input tree file
 # ----------------------------------------------------------------------------------------
 
 # user or random
-init.tree = user
-
-input.tree.file = ../../../Data/$(DATA).dnd
-input.tree.format = Newick
-
-init.brlen.method = Input
+input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
 # ----------------------------------------------------------------------------------------
-# See the manual for a description of the syntax and available options.
-#
-
-# Homogeneous model?
-# no => Homogeneous case
-# one_per_branch => Galtier & Gouy 97 series of NH models
-# general => Specify the model by hand.
-nonhomogeneous = one_per_branch
 
 # Options for non-homogeneous one-per_branch models:
-model = T92(kappa=2.843, theta=0.5)
+model1 = T92(kappa=2.843, theta=0.5)
 
 # For one_per_branch heterogeneous models.
 # Tell which parameters are common to all branches.
 # Other parameters will be considered branch specific.
-nonhomogeneous_one_per_branch.shared_parameters = T92.kappa
 
-nonhomogeneous.root_freq = GC(init=balanced)
+root_freq1 = GC(init=balanced)
 
-rate_distribution = Gamma(n=4, alpha=0.358)
+rate_distribution1 = Gamma(n=4, alpha=0.358)
 
-# Likelihood recursion option:
-# - simple: derivatives takes more time to compute, but likelihooh computation is faster.
-#   For big data sets, it can save a lot of memory usage too, particularly when the data are compressed.
-# - double: Uses more memory and need more time to compute likelihood, due to the double recursion.
-#   Analytical derivatives are however faster to compute.
-likelihood.recursion = simple
+process1 = OnePerBranch(model=1, tree=1, rate=1, root_freq=1)
 
-# Site compression for the simple recursion:
-# - simple: identical sites are not computed twice
-# - recursive: look for site patterns to save computation time during optimization, but
-#   requires extra time for building the patterns.
-#   This is usually the best option, particularly for nucleotides data sets.
-likelihood.recursion_simple.compression = recursive
+phylo1 = Single(process=1, data=1)
 
 # ----------------------------------------------------------------------------------------
 #                                     Optimization
@@ -86,7 +53,7 @@ likelihood.recursion_simple.compression = recursive
 optimization=FullD(derivatives=Newton)
 optimization.reparametrization=no
 optimization.verbose = 1
-optimization.ignore_parameter =
+optimization.ignore_parameters =
 optimization.max_number_f_eval = 10000
 optimization.tolerance = 0.000001
 optimization.message_handler = $(DATA).messages
@@ -94,13 +61,6 @@ optimization.profiler = $(DATA).profile
 optimization.backup.file = .$(DATA).bck
 
 optimization.topology = no
-optimization.topology.nstep=4
-optimization.topology.numfirst=no
-optimization.topology.tolerance.before=100
-optimization.topology.tolerance.during=100
-optimization.scale_first=no
-optimization.verbose=3
-optimization.ignore_parameters=
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
