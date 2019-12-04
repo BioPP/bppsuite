@@ -201,7 +201,9 @@ int main(int args, char** argv)
     // Shall we estimate some parameters first?
     
     bool estimateTsTv = ApplicationTools::getBooleanParameter("estimate.kappa", bpppopstats.getParams(), false, "", false, 1);
-    double kappa = 1;
+    double kappa = ApplicationTools::getDoubleParameter("kappa", bpppopstats.getParams(), 1.0, "", false, 1);
+    ApplicationTools::displayResult("Initial or fixed Ts/Tv ratio (kappa):", kappa);
+    
     double omega = -1;
     
     bool estimateAncestor = ApplicationTools::getBooleanParameter("estimate.ancestor", bpppopstats.getParams(), false, "", false, 1);
@@ -281,7 +283,11 @@ int main(int args, char** argv)
       // Get kappa:              
       if (estimateTsTv) {
         kappa = model->getParameter("kappa").getValue();
-        ApplicationTools::displayResult("Transition / transversions ratio", kappa);
+        ApplicationTools::displayResult("Estimated Ts/Tv ratio", kappa);
+      }
+      // Write to log file:
+      if (logFile != "none") {
+        *cLog << "Kappa = " << kappa << endl;
       }
       if (estimateAncestor) {
         // if subsampling was used, need to create a likelihood object with all data:
