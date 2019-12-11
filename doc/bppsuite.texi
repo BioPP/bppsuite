@@ -2184,6 +2184,12 @@ Leave the field empty in order to skip this step.
 A file where to dump optimization steps (a file path or std for
 standard output or none for no output).
 
+@item optimization.backup.file = @{path@}
+A backup file where parameters values are stored during optimization
+process. If this file exists when starting the optimization, parameter
+values will be set from the ones in this file. When optimization is
+finished, this file is renamed with suffixe ".def".
+
 @item optimization.message_handler = @{@{path@}|std|none@}
 A file where to dump warning messages.
 
