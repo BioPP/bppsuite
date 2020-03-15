@@ -48,6 +48,7 @@ using namespace std;
 #include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
+#include <Bpp/App/NumCalcApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Numeric/Number.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -303,7 +304,7 @@ int main(int args, char ** argv)
   if (nhOpt == "no")
   {
     TransitionModel* model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), 0, bppseqgen.getParams());
-    FrequenciesSet* fSet = new FixedFrequenciesSet(model->getStateMap().clone(), model->getFrequencies());
+    FrequenciesSet* fSet = new FixedFrequenciesSet(model->shareStateMap(), model->getFrequencies());
     modelSet = SubstitutionModelSetTools::createHomogeneousModelSet(model, fSet, trees[0]);
   }
   //Galtier-Gouy case:
@@ -323,7 +324,41 @@ int main(int args, char ** argv)
       model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), allSitesAln, bppseqgen.getParams());
     }
 
-    vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), ',', "");
+    string descGlobal = ApplicationTools::getStringParameter("nonhomogeneous_one_per_branch.shared_parameters", bppseqgen.getParams(), "", "", true, 1);
+
+    NestedStringTokenizer nst(descGlobal,"[","]",",");
+    const deque<string>& descGlobalParameters=nst.getTokens();
+
+    map<string, vector<Vint> > globalParameters;
+    for (const auto& desc:descGlobalParameters)
+    {
+      size_t post=desc.rfind("_");
+      if (post==std::string::npos || post==desc.size()-1 || desc[post+1]!='[')
+        globalParameters[desc]={};
+      else
+      {
+        string key=desc.substr(0,post);
+        Vint sint=NumCalcApplicationTools::seqFromString(desc.substr(post+2, desc.size()-post-3));
+        if (globalParameters.find(key)==globalParameters.end())
+          globalParameters[key]=vector<Vint>(1, sint);
+        else
+          globalParameters[key].push_back(sint);
+      }
+    }
+
+    for (const auto& globpar:globalParameters)
+    {
+      ApplicationTools::displayResult("Global parameter", globpar.first);
+      if (globpar.second.size()==0)
+      {
+        string all="All nodes";
+        ApplicationTools::displayResult(" set to nodes", all);
+      }
+      else
+        for (const auto& vint:globpar.second)
+          ApplicationTools::displayResult(" set to nodes", VectorTools::paste(vint,","));
+    }
+
     vector<double> rateFreqs;
     if (model->getNumberOfStates() != alphabet->getSize())
     {
@@ -340,6 +375,7 @@ int main(int args, char ** argv)
       dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");
       dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model));
     }
+    
     modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, trees[0], aliasFreqNames, globalParameters);
   }
   //General case:

@@ -55,6 +55,7 @@ using namespace std;
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
+#include <Bpp/App/NumCalcApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/KeyvalTools.h>
@@ -77,7 +78,7 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
+#include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Model/Protein/CoalaCore.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
@@ -283,7 +284,7 @@ int main(int args, char** argv)
       {
         rDist = PhylogeneticsApplicationTools::getRateDistribution(bppml.getParams());
       }
-      if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
+      if (dynamic_cast<MixedTransitionModel*>(model) == 0)
         tl = new NNIHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true);
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
@@ -314,13 +315,13 @@ int main(int args, char** argv)
         string compression = ApplicationTools::getStringParameter("likelihood.recursion_simple.compression", bppml.getParams(), "recursive", "", true, 2);
         ApplicationTools::displayResult("Likelihood data compression", compression);
         if (compression == "simple")
-          if (dynamic_cast<MixedSubstitutionModel*>(model))
+          if (dynamic_cast<MixedTransitionModel*>(model))
             tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, false);
           else
             tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, false);
 
         else if (compression == "recursive")
-          if (dynamic_cast<MixedSubstitutionModel*>(model) == 0)
+          if (dynamic_cast<MixedTransitionModel*>(model) == 0)
             tl = new RHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
           else
             tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree, true, true);
@@ -329,7 +330,7 @@ int main(int args, char** argv)
       }
       else if (recursion == "double")
       {
-        if (dynamic_cast<MixedSubstitutionModel*>(model))
+        if (dynamic_cast<MixedTransitionModel*>(model))
           tl = new DRHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, checkTree);
         else
           tl = new DRHomogeneousTreeLikelihood(*tree, *sites, model, rDist, checkTree);
@@ -382,10 +383,42 @@ int main(int args, char** argv)
         }
       }
       ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
-   
-      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), ',', "");
-      for (size_t i = 0; i < globalParameters.size(); i++)
-        ApplicationTools::displayResult("Global parameter", globalParameters[i]);
+
+      string descGlobal = ApplicationTools::getStringParameter("nonhomogeneous_one_per_branch.shared_parameters", bppml.getParams(), "", "", true, 1);
+
+      NestedStringTokenizer nst(descGlobal,"[","]",",");
+      const deque<string>& descGlobalParameters=nst.getTokens();
+
+      map<string, vector<Vint> > globalParameters;
+      for (const auto& desc:descGlobalParameters)
+      {
+        size_t post=desc.rfind("_");
+        if (post==std::string::npos || post==desc.size()-1 || desc[post+1]!='[')
+          globalParameters[desc]={};
+        else
+        {
+          string key=desc.substr(0,post);
+          Vint sint=NumCalcApplicationTools::seqFromString(desc.substr(post+2, desc.size()-post-3));
+          if (globalParameters.find(key)==globalParameters.end())
+            globalParameters[key]=vector<Vint>(1, sint);
+          else
+            globalParameters[key].push_back(sint);
+        }
+      }
+
+      for (const auto& globpar:globalParameters)
+      {
+        ApplicationTools::displayResult("Global parameter", globpar.first);
+        if (globpar.second.size()==0)
+        {
+          string all="All nodes";
+          ApplicationTools::displayResult(" shared between nodes", all);
+        }
+        else
+          for (const auto& vint:globpar.second)
+            ApplicationTools::displayResult(" shared between nodes", VectorTools::paste(vint,","));
+      }
+      
       modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, aliasFreqNames, globalParameters);
       model = 0;
 
@@ -691,7 +724,7 @@ int main(int args, char** argv)
           model->setFreqFromData(*sample);
         }
 
-        if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
+        if (dynamic_cast<MixedTransitionModel*>(model) != NULL)
           throw Exception("Bootstrap estimation with Mixed model not supported yet, sorry :(");
 
         NNIHomogeneousTreeLikelihood* tlRep = new NNIHomogeneousTreeLikelihood(*initTree, *sample, model, rDist, true, false);

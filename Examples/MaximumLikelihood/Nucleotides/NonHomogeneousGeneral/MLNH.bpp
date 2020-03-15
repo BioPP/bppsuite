@@ -72,11 +72,11 @@ nonhomogeneous.number_of_models = 2
 model1 = GTR(initFreqs=observed)
 model1.nodes_id=0:62 # The Ids of the nodes to which this model should be assigned.
 
-model2 = GTR(a=model1.GTR.a,\
-             b=model1.GTR.b,\
-             c=model1.GTR.c,\
-             d=model1.GTR.d,\
-             e=model1.GTR.e,\
+model2 = GTR(a=GTR.a_1,\
+             b=GTR.b_1,\
+             c=GTR.c_1,\
+             d=GTR.d_1,\
+             e=GTR.e_1,\
              initFreqs=observed)
 model2.nodes_id=63:154
 

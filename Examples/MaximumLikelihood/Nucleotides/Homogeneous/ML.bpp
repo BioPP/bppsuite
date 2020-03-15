@@ -101,7 +101,7 @@ optimization.message_handler = $(DATA).messages
 optimization.profiler = $(DATA).profile
 
 # Shall we optimize tree topology as well?
-optimization.topology = yes
+#optimization.topology = yes
 
 # Algorithm to use for topology estimation: only NNI for now
 optimization.topology.algorithm = NNI

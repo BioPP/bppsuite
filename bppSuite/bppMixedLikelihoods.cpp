@@ -48,6 +48,7 @@ using namespace std;
 #include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
+#include <Bpp/App/NumCalcApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -71,10 +72,10 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.h>
-#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
-#include <Bpp/Phyl/Model/MixtureOfASubstitutionModel.h>
-#include <Bpp/Phyl/Model/MixtureOfSubstitutionModels.h>
+#include <Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.h>
+#include <Bpp/Phyl/Model/MixedTransitionModel.h>
+#include <Bpp/Phyl/Model/MixtureOfATransitionModel.h>
+#include <Bpp/Phyl/Model/MixtureOfTransitionModels.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
@@ -117,6 +118,7 @@ int main(int args, char** argv)
     Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppmixedlikelihoods.getParams(), "", false);
     unique_ptr<GeneticCode> gCode;
     CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+
     if (codonAlphabet) {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppmixedlikelihoods.getParams(), "Standard", "", true, true);
       ApplicationTools::displayResult("Genetic Code", codeDesc);
@@ -143,13 +145,13 @@ int main(int args, char** argv)
     string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppmixedlikelihoods.getParams(), "no", "", true, false);
     ApplicationTools::displayResult("Heterogeneous model", nhOpt);
 
-    MixedSubstitutionModel* model       = 0;
+    MixedTransitionModel* model       = 0;
     MixedSubstitutionModelSet* modelSet = 0;
     DiscreteDistribution* rDist         = 0;
 
     if (nhOpt == "no")
     {
-      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
+      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
@@ -170,7 +172,7 @@ int main(int args, char** argv)
     }
     else if (nhOpt == "one_per_branch")
     {
-      model = dynamic_cast<MixedSubstitutionModel*>(PhylogeneticsApplicationTools::getSubstitutionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
+      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
@@ -198,8 +200,45 @@ int main(int args, char** argv)
       
       std::map<std::string, std::string> aliasFreqNames;
 
+      
       FrequenciesSet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), aliasFreqNames, rateFreqs);
-      vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", bppmixedlikelihoods.getParams(), ',', "");
+
+      
+      string descGlobal = ApplicationTools::getStringParameter("nonhomogeneous_one_per_branch.shared_parameters", bppmixedlikelihoods.getParams(), "", "", true, 1);
+
+      NestedStringTokenizer nst(descGlobal,"[","]",",");
+      const deque<string>& descGlobalParameters=nst.getTokens();
+
+      map<string, vector<Vint> > globalParameters;
+      for (const auto& desc:descGlobalParameters)
+      {
+        size_t post=desc.rfind("_");
+        if (post==std::string::npos || post==desc.size()-1 || desc[post+1]!='[')
+          globalParameters[desc]={};
+        else
+        {
+          string key=desc.substr(0,post);
+          Vint sint=NumCalcApplicationTools::seqFromString(desc.substr(post+2, desc.size()-post-3));
+          if (globalParameters.find(key)==globalParameters.end())
+            globalParameters[key]=vector<Vint>(1, sint);
+          else
+            globalParameters[key].push_back(sint);
+        }
+      }
+
+      for (const auto& globpar:globalParameters)
+      {
+        ApplicationTools::displayResult("Global parameter", globpar.first);
+        if (globpar.second.size()==0)
+        {
+          string all="All nodes";
+          ApplicationTools::displayResult(" shared between nodes", all);
+        }
+        else
+          for (const auto& vint:globpar.second)
+            ApplicationTools::displayResult(" shared between nodes", VectorTools::paste(vint,","));
+      }
+      
       modelSet = dynamic_cast<MixedSubstitutionModelSet*>(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, aliasFreqNames, globalParameters));
       model = 0;
       tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
@@ -293,7 +332,7 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    MixedSubstitutionModel* p0 = dynamic_cast<MixedSubstitutionModel*>(model ? model : modelSet->getModel(nummodel - 1));
+    MixedTransitionModel* p0 = dynamic_cast<MixedTransitionModel*>(model ? model : modelSet->getModel(nummodel - 1));
 
     if (!p0)
     {
@@ -301,7 +340,7 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    const AbstractBiblioMixedSubstitutionModel* ptmp = dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(p0);
+    const AbstractBiblioMixedTransitionModel* ptmp = dynamic_cast<const AbstractBiblioMixedTransitionModel*>(p0);
     if (ptmp) {
       p0 = ptmp->getMixedModel().clone();
 
@@ -316,7 +355,7 @@ int main(int args, char** argv)
     //////////////////////////////////////////////////
     // Case of a MixtureOfSubstitutionModels
 
-    MixtureOfSubstitutionModels* pMSM = dynamic_cast<MixtureOfSubstitutionModels*>(p0);
+    MixtureOfTransitionModels* pMSM = dynamic_cast<MixtureOfTransitionModels*>(p0);
 
     if (pMSM)
     {
@@ -326,7 +365,7 @@ int main(int args, char** argv)
       size_t nummod = pMSM->getNumberOfModels();
       for (unsigned int i = 0; i < nummod; i++)
       {
-        colNames.push_back(pMSM->getNModel(i)->getName());
+        colNames.push_back(pMSM->getNModel(i)->getName()+"_"+TextTools::toString(i+1));
       }
 
       DataTable* rates = new DataTable(nSites, colNames.size());
@@ -340,9 +379,10 @@ int main(int args, char** argv)
       }
 
       Vdouble vprob = pMSM->getProbabilities();
+      
       for (unsigned int i = 0; i < nummod; i++)
       {
-        string modname = pMSM->getNModel(i)->getName();
+        string modname = pMSM->getNModel(i)->getName()+"_"+TextTools::toString(i+1);
 
         for (unsigned int j = 0; j < nummod; j++)
         {
@@ -379,7 +419,7 @@ int main(int args, char** argv)
 
     else
     {
-      MixtureOfASubstitutionModel* pMSM2 = dynamic_cast<MixtureOfASubstitutionModel*>(p0);
+      MixtureOfATransitionModel* pMSM2 = dynamic_cast<MixtureOfATransitionModel*>(p0);
       if (pMSM2 != NULL)
       {
         size_t nummod = pMSM2->getNumberOfModels();
@@ -430,50 +470,33 @@ int main(int args, char** argv)
         
         Vdouble vprob = pMSM2->getProbabilities();
 
-        vector<vector<double> > vvprob;
-        vector<double> vsprob;
+        VVdouble vvprob; //vvector of probabilities of the submodels
+        Vdouble vsprob;  // vector of sums of probabilities for each
+                         // parameter class
         
         for (size_t i = 0; i < nbcl; i++)
         {
           vector<double> vprob2;
           for (size_t j = 0; j < vvnmod[i].size(); j++)
-          {
             vprob2.push_back(vprob[static_cast<size_t>(vvnmod[i][j])]);
-          }
 
           vvprob.push_back(vprob2);
           vsprob.push_back(VectorTools::sum(vvprob[i]));
         }
 
-        vector<string> colNames;
-        colNames.push_back("Sites");
-
+        /* values of the parameter in the mixture */
+        
         Vdouble dval;
         for (size_t i = 0; i < nbcl; i++)
         {
-          SubstitutionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
+          const TransitionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
           double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
           dval.push_back(valPar);
-          colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
-        }
-        for (size_t i = 0; i < nbcl; i++)
-          colNames.push_back("Pr_" + parname + "=" + TextTools::toString(dval[i]));
-
-        colNames.push_back("mean");
-
-        DataTable* rates = new DataTable(nSites, colNames.size());
-        rates->setColumnNames(colNames);
-
-        for (size_t i = 0; i < nSites; i++)
-        {
-          const Site* currentSite = &sites->getSite(i);
-          int currentSitePosition = currentSite->getPosition();
-          (*rates)(i,"Sites")=TextTools::toString(currentSitePosition);
         }
 
-        VVdouble vvd;
-
-          
+        
+        VVdouble vvLogL; /* classes X sites */
+        
         vector<double> vRates = pMSM2->getVRates();
 
         for (size_t i = 0; i < nbcl; ++i)
@@ -495,13 +518,9 @@ int main(int args, char** argv)
             tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, false, true);
 
           tl->initialize();
-          logL = tl->getValue();
-          Vdouble vd = tl->getLogLikelihoodForEachSite();
 
-          for (unsigned int j = 0; j < nSites; j++)
-            (*rates)(j, i + 1) = TextTools::toString(vd[j]);
-
-          vvd.push_back(vd);
+          
+          vvLogL.push_back(tl->getLogLikelihoodForEachSite());
 
           ApplicationTools::displayMessage("\n");
           ApplicationTools::displayMessage("Parameter " + par2 + "=" + TextTools::toString(dval[i]) + " with rate=" + TextTools::toString(vRates[i]));
@@ -510,19 +529,105 @@ int main(int args, char** argv)
           ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
         }
 
+        ////////////////
+        // posterior probabilities
+        
+        VVdouble vvPProb; /* sites X classes  */
+
         for (size_t j = 0; j < nSites; j++)
         {
           Vdouble vd;
           for (size_t i = 0; i < nbcl; i++)
-            vd.push_back(std::log(vsprob[i])+vvd[i][j]);
-          
+            vd.push_back(std::log(vsprob[i])+vvLogL[i][j]);
+
           VectorTools::logNorm(vd);
-          for (size_t i = 0; i < nbcl; i++)
-            (*rates)(j,nbcl + i + 1) = TextTools::toString(std::exp(vd[i]));
-          (*rates)(j, 2 * nbcl + 1) = TextTools::toString(VectorTools::sumExp(vd, dval));
+          vvPProb.push_back(vd);
         }
 
-        DataTable::write(*rates, out, "\t");
+        //////////////////////////
+        //output
+
+        // Check for equal parameter values
+        map<string, pair<double, Vuint>> mVal;
+        for (size_t i=0;i<dval.size();i++)
+        {
+          auto sval=TextTools::toString(dval[i]);
+          if (mVal.find(sval)==mVal.end())
+            mVal[sval]=pair<double, Vuint>(dval[i],Vuint(1,(uint)i));
+          else
+            mVal[sval].second.push_back((uint)i);
+        }
+
+        // list of values 
+        std::vector<double> lVal;
+        std::transform(
+          mVal.begin(),
+          mVal.end(),
+          std::back_inserter(lVal),
+          [](const std::pair<string, pair<double, Vuint>>& pair){return pair.second.first;});
+
+        // column names
+        vector<string> colNames;
+        colNames.push_back("Sites");
+
+        colNames.push_back("Ll");
+        
+        for (const auto& val:mVal)
+          colNames.push_back("Ll_" + parname + "=" + TextTools::toString(val.first));
+
+        for (const auto& val:mVal)
+          colNames.push_back("Pr_" + parname + "=" + TextTools::toString(val.first));
+        
+        colNames.push_back("mean");
+
+
+        // build datatable
+        DataTable* rates = new DataTable(nSites, colNames.size());
+        rates->setColumnNames(colNames);
+
+        size_t nbVal=mVal.size();
+        
+        for (size_t j = 0; j < nSites; j++)
+        {
+          const Site* currentSite = &sites->getSite(j);
+          int currentSitePosition = currentSite->getPosition();
+          
+          (*rates)(j,"Sites")=TextTools::toString(currentSitePosition);
+
+          // Site ll
+          Vdouble vll;
+          for (size_t i = 0; i < nbcl; i++)
+            vll.push_back(vvLogL[i][j]);
+          
+          (*rates)(j, "Ll")= TextTools::toString(VectorTools::logSumExp(vll, vsprob));
+
+          Vdouble vsp;
+          
+          size_t i=0;
+          for (const auto& val:mVal)
+          {
+            Vdouble vl, vp;
+            for (const auto& ind:val.second.second)
+            {
+              vl.push_back(vvLogL[ind][j]);
+              vp.push_back(vvPProb[j][ind]);
+            }
+
+            double sl=VectorTools::logSumExp(vl);
+            double sp=VectorTools::sumExp(vp);
+            
+            (*rates)(j, i + 2) = TextTools::toString(sl);
+            (*rates)(j, nbVal + i + 2) = TextTools::toString(sp);
+
+            vsp.push_back(sp);
+            i++;
+          }
+
+          
+          (*rates)(j, 2 * nbVal + 2) = TextTools::toString(VectorTools::sumProd(vsp, lVal));
+        }
+
+       DataTable::write(*rates, out, "\t");
       }
     }
 
