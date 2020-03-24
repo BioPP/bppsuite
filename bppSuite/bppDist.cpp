@@ -265,7 +265,7 @@ int main(int args, char ** argv)
     
 
     ODistanceMatrix* odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT, extended);
-    odm->write(*distEstimation.getMatrix(), matrixPath, true);
+    odm->writeDistanceMatrix(*distEstimation.getMatrix(), matrixPath, true);
     delete odm;
   }
   PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
@@ -347,8 +347,8 @@ int main(int args, char ** argv)
           NULL,
           (bootstrapVerbose ? 1 : 0)
         );
-      if(out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
-      if(out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);
+      if(out && i == 0) newick.writeTree(*bsTrees[i], bsTreesPath, true);
+      if(out && i >  0) newick.writeTree(*bsTrees[i], bsTreesPath, false);
       delete sample;
     }
     if(out) out->close();

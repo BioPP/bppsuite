@@ -297,9 +297,9 @@ int main(int args, char ** argv)
       if (printOrNot)
       {
         if(k == 1)
-          newick.write(* tree, outputPath, true);
+          newick.writeTree(*tree, outputPath, true);
         else
-          newick.write(* tree, outputPath, false);
+          newick.writeTree(*tree, outputPath, false);
       }  
 
       delete tree;
