@@ -87,7 +87,7 @@ map<size_t, AlignedValuesContainer*> bppTools::getAlignmentsMap(const map<string
                                                                 bool changeGapsToUnknownCharacters,
                                                                 bool optionalData)
 {
-  map<size_t, AlignedValuesContainer*> mSites = SequenceApplicationTools::getAlignedContainers(alphabet, params);
+  auto mSites = SequenceApplicationTools::getAlignedContainers(alphabet, params);
   
   if (!optionalData && mSites.size() == 0)
     throw Exception("Missing data input.sequence.file option");
@@ -99,11 +99,11 @@ map<size_t, AlignedValuesContainer*> bppTools::getAlignmentsMap(const map<string
   return mSites;
 }
   
-map<size_t, PhyloTree*> bppTools::getPhyloTreesMap(const map<string, string>& params,
-                                                   const map<size_t, AlignedValuesContainer*>& mSites,
-                                                   map<string, string>& unparsedparams)
+map<size_t, std::shared_ptr<PhyloTree>> bppTools::getPhyloTreesMap(const map<string, string>& params,
+                                                                   const map<size_t, AlignedValuesContainer*>& mSites,
+                                                                   map<string, string>& unparsedparams)
 {
-  map<size_t, PhyloTree*> mpTree=PhylogeneticsApplicationTools::getPhyloTrees(params, mSites, unparsedparams);
+  map<size_t, std::shared_ptr<PhyloTree>> mpTree=PhylogeneticsApplicationTools::getPhyloTrees(params, mSites, unparsedparams);
 
   // Scaling of trees:
   double scale = ApplicationTools::getDoubleParameter("input.tree.scale", params, 1, "", false, false);
@@ -125,7 +125,7 @@ SubstitutionProcessCollection* bppTools::getCollection(const map<string, string>
                                                        const map<size_t, AlignedValuesContainer*>& mSites,
                                                        map<string, string>& unparsedparams)
 {
-  map<size_t, PhyloTree*> mpTree = getPhyloTreesMap(params, mSites, unparsedparams);
+  auto mpTree = getPhyloTreesMap(params, mSites, unparsedparams);
 
   SubstitutionProcessCollection* SPC= getCollection(params, alphabet, gCode, mSites, mpTree, unparsedparams);
       
@@ -136,16 +136,18 @@ SubstitutionProcessCollection* bppTools::getCollection(const map<string, string>
                                                        const Alphabet* alphabet,
                                                        const GeneticCode* gCode,
                                                        const map<size_t, AlignedValuesContainer*>& mSites,
-                                                       const map<size_t, PhyloTree*>& mpTree,
+                                                       const map<size_t, std::shared_ptr<PhyloTree>>& mpTree,
                                                        map<string, string>& unparsedparams)
 {
-  map<size_t, DiscreteDistribution*> mDist = PhylogeneticsApplicationTools::getRateDistributions(params);
-  
-  map<size_t, TransitionModel*> mMod = PhylogeneticsApplicationTools::getTransitionModels(alphabet, gCode, mSites, params, unparsedparams);
-  
-  map<size_t, FrequenciesSet*> mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode, mSites, params, unparsedparams);
-      
-  SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode, mpTree, mMod, mRootFreq, mDist, params, unparsedparams);
+  auto mDist = PhylogeneticsApplicationTools::getRateDistributions(params);
+  auto mMod = PhylogeneticsApplicationTools::getBranchModels(alphabet, gCode, mSites, params, unparsedparams);
+  auto mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode, mSites, params, unparsedparams);
+
+  auto mModelPath = PhylogeneticsApplicationTools::getModelPaths(params, mMod);
+
+  auto mScenario = PhylogeneticsApplicationTools::getModelScenarios(params, mModelPath);
+
+  SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode, mpTree, mMod, mRootFreq, mDist, mScenario, params, unparsedparams);
       
   return SPC;
 }
@@ -160,7 +162,7 @@ map<size_t, SequenceEvolution*> bppTools::getProcesses(const map<string, string>
 
 
 PhyloLikelihoodContainer* bppTools::getPhyloLikelihoods(const map<string, string>& params,
-                                                        dataflow::Context& context,
+                                                        Context& context,
                                                         map<size_t, SequenceEvolution*> mSeqEvol, 
                                                         SubstitutionProcessCollection& collection,
                                                         const map<size_t, AlignedValuesContainer*>& mSites)
@@ -170,18 +172,18 @@ PhyloLikelihoodContainer* bppTools::getPhyloLikelihoods(const map<string, string
 
 
 PhyloLikelihood* bppTools::getResultPhyloLikelihood(const std::map<std::string, std::string>& params,
-                                                    dataflow::Context& context,
+                                                    Context& context,
                                                     const Alphabet* alphabet,
                                                     const GeneticCode* gCode,
                                                     std::map<std::string, std::string>& unparsedparams)
 {
-  map<size_t, AlignedValuesContainer*> mSites = getAlignmentsMap(params, alphabet, true);
+  auto mSites = getAlignmentsMap(params, alphabet, true);
 
-  map<size_t, PhyloTree*> mTrees = bppTools::getPhyloTreesMap(params, mSites, unparsedparams);
+  auto mTrees = bppTools::getPhyloTreesMap(params, mSites, unparsedparams);
 
-  SubstitutionProcessCollection* SPC = bppTools::getCollection(params, alphabet, gCode, mSites, mTrees, unparsedparams);
+  auto SPC = bppTools::getCollection(params, alphabet, gCode, mSites, mTrees, unparsedparams);
 
-  map<size_t, SequenceEvolution*> mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, params, unparsedparams);
+  auto mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, params, unparsedparams);
 
   PhyloLikelihoodContainer* mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, *SPC, mSeqEvol, mSites, params);
 
@@ -241,13 +243,13 @@ void bppTools::fixLikelihood(const map<string, string>& params,
       }
     }
 
-    for (map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator itm=mSD.begin();itm!=mSD.end(); itm++)
+    for (auto& itm:mSD)
     {
-      ApplicationTools::displayWarning("Checking for phyloLikelihood " + TextTools::toString(itm->first));
+      ApplicationTools::displayWarning("Checking for phyloLikelihood " + TextTools::toString(itm.first));
           
-      if (std::isinf(itm->second->getValue()))
+      if (std::isinf(itm.second->getValue()))
       {
-        AbstractSingleDataPhyloLikelihood* sDP=itm->second;
+        AbstractSingleDataPhyloLikelihood* sDP=itm.second;
         /// !!! Not economic
         AlignedValuesContainer* vData=sDP->getData()->clone();
 

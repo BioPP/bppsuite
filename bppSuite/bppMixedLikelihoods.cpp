@@ -154,7 +154,7 @@ int main(int args, char** argv)
 
     if (nhOpt == "no")
     {
-      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
+      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
@@ -175,7 +175,7 @@ int main(int args, char** argv)
     }
     else if (nhOpt == "one_per_branch")
     {
-      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
+      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
       if (model == 0)
       {
         cout << "Model is not a Mixed model" << endl;
@@ -452,12 +452,12 @@ int main(int args, char** argv)
           exit(-1);
         }
 
-        vector< Vint > vvnmod;
+        vector< Vuint > vvnmod;
         size_t i2 = 0;
         while (i2 < nummod)
         {
           string par2 = parname + "_" + TextTools::toString(i2 + 1);
-          Vint vnmod = pMSM2->getSubmodelNumbers(par2);
+          Vuint vnmod = pMSM2->getSubmodelNumbers(par2);
           if (vnmod.size() == 0)
             break;
           vvnmod.push_back(vnmod);

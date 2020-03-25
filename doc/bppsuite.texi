@@ -1910,6 +1910,10 @@ assigning specific nodes id to each model. For example:
 process=NonHomogeneous(tree=1, model1=3, model1.nodes_id=(0:2,4,7:8), model2=5, model2.nodes_id=(3,5,6), rate=1, root_freq=2)
 @end example
 
+Key words @option{All}, @option{Leaves}, and @option{NoLeaves}
+(explicit meaning) can be used for nodes id.
+
+
 If @option{root_freq} is not declared, the process is assumed
 stationary. In case of non-homogeneity, the used root frequencies is
 the equilibrium frequency of the first model. When this model is a
@@ -2301,6 +2305,7 @@ The precision on the log-likelihood to reach.
 A text file containing several statistics for each site in the
 alignment.
 These statistics include the posterior rate, rate class with maximum posterior probability and whether the site is conserved or not.
+
 
 @end table
 

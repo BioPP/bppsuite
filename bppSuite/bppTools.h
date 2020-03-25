@@ -58,7 +58,7 @@ using namespace std;
 #include <Bpp/Phyl/NewLikelihood/SequenceEvolution.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
 
-#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 
 #ifndef TOOLS_H
 #define TOOLS_H
@@ -119,9 +119,9 @@ namespace bpp
      *
      */
   
-    static std::map<size_t, PhyloTree*> getPhyloTreesMap(const std::map<std::string, std::string>& params,
-                                                         const std::map<size_t, AlignedValuesContainer*>& mSites,
-                                                         std::map<std::string, std::string>& unparsedparams);
+    static std::map<size_t, std::shared_ptr<PhyloTree>> getPhyloTreesMap(const std::map<std::string, std::string>& params,
+                                                                         const std::map<size_t, AlignedValuesContainer*>& mSites,
+                                                                         std::map<std::string, std::string>& unparsedparams);
 
     /*
      * @brief get the collection of objects necessary to build
@@ -133,7 +133,7 @@ namespace bpp
                                                         const Alphabet* alphabet,
                                                         const GeneticCode* gCode,
                                                         const std::map<size_t, AlignedValuesContainer*>& mSites,
-                                                        const std::map<size_t, PhyloTree*>& mpTree,
+                                                        const std::map<size_t, std::shared_ptr<PhyloTree>>& mpTree,
                                                         std::map<std::string, std::string>& unparsedparams);
 
     static SubstitutionProcessCollection* getCollection(const std::map<std::string, std::string>& params,
@@ -157,7 +157,7 @@ namespace bpp
      */
 
     static PhyloLikelihoodContainer* getPhyloLikelihoods(const std::map<std::string, std::string>& params,
-                                                         dataflow::Context& context,
+                                                         Context& context,
                                                          std::map<size_t, SequenceEvolution*> mSeqEvol, 
                                                          SubstitutionProcessCollection& collection,
                                                          const std::map<size_t, AlignedValuesContainer*>& mSites);
@@ -169,7 +169,7 @@ namespace bpp
      */
     
     static PhyloLikelihood* getResultPhyloLikelihood(const std::map<std::string, std::string>& params,
-                                                     dataflow::Context& context,
+                                                     Context& context,
                                                      const Alphabet* alphabet,
                                                      const GeneticCode* gCode,
                                                      std::map<std::string, std::string>& unparsedparams);

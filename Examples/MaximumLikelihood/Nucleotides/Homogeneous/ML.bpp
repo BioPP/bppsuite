@@ -61,7 +61,7 @@ optimization.verbose = 3
 optimization.ignore_parameters =
 
 # Maximum number of likelihood evaluations:
-optimization.max_number_f_eval = 10000
+optimization.max_number_f_eval = 1000
 
 # Precision to reach:
 optimization.tolerance = 0.000001

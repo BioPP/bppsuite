@@ -87,7 +87,7 @@ int main(int args, char ** argv)
   
   try {
 
-    dataflow::Context context;
+    Context context;
     
     BppApplication bppancestor(args, argv, "bppancestor");
     bppancestor.startTimer();

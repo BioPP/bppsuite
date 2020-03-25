@@ -29,11 +29,17 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 
 model1 = YNGP_M1(kappa=1, omega=0.5, frequencies=F1X4, p0=0.5, initFreqs=observed, data=1)
 
-rate_distribution1 = Gamma(n=4, alpha=0.358)
+rate_distribution1 = Constant()
 
-process1 = Homogeneous(model=1, tree=1, rate=1)
+path1=model1[1]
+path2=model1[2]
+
+scenario1=path1&path2
+
+process1 = Homogeneous(model=1, tree=1, rate=1, scenario=1)
 
 phylo1 = Single(process=1, data=1)
+
 
 # ----------------------------------------------------------------------------------------
 #                                     Optimization
@@ -55,10 +61,10 @@ optimization.final = none
 optimization.verbose = 3
 
 # Parameters to ignore (for instance equilibrium frequencies)
-# optimization.ignore_parameters = YNGP_M1.*Full*, *alpha*, *kappa*
+#optimization.ignore_parameters = YNGP_M1.*Full*, *alpha*, *kappa*, YNGP_M1.p0*, Ancient
 
 # Maximum number of likelihood evaluations:
-optimization.max_number_f_eval = 1
+optimization.max_number_f_eval = 1000
 
 # Precision to reach:
 optimization.tolerance = 0.000001

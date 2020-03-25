@@ -1,6 +1,5 @@
 #Example data set adapted from PAML
 #
-#logL = 65442.80353609310986939818
 
 # Global variables:
 DATA = lysozymeLarge

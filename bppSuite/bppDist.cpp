@@ -129,8 +129,12 @@ int main(int args, char ** argv)
 
     map<string, string> unparsedparams;
 
-    TransitionModel* model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), sites, bppdist.getParams(), unparsedparams);
-  
+    auto model = dynamic_cast<TransitionModel*>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppdist.getParams(), unparsedparams));
+
+    if (!model)
+      ApplicationTools::displayMessage("bppDist available only for regular transition models, not " + model->getName());
+
+    
     DiscreteDistribution* rDist = 0;
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {

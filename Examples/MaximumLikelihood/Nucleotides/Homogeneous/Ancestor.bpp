@@ -11,19 +11,10 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=../../../Data/$(DATA).phy
+input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
 
-# The alignment format:
-input.sequence.format=Phylip(order=sequential, type=extended)
 
-#Sites to use:
-# all, nogap or complete (=only resolved chars)
-input.sequence.sites_to_use = complete
-# Specify a maximum amount of gaps: may be an absolute number or a percentage.
-input.sequence.max_gap_allowed = 100%
-
-input.tree.file = $(DATA).ML.dnd
-input.tree.format = Newick
+input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification

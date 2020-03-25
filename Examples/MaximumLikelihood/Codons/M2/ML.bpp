@@ -29,9 +29,15 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 #
 model1 = YNGP_M2(kappa=1, omega0=0.5, omega2=2.0, frequencies=F3X4, theta1=0.33333, theta2=0.5, initFreqs=observed, data=1)
 
-rate_distribution1 = Constant() //Gamma(n=4, alpha=0.358)
+rate_distribution1 = Constant() #Gamma(n=4, alpha=0.358)
 
-process1 = Homogeneous(model=1, tree=1, rate=1)
+process1 = Homogeneous(model=1, tree=1, rate=1, scenario=1)
+
+path1=model1[1]
+path2=model1[2]
+path3=model1[3]
+
+scenario1=path1&path2&path3
 
 phylo1 = Single(process=1, data=1)
 

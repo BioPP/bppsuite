@@ -94,7 +94,7 @@ int main(int args, char** argv)
 
     map<string, string> unparsedparams;
 
-    dataflow::Context context;
+    Context context;
     
     ///// Alphabet
 
@@ -110,7 +110,7 @@ int main(int args, char** argv)
 
     /////// Get the map of initial trees
 
-    map<size_t, PhyloTree*> mpTree = bppTools::getPhyloTreesMap(bppml.getParams(), mSites, unparsedparams);
+    auto mpTree = bppTools::getPhyloTreesMap(bppml.getParams(), mSites, unparsedparams);
 
     // Try to write the current tree to file. This will be overwritten
     // by the optimized tree, but allow to check file existence before
@@ -119,7 +119,7 @@ int main(int args, char** argv)
     vector<const PhyloTree*> vcpTree;
     
     for (const auto& pTree : mpTree)
-      vcpTree.push_back(pTree.second);
+      vcpTree.push_back(pTree.second.get());
     
     PhylogeneticsApplicationTools::writeTrees(vcpTree, bppml.getParams(),"output.","",true,false,true);
 
@@ -144,9 +144,10 @@ int main(int args, char** argv)
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, 1);
     unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppml.getParams(), 0, "", true, 1);
 
-    unique_ptr<TransitionModel>    model;
+    shared_ptr<BranchModel>    model;
+    shared_ptr<TransitionModel>    tmodel; // for legacy 
     unique_ptr<SubstitutionModelSet> modelSet;
-    unique_ptr<DiscreteDistribution> rDist;
+    shared_ptr<DiscreteDistribution> rDist;
 
     Tree* firstTree = mTree.begin()->second;
 
@@ -163,23 +164,23 @@ int main(int args, char** argv)
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
 
-      model.reset(PhylogeneticsApplicationTools::getTransitionModels(alphabet.get(), gCode.get(), mSites, bppml.getParams(), unparsedparams).begin()->second);
+      tmodel=dynamic_pointer_cast<TransitionModel>(PhylogeneticsApplicationTools::getBranchModels(alphabet.get(), gCode.get(), mSites, bppml.getParams(), unparsedparams).begin()->second);
 
-      if (model->getName() != "RE08")
+      if (tmodel->getName() != "RE08")
         for (auto  itc : mSites)
           SiteContainerTools::changeGapsToUnknownCharacters(*itc.second);
 
-      if (model->getNumberOfStates() >= 2 * model->getAlphabet()->getSize())
+      if (tmodel->getNumberOfStates() >= 2 * tmodel->getAlphabet()->getSize())
       {
         // Markov-modulated Markov model!
-        rDist.reset(new ConstantRateDistribution());
+        rDist=std::make_shared<ConstantRateDistribution>();
       }
       else
       {
-        rDist.reset(PhylogeneticsApplicationTools::getRateDistributions(bppml.getParams())[0]);
+        rDist=PhylogeneticsApplicationTools::getRateDistributions(bppml.getParams())[0];
       }
-      if (dynamic_cast<MixedTransitionModel*>(model.get()) == 0)
-        tl_old.reset(new NNIHomogeneousTreeLikelihood(*firstTree, *mSites.begin()->second, model.get(), rDist.get(), checkTree, true));
+      if (dynamic_cast<MixedTransitionModel*>(tmodel.get()) == 0)
+        tl_old.reset(new NNIHomogeneousTreeLikelihood(*firstTree, *mSites.begin()->second, tmodel.get(), rDist.get(), checkTree, true));
       else
         throw Exception("Topology estimation with Mixed model not supported yet, sorry :(");
     }
@@ -388,8 +389,8 @@ int main(int args, char** argv)
         }
         else
         {
-          model->matchParametersValues(tl_old->getParameters());
-          PhylogeneticsApplicationTools::printParameters(model.get(), out, 1);
+          tmodel->matchParametersValues(tl_old->getParameters());
+          PhylogeneticsApplicationTools::printParameters(tmodel.get(), out, 1);
         }
         out.endLine();
         (out << "# Rate distribution parameters:").endLine();
@@ -555,13 +556,13 @@ int main(int args, char** argv)
           unique_ptr<AlignedValuesContainer> sample(SiteContainerTools::bootstrapSites(*mSites.begin()->second));
           if (!approx)
           {
-            model->setFreqFromData(*sample);
+            tmodel->setFreqFromData(*sample);
           }
 
-          if (dynamic_cast<MixedTransitionModel*>(model.get()) != NULL)
+          if (dynamic_cast<MixedTransitionModel*>(tmodel.get()) != NULL)
             throw Exception("Bootstrap estimation with Mixed model not supported yet, sorry :(");
 
-          unique_ptr<NNIHomogeneousTreeLikelihood> tlRep(new NNIHomogeneousTreeLikelihood(*initTree, *sample, model.get(), rDist.get(), true, false));
+          unique_ptr<NNIHomogeneousTreeLikelihood> tlRep(new NNIHomogeneousTreeLikelihood(*initTree, *sample, tmodel.get(), rDist.get(), true, false));
           tlRep->initialize();
           ParameterList parametersRep = tlRep->getParameters();
           if (approx)
@@ -602,9 +603,6 @@ int main(int args, char** argv)
         delete itc.second;
 
       for (const auto& tree : mTree)
-        delete tree.second;
-
-      for (const auto& tree : mpTree)
         delete tree.second;
 
       bppml.done();
