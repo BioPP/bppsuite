@@ -109,6 +109,7 @@ int main(int args, char ** argv)
     
     bppTools::displayParameters(*tl, false);
 
+    ApplicationTools::displayMessage("");
 
     //////////////////////////////////////
     // Reconstruct ancestral sequences:
@@ -135,9 +136,6 @@ int main(int args, char ** argv)
 
     ////////////////////////
     /// Options
-
-    
-    ApplicationTools::displayMessage("\nASR\n");
 
     // Ancestral information
     // Sites
@@ -210,14 +208,9 @@ int main(int args, char ** argv)
         continue;
       }
 
-      itm.second->computeLikelihood();
-      
       const AlignedValuesContainer* sites=sPP?sPP->getData():oPSP->getData();
-      
-      AbstractLikelihoodTreeCalculation* pDR;
-      
-      pDR=sPP?dynamic_cast<AbstractLikelihoodTreeCalculation*>(sPP->getLikelihoodCalculation()):
-        dynamic_cast<AbstractLikelihoodTreeCalculation*>(oPSP->getLikelihoodCalculation());
+            
+      auto pDR=sPP?sPP->getLikelihoodCalculation(): oPSP->getLikelihoodCalculation();
 
       // Only Marginal reconstruction method
       AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR);
@@ -228,7 +221,7 @@ int main(int args, char ** argv)
           
       /////////////////////////////////////
       // Write sites infos to file:
-      
+
       if (outputSitesFile != "none")
       {
         ApplicationTools::displayResult(" Output file for sites", outputSitesFile + "_" + TextTools::toString(itm.first));
@@ -237,12 +230,11 @@ int main(int args, char ** argv)
         PhyloTree ttree(sPP?sPP->getTree():oPSP->getTree());
         vector<shared_ptr<PhyloNode> > nodes = ttree.getAllNodes();
         size_t nbNodes = nodes.size();
-        
+
         // Get the class with maximum posterior probability:
-        
         vector<size_t> classes = sPP?sPP->getClassWithMaxPostProbPerSite():oPSP->getClassWithMaxPostProbPerSite();
-        
         // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
+
         Vdouble rates = sPP?sPP->getPosteriorRatePerSite():oPSP->getPosteriorRatePerSite();
         
         // Get the ancestral sequences:
@@ -273,11 +265,12 @@ int main(int args, char ** argv)
           else
             sequences[i] = asr->getAncestralSequenceForNode(ttree.getNodeIndex(node));
         }
-        
+
+
         //Now fill the table:
         vector<string> row(colNames.size());
         DataTable* infos = new DataTable(colNames);
-        
+
         for (size_t i = 0; i < sites->getNumberOfSites(); i++)
         {
           double lnL = sPP?sPP->getLogLikelihoodForASite(i):oPSP->getLogLikelihoodForASite(i);
@@ -310,29 +303,39 @@ int main(int args, char ** argv)
           
           infos->addRow(row);
         }
-        
+
         DataTable::write(*infos, out, "\t");
         
         delete infos;
       }
+
       
       /////////////////////////////////////
       // Write nodes infos to file:
 
       if (outputNodesFile != "none")
       {        
-        ApplicationTools::displayResult(" Output file for nodes", outputNodesFile + "_" + TextTools::toString(itm.first));
         string outF=outputNodesFile  + "_" + TextTools::toString(itm.first);
-        
+        ApplicationTools::displayResult(" Output file for nodes", outF);
+
         ofstream out(outF.c_str(), ios::out);
-        map<int, vector<double> > frequencies;
+        // map<int, vector<double> > frequencies;
+
+        const auto& tree = pDR->getLikelihoodsTree();
         
-        pDR->getAncestralFrequencies(frequencies, addNodesExtant);
+        auto allIndex = addNodesExtant? tree.getAllNodesIndexes(): tree.getAllInnerNodesIndexes();
+
+        // Former output of bppAncestor
+        
+        // if (oPSP)
+        //   oPSP->getAncestralFrequencies(frequencies, addNodesExtant);
+        // else
+        //   sPP->getAncestralFrequencies(frequencies, addNodesExtant);
 
         vector<string> colNames;
         colNames.push_back("Nodes");
-        for (size_t i = 0; i < nbStates; i++)
-          colNames.push_back("exp" + (sPP?sPP->getData()->getAlphabet()->intToChar((int)i):oPSP->getData()->getAlphabet()->intToChar((int)i)));
+        // for (size_t i = 0; i < nbStates; i++)
+        //   colNames.push_back("exp" + (sPP?sPP->getData()->getAlphabet()->intToChar((int)i):oPSP->getData()->getAlphabet()->intToChar((int)i)));
         for (size_t i = 0; i < nbStates; i++)
           colNames.push_back("eb" + (sPP?sPP->getData()->getAlphabet()->intToChar((int)i):oPSP->getData()->getAlphabet()->intToChar((int)i)));
       
@@ -340,21 +343,19 @@ int main(int args, char ** argv)
         vector<string> row(colNames.size());
         DataTable* infos = new DataTable(colNames);
 
-        pDR->computeLikelihoodsAtAllNodes();
-
-        for (const auto& itf : frequencies)
+        for (const auto& index:allIndex)
         {
-          row[0] = TextTools::toString(itf.first);
-          
-          Vdouble ebFreqs = pDR->getLikelihoodData().getPosteriorStateFrequencies(itf.first);
+          row[0] = TextTools::toString(index);
 
+          Vdouble ebFreqs =sPP?sPP->getPosteriorStateFrequencies(index): oPSP->getPosteriorStateFrequencies(index);
+
+          // for (size_t i = 0; i < nbStates; i++)
+          // {
+          //   row[i + 1] = TextTools::toString(itf.second[i]);
+          // }
           for (size_t i = 0; i < nbStates; i++)
           {
-            row[i + 1] = TextTools::toString(itf.second[i]);
-          }
-          for (size_t i = 0; i < nbStates; i++)
-          {
-            row[i + nbStates + 1] = TextTools::toString(ebFreqs[i]);
+            row[i + 1] = TextTools::toString(ebFreqs[i]);
           }
           infos->addRow(row);
         }

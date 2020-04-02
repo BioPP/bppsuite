@@ -2648,8 +2648,8 @@ Tells if we should output the site specific probabilities in each case
 (on the way to deprecation).
 
 @item output.nodes.file = @{@{path@}|none@}
-Ancestral nodes information: expected frequencies (prefix exp) (see Galtier & Gouy
-1998) and a posteriori probabilities of ancestral states (prefix eb).
+Ancestral nodes information: @c expected frequencies (prefix exp) (see Galtier & Gouy 1998) and 
+a posteriori probabilities of ancestral states (prefix eb).
 
 @item output.nodes.add_extant = @{boolean@}
 Tell if leaf nodes should be added to the output file.
