@@ -210,7 +210,7 @@ int main(int args, char ** argv)
 
       const AlignedValuesContainer* sites=sPP?sPP->getData():oPSP->getData();
             
-      auto pDR=sPP?sPP->getLikelihoodCalculation(): oPSP->getLikelihoodCalculation();
+      auto pDR=sPP?sPP->getLikelihoodCalculationSingleProcess(): oPSP->getLikelihoodCalculationSingleProcess();
 
       // Only Marginal reconstruction method
       AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR);
@@ -224,8 +224,8 @@ int main(int args, char ** argv)
 
       if (outputSitesFile != "none")
       {
-        ApplicationTools::displayResult(" Output file for sites", outputSitesFile + "_" + TextTools::toString(itm.first));
         string outF=outputSitesFile + "_" + TextTools::toString(itm.first);
+        ApplicationTools::displayResult(" Output file for sites", outF);
         ofstream out(outF.c_str(), ios::out);
         PhyloTree ttree(sPP?sPP->getTree():oPSP->getTree());
         vector<shared_ptr<PhyloNode> > nodes = ttree.getAllNodes();
@@ -236,7 +236,7 @@ int main(int args, char ** argv)
         // Get the posterior rate, i.e. rate averaged over all posterior probabilities:
 
         Vdouble rates = sPP?sPP->getPosteriorRatePerSite():oPSP->getPosteriorRatePerSite();
-        
+
         // Get the ancestral sequences:
         vector<Sequence*> sequences(nbNodes);
         vector<VVdouble*> probabilities(nbNodes);
@@ -265,7 +265,6 @@ int main(int args, char ** argv)
           else
             sequences[i] = asr->getAncestralSequenceForNode(ttree.getNodeIndex(node));
         }
-
 
         //Now fill the table:
         vector<string> row(colNames.size());

@@ -3,54 +3,16 @@
 alphabet = DNA
 
 # Input tree to use:
-input.tree.file = ../../Data/LSUrooted.dnd
-input.tree.format=Newick
+input.tree1=user(file=../../Data/LSUrooted.dnd, format=Newick)
 
-# Print a tree with ids as bootstrap values.
-# This is helpful when setting up complexe non-homogeneous models.
-# Setting this option will cause the program to exit after printing the tree.
-//output.tree.path = LSUrooted_wid.dnd
 
-# Number of sites to simulate:
-number_of_sites = 300
+root_freq1 = GC(theta=0.9)
 
-# The output file:
-output.sequence.file = LSUSim.fasta
-# The alignment format:
-# Must be one of Mase, Fasta, Phylip
-output.sequence.format = Fasta()
-
-# ----------------------------------------------------------------------------------------
-#                                     Model specification
-# ----------------------------------------------------------------------------------------
-
-# Homogeneous model?
-# no => Homogeneous case
-# general => Specify the model by hand.
-nonhomogeneous = general
-
-# How to deal with root frequencies:
-# balanced  : all frequencies are set to 1/size of the alphabet
-# observed  : use observed counts in the data set
-# init      : manually set the frequencies (they have to sum to one)
-# For nucleotides, one can use the GC rate (theta) parametrization, like in the T92 model:
-# balancedGC: ancestral GC set to 0.5
-# observedGC: use observed GC content
-# initGC    : manually set the ancestral GC content.
-nonhomogeneous.root_freq = GC(theta=0.9)
-
-# Now the general heterogeneous case:
-# Specify the number of distincts models.
-nonhomogeneous.number_of_models = 2
-# Set up each model:
 model1=T92(kappa=2, theta=0.1)
-model1.nodes_id=0:62 # The Ids of the nodes to which this model should be assigned.
-
 model2=T92(kappa=1, theta=0.9)
-model2.nodes_id=63:155
 
-#etc
+process1=NonHomogeneous(model1=1, model1.nodes_id=0:62, model2=2, model2.nodes_id=63:155, tree=1, rate=1)
 
-# Rate Across Sites variation
-rate_distribution = Gamma(n=4, alpha=0.358)
+rate_distribution1 = Gamma(n=4, alpha=0.358)
 
+simul1=Single(process=1, output.sequence.file = LSUSim.fasta, output.sequence.format = Fasta, number_of_sites = 300)

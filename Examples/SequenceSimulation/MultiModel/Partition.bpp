@@ -9,12 +9,14 @@ input.tree1=user(file = ../../../Examples/Data/lysozymeLarge.dnd)
 
 model1=F81(theta=0.25,theta1=0.25,theta2=0.25)
 rate_distribution1=Constant()
-# First root freq is all pi_T.
+
+# First root is all T.
 root_freq1=Full(theta=0.,theta1=0.,theta2=0.)
 
-model2=F81(theta=0.5,theta1=0.,theta2=0.)
+model2=F81(theta=0.5,theta1=0.9,theta2=0.4)
 rate_distribution2=Constant()
 # Second root freq is even across bases.
+
 root_freq2=Full(theta=0.25,theta1=0.25,theta2=0.25)
 
 process1=Homogeneous(model=1, rate=1, tree=1, root_freq=1)

@@ -31,10 +31,7 @@ model1 = YNGP_M1(kappa=1, omega=0.5, frequencies=F1X4, p0=0.5, initFreqs=observe
 
 rate_distribution1 = Constant()
 
-path1=model1[1]
-path2=model1[2]
-
-scenario1=path1&path2
+scenario1= split(model=1)
 
 process1 = Homogeneous(model=1, tree=1, rate=1, scenario=1)
 

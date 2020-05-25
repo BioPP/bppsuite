@@ -190,7 +190,7 @@ int main(int args, char ** argv)
     const StateMap& sm=SPC->getModel(1)->getStateMap();
     
     string infosFile = ApplicationTools::getAFilePath("input.infos", bppseqgen.getParams(), false, true);
-    
+
     if (infosFile != "none")
     {
       ApplicationTools::displayResult("Site information", infosFile);
@@ -305,6 +305,7 @@ int main(int args, char ** argv)
         // return 1;
       }
     }
+
   
     // if (nbSites == 0)
     //   nbSites = ApplicationTools::getParameter<size_t>("number_of_sites", bppseqgen.getParams(), 100);
@@ -366,6 +367,7 @@ int main(int args, char ** argv)
 
         sites = seqsim.simulate(nSites);
         ApplicationTools::displayTaskDone();
+        ApplicationTools::displayMessage("");
       }
 
       // Write to file:

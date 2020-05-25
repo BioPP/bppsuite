@@ -1544,115 +1544,164 @@ See the
 
 @end table
 
-@c @subsubsection Paths among non-homogeneous mixture models
+@subsubsection Paths among non-homogeneous mixture models
 
-@c To define constraints for sites between submodels, we can set "paths"
-@c that any site must follow. For example, in the following description:
+To define constraints for sites between submodels, we can set "paths"
+and "scenarios". A path is a succession of submodels a site may follow
+down the tree, and scenarios are the sets of paths among which sites
+must choose.
 
-@c @example
-@c nonhomogeneous = general
-@c nonhomogeneous.number_of_models = 3
+@example
 
-@c model1=T92()
-@c model2=MixedModel(model=T92(kappa=Simple(values=(4,10,20),probas=(0.1,0.5,0.4))))
-@c model3=MixedModel(model=TN93(theta1=Simple(values=(0.1,0.5,0.9),probas=(0.3,0.2,0.5))))
-@c model1.nodes_id=0:1
-@c model2.nodes_id=2:3
-@c model3.nodes_id=4:5
-@c @end example
+model1=T92()
+model2=MixedModel(model=T92(kappa=Simple(values=(4,10,20),probas=(0.1,0.5,0.4))))
+model3=MixedModel(model=TN93(theta1=Simple(values=(0.1,0.5,0.9),probas=(0.3,0.2,0.5))))
 
-@c In this case, on branches 2 & 3 a site follows any submodel of model 2
-@c (but the same submodel on both branches), and on branches 4 & 5, a
-@c site follows any submodel of model  3 (the same on both branches as
-@c well).  But there is no constraint between models 2 & 3, which means
-@c that a site can follow any submodel of model 2 and any submodel of
-@c model 3.
+process1=NonHomogeneous(model1=1, model1.nodes_id=0:1, model2=2, model2.nodes_id=2:3, model3=3, model3.nodes_id=4:5, tree=1, rate=1, root_freq=2)
 
-@c If the user wants that a site with @var{T92.kappa=4} in model 2 has
-@c @var{TN93.theta1=0.1} in model 3, that a site with @var{T92.kappa=10}
-@c in model 2 has @var{TN93.theta1=0.9} in model 3, and that other cases
-@c are free (in this case it means that @var{T92.kappa=20} in model 2 is
-@c linked with @var{TN93.theta1=0.5} in model 3), then we can use the
-@c declarations:
+@end example
 
-@c @example
-@c site.number_of_paths=2
-@c site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2]
-@c site.path2=model2[T92.kappa_2] & model3[TN93.theta1_3]
-@c @end example
+In this case, on branches 2 & 3 a site follows any submodel of model 2
+(independently between the branches), and on branches 4 & 5, a site
+follows any submodel of model 3 (indenpendently between the branches).
+Also, there is no constraint between models 2 & 3, which means that a
+site can follow any submodel of model 2 and any submodel of model 3.
 
-@c The third path (for the remaining submodels) is automatically
-@c computed.
+If the user wants that a site follows the same submodel of model 2 for
+both branches, defines it in paths and a scenario:
 
-@c It is possible to link mixtures of submodels. For example,
+@example
 
-@c @example 
-@c site.path1=model2[T92.kappa_1] & model3[TN93.theta1_2] & model3[TN93.theta1_3]
-@c @end example
+path1 = model2[1]
+path2 = model2[2]
+path3 = model2[3]
 
-@c means that a site that has @var{T92.kappa=4} in model2 has either
-@c @var{TN93.theta1=0.5} or @var{TN93.theta1=0.9} in model3.
+scenario1 = path1 & path2 & path3
+
+process1=NonHomogeneous(model1=1, model1.nodes_id=0:1, model2=2,
+model2.nodes_id=2:3, model3=3, model3.nodes_id=4:5, tree=1, rate=1,
+root_freq=2, scenario = 1)
+
+@end example
+
+Similar description:
+
+@example
+
+path1 = model2[T92.kappa_1]
+path2 = model2[T92.kappa_2]
+path3 = model2[T92.kappa_3]
+
+@end example
+
+In this case, since model2 is totally split, it is possible to make it
+shorter:
+
+@example
+
+scenario1 = split(model=2)
+
+process1=NonHomogeneous(model1=1, model1.nodes_id=0:1, model2=2,
+model2.nodes_id=2:3, model3=3, model3.nodes_id=4:5, tree=1, rate=1,
+root_freq=2, scenario = 1)
+
+@end example
+
+Paths can be used to make combination of submodels between several
+models. For example:
+
+@example
+path1=model2[T92.kappa_1] & model3[TN93.theta1_2]
+path2=model2[T92.kappa_2] & model3[TN93.theta1_3]
+@end example
+
+or, similar, because there is only one mixture in each model:
+
+@example
+path1=model2[1] & model3[2]
+path2=model2[2] & model3[3]
+@end example
 
 
-@c Because of these constraints, the probabilities of the submodels are
-@c linked. In the first example, probability of @var{T92.kappa=4} in
-@c model 2 equals the probability of @var{TN93.theta1=0.5} in model 3.
-@c Since it is contradictory with the probabilities defined in models 2
-@c or 3, the reference probabilities are the ones of the first numbered
-@c mixed model, here model 2. In this case, the probabilities in model 3
-@c may have no use, but with the second example the probability of
-@c submodel T92.kappa=4 equals the sum of the probabilities of submodels
-@c TN93.theta1=0.5 or TN93.theta1=0.9. The relative proportion of those
-@c models used in the declaration of model 3 is then used. Here their
-@c respective probabilities are then: 0.1*0.2/ (0.2+0.5)=0.0286 and
-@c 0.1*0.5/(0.2+0.5)=0.0714.
+The third path (for the remaining submodels) is automatically
+computed in the scenario, with @var{complete}:
 
-@c Concerning the optimization procedure, this choice may entail the non-
-@c identifiability of several parameters (here the probabilities in model
-@c 3), so the user should be careful about this. 
+@example
+scenario1 = path1 & path2 & complete
+@end example
 
-@c When the submodel is aliased behind a model name, the paths should be
-@c defined as combinations of the model that is mixed. For example,
-@c YNGP_M2 is made of 3 YN98 models, depending of three @var{omega}
-@c values: <1, =1, >1. If we want a site to switch between <1 and >1
-@c omega values between two sets of branches:
+It is possible to link mixtures of submodels. For example,
 
-@c @cartouche
-@c @example
-@c nonhomogeneous = general
-@c nonhomogeneous.number_of_models = 2
+@example 
+path1=model2[T92.kappa_1] & model3[TN93.theta1_2] & model3[TN93.theta1_3]
+@end example
 
-@c model1=YNGP_M2(frequencies=F1X4)
-@c model2=YNGP_M2(frequencies=F1X4)
+means that a site that has @var{T92.kappa=4} in model2 has either
+@var{TN93.theta1=0.5} or @var{TN93.theta1=0.9} in model3.
 
-@c model1.nodes_id=0:1
-@c model2.nodes_id=2:3
 
-@c site.number_of_paths=3
-@c site.path1=model1[YN98.omega_1] & model2[YN98.omega_3]
-@c site.path2=model1[YN98.omega_2] & model2[YN98.omega_2]
-@c site.path3=model1[YN98.omega_3] & model2[YN98.omega_1]
+Because of these constraints, the probabilities of the submodels are
+linked. In the first example, probability of @var{T92.kappa=4} in
+model 2 equals the probability of @var{TN93.theta1=0.5} in model 3.
+Since it is contradictory with the probabilities originally defined in
+models 2 or 3, the reference probabilities are the ones of the first
+numbered mixed model, here model 2. In this case, the probabilities in
+model 3 may have no use, but with the second example the probability
+of submodel T92.kappa=4 equals the sum of the probabilities of
+submodels TN93.theta1=0.5 or TN93.theta1=0.9. The relative proportion
+of those models used in the declaration of model 3 is then used. Here
+their respective probabilities are then: 0.1*0.2/ (0.2+0.5)=0.0286 and
+0.1*0.5/(0.2+0.5)=0.0714.
 
-@c @end example
-@c @end cartouche
+Concerning the optimization procedure, this choice may entail the non-
+identifiability of several parameters (here the probabilities in model
+3), so the user should be careful about this. 
 
-@c Another example in the case of mixtures of mixed models, where the
-@c submodels are defined by their names;
+When the submodel is aliased behind a model name, the paths should be
+defined as combinations of the model that is mixed. For example,
+YNGP_M2 is made of 3 YN98 models, depending of three @var{omega}
+values: <1, =1, >1. If we want a site to switch between <1 and >1
+omega values between two sets of branches:
 
-@c @example
-@c nonhomogeneous = general
-@c nonhomogeneous.number_of_models = 2
+@cartouche
+@example
 
-@c model1=LLG08_UL2()
-@c model2=LLG08_UL3()
+model1=YNGP_M2(frequencies=F1X4)
+model2=YNGP_M2(frequencies=F1X4)
 
-@c site.number_of_paths=2
-@c site.path1=model1[LLG08_UL2.M2] & model2[LLG08_UL3.Q1]
-@c site.path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] & model2[LLG08_UL3.Q3]
-@c @end example
+path1=model1[YN98.omega_1] & model2[YN98.omega_3]
+path2=model1[YN98.omega_2] & model2[YN98.omega_2]
+path3=model1[YN98.omega_3] & model2[YN98.omega_1]
 
-@c When nonhomogeneity option is @option{one_per_branch}, each site is
-@c constrained to follow the same submodel from leaves to root.
+scenario1 = path1 & path2 & path3
+@end example
+@end cartouche
+
+Another example in the case of mixtures of mixed models, where the
+submodels are defined by their names;
+
+@example
+
+model1=LLG08_UL2()
+model2=LLG08_UL3()
+
+path1=model1[LLG08_UL2.M2] & model2[LLG08_UL3.Q1]
+path2=model1[LLG08_UL2.M1] & model2[LLG08_UL3.Q2] & model2[LLG08_UL3.Q3]
+@end example
+
+or, if the user does not know the names of the submodels:
+
+@example
+
+model1=LLG08_UL2()
+model2=LLG08_UL3()
+
+path1=model1[2] & model2[1]
+path2=model1[1] & model2[2] & model2[3]
+@end example
+
+When process definition @option{OnePerBranch}, each site is
+constrained to follow the same submodel from leaves to root.
 
 @node Conditioned, , Mixture, Model
 @subsubsection Conditioned models

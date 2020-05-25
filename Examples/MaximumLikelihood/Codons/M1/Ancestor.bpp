@@ -2,16 +2,17 @@
 
 
 # Global variables:
-DATA = LSU
+DATA = lysozymeLarge
 
 # Sequences:
 
 # The alphabet to use:
 # DNA, RNA or Protein
-alphabet=DNA
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
 
 # The sequence file to use (sequences must be aligned!)
-input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+input.data1=alignment(file=../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes)
 
 input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
 
@@ -21,7 +22,7 @@ input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
 
 # the same syntax as in bppML!
 # Here we directly use the output file from example ML.bpp to load the model:
-param = LSU.params.txt
+param = $(DATA).params.txt
 
 # ----------------------------------------------------------------------------------------
 #                                     Ancestral Sequence Reconstruction
@@ -40,6 +41,7 @@ asr.sample.number = 10
 
 # Alignment information log file (site specific rates, probabilities, etc):
 output.sites.file = $(DATA).sites.csv
+# output.nodes.add_extant = true
 
 # Nodes information log file
 output.nodes.file = $(DATA).nodes.csv

@@ -145,7 +145,7 @@ SubstitutionProcessCollection* bppTools::getCollection(const map<string, string>
 
   auto mModelPath = PhylogeneticsApplicationTools::getModelPaths(params, mMod);
 
-  auto mScenario = PhylogeneticsApplicationTools::getModelScenarios(params, mModelPath);
+  auto mScenario = PhylogeneticsApplicationTools::getModelScenarios(params, mModelPath, mMod);
 
   SubstitutionProcessCollection* SPC=PhylogeneticsApplicationTools::getSubstitutionProcessCollection(alphabet, gCode, mpTree, mMod, mRootFreq, mDist, mScenario, params, unparsedparams);
       

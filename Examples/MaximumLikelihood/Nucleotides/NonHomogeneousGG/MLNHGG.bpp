@@ -42,7 +42,7 @@ root_freq1 = GC(init=balanced)
 
 rate_distribution1 = Gamma(n=4, alpha=0.358)
 
-process1 = OnePerBranch(model=1, tree=1, rate=1, root_freq=1)
+process1 = OnePerBranch(model=1, tree=1, rate=1, root_freq=1, shared_parameters=T92.kappa)
 
 phylo1 = Single(process=1, data=1)
 

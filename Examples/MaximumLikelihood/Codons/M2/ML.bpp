@@ -33,11 +33,7 @@ rate_distribution1 = Constant() #Gamma(n=4, alpha=0.358)
 
 process1 = Homogeneous(model=1, tree=1, rate=1, scenario=1)
 
-path1=model1[1]
-path2=model1[2]
-path3=model1[3]
-
-scenario1=path1&path2&path3
+scenario1=split(model=1)
 
 phylo1 = Single(process=1, data=1)
 

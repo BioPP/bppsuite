@@ -25,7 +25,7 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 # See the manual for a description of the syntax and available options.
 #
 
-model1 = JTT92+F(initFreqs=observed, data=1)
+model1 = JTT92(initFreqs=observed, data=1)
 
 rate_distribution1 = Gamma(n=4, alpha=0.5)
 
