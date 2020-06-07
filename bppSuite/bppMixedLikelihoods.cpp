@@ -124,7 +124,7 @@ int main(int args, char** argv)
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppmixedlikelihoods.getParams(), "Standard", "", true, true);
       ApplicationTools::displayResult("Genetic Code", codeDesc);
       
-      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
     }
 
     // get the data

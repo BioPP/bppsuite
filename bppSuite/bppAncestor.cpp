@@ -320,7 +320,7 @@ int main(int args, char ** argv)
         ofstream out(outF.c_str(), ios::out);
         // map<int, vector<double> > frequencies;
 
-        const auto& tree = pDR->getLikelihoodsTree();
+        const auto& tree = pDR->getSubstitutionProcess().getParametrizablePhyloTree();
         
         auto allIndex = addNodesExtant? tree.getAllNodesIndexes(): tree.getAllInnerNodesIndexes();
 

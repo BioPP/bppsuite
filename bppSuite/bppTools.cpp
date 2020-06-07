@@ -76,7 +76,7 @@ GeneticCode* bppTools::getGeneticCode(const map<string, string>& params,
     string codeDesc = ApplicationTools::getStringParameter("genetic_code", params, "Standard", "", true, true);
     ApplicationTools::displayResult("Genetic Code", codeDesc);
     
-    return SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet()->clone(), codeDesc);
+    return SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc);
   }
   else
     return 0;

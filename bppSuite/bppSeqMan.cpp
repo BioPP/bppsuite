@@ -225,7 +225,7 @@ int main(int args, char** argv)
       if (!gCode.get()) {
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
-        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
       }
 
       OrderedSequenceContainer* sc = 0;
@@ -303,7 +303,7 @@ int main(int args, char** argv)
       if (!gCode.get()) {
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
-        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
       }
       SiteContainer* sites = dynamic_cast<SiteContainer*>(sequences);
       if (!sites)
@@ -345,7 +345,7 @@ int main(int args, char** argv)
       if (!gCode.get()) {
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
-        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
       }
 
       for (size_t i = sites->getNumberOfSites(); i > 0; i--)
@@ -365,7 +365,7 @@ int main(int args, char** argv)
       if (!gCode.get()) {
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
         ApplicationTools::displayResult("Genetic Code", codeDesc);
-        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc));
+        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
       }
       OrderedSequenceContainer* sc = 0;
       if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
