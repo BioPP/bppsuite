@@ -572,8 +572,8 @@ int main(int args, char** argv)
           tlRep.reset(dynamic_cast<NNIHomogeneousTreeLikelihood*>(
                         PhylogeneticsApplicationTools::optimizeParameters(tlRep.get(), parametersRep, bppml.getParams(), "", true, false)));
           bsTrees[i] = new TreeTemplate<Node>(tlRep->getTree());
-          if (out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
-          if (out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);
+          if (out && i == 0) newick.writeTree(*bsTrees[i], bsTreesPath, true);
+          if (out && i >  0) newick.writeTree(*bsTrees[i], bsTreesPath, false);
         }
         if (out)
           out->close();

@@ -141,7 +141,7 @@ SubstitutionProcessCollection* bppTools::getCollection(const map<string, string>
 {
   auto mDist = PhylogeneticsApplicationTools::getRateDistributions(params);
   auto mMod = PhylogeneticsApplicationTools::getBranchModels(alphabet, gCode, mSites, params, unparsedparams);
-  auto mRootFreq = PhylogeneticsApplicationTools::getRootFrequenciesSets(alphabet, gCode, mSites, params, unparsedparams);
+  auto mRootFreq = PhylogeneticsApplicationTools::getRootFrequencySets(alphabet, gCode, mSites, params, unparsedparams);
 
   auto mModelPath = PhylogeneticsApplicationTools::getModelPaths(params, mMod);
 

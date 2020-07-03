@@ -243,7 +243,7 @@ int main(int args, char** argv)
       // Get a tree:
       string treeOpt = ApplicationTools::getStringParameter("input.tree.method", bpppopstats.getParams(), "bionj", "");
       if (codonAlphabet) {
-        unique_ptr<FrequenciesSet> freqSet(new FixedCodonFrequenciesSet(gCode.get()));
+        unique_ptr<FrequencySet> freqSet(new FixedCodonFrequencySet(gCode.get()));
         model.reset(new YN98(gCode.get(), freqSet.release()));
       } else {
         model.reset(new K80(&AlphabetTools::DNA_ALPHABET));
@@ -473,7 +473,7 @@ int main(int args, char** argv)
         unique_ptr<AlignedSequenceContainer> alnCons(new AlignedSequenceContainer(codonAlphabet));
         alnCons->addSequence(*consensusIn);
         alnCons->addSequence(*consensusOut);
-        unique_ptr<FrequenciesSet> freqSetDiv(new FixedCodonFrequenciesSet(gCode.get()));
+        unique_ptr<FrequencySet> freqSetDiv(new FixedCodonFrequencySet(gCode.get()));
         YN98* modelDiv = new YN98(gCode.get(), freqSetDiv.release());
         DiscreteDistribution* rDistDiv = new ConstantRateDistribution(); 
         DistanceEstimation distEstimation(modelDiv, rDistDiv, alnCons.get(), 0, false);

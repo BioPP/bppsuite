@@ -10,7 +10,7 @@ DATA = LSU
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, selection=1:10)
+input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
 
 
 # ----------------------------------------------------------------------------------------

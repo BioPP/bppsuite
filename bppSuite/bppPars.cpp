@@ -177,8 +177,8 @@ int main(int args, char ** argv)
         DRTreeParsimonyScore* tpRep = new DRTreeParsimonyScore(*initTree, *sample, false);
         tpRep = OptimizationTools::optimizeTreeNNI(tpRep, 0);
         bsTrees[i] = new TreeTemplate<Node>(tpRep->getTree());
-        if (out && i==0) newick.write(*bsTrees[i], bsTreesPath, true);
-        if (out && i>0) newick.write(*bsTrees[i], bsTreesPath, false);
+        if (out && i==0) newick.writeTree(*bsTrees[i], bsTreesPath, true);
+        if (out && i>0) newick.writeTree(*bsTrees[i], bsTreesPath, false);
         delete tpRep;
         delete sample;
       }
