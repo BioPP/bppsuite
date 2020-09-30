@@ -1,0 +1,178 @@
+\documentclass{article}
+\usepackage{indentfirst}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{url}
+
+\title{Tutorial for bppsuite}
+
+\addtolength{\topmargin}{-2cm}
+\setlength{\textheight}{24cm}
+
+\date{\today}
+
+\author{Laurent Guéguen \\ {\small (laurent.gueguen@univ-lyon1.fr)}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\medskip 
+
+
+In this tutorial, we will see several examples of usage of programs
+from bppsuite. Bppsuite programs depend on bio++ libraries, and all
+are available there:
+
+\url{http://biopp.univ-montp2.fr/wiki/index.php/Main_Page}
+
+as well as on Github:
+
+\url{http://github.com/BioPP}
+
+\medskip
+
+We will give examples how to simulate sequences, perform maximum
+likelihood estimates of models and branch lengths, perform ancestral
+reconstruction and substitution mapping.
+
+All the options are described in bppsuite manual:
+
+\url{http://biopp.univ-montp2.fr/manual/html/bppsuite/document}
+
+\section{Homogeneous simple model}
+
+\subsection*{Maximum Likelihood}
+
+In \texttt{ML\_hom.bpp}, we define an homogeneous model on DNA evolution.
+The results are stored in directory \texttt{hom\_Res}, defined through
+a macro. Make sure this directory exists before executing
+\texttt{bppml}. Then the command is:
+
+\begin{verbatim}
+  bppml param=hom_ML.bpp
+\end{verbatim}
+
+\subsection*{Ancestral sequence inference}
+
+Given a process and data, it is possible to infer ancestral sequence
+probabilities, using program \texttt{bppancestor}. Usually this is
+done after the estimate of the best process given the data. In our
+case, we use the parameter file \texttt{hom\_Anc.bpp}
+
+\section{Non-homogeneous simple model}
+
+Now, we define several models of the tree, with specific assignations
+to branches. For example, in file \verb#nonhom_ML.bpp#.
+
+In this case, two models are assigned to different branches. In the
+case of trees read from newick files, the branches are numbered in the
+reading order of the description string. In NHX format, branches are
+explicitly numbered, which is much easier to handle.
+
+\subsection*{Aliases}
+
+We see in the declaration of second model
+
+\begin{verbatim}
+model2 = T92(theta=HKY85.theta_1)
+\end{verbatim}
+
+that theta parameters of both models are linked, which means they are
+constrained to share the same value (here equilibrium GC content).
+
+Another way to alias parameters is through the line:
+
+\begin{verbatim}
+  likelihood.alias = HKY85.kappa_1 -> T92.kappa_2, 
+\end{verbatim}
+
+which means that kappa parameter model HKY85 is equal to kappa
+parameter of model T92.
+
+\subsection*{Substitution rates}
+
+In this example, we define a distribution of substitution rates:
+
+\begin{verbatim}
+  rate_distribution1 = Invariant(dist=Gamma(n=4))
+\end{verbatim}
+
+which is here a Gamma distribution with 4 classes and a specific
+probability of null rate for constant sites.
+
+The \textit{a posteriori} probabilities of the 5 classes of this
+distribution are written in the info file \verb|aln1.infos_1|. We can
+see that for non-constant sites the \textit{a posteriori}
+probabilities of the first class (the invariant class) are quasi null.
+
+\section{Computing on several data}
+
+\subsection{Shared process}
+
+In \verb#multidata_ML.bpp#, we compute the likelihood of the same
+process as before on two alignments. 
+In the result file \verb#multiData_Res/aln1.params.txt#, the line
+
+\begin{verbatim}
+  result=phylo1 + phylo2
+\end{verbatim}
+
+means that the result (and optimized) log-likelihood is the sum of
+log-likelihoods on both alignments. It means that the result is the
+same as the log-likelihood of the concatenation of both alignments.
+
+This result calculation is the default behaviour, but it is possible
+to define its own calculation, such as: 
+
+\begin{verbatim}
+  result=phylo1 + phylo2/2
+\end{verbatim}
+
+\subsection{Several processes}
+
+If we want to compute likelihood on several data with different trees,
+we have to define several processes. See \verb#multiProc_ML.bpp#.
+
+Both optimized trees are in the output directory. In this case, all
+branch lengths are optimized independently. If we want to share branch
+lengths between trees, we alias them. In this case, NHX format is more
+convenient. See \verb#multiProcNHX_ML.bpp#, where the matching
+branches of trees from files \verb#aln1.nhx# and \verb#aln2.nhx# are
+linked. 
+
+\section{Mixing processes}
+
+It is also possible to mix several processes, in a predetermined or
+probabilistic (mixture or HMM) way. In the following examples, both
+processes differ on the topology of the tree.
+
+In \verb#partition_ML.bpp#, an \textit{a priori} partition of the data
+is proposed, defined in \verb#process3#, which uses \verb#process1#
+and \verb#process2#.
+
+In \verb#mixture_ML.bpp#, on each position the likelihood is the mean
+of the likelihood of both processes, averaged through optimized
+probabilities. To know which process best fits each site, in
+\verb#mixture_Res/infos#, the site log-likelihoods and \textit{a
+  posteriori} probabilities are displayed.
+
+In \verb#autocorr_ML.bpp#, the modeling is also a probabilistic
+mixture of both models, but with a between sites auto-correlation for
+each process.
+
+
+%% or 
+
+%% \begin{verbatim}
+%%   result=(phylo1 - phylo2) * (phylo2 - phylo1)
+%% \end{verbatim}
+
+%% The optimization procedure is a minimization, so the values used are
+%% minus the log-likelihoods. Here, the optimizer will try to minimize
+%% \verb#(phylo1 - phylo2) * (phylo2 - phylo1)#, Since optimization
+%% tries to minimize \verb#result#
+
+\end{document}

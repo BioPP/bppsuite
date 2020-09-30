@@ -1,0 +1,100 @@
+RESULT_DIR=nonhom_Res
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# ----------------------------------------------------------------
+#         Alignment
+# ----------------------------------------------------------------
+
+input.data1=alignment(file= Data/aln1.fa, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+
+
+# ----------------------------------------------------------------
+#                             Input tree file
+# ----------------------------------------------------------------
+
+# user or random
+input.tree1=user(file = Data/aln1.tree, format = Newick)
+
+# --------------------------------------------------------
+#                Root Frequencies
+# --------------------------------------------------------
+
+root_freq1=Full(init=balanced, data=1)
+
+# --------------------------------------------------------
+#                Models
+# --------------------------------------------------------
+
+model1 = HKY85(kappa=1, initFreqs=observed, data=1)
+
+model2 = T92(theta=HKY85.theta_1)
+
+likelihood.alias = HKY85.kappa_1 -> T92.kappa_2
+
+# --------------------------------------------------------
+#                Substitution rates
+# --------------------------------------------------------
+
+rate_distribution1 = Invariant(dist=Gamma(n=4))
+
+# --------------------------------------------------------
+#                Substitution process
+# --------------------------------------------------------
+
+## The process is non-homogeneous, different models on the branches
+   of the tree
+
+process1 = NonHomogeneous(model1=1, model1.nodes_id=0:20, model2=2, model2.nodes_id=21:44, tree=1, rate=1, root_freq=1)
+
+## There are shortcuts for the declarations of branches, such as All,
+   Leaves and NoLeaves (ie internal branches).
+
+#
+# --------------------------------------------------------
+#                Links the data and the process
+# --------------------------------------------------------
+
+phylo1 = Single(process=1, data=1)
+
+# --------------------------------------------------------
+#                                     Optimization
+# --------------------------------------------------------
+
+# Method to use for optimizing numerical parameters:
+# - None, no optimization performed
+# - DB derivatives for branch lengths + Brent for other parameters
+# - FullD derivatives for all parameters, using numerical derivatives for non-branch lengths parameters.
+
+optimization = FullD(derivatives=Newton)
+
+# Set the quantity of output to the screen:
+optimization.verbose = 3
+
+# Parameters to ignore (for instance equilibrium frequencies)
+optimization.ignore_parameters = 
+
+# Maximum number of likelihood evaluations:
+optimization.max_number_f_eval = 1000
+
+# Precision to reach:
+optimization.tolerance = 0.000001
+
+# idem for error or warning messages:
+optimization.message_handler = $(RESULT_DIR)/messages
+
+# A file where to dump optimization steps (a file path or std for standard output)
+optimization.profiler = $(RESULT_DIR)/profile
+
+# Should we write the resulting tree? none or file name.
+output.tree.file = $(RESULT_DIR)/tree_ML.dnd
+output.tree.format = Newick
+
+# Alignment information log file (site specific rates, etc):
+output.infos = $(RESULT_DIR)/infos
+
+# Write numerical parameter estimated values:
+output.estimates = $(RESULT_DIR)/params.txt
+

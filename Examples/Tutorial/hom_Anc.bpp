@@ -1,0 +1,49 @@
+# WARNING!!! You need to run bppml on the hom_ML.bpp example file
+# first to be able to run this example!
+
+
+# Global variables:
+DATA = aln1
+RESULT_DIR=hom_Res
+
+# Sequences:
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# ----------------------------------------------------------------
+#         Alignment
+# ----------------------------------------------------------------
+
+input.data1=alignment(file=Data/$(DATA).fa, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+
+
+# ----------------------------------------------------------------
+#                             Input tree file
+# ----------------------------------------------------------------
+
+# Output of bppml on example hom_ML.bpp to load the most likely tree:
+
+input.tree1=user(file = $(RESULT_DIR)/tree_ML.dnd_1, format = Newick)
+
+# ----------------------------------------------------------------
+#                       Model specification
+# ----------------------------------------------------------------
+
+# the same syntax as in bppML!
+# Here we directly use the output file from example hom_ML.bpp to load the model:
+
+param = $(RESULT_DIR)/params.txt
+
+# -----------------------------------------------------------------
+#                       Ancestral Sequence Reconstruction
+# -----------------------------------------------------------------
+
+# Shall we output the site specific probabilities in each case:
+asr.probabilities = yes
+
+# Alignment information log file (site specific rates, probabilities, etc):
+output.sites.file = $(RESULT_DIR)/$(DATA).sites.csv
+
+

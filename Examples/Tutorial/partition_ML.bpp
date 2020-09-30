@@ -1,0 +1,99 @@
+RESULT_DIR=partition_Res
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# ----------------------------------------------------------------
+#         Alignment
+# ----------------------------------------------------------------
+
+input.data1=alignment(file= Data/aln1.fa, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+
+
+# ----------------------------------------------------------------
+#                             Input tree file
+# ----------------------------------------------------------------
+
+input.tree1=user(file = Data/aln1.nhx, format = NHX)
+
+input.tree2=user(file = Data/aln2.nhx, format = NHX)
+
+
+# --------------------------------------------------------
+#                Root Frequencies
+# --------------------------------------------------------
+
+root_freq1=Full(init=balanced, data=1)
+
+# --------------------------------------------------------
+#                Models
+# --------------------------------------------------------
+
+model1 = HKY85(initFreqs=observed, data=1)
+
+model2 = HKY85(kappa=HKY85.kappa_1)
+
+likelihood.alias = BrLen0_1 -> BrLen0_2,  BrLen1_1 -> BrLen1_2, BrLen2_1 -> BrLen2_2, BrLen3_1 -> BrLen3_2, BrLen4_1 -> BrLen4_2,  BrLen9_1 -> BrLen7_2, BrLen10_1 -> BrLen8_2, BrLen11_1 -> BrLen10_2, BrLen12_1 -> BrLen9_2, BrLen13_1 -> BrLen11_2, BrLen14_1 -> BrLen12_2, BrLen18_1 -> BrLen31_2, BrLen19_1 -> BrLen32_2, BrLen20_1 -> BrLen33_2, BrLen21_1 -> BrLen34_2, BrLen22_1 -> BrLen35_2,  BrLen23_1 -> BrLen36_2, BrLen24_1 -> BrLen37_2, BrLen40_1 -> BrLen38_2,  BrLen41_1 -> BrLen39_2, BrLen42_1 -> BrLen40_2, BrLen43_1 -> BrLen41_2, BrLen44_1 -> BrLen42_2
+
+# --------------------------------------------------------
+#                Substitution rates
+# --------------------------------------------------------
+
+rate_distribution1 = Constant()
+
+# --------------------------------------------------------
+#                Substitution process
+# --------------------------------------------------------
+
+process1 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=1, rate=1, root_freq=1)
+
+process2 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=2, rate=1, root_freq=1)
+
+process3 = Partition(process1=1, process1.sites=(1:300,800:1152), process2=2, process2.sites=301:799)
+
+# --------------------------------------------------------
+#            Both data are used for likelihood
+# --------------------------------------------------------
+
+phylo1 = Single(process=3, data=1)
+
+# --------------------------------------------------------
+#                                     Optimization
+# --------------------------------------------------------
+
+# Method to use for optimizing numerical parameters:
+# - None, no optimization performed
+# - DB derivatives for branch lengths + Brent for other parameters
+# - FullD derivatives for all parameters, using numerical derivatives for non-branch lengths parameters.
+
+optimization = FullD(derivatives=Newton)
+
+# Set the quantity of output to the screen:
+optimization.verbose = 3
+
+# Parameters to ignore (for instance equilibrium frequencies)
+optimization.ignore_parameters = 
+
+# Maximum number of likelihood evaluations:
+optimization.max_number_f_eval = 1000
+
+# Precision to reach:
+optimization.tolerance = 0.000001
+
+# idem for error or warning messages:
+optimization.message_handler = $(RESULT_DIR)/messages
+
+# A file where to dump optimization steps (a file path or std for standard output)
+optimization.profiler = $(RESULT_DIR)/profile
+
+# Should we write the resulting tree? none or file name.
+output.tree.file = $(RESULT_DIR)/tree_ML.nhx
+output.tree.format = NHX
+
+# Alignment information log file (site specific rates, etc):
+output.infos = $(RESULT_DIR)/infos
+
+# Write numerical parameter estimated values:
+output.estimates = $(RESULT_DIR)/params.txt
+
