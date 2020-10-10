@@ -2670,7 +2670,6 @@ Where to write bootstrap trees.
 Probably one of the simplest program to use in the suite, just takes a list of trees (for instance produced by BppML, BppDist or BppPars with the bootstrap option enabled) and compute bootstrap values for a reference tree, provided as input, or constructed using a consensus method.
 The program uses the multiple-trees reading options for input (@pxref{Tree}) and single-tree writing options for output.
 
-There are only specific options here:
 @table @command
 
 @item tree = @{tree methods@}
@@ -2688,6 +2687,8 @@ Build a consensus tree according to a given threshold.
 
 @end table
 
+@item bootstrap.format = @{int@}
+format of the bootstrap values. If positive, output values as percentages with the specified number of decimals. If negative, output the raw counts (number of trees).
 @end table
 
 @c ------------------------------------------------------------------------------------------------------------------
