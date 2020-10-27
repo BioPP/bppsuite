@@ -2598,32 +2598,43 @@ previous section for setting the alphabet, loading the sequences
 (@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model
 (@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
 
-
 Several simulations are possible at the same time and they are base on
-site substition processes or sequence substitution processes
-@pxref{Process}. The declaration is :
+site substitution processes or sequence substitution processes
+@pxref{Process}, or phylolikelihoods for posterior simulations. The
+declaration is :
 
 @table @command
-@item simul@{int@}=@{Simulation type@}(process=@{number@}, output.sequence.file=@{file path@}[,output.sequence.format=@{alignement format@}])
+@item simul@{int@}=@{Simulation type@}(process=@{number@}, output.sequence.file=@{file path@}, number_of_sites = @{int>0@}[,output.sequence.format=@{alignement format@}, output.internal.sequences = true])
 @end table
 
+to simulate following a process, with a given number of sites.
+Optional argument @command{output.internal.sequences} tells if
+internal sequences should be written.
 
-Up to now, simulation type does not matter. For example, is processes
+@table @command
+@item simul@{int@}=@{Simulation type@}(phylo=@{number@}, pos=@{number@}, output.sequence.file=@{file path@}, number_of_sites =@{int>0@}[,output.sequence.format=@{alignement format@}])
+@end table
+
+to simulate following the a posteriori process in position
+@command{pos}.
+
+@item simul@{int@}=@{Simulation type@}(phylo=@{number@}, output.sequence.file=@{file path@}[,output.sequence.format=@{alignement format@}, number_of_sites = @{int>0@}])
+
+to simulate following the a posteriori process all along the
+alignment.
+
+
+
+Up to now, simulation type does not matter. For example, if processes
 number 4 and 2 have been defined before.
 
 @example
 simul1=simul(process1=4, process1.positions=0:50, process2=2, process2.positions=51:200, output.sequence.file = sim1.fa)
 @end example
 
-The root sequence can be sampled from the model specification, with
-additional argument:
-
 @table @command
-@item number_of_sites = @{int>0@}
-The number of site positions to simulate.
 
 @end table
-
 
 Or the root sequence can be built from a file of a sequence:
 

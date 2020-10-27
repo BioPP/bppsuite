@@ -1,0 +1,27 @@
+# Global variables:
+DATA = LSU
+
+# Sequences:
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# The sequence file to use (sequences must be aligned!)
+input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+
+
+input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+
+# the same syntax as in bppML!
+# Here we directly use the output file from example ML.bpp to load the model:
+param = LSU.params.txt
+
+
+simul1=Single(phylo=1, output.sequence.file = LSUSim.fasta, output.internal.sequences = true, output.sequence.format = Fasta, number_of_sites = 300)
+
+

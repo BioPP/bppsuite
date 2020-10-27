@@ -14,7 +14,7 @@ alphabet=DNA
 input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
 
 
-input.tree1=user(file = $(DATA).ML.dnd2_1, format = Newick)
+input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
