@@ -2618,7 +2618,9 @@ internal sequences should be written.
 to simulate following the a posteriori process in position
 @command{pos}.
 
+@table @command
 @item simul@{int@}=@{Simulation type@}(phylo=@{number@}, output.sequence.file=@{file path@}[,output.sequence.format=@{alignement format@}, number_of_sites = @{int>0@}])
+@end table
 
 to simulate following the a posteriori process all along the
 alignment.
@@ -2631,10 +2633,6 @@ number 4 and 2 have been defined before.
 @example
 simul1=simul(process1=4, process1.positions=0:50, process2=2, process2.positions=51:200, output.sequence.file = sim1.fa)
 @end example
-
-@table @command
-
-@end table
 
 Or the root sequence can be built from a file of a sequence:
 
