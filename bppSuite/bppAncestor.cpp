@@ -155,7 +155,7 @@ int main(int args, char ** argv)
     Newick treeWriter;
     treeWriter.enableExtendedBootstrapProperty("NodeId");
     ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
-    treeWriter.write(ttree, treeWIdPath);
+    treeWriter.writeTree(ttree, treeWIdPath);
     delete tree;
     cout << "BppAncestor's done." << endl;
     exit(0);
@@ -215,7 +215,7 @@ int main(int args, char ** argv)
     }
     
     std::map<std::string, std::string> aliasFreqNames;
-    FrequenciesSet * rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppancestor.getParams(), aliasFreqNames, rateFreqs);
+    auto rootFreqs = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode.get(), sites, bppancestor.getParams(), aliasFreqNames, rateFreqs);
     
     string descGlobal = ApplicationTools::getStringParameter("nonhomogeneous_one_per_branch.shared_parameters", bppancestor.getParams(), "", "", true, 1);
 

@@ -81,7 +81,7 @@ using namespace std;
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Model/Protein/CoalaCore.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/MvaFrequencySet.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
@@ -230,7 +230,7 @@ int main(int args, char** argv)
       Newick treeWriter;
       treeWriter.enableExtendedBootstrapProperty("NodeId");
       ApplicationTools::displayResult("Writing tagged tree to", treeWIdPath);
-      treeWriter.write(ttree, treeWIdPath);
+      treeWriter.writeTree(ttree, treeWIdPath);
       delete tree;
       cout << "BppML's done." << endl;
       exit(0);
@@ -363,20 +363,20 @@ int main(int args, char** argv)
       }
 
       bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", bppml.getParams(), false, "", false, 1);
-      FrequenciesSet* rootFreqs = 0;
+      std::shared_ptr<FrequencySet> rootFreqs(0);
       std::map<std::string, std::string> aliasFreqNames;
       if (!stationarity)
       {
         
-        rootFreqs = PhylogeneticsApplicationTools::getRootFrequenciesSet(alphabet, gCode.get(), sites, bppml.getParams(), aliasFreqNames, rateFreqs);
+        rootFreqs = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode.get(), sites, bppml.getParams(), aliasFreqNames, rateFreqs);
         stationarity = !rootFreqs;
         string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", bppml.getParams(), "", "", true, 1);
         if (freqDescription == "MVAprotein")
         {
           if (dynamic_cast<CoalaCore*>(model))
           {
-            dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->setModelName("MVAprotein");
-            dynamic_cast<MvaFrequenciesSet*>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model)); 
+            dynamic_pointer_cast<MvaFrequencySet>(rootFreqs)->setModelName("MVAprotein");
+            dynamic_pointer_cast<MvaFrequencySet>(rootFreqs)->initSet(dynamic_cast<CoalaCore*>(model)); 
           }
           else
             throw Exception("The MVAprotein frequencies set at the root can only be used if a COaLA model is used on branches.");
@@ -737,8 +737,8 @@ int main(int args, char** argv)
         tlRep = dynamic_cast<NNIHomogeneousTreeLikelihood*>(
           PhylogeneticsApplicationTools::optimizeParameters(tlRep, parametersRep, bppml.getParams(), "", true, false));
         bsTrees[i] = new TreeTemplate<Node>(tlRep->getTree());
-        if (out && i == 0) newick.write(*bsTrees[i], bsTreesPath, true);
-        if (out && i >  0) newick.write(*bsTrees[i], bsTreesPath, false);
+        if (out && i == 0) newick.writeTree(*bsTrees[i], bsTreesPath, true);
+        if (out && i >  0) newick.writeTree(*bsTrees[i], bsTreesPath, false);
         delete tlRep;
         delete sample;
       }

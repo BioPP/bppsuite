@@ -243,8 +243,8 @@ int main(int args, char** argv)
       // Get a tree:
       string treeOpt = ApplicationTools::getStringParameter("input.tree.method", bpppopstats.getParams(), "bionj", "");
       if (codonAlphabet) {
-        unique_ptr<FrequenciesSet> freqSet(new FixedCodonFrequenciesSet(gCode.get()));
-        model.reset(new YN98(gCode.get(), freqSet.release()));
+        auto  freqSet = std::make_shared<FixedCodonFrequencySet>(gCode.get());
+        model.reset(new YN98(gCode.get(), freqSet));
       } else {
         model.reset(new K80(&AlphabetTools::DNA_ALPHABET));
       } //Note: proteins not supported!
@@ -473,8 +473,8 @@ int main(int args, char** argv)
         unique_ptr<AlignedSequenceContainer> alnCons(new AlignedSequenceContainer(codonAlphabet));
         alnCons->addSequence(*consensusIn);
         alnCons->addSequence(*consensusOut);
-        unique_ptr<FrequenciesSet> freqSetDiv(new FixedCodonFrequenciesSet(gCode.get()));
-        YN98* modelDiv = new YN98(gCode.get(), freqSetDiv.release());
+        auto freqSetDiv = std::make_shared<FixedCodonFrequencySet>(gCode.get());
+        YN98* modelDiv = new YN98(gCode.get(), freqSetDiv);
         DiscreteDistribution* rDistDiv = new ConstantRateDistribution(); 
         DistanceEstimation distEstimation(modelDiv, rDistDiv, alnCons.get(), 0, false);
         distEstimation.setAdditionalParameters(modelDiv->getIndependentParameters());
