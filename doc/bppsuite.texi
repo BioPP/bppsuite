@@ -952,6 +952,16 @@ classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
 @var{p0}=0.5, @var{omegas}=2). See the
 @uref{http://bioweb.me/bpp-phyl-doc/classbpp_1_1YNGP__M8.html#details, Bio++ description, Bio++ description}.
 
+@item DFP07(protmodel=@{model@}, [tr, trr, tvv, trv, tsub=@{real>0@}, omega=@{real>0@}, p0=@{real>0 and <1 @}, frequencies="codon frequencies"])
+
+The model described in Doron-Faigenboim & Pupko (2007). See the
+@uref{http://bioweb.me/bpp-phyl-doc/classbpp_1_1DFP07.html#details,
+Bio++ description, Bio++ description}. @var{protmodel} described the
+protein model used as reference to have similar amino-acid
+susbtitution rates. This normalization process uses a distribution on
+codons. This distribution is either defined in optional
+@var{frequencies}, or is the equilibrium distribution of the codon
+model if this variable is not given.
 
 @end table
 
@@ -1144,6 +1154,22 @@ For example, see the
 
 @end table
 
+In addition some models are defined that allow multiple substitions,
+with similar logic of included words. These models are prefixed by @var{Kron}.
+
+@table @command
+@item SameAARate(codonmodel=@{codon@}, protmodel=@{model@}[,frequencies=@{codon frequencies@}])
+
+@end table
+
+Basis of the model described in Doron-Faigenboim & Pupko (2007), to
+constrain non-synonymous substitution rates similar to given protein
+rates. @var{codonmodel} describes the basis codon model, and
+@var{protmodel} describes the protein model used as reference to have
+similar amino-acid susbtitution rates. This normalization process uses
+a distribution on codons. This distribution is either defined in
+optional @var{frequencies}, or is the equilibrium distribution of the
+codon model.
 
 
 In addition some models are defined that allow multiple substitions,
