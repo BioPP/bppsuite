@@ -215,17 +215,18 @@ int main(int args, char** argv)
     else throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
     ApplicationTools::displayResult("Branch lengths", cmdName);
 
+    // Output tree with ids (optional, this will stop the program) 
     string treeWIdPath = ApplicationTools::getAFilePath("output.tree_ids.file", bppml.getParams(), false, false, "", true, "none", 1);
     if (treeWIdPath != "none")
     {
       TreeTemplate<Node> ttree(*tree);
       vector<Node*> nodes = ttree.getNodes();
-      for (size_t i = 0; i < nodes.size(); i++)
+      for (auto node : nodes)
       {
-        if (nodes[i]->isLeaf())
-          nodes[i]->setName(TextTools::toString(nodes[i]->getId()) + "_" + nodes[i]->getName());
+        if (node->isLeaf())
+          node->setName(TextTools::toString(node->getId()) + "_" + node->getName());
         else
-          nodes[i]->setBranchProperty("NodeId", BppString(TextTools::toString(nodes[i]->getId())));
+          node->setBranchProperty("NodeId", BppString(TextTools::toString(node->getId())));
       }
       Newick treeWriter;
       treeWriter.enableExtendedBootstrapProperty("NodeId");
