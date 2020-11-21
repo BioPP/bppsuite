@@ -203,7 +203,7 @@ int main(int args, char** argv)
       
       std::map<std::string, std::string> aliasFreqNames;
 
-      FrequencySet* rootFreqs = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), aliasFreqNames, rateFreqs);
+      auto rootFreqs = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), aliasFreqNames, rateFreqs);
 
       string descGlobal = ApplicationTools::getStringParameter("nonhomogeneous_one_per_branch.shared_parameters", bppmixedlikelihoods.getParams(), "", "", true, 1);
 
