@@ -138,7 +138,7 @@ int main(int args, char** argv)
     unique_ptr<SubstitutionProcessCollection> SPC;
     map<size_t, SequenceEvolution*> mSeqEvol;
 
-    unique_ptr<PhyloLikelihoodContainer> mPhyl=0;
+    shared_ptr<PhyloLikelihoodContainer> mPhyl=0;
     
     bool checkTree    = ApplicationTools::getBooleanParameter("input.tree.check_root", bppml.getParams(), true, "", true, 2);
     bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", bppml.getParams(), false, "", true, 1);
@@ -197,7 +197,7 @@ int main(int args, char** argv)
 
       mSeqEvol = bppTools::getProcesses(bppml.getParams(), *SPC, unparsedparams);
       
-      mPhyl.reset(bppTools::getPhyloLikelihoods(bppml.getParams(), context, mSeqEvol, *SPC, mSites));
+      mPhyl=bppTools::getPhyloLikelihoods(bppml.getParams(), context, mSeqEvol, *SPC, mSites);
       
       // retrieve Phylo 0, aka result phylolikelihood
       

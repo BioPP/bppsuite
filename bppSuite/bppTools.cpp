@@ -161,7 +161,7 @@ map<size_t, SequenceEvolution*> bppTools::getProcesses(const map<string, string>
 }
 
 
-PhyloLikelihoodContainer* bppTools::getPhyloLikelihoods(const map<string, string>& params,
+std::shared_ptr<PhyloLikelihoodContainer> bppTools::getPhyloLikelihoods(const map<string, string>& params,
                                                         Context& context,
                                                         map<size_t, SequenceEvolution*> mSeqEvol, 
                                                         SubstitutionProcessCollection& collection,
@@ -185,7 +185,7 @@ PhyloLikelihood* bppTools::getResultPhyloLikelihood(const std::map<std::string, 
 
   auto mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, params, unparsedparams);
 
-  PhyloLikelihoodContainer* mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, *SPC, mSeqEvol, mSites, params);
+  auto mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, *SPC, mSeqEvol, mSites, params);
 
   if (!mPhyl->hasPhyloLikelihood(0))
     throw Exception("Missing phyloLikelihoods.");

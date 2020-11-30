@@ -72,7 +72,7 @@ using namespace bpp;
 
 map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& spc,
                                           const map<size_t, SequenceEvolution*>& mSeqEvol,
-                                          PhyloLikelihoodContainer* phyloCont,
+                                          std::shared_ptr<PhyloLikelihoodContainer> phyloCont,
                                           map<string, string>& params,
                                           map<size_t, string>& mfnames,
                                           map<size_t, string>& mformats,
@@ -377,8 +377,7 @@ int main(int args, char ** argv)
     map<size_t, bool> internal;
     map<size_t, size_t> lengths;
 
-    map<size_t, SequenceSimulator*> mSim=readSimul(*SPC, mSeqEvol, phyloCont, bppseqgen.getParams(),filenames, formats, internal, lengths);
-
+    auto mSim=readSimul(*SPC, mSeqEvol, phyloCont, bppseqgen.getParams(),filenames, formats, internal, lengths);
 
     for (auto& it : mSim)
     {

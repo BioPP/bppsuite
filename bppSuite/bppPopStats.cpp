@@ -284,8 +284,8 @@ int main(int args, char** argv)
       }
       if (estimateAncestor) {
         MarginalAncestralStateReconstruction asr(treeLik);
-        int outgroupId = tree->getLeafId(pscOut->getSequence(0).getName());
-        ancestralSequence.reset(asr.getAncestralSequenceForNode(tree->getFatherId(outgroupId)));
+        uint outgroupId = uint(tree->getLeafId(pscOut->getSequence(0).getName()));
+        ancestralSequence.reset(asr.getAncestralSequenceForNode(uint(tree->getFatherId(int(outgroupId)))));
       }
       if (codonAlphabet) {
         omega = model->getParameter("omega").getValue();
