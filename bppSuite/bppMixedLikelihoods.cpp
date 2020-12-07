@@ -79,23 +79,13 @@ using namespace std;
 #include <Bpp/Phyl/Model/MixtureOfATransitionModel.h>
 #include <Bpp/Phyl/Model/MixtureOfTransitionModels.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.h>
 #include <Bpp/Phyl/Io/Newick.h>
+
+#include "bppTools.h"
 
 using namespace bpp;
 
 /******************************************************************************/
-
-void help()
-{
-  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
-  (*ApplicationTools::message << "bppmixedlikelihoods parameter1_name=parameter1_value ").endLine();
-  (*ApplicationTools::message << "      parameter2_name=parameter2_value ... param=option_file").endLine();
-  (*ApplicationTools::message).endLine();
-  (*ApplicationTools::message << "  Refer to the Bio++ Program Suite Manual for a list of available options.").endLine();
-  (*ApplicationTools::message << "__________________________________________________________________________").endLine();
-}
 
 int main(int args, char** argv)
 {
@@ -108,7 +98,7 @@ int main(int args, char** argv)
 
   if (args == 1)
   {
-    help();
+    bppTools::help("bppmixedlikelihoods");
     return 0;
   }
 
@@ -117,201 +107,52 @@ int main(int args, char** argv)
     BppApplication bppmixedlikelihoods(args, argv, "BppMixedLikelihoods");
     bppmixedlikelihoods.startTimer();
 
-    Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppmixedlikelihoods.getParams(), "", false);
-    unique_ptr<GeneticCode> gCode;
-    CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
-    if (codonAlphabet) {
-      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppmixedlikelihoods.getParams(), "Standard", "", true, true);
-      ApplicationTools::displayResult("Genetic Code", codeDesc);
-      
-      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
-    }
+    Context context;
+    
+    ///// Alphabet
+
+    unique_ptr<Alphabet> alphabet(bppTools::getAlphabet(bppmixedlikelihoods.getParams()));
+
+    /// GeneticCode
+    
+    unique_ptr<GeneticCode> gCode(bppTools::getGeneticCode(bppmixedlikelihoods.getParams(), alphabet.get()));
 
     // get the data
 
-    AlignedValuesContainer* allSites = SequenceApplicationTools::getAlignedContainer(alphabet, bppmixedlikelihoods.getParams());
+    map<size_t, AlignedValuesContainer*> mSites = bppTools::getAlignmentsMap(bppmixedlikelihoods.getParams(), alphabet.get());
 
-    AlignedValuesContainer* sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppmixedlikelihoods.getParams(), "", true, false);
-    delete allSites;
+    if (mSites.size()!=1)
+      throw Exception("Only one alignment possible.");
 
-    ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
-    ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
-
-    // Get the tree
-    Tree* tree = PhylogeneticsApplicationTools::getTree(bppmixedlikelihoods.getParams());
-    ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
-
-
-    AbstractDiscreteRatesAcrossSitesTreeLikelihood* tl;
-    string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", bppmixedlikelihoods.getParams(), "no", "", true, false);
-    ApplicationTools::displayResult("Heterogeneous model", nhOpt);
-
-    MixedTransitionModel* model       = 0;
-    MixedSubstitutionModelSet* modelSet = 0;
-    DiscreteDistribution* rDist         = 0;
+    auto sites = mSites.begin()->second;
+        
+    /////// Get the map of initial trees
 
     map<string, string> unparsedparams;
 
-    if (nhOpt == "no")
-    {
-      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
-      if (model == 0)
-      {
-        cout << "Model is not a Mixed model" << endl;
-        exit(0);
-      }
+    auto mpTree = bppTools::getPhyloTreesMap(bppmixedlikelihoods.getParams(), mSites, unparsedparams);
 
-      SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-      if (model->getNumberOfStates() > model->getAlphabet()->getSize())
-      {
-        // Markov-modulated Markov model!
-        rDist = new ConstantRateDistribution();
-      }
-      else
-      {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppmixedlikelihoods.getParams());
-      }
-      tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true);
-    }
-    else if (nhOpt == "one_per_branch")
-    {
-      model = dynamic_cast<MixedTransitionModel*>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), unparsedparams));
-      if (model == 0)
-      {
-        cout << "Model is not a Mixed model" << endl;
-        exit(0);
-      }
+    /////////////////
+    // Computing stuff
 
-      SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-      if (model->getNumberOfStates() > model->getAlphabet()->getSize())
-      {
-        // Markov-modulated Markov model!
-        rDist = new ConstantRateDistribution();
-      }
-      else
-      {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppmixedlikelihoods.getParams());
-      }
-      vector<double> rateFreqs;
-      if (model->getNumberOfStates() != alphabet->getSize())
-      {
-        // Markov-Modulated Markov Model...
-        unsigned int n = (unsigned int)(model->getNumberOfStates() / alphabet->getSize());
-        rateFreqs = vector<double>(n, 1. / (double)n); // Equal rates assumed for now, may be changed later (actually, in the most general case,
-        // we should assume a rate distribution for the root also!!!
-      }
+    
+    unique_ptr<SubstitutionProcessCollection> SPC(bppTools::getCollection(bppmixedlikelihoods.getParams(), alphabet.get(), gCode.get(), mSites, mpTree, unparsedparams));
+    
+    map<size_t, SequenceEvolution*> mSeqEvol = bppTools::getProcesses(bppmixedlikelihoods.getParams(), *SPC, unparsedparams);
+
+    auto mPhyl(bppTools::getPhyloLikelihoods(bppmixedlikelihoods.getParams(), context, mSeqEvol, *SPC, mSites));
+
+    if (!mPhyl->hasPhyloLikelihood(0))
+      throw Exception("Missing phyloLikelihoods.");
+
+    AlignedPhyloLikelihood* tl=dynamic_cast<AlignedPhyloLikelihood*>((*mPhyl)[0]);
+
+    if (tl==0)
+      throw Exception("Only possible on aligned phyloLikelihood.");
+        
+    //Check initial likelihood:
       
-      std::map<std::string, std::string> aliasFreqNames;
-
-      auto rootFreqs = PhylogeneticsApplicationTools::getRootFrequencySet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams(), aliasFreqNames, rateFreqs);
-
-      string descGlobal = ApplicationTools::getStringParameter("nonhomogeneous_one_per_branch.shared_parameters", bppmixedlikelihoods.getParams(), "", "", true, 1);
-
-      NestedStringTokenizer nst(descGlobal,"[","]",",");
-      const deque<string>& descGlobalParameters=nst.getTokens();
-
-      map<string, vector<Vint> > globalParameters;
-      for (const auto& desc:descGlobalParameters)
-      {
-        size_t post=desc.rfind("_");
-        if (post==std::string::npos || post==desc.size()-1 || desc[post+1]!='[')
-          globalParameters[desc]={};
-        else
-        {
-          string key=desc.substr(0,post);
-          Vint sint=NumCalcApplicationTools::seqFromString(desc.substr(post+2, desc.size()-post-3));
-          if (globalParameters.find(key)==globalParameters.end())
-            globalParameters[key]=vector<Vint>(1, sint);
-          else
-            globalParameters[key].push_back(sint);
-        }
-      }
-
-      for (const auto& globpar:globalParameters)
-      {
-        ApplicationTools::displayResult("Global parameter", globpar.first);
-        if (globpar.second.size()==0)
-        {
-          string all="All nodes";
-          ApplicationTools::displayResult(" shared between nodes", all);
-        }
-        else
-          for (const auto& vint:globpar.second)
-            ApplicationTools::displayResult(" shared between nodes", VectorTools::paste(vint,","));
-      }
-      
-      modelSet = dynamic_cast<MixedSubstitutionModelSet*>(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, aliasFreqNames, globalParameters));
-      model = 0;
-      tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-    }
-    else if (nhOpt == "general")
-    {
-      modelSet = dynamic_cast<MixedSubstitutionModelSet*>(PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), sites, bppmixedlikelihoods.getParams()));
-      if (modelSet == 0)
-      {
-        cout << "Missing a Mixed model" << endl;
-        exit(0);
-      }
-
-      SiteContainerTools::changeGapsToUnknownCharacters(*sites);
-      if (modelSet->getNumberOfStates() > modelSet->getAlphabet()->getSize())
-      {
-        // Markov-modulated Markov model!
-        rDist = new ConstantDistribution(1.);
-      }
-      else
-      {
-        rDist = PhylogeneticsApplicationTools::getRateDistribution(bppmixedlikelihoods.getParams());
-      }
-      tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, true);
-    }
-    else
-      throw Exception("Unknown option for nonhomogeneous: " + nhOpt);
-
-    tl->initialize();
-
-    double logL = tl->getValue();
-    if (std::isinf(logL))
-    {
-      // This may be due to null branch lengths, leading to null likelihood!
-      ApplicationTools::displayWarning("!!! Warning!!! Likelihood is zero.");
-      ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
-      ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
-      ParameterList pl = tl->getBranchLengthsParameters();
-      for (unsigned int i = 0; i < pl.size(); i++)
-      {
-        if (pl[i].getValue() < 0.000001)
-          pl[i].setValue(0.000001);
-      }
-      tl->matchParametersValues(pl);
-      logL = tl->getValue();
-    }
-    if (std::isinf(logL))
-    {
-      ApplicationTools::displayError("!!! Unexpected likelihood == 0.");
-      ApplicationTools::displayError("!!! Looking at each site:");
-      for (unsigned int i = 0; i < sites->getNumberOfSites(); i++)
-      {
-        (*ApplicationTools::error << "Site " << sites->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
-      }
-      ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
-      exit(-1);
-    }
-
-
-    // Write parameters to screen:
-    ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
-    ParameterList parameters = tl->getSubstitutionModelParameters();
-    for (size_t i = 0; i < parameters.size(); i++)
-    {
-      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-    }
-    parameters = tl->getRateDistributionParameters();
-    for (size_t i = 0; i < parameters.size(); i++)
-    {
-      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-    }
-
+    bppTools::fixLikelihood(bppmixedlikelihoods.getParams(), alphabet.get(), gCode.get(), tl);
 
     // /////////////////////////////////////////////
     // Getting likelihoods per submodel
@@ -323,55 +164,169 @@ int main(int args, char** argv)
 
     size_t nSites = sites->getNumberOfSites();
 
-    size_t nummodel = ApplicationTools::getParameter<size_t>("likelihoods.model_number", bppmixedlikelihoods.getParams(), 1, "", true, true);
-
-    string parname = ApplicationTools::getStringParameter("likelihoods.parameter_name", bppmixedlikelihoods.getParams(), "", "", true, false);
-
-    if (modelSet && ((nummodel <= 0) || (nummodel > modelSet->getNumberOfModels())))
+    // Look for submodel
+    
+    size_t modNum(0);
+    string realparname(""), parname("");
+    
+    vector<size_t> vNumMix; // numbers of mixed models in SPC
+    auto nMod = SPC->getModelNumbers();
+    for (auto n:nMod)
     {
-      ApplicationTools::displayError("Bad number of model " + TextTools::toString(nummodel) + ".");
-      exit(-1);
-    }
-
-    MixedTransitionModel* p0 = dynamic_cast<MixedTransitionModel*>(model ? model : modelSet->getModel(nummodel - 1));
-
-    if (!p0)
-    {
-      ApplicationTools::displayError("Model " + TextTools::toString(nummodel) + " is not a Mixed Model.");
-      exit(-1);
-    }
-
-    const AbstractBiblioMixedTransitionModel* ptmp = dynamic_cast<const AbstractBiblioMixedTransitionModel*>(p0);
-    if (ptmp) {
-      p0 = ptmp->getMixedModel().clone();
-
-      if (nhOpt == "no")
-        model = p0;
-      else {
-        modelSet->replaceModel(nummodel-1, p0);
-        modelSet->isFullySetUpFor(*tree);
-      }
+      if (dynamic_cast<const MixedTransitionModel*>(SPC->getModel(n).get())!=NULL)
+        vNumMix.push_back(n);
     }
     
-    //////////////////////////////////////////////////
-    // Case of a MixtureOfSubstitutionModels
+    // Set model number
+    if (vNumMix.size()==0)
+      throw Exception("No mixture models found.");
 
-    MixtureOfTransitionModels* pMSM = dynamic_cast<MixtureOfTransitionModels*>(p0);
+    if (vNumMix.size()==1)
+      modNum=vNumMix[0];
+    else
+    {
+      modNum = ApplicationTools::getParameter<size_t>("likelihoods.model_number", bppmixedlikelihoods.getParams(), 0, "", true, true);
+
+      if (!modNum)
+      {
+        realparname = ApplicationTools::getStringParameter("likelihoods.parameter_name", bppmixedlikelihoods.getParams(), "", "", true, false);
+
+        if (realparname=="")
+          throw Exception("Missing parameter name.");
+        parname = realparname;
+        
+        size_t posund = realparname.find_last_of("_");
+        if (posund!=string::npos)
+        {
+          try {
+            modNum = (size_t)TextTools::toInt(realparname.substr(posund+1));
+            parname = realparname.substr(0,posund);
+          }
+          catch (exception& e)
+          { }
+        }
+
+        if (modNum==0)
+          // next possibility is to get the only model where this parameter exists iff MixtureOfATransitionModel
+        {
+          for (auto n:vNumMix)
+          {
+            auto mod = SPC->getModel(n);
+            if (mod->hasParameter(mod->getParameterNameWithoutNamespace(parname)))
+            {
+              // Check it is a MixtureOfATransitionModel 
+              bool modok=(dynamic_cast<const MixtureOfATransitionModel*>(mod.get())!=NULL);
+              if (!modok)
+              {
+                auto ptmp = dynamic_cast<const AbstractBiblioMixedTransitionModel*>(mod.get());
+                if (ptmp) 
+                  modok= dynamic_cast<const MixtureOfATransitionModel*>(&ptmp->getMixedModel());
+              }
+              
+              if (!modok)
+                continue;
+              
+              if (modNum!=0)
+                throw Exception("Ambiguous model numbers for parameter " + parname + ":" + TextTools::toString(modNum) + " & " + TextTools::toString(n));
+              else
+                modNum=n;
+            }
+          }
+          if (modNum==0)
+            throw Exception("Unknown parameter " + realparname);
+          realparname = parname + "_" + TextTools::toString(modNum);
+        }
+      }
+    }
+
+    // Get the model used to compute the likelihood
+    auto model = mPhyl->getCollectionNodes()->getModel(modNum);
+    if (!model)
+    {
+      ApplicationTools::displayError("Unknown number of model " + TextTools::toString(modNum) + ".");
+      exit(-1);
+    }
+
+    auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (model->getTargetValue());
+
+    if (!mixmodel)
+    {
+      ApplicationTools::displayError("Model " + TextTools::toString(modNum) + " is not a Mixed Model.");
+      exit(-1);
+    }
+
+
+    // look for parameter name in MixtureOfATransitionModel
+    
+    const AbstractBiblioMixedTransitionModel* pAbmtm(0);
+    
+     auto pMatm = (pAbmtm = dynamic_cast<const AbstractBiblioMixedTransitionModel*>(mixmodel))?
+      dynamic_cast<const MixtureOfATransitionModel*>(mixmodel):
+      dynamic_cast<const MixtureOfATransitionModel*>(&pAbmtm->getMixedModel());
+    
+    if (pMatm)
+    {
+      if (realparname=="")
+      {
+        realparname = ApplicationTools::getStringParameter("likelihoods.parameter_name", bppmixedlikelihoods.getParams(), "", "", true, false);
+        parname = realparname;
+      }
+      
+      size_t posund = realparname.find_last_of("_");
+      if (posund!=string::npos)
+      {
+        size_t modNum2(modNum);
+        try {
+          modNum2 = (size_t)TextTools::toInt(realparname.substr(posund+1));
+          parname = realparname.substr(0,posund);
+        }
+        catch (exception& e)
+        { }
+        if (modNum!=modNum2)
+          throw BadIntegerException("Mismatch between model & parameter numbers: " + TextTools::toString(modNum), (int)modNum2);
+        realparname= parname + "_" + TextTools::toString(modNum);
+      }
+    }
+
+    // get rid of biblio link
+    if (pAbmtm) {
+      if (parname!="")
+      {
+        parname = pAbmtm->getPmodelParName(model->getParameterNameWithoutNamespace(parname));
+        // Remove distribution suffix
+        auto pos = parname.rfind("_");
+        if (pos!=string::npos)
+          parname=parname.substr(0,pos);
+      }
+      mixmodel = &pAbmtm->getMixedModel();
+    }
+
+    
+    //////////////////////////////////////////////////
+    // Case of a MixtureOfTransitionModels
+
+    auto pMSM = dynamic_cast<const MixtureOfTransitionModels*>(mixmodel);
 
     if (pMSM)
     {
       vector<string> colNames;
       colNames.push_back("Sites");
+      colNames.push_back("Ll");
 
       size_t nummod = pMSM->getNumberOfModels();
       for (unsigned int i = 0; i < nummod; i++)
       {
-        colNames.push_back(pMSM->getNModel(i)->getName());
+        colNames.push_back("Ll_" + pMSM->getNModel(i)->getName());
+      }
+      for (unsigned int i = 0; i < nummod; i++)
+      {
+        colNames.push_back("Pr_" + pMSM->getNModel(i)->getName());
       }
 
       DataTable* rates = new DataTable(nSites, colNames.size());
       rates->setColumnNames(colNames);
 
+      // output sites
       for (unsigned int i = 0; i < nSites; i++)
       {
         const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
@@ -379,36 +334,64 @@ int main(int args, char** argv)
         (*rates)(i, "Sites") = string("[" + TextTools::toString(currentSitePosition) + "]");
       }
 
+      // Likelihoods
+      Vdouble vl = tl->getLikelihoodPerSite();
+      for (unsigned int j = 0; j < nSites; j++)
+        (*rates)(j, "Ll") = TextTools::toString(std::log(vl[j]));
+
+      
+      VVdouble vvd;
       Vdouble vprob = pMSM->getProbabilities();
+
       for (unsigned int i = 0; i < nummod; i++)
       {
         string modname = pMSM->getNModel(i)->getName();
 
-        for (unsigned int j = 0; j < nummod; j++)
-        {
-          pMSM->setNProbability(j, (j == i) ? 1 : 0);
-        }
+        auto func= [nummod, i](BranchModel* model){
+          auto pAbmtm = dynamic_cast<AbstractBiblioMixedTransitionModel*>(model);
+          if (pAbmtm) 
+          {
+            for (unsigned int j = 0; j < nummod; ++j)
+              pAbmtm->setNProbability(j, (j == i) ? 1 : 0);
+          }
+          else
+          {
+            auto pMSM = dynamic_cast<MixtureOfTransitionModels*>(model);
+            if (!pMSM)
+              throw Exception("Not mixed model " + model->getName());
+            
+            for (unsigned int j = 0; j < nummod; j++)
+              pMSM->setNProbability(j, (j == i) ? 1 : 0);
+          }
+        };
 
-        if (tl)
-          delete tl;
+        model->modify(func,false);
+        
+        tl->getValue();
+        Vdouble vd = tl->getLikelihoodPerSite();
 
-        if (nhOpt == "no")
-          tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, false, true);
-        else
-          tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, false, true);
-
-        tl->initialize();
-        logL = tl->getValue();
-        Vdouble Vd = tl->getLogLikelihoodPerSite();
         for (unsigned int j = 0; j < nSites; j++)
         {
-          (*rates)(j, modname) = TextTools::toString(Vd[j]);
+          (*rates)(j, "Ll_" + modname) = TextTools::toString(log(vd[j]));
         }
+
+        vvd.push_back(vd);
 
         ApplicationTools::displayMessage("\n");
         ApplicationTools::displayMessage("Model " + modname + ":");
         ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
         ApplicationTools::displayResult("Probability", TextTools::toString(vprob[i], 15));
+      }
+
+      for (size_t j = 0; j < nSites; j++)
+      {
+        Vdouble vd;
+        for (size_t i = 0; i < nummod; i++)
+          vd.push_back(std::log(vprob[i] * vvd[i][j]));
+          
+        VectorTools::logNorm(vd);
+        for (size_t i = 0; i < nummod; i++)
+          (*rates)(j, "Pr_" + pMSM->getNModel(i)->getName()) = TextTools::toString(std::exp(vd[i]));
       }
 
       DataTable::write(*rates, out, "\t");
@@ -419,31 +402,32 @@ int main(int args, char** argv)
 
     else
     {
-      MixtureOfATransitionModel* pMSM2 = dynamic_cast<MixtureOfATransitionModel*>(p0);
-      if (pMSM2 != NULL)
-      {
-        size_t nummod = pMSM2->getNumberOfModels();
-        if (parname == "")
-        {
-          ParameterList pl=pMSM2->getParameters();
+      pMatm = dynamic_cast<const MixtureOfATransitionModel*>(mixmodel);
 
+      if (pMatm != NULL)
+      {
+        size_t nummod = pMatm->getNumberOfModels();
+        if (realparname == "")
+        {
+          ParameterList pl=pMatm->getParameters();
           for (size_t i2 = 0; i2 < pl.size(); i2++)
           {
             string pl2n = pl[i2].getName();
 
-            if (dynamic_cast<const ConstantDistribution*>(pMSM2->getDistribution(pl2n))==NULL)
+            if (dynamic_cast<const ConstantDistribution*>(pMatm->getDistribution(pl2n))==NULL)
             {
               parname=pl2n;
 
-              while (parname.size()>0 && pMSM2->getDistribution(parname)==NULL)
-                parname=pl2n.substr(0,pl2n.rfind("_"));
+              if (parname.size()>0 && pMatm->getDistribution(parname)==NULL)
+                parname=parname.substr(0,parname.rfind("_"));
 
               if (parname.size()>0){
-                ApplicationTools::displayResult("likelihoods.parameter_name", parname);
                 break;
               }
             }
           }
+          if (parname!="")
+            realparname = parname + "_" + TextTools::toString(modNum);
         }
 
         if (parname == "")
@@ -451,13 +435,15 @@ int main(int args, char** argv)
           ApplicationTools::displayError("Argument likelihoods.parameter_name is required.");
           exit(-1);
         }
+        else
+          ApplicationTools::displayResult("likelihoods.parameter_name", realparname);
 
         vector< Vuint > vvnmod;
         size_t i2 = 0;
         while (i2 < nummod)
         {
           string par2 = parname + "_" + TextTools::toString(i2 + 1);
-          Vuint vnmod = pMSM2->getSubmodelNumbers(par2);
+          Vuint vnmod = pMatm->getSubmodelNumbers(par2);
           if (vnmod.size() == 0)
             break;
           vvnmod.push_back(vnmod);
@@ -465,12 +451,15 @@ int main(int args, char** argv)
         }
 
         size_t nbcl = vvnmod.size();
-        if (nbcl==0)
-          throw Exception("Parameter " + parname + " is not mixed.");
+        if (nbcl<=1)
+          throw Exception("Parameter " + realparname + " is not mixed.");
         
-        Vdouble vprob = pMSM2->getProbabilities();
+        Vdouble vprob = pMatm->getProbabilities();
 
+        // vectors of sets of probabilities for each value of parname
         vector<vector<double> > vvprob;
+
+        // vector of total probabilities for each value of parname
         vector<double> vsprob;
         
         for (size_t i = 0; i < nbcl; i++)
@@ -487,23 +476,25 @@ int main(int args, char** argv)
 
         vector<string> colNames;
         colNames.push_back("Sites");
-
+        colNames.push_back("Ll");
+        
         Vdouble dval;
         for (size_t i = 0; i < nbcl; i++)
         {
-          const TransitionModel* pSM = pMSM2->getNModel(static_cast<size_t>(vvnmod[i][0]));
+          const TransitionModel* pSM = pMatm->getNModel(static_cast<size_t>(vvnmod[i][0]));
           double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
           dval.push_back(valPar);
-          colNames.push_back("Ll_" + parname + "=" + TextTools::toString(valPar));
+          colNames.push_back("Ll_" + realparname + "=" + TextTools::toString(valPar));
         }
         for (size_t i = 0; i < nbcl; i++)
-          colNames.push_back("Pr_" + parname + "=" + TextTools::toString(dval[i]));
+          colNames.push_back("Pr_" + realparname + "=" + TextTools::toString(dval[i]));
 
         colNames.push_back("mean");
 
         DataTable* rates = new DataTable(nSites, colNames.size());
         rates->setColumnNames(colNames);
 
+        // output sites
         for (size_t i = 0; i < nSites; i++)
         {
           const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
@@ -511,35 +502,48 @@ int main(int args, char** argv)
           (*rates)(i,"Sites")=TextTools::toString(currentSitePosition);
         }
 
-        VVdouble vvd;
+        // Likelihoods
+        Vdouble vl = tl->getLikelihoodPerSite();
+        for (unsigned int j = 0; j < nSites; j++)
+          (*rates)(j, "Ll") = TextTools::toString(std::log(vl[j]));
 
-          
-        vector<double> vRates = pMSM2->getVRates();
+
+        VVdouble vvd;
+        vector<double> vRates = pMatm->getVRates();
 
         for (size_t i = 0; i < nbcl; ++i)
         {
-          string par2 = parname + "_" + TextTools::toString(i + 1);
+          string par2 = realparname + "_" + TextTools::toString(i + 1);
           
-          for (unsigned int j = 0; j < nummod; ++j)
-            pMSM2->setNProbability(j, 0);
+          auto func= [nummod, i, &vvprob, &vvnmod, &vsprob](BranchModel* model){
+            auto pAbmtm = dynamic_cast<AbstractBiblioMixedTransitionModel*>(model);
+            if (pAbmtm) 
+            {
+              for (unsigned int j = 0; j < nummod; ++j)
+                pAbmtm->setNProbability(j, 0);
 
-          for (size_t j = 0; j < vvprob[i].size(); ++j)
-            pMSM2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
+              for (size_t j = 0; j < vvprob[i].size(); ++j)
+                pAbmtm->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
+            }
+            else{
+              auto pMatm = dynamic_cast<MixtureOfATransitionModel*>(model);
+              if (!pMatm)
+                throw Exception("Not mixed model " + model->getName());
+              for (unsigned int j = 0; j < nummod; ++j)
+                pMatm->setNProbability(j, 0);
 
-          if (tl)
-            delete tl;
+              for (size_t j = 0; j < vvprob[i].size(); ++j)
+                pMatm->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
+            }
+          };
 
-          if (nhOpt == "no")
-            tl = new RHomogeneousMixedTreeLikelihood(*tree, *sites, model, rDist, true, false, true);
-          else
-            tl = new RNonHomogeneousMixedTreeLikelihood(*tree, *sites, modelSet, rDist, false, true);
+          model->modify(func,false);
 
-          tl->initialize();
-          logL = tl->getValue();
-          Vdouble vd = tl->getLogLikelihoodPerSite();
+          tl->getValue();
+          Vdouble vd = tl->getLikelihoodPerSite();
 
           for (unsigned int j = 0; j < nSites; j++)
-            (*rates)(j, i + 1) = TextTools::toString(vd[j]);
+            (*rates)(j, i + 2) = TextTools::toString(std::log(vd[j]));
 
           vvd.push_back(vd);
 
@@ -554,27 +558,18 @@ int main(int args, char** argv)
         {
           Vdouble vd;
           for (size_t i = 0; i < nbcl; i++)
-            vd.push_back(std::log(vsprob[i])+vvd[i][j]);
+            vd.push_back(std::log(vsprob[i] * vvd[i][j]));
           
           VectorTools::logNorm(vd);
           for (size_t i = 0; i < nbcl; i++)
-            (*rates)(j,nbcl + i + 1) = TextTools::toString(std::exp(vd[i]));
-          (*rates)(j, 2 * nbcl + 1) = TextTools::toString(VectorTools::sumExp(vd, dval));
+            (*rates)(j,nbcl + i + 2) = TextTools::toString(std::exp(vd[i]));
+          (*rates)(j, 2 * nbcl + 2) = TextTools::toString(VectorTools::sumExp(vd, dval));
         }
 
         DataTable::write(*rates, out, "\t");
       }
     }
 
-    delete alphabet;
-    delete sites;
-    if (model)
-      delete model;
-    if (modelSet)
-      delete modelSet;
-    delete rDist;
-    delete tl;
-    delete tree;
     ApplicationTools::displayMessage("\n");
     bppmixedlikelihoods.done();
   }
