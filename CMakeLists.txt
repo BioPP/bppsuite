@@ -78,7 +78,7 @@ include (GNUInstallDirs)
 find_package (bpp-phyl 12.0.0 REQUIRED)
 find_package (bpp-popgen 8.0.0 REQUIRED)
 
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+find_package (Eigen3 3.3 REQUIRED PATHS /usr/lib)
 
 # Subdirectories
 add_subdirectory (bppSuite)
