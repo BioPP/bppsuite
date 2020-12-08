@@ -347,21 +347,21 @@ int main(int args, char** argv)
       {
         string modname = pMSM->getNModel(i)->getName();
 
-        auto func= [nummod, i](BranchModel* model){
-          auto pAbmtm = dynamic_cast<AbstractBiblioMixedTransitionModel*>(model);
-          if (pAbmtm) 
+        auto func= [nummod, i](BranchModel* bmodel){
+          auto pAbmtm2 = dynamic_cast<AbstractBiblioMixedTransitionModel*>(bmodel);
+          if (pAbmtm2) 
           {
             for (unsigned int j = 0; j < nummod; ++j)
-              pAbmtm->setNProbability(j, (j == i) ? 1 : 0);
+              pAbmtm2->setNProbability(j, (j == i) ? 1 : 0);
           }
           else
           {
-            auto pMSM = dynamic_cast<MixtureOfTransitionModels*>(model);
-            if (!pMSM)
-              throw Exception("Not mixed model " + model->getName());
+            auto pMSM2 = dynamic_cast<MixtureOfTransitionModels*>(bmodel);
+            if (!pMSM2)
+              throw Exception("Not mixed model " + bmodel->getName());
             
             for (unsigned int j = 0; j < nummod; j++)
-              pMSM->setNProbability(j, (j == i) ? 1 : 0);
+              pMSM2->setNProbability(j, (j == i) ? 1 : 0);
           }
         };
 
@@ -515,25 +515,25 @@ int main(int args, char** argv)
         {
           string par2 = realparname + "_" + TextTools::toString(i + 1);
           
-          auto func= [nummod, i, &vvprob, &vvnmod, &vsprob](BranchModel* model){
-            auto pAbmtm = dynamic_cast<AbstractBiblioMixedTransitionModel*>(model);
-            if (pAbmtm) 
+          auto func= [nummod, i, &vvprob, &vvnmod, &vsprob](BranchModel* cmodel){
+            auto pAbmtm2 = dynamic_cast<AbstractBiblioMixedTransitionModel*>(cmodel);
+            if (pAbmtm2) 
             {
               for (unsigned int j = 0; j < nummod; ++j)
-                pAbmtm->setNProbability(j, 0);
+                pAbmtm2->setNProbability(j, 0);
 
               for (size_t j = 0; j < vvprob[i].size(); ++j)
-                pAbmtm->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
+                pAbmtm2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
             }
             else{
-              auto pMatm = dynamic_cast<MixtureOfATransitionModel*>(model);
-              if (!pMatm)
-                throw Exception("Not mixed model " + model->getName());
+              auto pMatm2 = dynamic_cast<MixtureOfATransitionModel*>(cmodel);
+              if (!pMatm2)
+                throw Exception("Not mixed model " + cmodel->getName());
               for (unsigned int j = 0; j < nummod; ++j)
-                pMatm->setNProbability(j, 0);
+                pMatm2->setNProbability(j, 0);
 
               for (size_t j = 0; j < vvprob[i].size(); ++j)
-                pMatm->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
+                pMatm2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
             }
           };
 
