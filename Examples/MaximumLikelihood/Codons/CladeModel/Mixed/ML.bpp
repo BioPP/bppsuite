@@ -1,0 +1,106 @@
+#Example data set adapted from PAML
+#
+
+# Global variables:
+DATA = lysozymeLarge
+
+# Sequences:
+
+# The alphabet to use:
+# DNA, RNA or Protein...
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+
+# The sequence file to use (sequences must be aligned!)
+input.data1=alignment(file=../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes)
+
+# ----------------------------------------------------------------------------------------
+#                                     Input tree file
+# ----------------------------------------------------------------------------------------
+
+input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+# See the manual for a description of the syntax and available options.
+#
+
+model1 = YNGP_M1(kappa=1, omega=0.1, frequencies=F1X4)
+
+model2 = YNGP_M1(kappa=YNGP_M1.kappa_1, omega=0.1, frequencies=F1X4)
+
+
+path1=model1[1]&model2[1]
+
+path2=model1[2]&model2[2]
+
+scenario1=path1&path2
+
+process1 = Nonhomogeneous(model1=1, model1.nodes_id = 0:20, model2=2, model2.nodes_id=21:32, tree=1, rate=1, scenario=1)
+
+rate_distribution1 = Constant() //Gamma(n=4, alpha=0.358)
+
+
+phylo1 = Single(process=1, data=1)
+
+# ----------------------------------------------------------------------------------------
+#                                     Optimization
+# ----------------------------------------------------------------------------------------
+
+# Should we reestimate likelihood parameters? Tree topology will not be optimized.
+# (recommanded)
+optimization = FullD(derivatives=Newton)
+
+# Tell if the parameter should be transformed in order to remove constraints.
+# This can improves the optimization, but might be a bit slower.
+optimization.reparametrization = no
+
+# Final optimization step, may be useful if numerical derivatives are used:
+# powell or simplex or none.
+optimization.final = none
+
+# Set the quantity of output to the screen:
+optimization.verbose = 3
+
+# Parameters to ignore (for instance equilibrium frequencies)
+optimization.ignore_parameters = 
+
+# Maximum number of likelihood evaluations:
+optimization.max_number_f_eval = 10000
+
+# Precision to reach:
+optimization.tolerance = 0.000001
+
+# idem for error or warning messages:
+optimization.message_handler = $(DATA).messages
+
+# A file where to dump optimization steps (a file path or std for standard output)
+optimization.profiler = $(DATA).profile
+
+# Shall we optimize tree topology as well?
+optimization.topology = no
+
+
+
+# Should we write the resulting tree? none or file name.
+output.tree.file = $(DATA).ML.dnd
+output.tree.format = Newick
+
+# Alignment information log file (site specific rates, etc):
+output.infos = $(DATA).infos
+
+# Write numerical parameter estimated values:
+output.estimates = $(DATA).params.txt
+
+# ----------------------------------------------------------------------------------------
+#                                     Bootstrap
+# ----------------------------------------------------------------------------------------
+
+bootstrap.number = 0
+# Tell if numerical parameters should be kept to their initial value when bootstrapping: 
+bootstrap.approximate = no
+# Set this to yes for detailed output when bootstrapping. 
+bootstrap.verbose = no
+bootstrap.output.file = $(DATA).ML_bstrees.dnd
+
