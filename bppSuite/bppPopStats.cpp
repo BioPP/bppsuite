@@ -251,6 +251,8 @@ int main(int args, char** argv)
       } else {
         model.reset(new K80(&AlphabetTools::DNA_ALPHABET));
       } //Note: proteins not supported!
+      model->setParameterValue("kappa", kappa);
+
       rDist.reset(new ConstantRateDistribution()); 
       if (treeOpt == "user") {
         tree.reset(PhylogeneticsApplicationTools::getTree(bpppopstats.getParams()));
