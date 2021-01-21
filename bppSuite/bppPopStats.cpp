@@ -248,6 +248,7 @@ int main(int args, char** argv)
       if (codonAlphabet) {
         auto  freqSet = std::make_shared<FixedCodonFrequencySet>(gCode.get());
         model.reset(new YN98(gCode.get(), freqSet));
+	model->setParameterValue("kappa", kappa);
       } else {
         model.reset(new K80(&AlphabetTools::DNA_ALPHABET));
       } //Note: proteins not supported!
