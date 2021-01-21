@@ -372,6 +372,15 @@ The sequence file to use. Depending on the program, these sequences have or do n
 @item input.sequence.format = @{sequence format description@}
 The sequence file format.
 
+@item input.sequence.keep_names = all(default) | @{list of sequence names@}
+Provide an optional list of sequences to keep. Sequences whose name is not in the list will be discarded.
+Names in the list with no match in the sequence file will be ignored.
+
+@item input.sequence.remove_names = none(default) | @{list of sequence names@}
+Procide an optional list of sequences to be discarded.
+Names in the list with no match in the sequence file will raise an error.
+This option can be combined with the previous one.
+
 @item input.site.selection = @{list of integers@}
 Will only consider sites in the given list of positions, in extended
 format : positions separated with ",", and "i-j" for all positions

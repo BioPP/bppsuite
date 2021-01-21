@@ -248,7 +248,6 @@ int main(int args, char** argv)
       if (codonAlphabet) {
         unique_ptr<FrequencySet> freqSet(new FixedCodonFrequencySet(gCode.get()));
         model.reset(new YN98(gCode.get(), freqSet.release()));
-	model->setParameterValue("kappa", kappa);
       } else {
         model.reset(new K80(&AlphabetTools::DNA_ALPHABET));
       } //Note: proteins not supported!
