@@ -331,7 +331,7 @@ int main(int args, char** argv)
       {
         const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
         int currentSitePosition = currentSite.getPosition();
-        (*rates)(i, "Sites") = string("[" + TextTools::toString(currentSitePosition) + "]");
+        (*rates)(i, "Sites") = string(TextTools::toString(currentSitePosition));
       }
 
       // Likelihoods

@@ -202,7 +202,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
 {
   double logL = phylolik->getValue();
 
-  if (std::isinf(logL))
+  if (!std::isnormal(logL))
   {
     // This may be due to null branch lengths, leading to null likelihood!
     ApplicationTools::displayWarning("!!! Warning!!! Initial likelihood is zero.");
@@ -219,7 +219,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
   
   ApplicationTools::displayMessage("");
   ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
-  if (std::isinf(logL))
+  if (!std::isnormal(logL))
   {
     ApplicationTools::displayError("!!! Unexpected initial likelihood == 0.");
 
@@ -247,7 +247,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
     {
       ApplicationTools::displayWarning("Checking for phyloLikelihood " + TextTools::toString(itm.first));
           
-      if (std::isinf(itm.second->getValue()))
+      if (!std::isnormal(itm.second->getValue()))
       {
         AbstractSingleDataPhyloLikelihood* sDP=itm.second;
         /// !!! Not economic
@@ -261,7 +261,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
           bool f = false;
           size_t s;
           for (size_t i = 0; i < vData->getNumberOfSites(); i++) {
-            if (std::isinf(sDP->getLogLikelihoodForASite(i))) {
+            if (!std::isnormal(sDP->getLogLikelihoodForASite(i))) {
               if (vSC)
               {
                 const Site& site = vSC->getSite(i);
@@ -313,7 +313,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
         {
           ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
           for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
-            if (std::isinf(sDP->getLogLikelihoodForASite(i - 1))) {
+            if (!std::isnormal(sDP->getLogLikelihoodForASite(i - 1))) {
               ApplicationTools::displayResult("Ignore saturated site", vData->getSymbolListSite(i - 1).getPosition());
               vData->deleteSites(i - 1, i);
             }
@@ -322,7 +322,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
 
           sDP->setData(*vData);
           logL = sDP->getValue();
-          if (std::isinf(logL)) {
+          if (!std::isnormal(logL)) {
             ApplicationTools::displayError("This should not happen. Exiting now.");
             exit(1);
           }
