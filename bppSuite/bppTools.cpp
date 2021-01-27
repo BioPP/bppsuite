@@ -209,6 +209,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
     ApplicationTools::displayWarning("!!! This may be due to branch length == 0.");
     ApplicationTools::displayWarning("!!! All null branch lengths will be set to 0.000001.");
     ParameterList pl = phylolik->getBranchLengthParameters();
+                                           
     for (unsigned int i = 0; i < pl.size(); i++)
     {
       if (pl[i].getValue() < 0.000001) pl[i].setValue(0.001);
@@ -250,11 +251,11 @@ void bppTools::fixLikelihood(const map<string, string>& params,
       if (!std::isnormal(itm.second->getValue()))
       {
         AbstractSingleDataPhyloLikelihood* sDP=itm.second;
-        /// !!! Not economic
-        AlignedValuesContainer* vData=sDP->getData()->clone();
 
-        SiteContainer* vSC=dynamic_cast<SiteContainer*>(vData);
-        ProbabilisticSiteContainer* pSC=dynamic_cast<ProbabilisticSiteContainer*>(vData);
+        auto vData=sDP->getData()->clone();;
+
+        auto* vSC=dynamic_cast<SiteContainer*>(vData);
+        auto* pSC=dynamic_cast<ProbabilisticSiteContainer*>(vData);
 
         if (AlphabetTools::isCodonAlphabet(alphabet))
         {
@@ -300,16 +301,7 @@ void bppTools::fixLikelihood(const map<string, string>& params,
             
         bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", params, false, "", true, false);
 
-        if (!removeSaturated) {
-          ApplicationTools::displayError("!!! Looking at each site:");
-          for (unsigned int i = 0; i < vData->getNumberOfSites(); i++) {
-            (*ApplicationTools::error << "Site " << vData->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
-          }
-          ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
-          ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
-          exit(1);
-        }
-        else
+        if (removeSaturated) 
         {
           ApplicationTools::displayBooleanResult("Saturated site removal enabled", true);
           for (size_t i = vData->getNumberOfSites(); i > 0; --i) {
@@ -321,17 +313,38 @@ void bppTools::fixLikelihood(const map<string, string>& params,
           ApplicationTools::displayResult("Number of sites retained", vData->getNumberOfSites());
 
           sDP->setData(*vData);
-          logL = sDP->getValue();
-          if (!std::isnormal(logL)) {
-            ApplicationTools::displayError("This should not happen. Exiting now.");
-            exit(1);
-          }
-          ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
         }
+
+        // Then try factors
+        logL = sDP->getValue();
+        uint factor = 1;
+        while (std::isinf(-logL) )
+        {
+          ApplicationTools::displayError("!!! 0 values (-inf in log) may be due to computer overflow.");
+
+          ApplicationTools::displayError("!!! Try factor " + TextTools::toString(factor) + " to fix this.");
+          sDP->setFactor(factor++);
+          logL = sDP->getValue();
+        }
+        
+        if (!std::isnormal(logL))
+        {
+          ApplicationTools::displayError("!!! No possible factor to fix likelihood.");
+          
+          ApplicationTools::displayError("!!! Looking at each site:");
+          for (unsigned int i = 0; i < vData->getNumberOfSites(); i++) {
+            (*ApplicationTools::error << "Site " << vData->getSymbolListSite(i).getPosition() << "\tlog likelihood = " << sDP->getLogLikelihoodForASite(i)).endLine();
+          }
+          ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
+          exit(1);
+        }
+        else
+          ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
       }
     }
   }
 }
+
 
 
 void bppTools::displayParameters(const PhyloLikelihood& tl, bool displaylL)
