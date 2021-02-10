@@ -127,6 +127,9 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
     ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 
+    if (sites->getNumberOfSequences()==0 || sites->getNumberOfSites()==0)
+      throw Exception("Empty data.");
+
     map<string, string> unparsedparams;
 
     auto model = dynamic_cast<TransitionModel*>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppdist.getParams(), unparsedparams));

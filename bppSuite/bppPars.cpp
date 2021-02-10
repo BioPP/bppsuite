@@ -111,6 +111,9 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
     ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 	
+    if (sites->getNumberOfSequences()==0 || sites->getNumberOfSites()==0)
+      throw Exception("Empty data.");
+
     // Get the initial tree
     Tree* tree = 0;
     string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bpppars.getParams(), "user", "", false, false);

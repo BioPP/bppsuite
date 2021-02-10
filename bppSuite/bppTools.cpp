@@ -96,6 +96,10 @@ map<size_t, AlignedValuesContainer*> bppTools::getAlignmentsMap(const map<string
     for (auto itc : mSites)
       SiteContainerTools::changeGapsToUnknownCharacters(*itc.second);
 
+  for (auto& sites:mSites)
+    if (sites.second->getNumberOfSites()==0)
+      throw Exception("Empty alignment number " + TextTools::toString(sites.first));
+    
   return mSites;
 }
   
