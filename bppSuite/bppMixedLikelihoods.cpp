@@ -367,7 +367,6 @@ int main(int args, char** argv)
 
         model->modify(func,false);
         
-        tl->getValue();
         Vdouble vd = tl->getLikelihoodPerSite();
 
         for (unsigned int j = 0; j < nSites; j++)
@@ -523,7 +522,7 @@ int main(int args, char** argv)
                 pAbmtm2->setNProbability(j, 0);
 
               for (size_t j = 0; j < vvprob[i].size(); ++j)
-                pAbmtm2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
+                pAbmtm2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vsprob[i]>NumConstants::TINY()?vvprob[i][j] / vsprob[i]:1./(double)vvprob[i].size());
             }
             else{
               auto pMatm2 = dynamic_cast<MixtureOfATransitionModel*>(cmodel);
@@ -533,7 +532,7 @@ int main(int args, char** argv)
                 pMatm2->setNProbability(j, 0);
 
               for (size_t j = 0; j < vvprob[i].size(); ++j)
-                pMatm2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vvprob[i][j] / vsprob[i]);
+                pMatm2->setNProbability(static_cast<size_t>(vvnmod[i][j]),  vsprob[i]>NumConstants::TINY()?vvprob[i][j] / vsprob[i]:1./(double)vvprob[i].size());
             }
           };
 
