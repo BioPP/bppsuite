@@ -88,7 +88,7 @@ int main(int args, char ** argv)
   try {
 
     Context context;
-    
+
     BppApplication bppancestor(args, argv, "bppancestor");
     bppancestor.startTimer();
 
@@ -102,8 +102,22 @@ int main(int args, char ** argv)
 //  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
     // get the result phylo likelihood
+    map<size_t, AlignedValuesContainer*> mSites = bppTools::getAlignmentsMap(allParams, alphabet.get());
+    auto mpTree = bppTools::getPhyloTreesMap(allParams, mSites, unparsedparams);
 
-    PhyloLikelihood* tl=bppTools::getResultPhyloLikelihood(allParams, context, alphabet.get(), gCode.get(), unparsedparams);
+    auto SPC=bppTools::getCollection(allParams, alphabet.get(), gCode.get(), mSites, mpTree, unparsedparams);
+
+    auto mSeqEvol = bppTools::getProcesses(allParams, *SPC, unparsedparams);
+      
+
+    auto mPhyl=bppTools::getPhyloLikelihoods(allParams, context, mSeqEvol, *SPC, mSites);
+      
+    // retrieve Phylo 0, aka result phylolikelihood
+      
+    if (!mPhyl->hasPhyloLikelihood(0))
+      throw Exception("Missing phyloLikelihoods.");
+
+    PhyloLikelihood* tl=(*mPhyl)[0];
     
     bppTools::fixLikelihood(allParams, alphabet.get(), gCode.get(), tl);
     

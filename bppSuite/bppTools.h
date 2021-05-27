@@ -164,17 +164,6 @@ namespace bpp
 
 
     /*
-     * @brief return only final phylo likelihood
-     *
-     */
-    
-    static PhyloLikelihood* getResultPhyloLikelihood(const std::map<std::string, std::string>& params,
-                                                     Context& context,
-                                                     const Alphabet* alphabet,
-                                                     const GeneticCode* gCode,
-                                                     std::map<std::string, std::string>& unparsedparams);
-
-    /*
      * @}
      *
      */

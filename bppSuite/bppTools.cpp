@@ -175,30 +175,6 @@ std::shared_ptr<PhyloLikelihoodContainer> bppTools::getPhyloLikelihoods(const ma
 }
 
 
-PhyloLikelihood* bppTools::getResultPhyloLikelihood(const std::map<std::string, std::string>& params,
-                                                    Context& context,
-                                                    const Alphabet* alphabet,
-                                                    const GeneticCode* gCode,
-                                                    std::map<std::string, std::string>& unparsedparams)
-{
-  auto mSites = getAlignmentsMap(params, alphabet, true);
-
-  auto mTrees = bppTools::getPhyloTreesMap(params, mSites, unparsedparams);
-
-  auto SPC = bppTools::getCollection(params, alphabet, gCode, mSites, mTrees, unparsedparams);
-
-  auto mSeqEvol = PhylogeneticsApplicationTools::getSequenceEvolutions(*SPC, params, unparsedparams);
-
-  auto mPhyl=PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, *SPC, mSeqEvol, mSites, params);
-
-  if (!mPhyl->hasPhyloLikelihood(0))
-    throw Exception("Missing phyloLikelihoods.");
-
-  return (*mPhyl)[0];
-}
-
-
-
 void bppTools::fixLikelihood(const map<string, string>& params,
                              const Alphabet* alphabet,
                              const GeneticCode* gCode,

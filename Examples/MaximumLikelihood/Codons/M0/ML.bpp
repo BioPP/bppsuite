@@ -27,7 +27,7 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model1 = YN98(kappa=1, omega=1, frequencies=F1X4, initFreqs=observed, data=1)
+model1 = YN98(kappa=1, omega=1, frequencies=F1X4(init=observed), data=1)
 
 process1 = Homogeneous(model=1, tree=1, rate=1)
 
