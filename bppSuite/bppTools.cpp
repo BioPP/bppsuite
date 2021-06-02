@@ -295,18 +295,6 @@ void bppTools::fixLikelihood(const map<string, string>& params,
           sDP->setData(*vData);
         }
 
-        // Then try factors
-        logL = sDP->getValue();
-        uint factor = 1;
-        while (std::isinf(-logL) )
-        {
-          ApplicationTools::displayError("!!! 0 values (-inf in log) may be due to computer overflow.");
-
-          ApplicationTools::displayError("!!! Try factor " + TextTools::toString(factor) + " to fix this.");
-          sDP->setFactor(factor++);
-          logL = sDP->getValue();
-        }
-        
         if (!std::isnormal(logL))
         {
           ApplicationTools::displayError("!!! No possible factor to fix likelihood.");
