@@ -166,12 +166,14 @@ map<size_t, SequenceEvolution*> bppTools::getProcesses(const map<string, string>
 
 
 std::shared_ptr<PhyloLikelihoodContainer> bppTools::getPhyloLikelihoods(const map<string, string>& params,
-                                                        Context& context,
-                                                        map<size_t, SequenceEvolution*> mSeqEvol, 
-                                                        SubstitutionProcessCollection& collection,
-                                                        const map<size_t, AlignedValuesContainer*>& mSites)
+                                                                        Context& context,
+                                                                        map<size_t, SequenceEvolution*> mSeqEvol, 
+                                                                        SubstitutionProcessCollection& collection,
+                                                                        const map<size_t, AlignedValuesContainer*>& mSites,
+                                                                        int warn
+  )
 {
-  return PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, collection, mSeqEvol, mSites, params);
+  return PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, collection, mSeqEvol, mSites, params, "", true, true, warn);
 }
 
 

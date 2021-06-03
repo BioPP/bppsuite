@@ -232,7 +232,7 @@ int main(int args, char ** argv)
 
     /// Get optional phylolikelihoods (in case of posterior simulation)
 
-    auto phyloCont =  bppTools::getPhyloLikelihoods(bppseqgen.getParams(), context, mSeqEvol, *SPC, mSites);
+    auto phyloCont =  bppTools::getPhyloLikelihoods(bppseqgen.getParams(), context, mSeqEvol, *SPC, mSites, 0);
 
     /*******************************************/
     /*     Starting sequence                   */

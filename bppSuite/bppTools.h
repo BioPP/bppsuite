@@ -157,10 +157,11 @@ namespace bpp
      */
 
     static std::shared_ptr<PhyloLikelihoodContainer> getPhyloLikelihoods(const std::map<std::string, std::string>& params,
-                                                         Context& context,
-                                                         std::map<size_t, SequenceEvolution*> mSeqEvol, 
-                                                         SubstitutionProcessCollection& collection,
-                                                         const std::map<size_t, AlignedValuesContainer*>& mSites);
+                                                                         Context& context,
+                                                                         std::map<size_t, SequenceEvolution*> mSeqEvol, 
+                                                                         SubstitutionProcessCollection& collection,
+                                                                         const std::map<size_t, AlignedValuesContainer*>& mSites,
+                                                                         int warn = 1);
 
 
     /*
