@@ -48,7 +48,6 @@ using namespace std;
 // From bpp-core:
 #include <Bpp/Version.h>
 #include <Bpp/Numeric/DataTable.h>
-#include <Bpp/App/BppApplication.h>
 
 // // From bpp-seq:
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -56,14 +55,13 @@ using namespace std;
 #include <Bpp/Seq/SiteTools.h>
 
 // // From bpp-phyl:
+#include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Likelihood/RASTools.h>
 #include <Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.h>
-
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Io/Newick.h>
-
-#include "bppTools.h"
 
 using namespace bpp;
 
@@ -81,36 +79,37 @@ int main(int args, char** argv)
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  if (args == 1)
-  {
-    bppTools::help("bppml");
-    return 0;
-  }
-
   try
   {
-    BppApplication bppml(args, argv, "bppml");
+    BppPhylogeneticsApplication bppml(args, argv, "bppml");
+
+    if (args == 1)
+    {
+      bppml.help("bppml");
+      return 0;
+    }
+
     bppml.startTimer();
 
-    map<string, string> unparsedparams;
+    map<string, string> unparsedParams;
 
     Context context;
     
     ///// Alphabet
 
-    unique_ptr<Alphabet> alphabet(bppTools::getAlphabet(bppml.getParams()));
+    unique_ptr<Alphabet> alphabet(bppml.getAlphabet());
 
     /// GeneticCode
     
-    unique_ptr<GeneticCode> gCode(bppTools::getGeneticCode(bppml.getParams(), alphabet.get()));
+    unique_ptr<GeneticCode> gCode(bppml.getGeneticCode(alphabet.get()));
 
     ////// Get the map of the sequences
 
-    map<size_t, AlignedValuesContainer*> mSites = bppTools::getAlignmentsMap(bppml.getParams(), alphabet.get());
+    map<size_t, AlignedValuesContainer*> mSites = bppml.getAlignmentsMap(alphabet.get());
 
     /////// Get the map of initial trees
 
-    auto mpTree = bppTools::getPhyloTreesMap(bppml.getParams(), mSites, unparsedparams);
+    auto mpTree = bppml.getPhyloTreesMap(mSites, unparsedParams);
 
     // Try to write the current tree to file. This will be overwritten
     // by the optimized tree, but allow to check file existence before
@@ -125,7 +124,7 @@ int main(int args, char** argv)
 
     ApplicationTools::displayWarning("Reading trees for oldlik version : to be removed when not needed.");
 
-    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites, unparsedparams);
+    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites, unparsedParams);
     
 
     /////////////////
@@ -164,7 +163,7 @@ int main(int args, char** argv)
       if (nhOpt != "no")
         throw Exception("Topology estimation with NH model not supported yet, sorry :(");
 
-      tmodel=dynamic_pointer_cast<TransitionModel>(PhylogeneticsApplicationTools::getBranchModels(alphabet.get(), gCode.get(), mSites, bppml.getParams(), unparsedparams).begin()->second);
+      tmodel=dynamic_pointer_cast<TransitionModel>(PhylogeneticsApplicationTools::getBranchModels(alphabet.get(), gCode.get(), mSites, bppml.getParams(), unparsedParams).begin()->second);
 
       if (tmodel->getName() != "RE08")
         for (auto  itc : mSites)
@@ -193,11 +192,11 @@ int main(int args, char** argv)
       for (auto  itc : mSites)
         SiteContainerTools::changeGapsToUnknownCharacters(*itc.second);
 
-      SPC.reset(bppTools::getCollection(bppml.getParams(), alphabet.get(), gCode.get(), mSites, mpTree, unparsedparams));
+      SPC.reset(bppml.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams));
 
-      mSeqEvol = bppTools::getProcesses(bppml.getParams(), *SPC, unparsedparams);
+      mSeqEvol = bppml.getProcesses(*SPC, unparsedParams);
       
-      mPhyl=bppTools::getPhyloLikelihoods(bppml.getParams(), context, mSeqEvol, *SPC, mSites);
+      mPhyl=bppml.getPhyloLikelihoods(context, mSeqEvol, *SPC, mSites);
       
       // retrieve Phylo 0, aka result phylolikelihood
       
@@ -456,7 +455,7 @@ int main(int args, char** argv)
     {
       //Check initial likelihood:
       
-      bppTools::fixLikelihood(bppml.getParams(), alphabet.get(), gCode.get(), tl_new);
+      bppml.fixLikelihood(alphabet.get(), gCode.get(), tl_new);
 
       // First `true` means that default is to optimize model parameters.
       if(ApplicationTools::getBooleanParameter("optimization.model_parameters", bppml.getParams(), true, "", true, 1))
@@ -470,7 +469,7 @@ int main(int args, char** argv)
 
       
       // Write parameters to screen:
-      bppTools::displayParameters(*tl_new);
+      bppml.displayParameters(*tl_new);
 
       // Checking convergence:
       PhylogeneticsApplicationTools::checkEstimatedParameters(tl_new->getParameters());

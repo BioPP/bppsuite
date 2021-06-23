@@ -46,7 +46,6 @@ using namespace std;
 
 // From bpp-core:
 #include <Bpp/Version.h>
-#include <Bpp/App/BppApplication.h>
 #include <Bpp/Numeric/DataTable.h>
 
 // From bpp-seq:
@@ -54,16 +53,12 @@ using namespace std;
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/Io/BppOAlignmentWriterFormat.h>
 
-// From PhylLib:
-
-// From Newlik:
+// From bpp-phyl:
+#include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
 #include <Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h>
-
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-
-#include "bppTools.h"
 
 using namespace bpp;
 
@@ -79,38 +74,34 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  if (args == 1)
-  {
-    bppTools::help("bppAncestor");
-    return 0;
-  }
-  
   try {
 
-    Context context;
+    BppPhylogeneticsApplication bppancestor(args, argv, "bppancestor");
 
-    BppApplication bppancestor(args, argv, "bppancestor");
+    if (args == 1)
+    {
+      bppancestor.help("bppAncestor");
+      return 0;
+    }
+  
     bppancestor.startTimer();
-
+    
+    Context context;
     map<string, string> allParams=bppancestor.getParams();
-    map<string, string> unparsedparams;
+    map<string, string> unparsedParams;
 
-    unique_ptr<Alphabet> alphabet(bppTools::getAlphabet(allParams));
-    unique_ptr<GeneticCode> gCode(bppTools::getGeneticCode(allParams, alphabet.get()));
+    unique_ptr<Alphabet> alphabet(bppancestor.getAlphabet());
+    unique_ptr<GeneticCode> gCode(bppancestor.getGeneticCode(alphabet.get()));
 
-// Missing check
-//  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
+    // Missing check
+    //  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
     // get the result phylo likelihood
-    map<size_t, AlignedValuesContainer*> mSites = bppTools::getAlignmentsMap(allParams, alphabet.get());
-    auto mpTree = bppTools::getPhyloTreesMap(allParams, mSites, unparsedparams);
-
-    auto SPC=bppTools::getCollection(allParams, alphabet.get(), gCode.get(), mSites, mpTree, unparsedparams);
-
-    auto mSeqEvol = bppTools::getProcesses(allParams, *SPC, unparsedparams);
-      
-
-    auto mPhyl=bppTools::getPhyloLikelihoods(allParams, context, mSeqEvol, *SPC, mSites);
+    map<size_t, AlignedValuesContainer*> mSites = bppancestor.getAlignmentsMap(alphabet.get());
+    auto mpTree = bppancestor.getPhyloTreesMap(mSites, unparsedParams);
+    auto SPC=bppancestor.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams);
+    auto mSeqEvol = bppancestor.getProcesses(*SPC, unparsedParams);
+    auto mPhyl=bppancestor.getPhyloLikelihoods(context, mSeqEvol, *SPC, mSites);
       
     // retrieve Phylo 0, aka result phylolikelihood
       
@@ -119,9 +110,9 @@ int main(int args, char ** argv)
 
     PhyloLikelihood* tl=(*mPhyl)[0];
     
-    bppTools::fixLikelihood(allParams, alphabet.get(), gCode.get(), tl);
+    bppancestor.fixLikelihood(alphabet.get(), gCode.get(), tl);
     
-    bppTools::displayParameters(*tl, false);
+    bppancestor.displayParameters(*tl, false);
 
     ApplicationTools::displayMessage("");
 

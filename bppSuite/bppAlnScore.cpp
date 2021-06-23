@@ -45,15 +45,13 @@
 using namespace std;
 
 #include <Bpp/Version.h>
-#include <Bpp/App/BppApplication.h>
 #include <Bpp/Numeric/Range.h>
 
 // // From bpp-seq:
 #include <Bpp/Seq/Io/Mase.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SequenceTools.h>
-
-#include "bppTools.h"
+#include <Bpp/Seq/App/BppSequenceApplication.h>
 
 using namespace bpp;
 
@@ -65,19 +63,20 @@ int main(int args, char** argv)
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  if (args == 1)
-  {
-    bppTools::help("bppalnscore");
-    return 0;
-  }
-
   try
   {
-    BppApplication bppalnscore(args, argv, "BppAlnScore");
+    BppSequenceApplication bppalnscore(args, argv, "BppAlnScore");
+
+    if (args == 1)
+    {
+      bppalnscore.help("bppalnscore");
+      return 0;
+    }
+
     bppalnscore.startTimer();
 
     // Get alphabet
-    unique_ptr<Alphabet> alphabet(bppTools::getAlphabet(bppalnscore.getParams()));
+    unique_ptr<Alphabet> alphabet(bppalnscore.getAlphabet());
 
     // Get the test alignment:
     unique_ptr<SiteContainer> sitesTest(SequenceApplicationTools::getSiteContainer(alphabet.get(), bppalnscore.getParams(), ".test", false, true));

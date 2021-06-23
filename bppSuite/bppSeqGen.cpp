@@ -46,7 +46,6 @@ using namespace std;
 
 // From bpp-core:
 #include <Bpp/Version.h>
-#include <Bpp/App/BppApplication.h>
 #include <Bpp/Numeric/DataTable.h>
 #include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/App/NumCalcApplicationTools.h>
@@ -55,16 +54,15 @@ using namespace std;
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Seq/Io/BppOAlignmentWriterFormat.h>
 
-// From PhylLib:
+// From bpp-phy:
+#include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
 #include <Bpp/Phyl/Simulation/SequenceSimulationTools.h>
 #include <Bpp/Phyl/Simulation/EvolutionSequenceSimulator.h>
 #include <Bpp/Phyl/Simulation/SimpleSubstitutionProcessSequenceSimulator.h>
 #include <Bpp/Phyl/Simulation/GivenDataSubstitutionProcessSequenceSimulator.h>
-
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-
-#include "bppTools.h"
 
 
 using namespace bpp;
@@ -73,7 +71,7 @@ using namespace bpp;
 map<size_t, SequenceSimulator*> readSimul(const SubstitutionProcessCollection& spc,
                                           const map<size_t, SequenceEvolution*>& mSeqEvol,
                                           std::shared_ptr<PhyloLikelihoodContainer> phyloCont,
-                                          map<string, string>& params,
+                                          const map<string, string>& params,
                                           map<size_t, string>& mfnames,
                                           map<size_t, string>& mformats,
                                           map<size_t, bool>& mintern,
@@ -202,37 +200,38 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  if(args == 1)
-  {
-    bppTools::help("bppSeqGen");
-    return 0;
-  }
-
   try {
 
-    BppApplication bppseqgen(args, argv, "bppseqgen");
+    BppPhylogeneticsApplication bppseqgen(args, argv, "bppseqgen");
+
+    if(args == 1)
+    {
+      bppseqgen.help("bppSeqGen");
+      return 0;
+    }
+
     bppseqgen.startTimer();
-    map<string, string> unparsedparams;
+    map<string, string> unparsedParams;
 
     Context context;
 
-    Alphabet* alphabet = bppTools::getAlphabet(bppseqgen.getParams());
+    Alphabet* alphabet = bppseqgen.getAlphabet();
 
-    unique_ptr<GeneticCode> gCode(bppTools::getGeneticCode(bppseqgen.getParams(), alphabet));
+    unique_ptr<GeneticCode> gCode(bppseqgen.getGeneticCode(alphabet));
 
     ////// Get the optional map of the sequences
     
-    map<size_t, AlignedValuesContainer*> mSites = bppTools::getAlignmentsMap(bppseqgen.getParams(), alphabet, true, true);
+    map<size_t, AlignedValuesContainer*> mSites = bppseqgen.getAlignmentsMap(alphabet, true, true);
 
     /// collection
     
-    SubstitutionProcessCollection* SPC = bppTools::getCollection(bppseqgen.getParams(), alphabet, gCode.get(), mSites, unparsedparams);
+    SubstitutionProcessCollection* SPC = bppseqgen.getCollection(alphabet, gCode.get(), mSites, unparsedParams);
 
-    map<size_t, SequenceEvolution*> mSeqEvol = bppTools::getProcesses(bppseqgen.getParams(), *SPC, unparsedparams);
+    map<size_t, SequenceEvolution*> mSeqEvol = bppseqgen.getProcesses(*SPC, unparsedParams);
 
     /// Get optional phylolikelihoods (in case of posterior simulation)
 
-    auto phyloCont =  bppTools::getPhyloLikelihoods(bppseqgen.getParams(), context, mSeqEvol, *SPC, mSites, 0);
+    auto phyloCont =  bppseqgen.getPhyloLikelihoods(context, mSeqEvol, *SPC, mSites, 0);
 
     /*******************************************/
     /*     Starting sequence                   */

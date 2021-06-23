@@ -46,7 +46,6 @@ using namespace std;
 
 // From bpp-core:
 #include <Bpp/Version.h>
-#include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/App/NumCalcApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
@@ -67,7 +66,8 @@ using namespace std;
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 
-// From PhylLib:
+// From bpp-phyl:
+#include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/PatternTools.h>
@@ -80,8 +80,6 @@ using namespace std;
 #include <Bpp/Phyl/Model/MixtureOfTransitionModels.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Io/Newick.h>
-
-#include "bppTools.h"
 
 using namespace bpp;
 
@@ -96,30 +94,31 @@ int main(int args, char** argv)
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  if (args == 1)
-  {
-    bppTools::help("bppmixedlikelihoods");
-    return 0;
-  }
-
   try
   {
-    BppApplication bppmixedlikelihoods(args, argv, "BppMixedLikelihoods");
+    BppPhylogeneticsApplication bppmixedlikelihoods(args, argv, "BppMixedLikelihoods");
+
+    if (args == 1)
+    {
+      bppmixedlikelihoods.help("bppmixedlikelihoods");
+      return 0;
+    }
+
     bppmixedlikelihoods.startTimer();
 
     Context context;
     
     ///// Alphabet
 
-    unique_ptr<Alphabet> alphabet(bppTools::getAlphabet(bppmixedlikelihoods.getParams()));
+    unique_ptr<Alphabet> alphabet(bppmixedlikelihoods.getAlphabet());
 
     /// GeneticCode
     
-    unique_ptr<GeneticCode> gCode(bppTools::getGeneticCode(bppmixedlikelihoods.getParams(), alphabet.get()));
+    unique_ptr<GeneticCode> gCode(bppmixedlikelihoods.getGeneticCode(alphabet.get()));
 
     // get the data
 
-    map<size_t, AlignedValuesContainer*> mSites = bppTools::getAlignmentsMap(bppmixedlikelihoods.getParams(), alphabet.get());
+    map<size_t, AlignedValuesContainer*> mSites = bppmixedlikelihoods.getAlignmentsMap(alphabet.get());
 
     if (mSites.size()!=1)
       throw Exception("Only one alignment possible.");
@@ -128,19 +127,19 @@ int main(int args, char** argv)
         
     /////// Get the map of initial trees
 
-    map<string, string> unparsedparams;
+    map<string, string> unparsedParams;
 
-    auto mpTree = bppTools::getPhyloTreesMap(bppmixedlikelihoods.getParams(), mSites, unparsedparams);
+    auto mpTree = bppmixedlikelihoods.getPhyloTreesMap(mSites, unparsedParams);
 
     /////////////////
     // Computing stuff
 
     
-    unique_ptr<SubstitutionProcessCollection> SPC(bppTools::getCollection(bppmixedlikelihoods.getParams(), alphabet.get(), gCode.get(), mSites, mpTree, unparsedparams));
+    unique_ptr<SubstitutionProcessCollection> SPC(bppmixedlikelihoods.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams));
     
-    map<size_t, SequenceEvolution*> mSeqEvol = bppTools::getProcesses(bppmixedlikelihoods.getParams(), *SPC, unparsedparams);
+    map<size_t, SequenceEvolution*> mSeqEvol = bppmixedlikelihoods.getProcesses(*SPC, unparsedParams);
 
-    auto mPhyl(bppTools::getPhyloLikelihoods(bppmixedlikelihoods.getParams(), context, mSeqEvol, *SPC, mSites));
+    auto mPhyl(bppmixedlikelihoods.getPhyloLikelihoods(context, mSeqEvol, *SPC, mSites));
 
     if (!mPhyl->hasPhyloLikelihood(0))
       throw Exception("Missing phyloLikelihoods.");
@@ -152,7 +151,7 @@ int main(int args, char** argv)
         
     //Check initial likelihood:
       
-    bppTools::fixLikelihood(bppmixedlikelihoods.getParams(), alphabet.get(), gCode.get(), tl);
+    bppmixedlikelihoods.fixLikelihood(alphabet.get(), gCode.get(), tl);
 
     // /////////////////////////////////////////////
     // Getting likelihoods per submodel
