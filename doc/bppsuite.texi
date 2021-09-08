@@ -2981,6 +2981,7 @@ Examples of use:
 @cartouche
 @example
 sequence.manip=
+input.sequence.sites_to_use = all
 @end example
 @end cartouche
 
@@ -2988,6 +2989,7 @@ sequence.manip=
 @cartouche
 @example
 sequence.manip=Switch
+input.sequence.sites_to_use = all
 @end example
 @end cartouche
 
@@ -2995,6 +2997,7 @@ sequence.manip=Switch
 @cartouche
 @example
 sequence.manip=RemoveGaps,Transcript,Translate
+input.sequence.sites_to_use = all
 @end example
 @end cartouche
 
@@ -3002,6 +3005,7 @@ sequence.manip=RemoveGaps,Transcript,Translate
 @cartouche
 @example
 sequence.manip=UnknownToGap,KeepComplete(maxGapAllowed=5)
+input.sequence.sites_to_use = all
 @end example
 @end cartouche
 
@@ -3009,6 +3013,7 @@ sequence.manip=UnknownToGap,KeepComplete(maxGapAllowed=5)
 @cartouche
 @example
 sequence.manip=KeepComplete(maxGapAllowed=30%),GapToUnknown
+input.sequence.sites_to_use = all
 @end example
 @end cartouche
 
