@@ -195,7 +195,7 @@ int main(int args, char** argv)
       SPC.reset(bppml.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams));
 
       mSeqEvol = bppml.getProcesses(*SPC, unparsedParams);
-      
+
       mPhyl=bppml.getPhyloLikelihoods(context, mSeqEvol, *SPC, mSites);
       
       // retrieve Phylo 0, aka result phylolikelihood
