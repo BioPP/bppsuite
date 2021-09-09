@@ -12,7 +12,7 @@ alphabet=Codon(letter=DNA)
 genetic_code=Standard
 
 # The sequence file to use (sequences must be aligned!)
-input.data1=alignment(file=../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes)
+input.data1=alignment(file=../../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes)
 
 input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
 
@@ -31,5 +31,5 @@ param = $(DATA).params.txt
 output.likelihoods.file = $(DATA)_sitelik.txt
 
 
-likelihoods.model_number = 1
+likelihoods.model_number = 2
 likelihoods.parameter_name = YNGP_M1.omega

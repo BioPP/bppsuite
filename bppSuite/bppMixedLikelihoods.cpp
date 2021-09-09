@@ -334,13 +334,13 @@ int main(int args, char** argv)
       }
 
       // Likelihoods
-      Vdouble vl = tl->getLikelihoodPerSite();
+      auto vl = tl->getLikelihoodPerSite();
       for (unsigned int j = 0; j < nSites; j++)
-        (*rates)(j, "Ll") = TextTools::toString(std::log(vl[j]));
+        (*rates)(j, "Ll") = TextTools::toString(log(vl[j]));
 
       
-      VVdouble vvd;
       Vdouble vprob = pMSM->getProbabilities();
+      vector<vector<DataLik>> vvd;
 
       for (unsigned int i = 0; i < nummod; i++)
       {
@@ -365,8 +365,7 @@ int main(int args, char** argv)
         };
 
         model->modify(func,false);
-        
-        Vdouble vd = tl->getLikelihoodPerSite();
+        auto vd = tl->getLikelihoodPerSite();
 
         for (unsigned int j = 0; j < nSites; j++)
         {
@@ -385,7 +384,7 @@ int main(int args, char** argv)
       {
         Vdouble vd;
         for (size_t i = 0; i < nummod; i++)
-          vd.push_back(std::log(vprob[i] * vvd[i][j]));
+          vd.push_back(std::log(vprob[i]) + log(vvd[i][j]));
           
         VectorTools::logNorm(vd);
         for (size_t i = 0; i < nummod; i++)
@@ -501,12 +500,12 @@ int main(int args, char** argv)
         }
 
         // Likelihoods
-        Vdouble vl = tl->getLikelihoodPerSite();
+        auto vl = tl->getLikelihoodPerSite();
         for (unsigned int j = 0; j < nSites; j++)
-          (*rates)(j, "Ll") = TextTools::toString(std::log(vl[j]));
+          (*rates)(j, "Ll") = TextTools::toString(log(vl[j]));
 
 
-        VVdouble vvd;
+        vector<vector<DataLik>> vvd;
         vector<double> vRates = pMatm->getVRates();
 
         for (size_t i = 0; i < nbcl; ++i)
@@ -522,6 +521,7 @@ int main(int args, char** argv)
 
               for (size_t j = 0; j < vvprob[i].size(); ++j)
                 pAbmtm2->setNProbability(static_cast<size_t>(vvnmod[i][j]), vsprob[i]>NumConstants::TINY()?vvprob[i][j] / vsprob[i]:1./(double)vvprob[i].size());
+
             }
             else{
               auto pMatm2 = dynamic_cast<MixtureOfATransitionModel*>(cmodel);
@@ -537,11 +537,10 @@ int main(int args, char** argv)
 
           model->modify(func,false);
 
-          tl->getValue();
-          Vdouble vd = tl->getLikelihoodPerSite();
+          auto vd = tl->getLikelihoodPerSite();
 
           for (unsigned int j = 0; j < nSites; j++)
-            (*rates)(j, i + 2) = TextTools::toString(std::log(vd[j]));
+            (*rates)(j, i + 2) = TextTools::toString(log(vd[j]));
 
           vvd.push_back(vd);
 
@@ -556,7 +555,7 @@ int main(int args, char** argv)
         {
           Vdouble vd;
           for (size_t i = 0; i < nbcl; i++)
-            vd.push_back(std::log(vsprob[i] * vvd[i][j]));
+            vd.push_back(std::log(vsprob[i]) + log(vvd[i][j]));
           
           VectorTools::logNorm(vd);
           for (size_t i = 0; i < nbcl; i++)

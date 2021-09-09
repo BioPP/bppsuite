@@ -30,11 +30,10 @@ model1 = YN98(kappa=1, omega=1, frequencies=F1X4)
 
 model2 = YN98(kappa=YN98.kappa_1, omega=1, frequencies=F1X4)
 
-process1 = Nonhomogeneous(model1=1, model1.nodes_id = 0:20, model2=2, model2.nodes_id=21:32, tree=1, rate=1)
-
 rate_distribution1 = Constant() //Gamma(n=4, alpha=0.358)
 
 phylo1 = Single(process=1, data=1)
+
 
 # ----------------------------------------------------------------------------------------
 #                                     Optimization
