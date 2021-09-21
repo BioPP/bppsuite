@@ -162,12 +162,12 @@ int main(int args, char ** argv)
     
     bool addNodesExtant = false;
     string outputNodesFile = ApplicationTools::getAFilePath("output.nodes.file", allParams, false, false, "", false, "none", 1);
+
     if (outputNodesFile!="none")
     {
       addNodesExtant = ApplicationTools::getBooleanParameter("output.nodes.add_extant", allParams, false, "", true, 1);    
       ApplicationTools::displayResult("Output extant nodes", addNodesExtant ? "yes" : "no");
     }
-    
     
     // ASR
     

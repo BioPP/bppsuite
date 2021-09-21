@@ -12,6 +12,7 @@ alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
 input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+#input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
 
 
 input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
@@ -38,10 +39,11 @@ asr.sample = yes
 
 # How many samples should we use?
 asr.sample.number = 10
+asr.add_extant = yes
 
 # Alignment information log file (site specific rates, probabilities, etc):
 output.sites.file = $(DATA).sites.csv
-# output.nodes.add_extant = true
+#output.nodes.add_extant = true
 
 # Nodes information log file
 output.nodes.file = $(DATA).nodes.csv
