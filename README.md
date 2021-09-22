@@ -64,11 +64,19 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$bpp_dir
 
 ## Documentation
 
-You can also generate the pdf documentation by typing :
+You can generate the pdf documentation by typing :
 
 <h5>
 <pre>
 make pdf
+</pre>
+</h5>
+
+and in html by typing:
+
+<h5>
+<pre>
+make html
 </pre>
 </h5>
 
@@ -78,8 +86,5 @@ Many examples are available in the subdirectory of <tt>Examples</tt>.
 
 ### Documentation 
 
-
-Documentation can be found in one page at: http://bioweb.me/bppsuite-doc
-
-Or on github: https://github.com/BioPP/bppsuite/releases/tag/v2.3.2 in pdf or html.
+Documentation can be found at: https://github.com/BioPP/bppsuite/releases/download/v3.0.0/bppsuite.html
  
