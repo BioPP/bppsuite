@@ -1,0 +1,35 @@
+# WARNING!!! You need to run bppml on the ML.bpp example file first to be able to run this example!
+
+
+# Global variables:
+DATA = lysozymeLarge
+
+# Sequences:
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+
+# The sequence file to use (sequences must be aligned!)
+input.data1=alignment(file=../../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes)
+
+input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+
+# the same syntax as in bppML!
+# Here we directly use the output file from example ML.bpp to load the model:
+param = $(DATA).params.txt
+
+# ----------------------------------------------------------------------------------------
+#                                     Site Likelihoods
+# ----------------------------------------------------------------------------------------
+
+output.likelihoods.file = $(DATA)_sitelik.txt
+
+
+likelihoods.model_number = 2
+likelihoods.parameter_name = RELAX.omega

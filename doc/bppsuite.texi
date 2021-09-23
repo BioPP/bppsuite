@@ -1,7 +1,7 @@
 \input texinfo                  @c -*-texinfo-*-
 @c %**start of header
 @setfilename bppsuite.info
-@settitle BppSuite Manual 2.4.0
+@settitle BppSuite Manual 3.0.0
 @documentencoding UTF-8
 @afourpaper
 @dircategory Science Biology Genetics

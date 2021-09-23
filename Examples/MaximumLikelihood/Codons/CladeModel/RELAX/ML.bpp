@@ -12,13 +12,13 @@ alphabet=Codon(letter=DNA)
 genetic_code=Standard
 
 # The sequence file to use (sequences must be aligned!)
-input.data1=alignment(file=../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes)
+input.data1=alignment(file=../../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes)
 
 # ----------------------------------------------------------------------------------------
 #                                     Input tree file
 # ----------------------------------------------------------------------------------------
 
-input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
+input.tree1=user(file = ../../../../Data/$(DATA).dnd, format = Newick)
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
@@ -26,14 +26,25 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 # See the manual for a description of the syntax and available options.
 #
 
-model1 = YN98(kappa=1, omega=1, frequencies=F1X4)
+model1 = RELAX(frequencies=F1X4, initFreqs=observed, data=1)
 
-model2 = YN98(kappa=YN98.kappa_1, omega=1, frequencies=F1X4)
+model2 = RELAX(kappa=RELAX.kappa_1, frequencies=F1X4(),123_Full.theta1=RELAX.123_Full.theta1_1,123_Full.theta2=RELAX.123_Full.theta2_1,123_Full.theta=RELAX.123_Full.theta_1, theta1=RELAX.theta1_1, theta2=RELAX.theta2_1, p=RELAX.p_1, omega1=RELAX.omega1_1, omega2=RELAX.omega2_1)
+
+
+path1=model1[1]&model2[1]
+
+path2=model1[2]&model2[2]
+
+path3=model1[3]&model2[3]
+
+scenario1=path1&path2&path3
+
+process1 = Nonhomogeneous(model1=1, model1.nodes_id = 0:20, model2=2, model2.nodes_id=21:32, tree=1, rate=1, scenario=1)
 
 rate_distribution1 = Constant() //Gamma(n=4, alpha=0.358)
 
-phylo1 = Single(process=1, data=1)
 
+phylo1 = Single(process=1, data=1)
 
 # ----------------------------------------------------------------------------------------
 #                                     Optimization
@@ -55,7 +66,7 @@ optimization.final = none
 optimization.verbose = 3
 
 # Parameters to ignore (for instance equilibrium frequencies)
-optimization.ignore_parameters = 
+optimization.ignore_parameters = RELAX.k_1
 
 # Maximum number of likelihood evaluations:
 optimization.max_number_f_eval = 10000
