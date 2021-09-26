@@ -3015,7 +3015,7 @@ Reports the estimated parameters omega (dN / dS ratio) and kappa (transitions / 
 @item MKT
 Compute the MacDonald-Kreitman table, for codon sequences with outgroup.
 
-@item CodonSitesStatistics
+@item CodonSiteStatistics
 Generate a table with codon-site specifics statistics, including:
 
 @itemize @bullet
