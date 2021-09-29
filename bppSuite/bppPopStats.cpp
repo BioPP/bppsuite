@@ -522,7 +522,7 @@ int main(int args, char** argv)
         if (!codonAlphabet) {
           throw Exception("CodonSiteStatstics can only be used with a codon alignment. Check the input alphabet!");
         }
-        string path = ApplicationTools::getAFilePath("output.file", cmdArgs, true, false);
+        string path = ApplicationTools::getAFilePath("output.file", bpppopstats.getParams(), true, false);
         if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics"); 
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
