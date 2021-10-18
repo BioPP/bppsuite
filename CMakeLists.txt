@@ -4,8 +4,8 @@
 #   Francois Gindraud (2017)
 # Created: 22/08/2009
 
-cmake_minimum_required (VERSION 2.8.12)
-project (bppsuite CXX)
+cmake_minimum_required (VERSION 3.0.0)
+project (bppsuite3 CXX)
 
 # Compile options
 SET (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
@@ -75,10 +75,10 @@ if (CMAKE_INSTALL_PREFIX)
 endif (CMAKE_INSTALL_PREFIX)
 
 include (GNUInstallDirs)
-find_package (bpp-core 5.0.0 REQUIRED)
-find_package (bpp-seq 13.0.0 REQUIRED)
-find_package (bpp-phyl 13.0.0 REQUIRED)
-find_package (bpp-popgen 9.0.0 REQUIRED)
+find_package (bpp-core3 1.0.0 REQUIRED)
+find_package (bpp-seq3 1.0.0 REQUIRED)
+find_package (bpp-phyl3 1.0.0 REQUIRED)
+find_package (bpp-popgen3 1.0.0 REQUIRED)
 
 find_package (Eigen3 3.3 REQUIRED PATHS /usr/lib NO_MODULE)
 

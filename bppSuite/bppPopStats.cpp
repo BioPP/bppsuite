@@ -54,7 +54,6 @@ using namespace std;
 #include <Bpp/Text/KeyvalTools.h>
 
 // From bpp-seq:
-#include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/CodonSiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -65,11 +64,12 @@ using namespace std;
 #include <Bpp/Phyl/Model/Nucleotide/K80.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Distance/DistanceEstimation.h>
+#include <Bpp/Phyl/Legacy/Distance/DistanceEstimation.h>
 #include <Bpp/Phyl/Distance/BioNJ.h>
-#include <Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.h>
+#include <Bpp/Phyl/Legacy/Likelihood/DRHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/Likelihood/MarginalAncestralStateReconstruction.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
 
 // From bpp-popgen
 #include <Bpp/PopGen/PolymorphismSequenceContainer.h>
@@ -250,7 +250,7 @@ int main(int args, char** argv)
       } //Note: proteins not supported!
       rDist.reset(new ConstantRateDistribution()); 
       if (treeOpt == "user") {
-        tree.reset(PhylogeneticsApplicationTools::getTree(bpppopstats.getParams()));
+        tree.reset(PhylogeneticsApplicationToolsOld::getTree(bpppopstats.getParams()));
       } else if (treeOpt == "bionj") {
         ApplicationTools::displayTask("Estimating distance matrix", true);
         //DistanceEstimation distEstimation(model->clone(), rDist->clone(), aln.get(), 1, false);
@@ -275,7 +275,7 @@ int main(int args, char** argv)
       if (std::isinf(treeLik->getValue()))
         throw Exception("Error: null likelihood. Possible cause: stop codon or numerical underflow (too many sequences).");
       // Optimize parameters:
-      treeLik = dynamic_cast<DRTreeLikelihood*>(PhylogeneticsApplicationTools::optimizeParameters(treeLik, treeLik->getParameters(), bpppopstats.getParams(), "", true, true, 2));
+      treeLik = dynamic_cast<DRTreeLikelihood*>(PhylogeneticsApplicationToolsOld::optimizeParameters(treeLik, treeLik->getParameters(), bpppopstats.getParams(), "", true, true, 2));
 
       // Get kappa:              
       if (estimateTsTv) {

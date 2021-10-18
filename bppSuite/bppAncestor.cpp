@@ -55,10 +55,10 @@ using namespace std;
 
 // From bpp-phyl:
 #include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
-#include <Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/MarginalAncestralReconstruction.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 using namespace bpp;
 

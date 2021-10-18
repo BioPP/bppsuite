@@ -47,39 +47,22 @@ using namespace std;
 // From bpp-core:
 #include <Bpp/Version.h>
 #include <Bpp/App/ApplicationTools.h>
-#include <Bpp/App/NumCalcApplicationTools.h>
-#include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
-#include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/DataTable.h>
-#include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/VectorTools.h>
-#include <Bpp/Numeric/AutoParameter.h>
-#include <Bpp/App/NumCalcApplicationTools.h>
 
 // From bpp-seq:
-#include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/VectorSiteContainer.h>
-#include <Bpp/Seq/Container/SequenceContainerTools.h>
-#include <Bpp/Seq/Container/SiteContainerTools.h>
-#include <Bpp/Seq/App/SequenceApplicationTools.h>
 
 // From bpp-phyl:
 #include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
-#include <Bpp/Phyl/PatternTools.h>
-#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/OptimizationTools.h>
-#include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.h>
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Model/MixtureOfATransitionModel.h>
 #include <Bpp/Phyl/Model/MixtureOfTransitionModels.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
 

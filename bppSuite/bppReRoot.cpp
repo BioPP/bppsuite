@@ -46,7 +46,6 @@ using namespace std;
 // From bpp-core:
 #include <Bpp/Version.h>
 #include <Bpp/Numeric/VectorTools.h>
-#include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/App/BppApplication.h>

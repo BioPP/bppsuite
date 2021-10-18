@@ -50,7 +50,6 @@ using namespace std;
 #include <Bpp/Numeric/DataTable.h>
 
 // // From bpp-seq:
-#include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 #include <Bpp/Seq/SiteTools.h>
 
@@ -58,8 +57,9 @@ using namespace std;
 #include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Likelihood/RASTools.h>
-#include <Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Legacy/Likelihood/RASTools.h>
+#include <Bpp/Phyl/Legacy/Likelihood/NNIHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include <Bpp/Phyl/Io/Newick.h>
 
@@ -124,7 +124,7 @@ int main(int args, char** argv)
 
     ApplicationTools::displayWarning("Reading trees for oldlik version : to be removed when not needed.");
 
-    map<size_t, Tree*> mTree=PhylogeneticsApplicationTools::getTrees(bppml.getParams(), mSites, unparsedParams);
+    map<size_t, Tree*> mTree=PhylogeneticsApplicationToolsOld::getTrees(bppml.getParams(), mSites, unparsedParams);
     
 
     /////////////////
@@ -343,10 +343,10 @@ int main(int args, char** argv)
       }
 
       tl_old.reset(dynamic_cast<DiscreteRatesAcrossSitesTreeLikelihood*>(
-                     PhylogeneticsApplicationTools::optimizeParameters(tl_old.get(), tl_old->getParameters(), bppml.getParams())));
+                     PhylogeneticsApplicationToolsOld::optimizeParameters(tl_old.get(), tl_old->getParameters(), bppml.getParams())));
 
       Tree* tree = new TreeTemplate<Node>(tl_old->getTree());
-      PhylogeneticsApplicationTools::writeTree(*tree, bppml.getParams());
+      PhylogeneticsApplicationToolsOld::writeTree(*tree, bppml.getParams());
 
       // Write parameters to screen:
       ApplicationTools::displayResult("Log likelihood", TextTools::toString(-tl_old->getValue(), 15));
@@ -384,7 +384,7 @@ int main(int args, char** argv)
         if (modelSet)
         {
           modelSet->matchParametersValues(tl_old->getParameters());
-          PhylogeneticsApplicationTools::printParameters(modelSet.get(), out, 1, withAlias);
+          PhylogeneticsApplicationToolsOld::printParameters(modelSet.get(), out, 1, withAlias);
         }
         else
         {
@@ -532,7 +532,7 @@ int main(int args, char** argv)
         {
           bppml.getParam("optimization.topology") = "yes";
           tl_old.reset(dynamic_cast<NNIHomogeneousTreeLikelihood*>(
-                         PhylogeneticsApplicationTools::optimizeParameters(tl_old.get(), tl_old->getParameters(), bppml.getParams(), "", true, false)));
+                         PhylogeneticsApplicationToolsOld::optimizeParameters(tl_old.get(), tl_old->getParameters(), bppml.getParams(), "", true, false)));
           initTree = &tl_old->getTree();
         }
 
@@ -569,7 +569,7 @@ int main(int args, char** argv)
             parametersRep.deleteParameters(paramsToIgnore.getParameterNames());
           }
           tlRep.reset(dynamic_cast<NNIHomogeneousTreeLikelihood*>(
-                        PhylogeneticsApplicationTools::optimizeParameters(tlRep.get(), parametersRep, bppml.getParams(), "", true, false)));
+                        PhylogeneticsApplicationToolsOld::optimizeParameters(tlRep.get(), parametersRep, bppml.getParams(), "", true, false)));
           bsTrees[i] = new TreeTemplate<Node>(tlRep->getTree());
           if (out && i == 0) newick.writeTree(*bsTrees[i], bsTreesPath, true);
           if (out && i >  0) newick.writeTree(*bsTrees[i], bsTreesPath, false);
@@ -592,7 +592,7 @@ int main(int args, char** argv)
         for (const auto& tree : mTree)
           vcTree.push_back(tree.second);
 
-        PhylogeneticsApplicationTools::writeTrees(vcTree, bppml.getParams());
+        PhylogeneticsApplicationToolsOld::writeTrees(vcTree, bppml.getParams());
       }
 
       for (auto& it : mSeqEvol)

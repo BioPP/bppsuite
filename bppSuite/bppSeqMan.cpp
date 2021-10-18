@@ -48,7 +48,6 @@ using namespace std;
 #include <Bpp/Version.h>
 #include <Bpp/App/BppApplication.h>
 #include <Bpp/App/ApplicationTools.h>
-#include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/KeyvalTools.h>
 
 // From bpp-seq:
@@ -64,7 +63,7 @@ using namespace std;
 
 //From bpp-phyl:
 #include <Bpp/Phyl/Tree/Tree.h>
-#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
 
 using namespace bpp;
 
@@ -489,7 +488,7 @@ int main(int args, char** argv)
     // +-----------------+
     else if (cmdName == "FilterFromTree")
     {
-      unique_ptr<Tree> tree(PhylogeneticsApplicationTools::getTree(cmdArgs, ""));
+      unique_ptr<Tree> tree(PhylogeneticsApplicationToolsOld::getTree(cmdArgs, ""));
       vector<string> names = tree->getLeavesNames();
       OrderedSequenceContainer* reorderedSequences = 0;
       if (aligned) {

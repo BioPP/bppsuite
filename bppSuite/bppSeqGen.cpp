@@ -60,9 +60,9 @@ using namespace std;
 #include <Bpp/Phyl/Simulation/EvolutionSequenceSimulator.h>
 #include <Bpp/Phyl/Simulation/SimpleSubstitutionProcessSequenceSimulator.h>
 #include <Bpp/Phyl/Simulation/GivenDataSubstitutionProcessSequenceSimulator.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 
 using namespace bpp;
