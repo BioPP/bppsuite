@@ -54,7 +54,7 @@ using namespace std;
 // From bpp-phyl:
 #include <Bpp/Phyl/Tree/Tree.h>
 
-#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Graphics/PhylogramPlot.h>
 #include <Bpp/Phyl/Graphics/CladogramPlot.h>
 #include <Bpp/Phyl/Graphics/TreeDrawingDisplayControler.h>
@@ -94,7 +94,7 @@ int main(int args, char ** argv)
   bpptreedraw.startTimer();
 
   // Get the tree to plot:
-  Tree* tree = PhylogeneticsApplicationToolsOld::getTree(bpptreedraw.getParams());
+  Tree* tree = PhylogeneticsApplicationTools::getTree(bpptreedraw.getParams());
   ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   
   // Get the graphic device:

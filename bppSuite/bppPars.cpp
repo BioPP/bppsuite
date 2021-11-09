@@ -60,9 +60,10 @@ using namespace std;
 
 // From PhylLib:
 #include <Bpp/Phyl/Tree/Tree.h>
-#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/Legacy/OptimizationTools.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Io/Newick.h>
+#include <Bpp/Phyl/Parsimony/DRTreeParsimonyScore.h>
 
 using namespace bpp;
 
@@ -118,7 +119,7 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Input tree", initTreeOpt);
     if (initTreeOpt == "user")
     {
-      tree = PhylogeneticsApplicationToolsOld::getTree(bpppars.getParams());
+      tree = PhylogeneticsApplicationTools::getTree(bpppars.getParams());
       ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
     }
     else if (initTreeOpt == "random")
@@ -136,68 +137,10 @@ int main(int args, char ** argv)
     double score = tp->getScore();
     ApplicationTools::displayResult("Initial parsimony score", TextTools::toString(score, 15));
     bool optTopo = ApplicationTools::getBooleanParameter("optimization.topology", bpppars.getParams(), false);
-    ApplicationTools::displayResult("Optimize topology", optTopo ? "yes" : "no");
-    if (optTopo)
-    {
-      tp = OptimizationToolsOld::optimizeTreeNNI(tp, 1);
-      score = tp->getScore();
-      ApplicationTools::displayResult("Final parsimony score", TextTools::toString(score, 15));
-    }
     tree = new TreeTemplate<Node>(tp->getTree());
   
-    PhylogeneticsApplicationToolsOld::writeTree(*tree, bpppars.getParams());
+    PhylogeneticsApplicationTools::writeTree(*tree, bpppars.getParams());
   
-    //Bootstrap:
-    unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bpppars.getParams(), 0);
-    if (nbBS > 0)
-    {
-      ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
-      const Tree* initTree = tree;
-      if (!optTopo)
-      {
-        tp = OptimizationToolsOld::optimizeTreeNNI(tp, 1);
-        initTree = &tp->getTree();
-      }
-
-    
-      string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bpppars.getParams(), false, false);
-      ofstream *out = 0;
-      if (bsTreesPath != "none")
-      {
-        ApplicationTools::displayResult("Bootstrap trees stored in file", bsTreesPath);
-        out = new ofstream(bsTreesPath.c_str(), ios::out);
-      }
-      Newick newick;
-
-      ApplicationTools::displayTask("Bootstrapping", true);
-      vector<Tree*> bsTrees(nbBS);
-      for (unsigned int i = 0; i < nbBS; i++)
-      {
-        ApplicationTools::displayGauge(i, nbBS - 1, '=');
-        VectorSiteContainer* sample = dynamic_cast<VectorSiteContainer*>(SiteContainerTools::bootstrapSites(*sites));
-        DRTreeParsimonyScore* tpRep = new DRTreeParsimonyScore(*initTree, *sample, false);
-        tpRep = OptimizationToolsOld::optimizeTreeNNI(tpRep, 0);
-        bsTrees[i] = new TreeTemplate<Node>(tpRep->getTree());
-        if (out && i==0) newick.writeTree(*bsTrees[i], bsTreesPath, true);
-        if (out && i>0) newick.writeTree(*bsTrees[i], bsTreesPath, false);
-        delete tpRep;
-        delete sample;
-      }
-      if(out) out->close();
-      if(out) delete out;
-      ApplicationTools::displayTaskDone();
-    
-
-      ApplicationTools::displayTask("Compute bootstrap values", true);
-      TreeTools::computeBootstrapValues(*tree, bsTrees);
-      ApplicationTools::displayTaskDone();
-      for (unsigned int i = 0; i < nbBS; i++)
-        delete bsTrees[i];
-
-      //Write resulting tree:
-      PhylogeneticsApplicationToolsOld::writeTree(*tree, bpppars.getParams());
-    }
-
     delete sites;
     delete tp;
     delete alphabet;

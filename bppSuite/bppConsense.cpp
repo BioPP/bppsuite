@@ -56,7 +56,7 @@ using namespace std;
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 using namespace bpp;
 
@@ -90,7 +90,7 @@ int main(int args, char ** argv)
   BppApplication bppconsense(args, argv, "BppConsense");
   bppconsense.startTimer();
 
-  vector<Tree*> list = PhylogeneticsApplicationToolsOld::getTrees(bppconsense.getParams());
+  vector<Tree*> list = PhylogeneticsApplicationTools::getTrees(bppconsense.getParams());
 
   Tree* tree = 0;
   string treeMethod = ApplicationTools::getStringParameter("tree", bppconsense.getParams(), "Consensus", "", false, 1);
@@ -99,7 +99,7 @@ int main(int args, char ** argv)
   KeyvalTools::parseProcedure(treeMethod, cmdName, cmdArgs);
   if(cmdName == "Input")
   {
-    tree = PhylogeneticsApplicationToolsOld::getTree(bppconsense.getParams());
+    tree = PhylogeneticsApplicationTools::getTree(bppconsense.getParams());
     ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
   }
   else if(cmdName == "Consensus")
@@ -119,7 +119,7 @@ int main(int args, char ** argv)
   ApplicationTools::displayTaskDone();
 
   //Write resulting tree:
-  PhylogeneticsApplicationToolsOld::writeTree(*tree, bppconsense.getParams());
+  PhylogeneticsApplicationTools::writeTree(*tree, bppconsense.getParams());
   for (size_t i = 0; i < list.size(); i++)
     delete list[i];
   delete tree;

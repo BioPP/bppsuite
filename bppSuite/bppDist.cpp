@@ -66,13 +66,12 @@ using namespace std;
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/Legacy/Io/IoDistanceMatrixFactory.h>
-#include <Bpp/Phyl/Legacy/Distance/DistanceEstimation.h>
+#include <Bpp/Phyl/Io/IoDistanceMatrixFactory.h>
+#include <Bpp/Phyl/Distance/DistanceEstimation.h>
 #include <Bpp/Phyl/Distance/PGMA.h>
 #include <Bpp/Phyl/Distance/BioNJ.h>
-#include <Bpp/Phyl/Legacy/OptimizationTools.h>
+#include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 
 using namespace bpp;
@@ -179,9 +178,9 @@ int main(int args, char ** argv)
   
     string type = ApplicationTools::getStringParameter("optimization.method", bppdist.getParams(), "init");
     ApplicationTools::displayResult("Model parameters estimation method", type);
-    if (type == "init") type = OptimizationToolsOld::DISTANCEMETHOD_INIT;
-    else if (type == "pairwise") type = OptimizationToolsOld::DISTANCEMETHOD_PAIRWISE;
-    else if (type == "iterations") type = OptimizationToolsOld::DISTANCEMETHOD_ITERATIONS;
+    if (type == "init") type = OptimizationTools::DISTANCEMETHOD_INIT;
+    else if (type == "pairwise") type = OptimizationTools::DISTANCEMETHOD_PAIRWISE;
+    else if (type == "iterations") type = OptimizationTools::DISTANCEMETHOD_ITERATIONS;
     else throw Exception("Unknown parameter estimation procedure '" + type + "'.");
   
     unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", bppdist.getParams(), 2);
@@ -240,7 +239,7 @@ int main(int args, char ** argv)
     //Here it is:
     ofstream warn("warnings", ios::out);
     ApplicationTools::warning=std::shared_ptr<OutputStream>(dynamic_cast<OutputStream*>(new StlOutputStreamWrapper(&warn)));
-    tree = OptimizationToolsOld::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
+    tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
     warn.close();
 //    delete ApplicationTools::warning;
     ApplicationTools::warning = ApplicationTools::message;
@@ -274,10 +273,10 @@ int main(int args, char ** argv)
       odm->writeDistanceMatrix(*distEstimation.getMatrix(), matrixPath, true);
       delete odm;
     }
-    PhylogeneticsApplicationToolsOld::writeTree(*tree, bppdist.getParams());
+    PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
   
     //Output some parameters:
-    if (type == OptimizationToolsOld::DISTANCEMETHOD_ITERATIONS)
+    if (type == OptimizationTools::DISTANCEMETHOD_ITERATIONS)
     {
       // Write parameters to screen:
       ParameterList parameters = model->getParameters();
@@ -318,7 +317,7 @@ int main(int args, char ** argv)
       ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
       if(approx)
       {
-        type = OptimizationToolsOld::DISTANCEMETHOD_INIT;
+        type = OptimizationTools::DISTANCEMETHOD_INIT;
         parametersToIgnore = allParameters;
         ignoreBrLen = true;
       }
@@ -341,7 +340,7 @@ int main(int args, char ** argv)
         AlignedValuesContainer * sample = SiteContainerTools::bootstrapSites(*sites);
         if(approx) model->setFreqFromData(*sample);
         distEstimation.setData(sample);
-        bsTrees[i] = OptimizationToolsOld::buildDistanceTree(
+        bsTrees[i] = OptimizationTools::buildDistanceTree(
           distEstimation,
           *distMethod,
           parametersToIgnore,
@@ -366,7 +365,7 @@ int main(int args, char ** argv)
       for(unsigned int i = 0; i < nbBS; i++) delete bsTrees[i];
 
       //Write resulting tree:
-      PhylogeneticsApplicationToolsOld::writeTree(*tree, bppdist.getParams());
+      PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
     }
     
     delete alphabet;

@@ -7,7 +7,8 @@ DATA = HIV1_REF_2010_gag
 
 # The alphabet to use:
 # [DNA|RNA|Protein|Generic]
-alphabet=Codon(code=Standard, letter=DNA)
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
 
 # The sequence file to use (sequences must be aligned!)
 input.sequence.file=../Data/$(DATA)_DNA.fasta
@@ -28,6 +29,6 @@ output.sequence.format=Fasta()
 # Sequences manipulations
 # -----------------------
 #For example (see manual for a detailed list of available options):
-sequence.manip = CoerceToAlignment,RemoveStops,KeepComplete(maxGapAllowed=30%),Translate(code=StandardGeneticCode)
+sequence.manip = CoerceToAlignment,RemoveStops,KeepComplete(maxGapAllowed=30%),Translate
   
 

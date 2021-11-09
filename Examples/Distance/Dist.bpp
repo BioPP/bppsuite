@@ -30,7 +30,7 @@ output.matrix.file = $(DATA).mat
 #
 model = HKY85(kappa=2.843, theta=0.5, theta1=0.5, theta2=0.5, useObservedFrequencies=yes)
 
-rate_distribution = Gamma(n=4, alpha=0.358)
+rate_distribution = Constant() #Gamma(n=4, alpha=0.358)
 
 # Tree reconstruction method [wpgma|upgma|nj|bionj]
 method = $(METHOD)

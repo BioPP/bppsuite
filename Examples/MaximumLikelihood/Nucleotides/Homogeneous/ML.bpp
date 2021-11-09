@@ -46,7 +46,7 @@ phylo1 = Single(process=1, data=1)
 optimization = FullD(derivatives=Newton)
 
 # Tell if the parameter should be transformed in order to remove constraints.
-# This can improves the optimization, but might be a bit slower.
+# This can improve the optimization, but might be a bit slower.
 optimization.reparametrization = no
 
 # Final optimization step, may be useful if numerical derivatives are used:
@@ -71,38 +71,6 @@ optimization.message_handler = $(DATA).messages
 # A file where to dump optimization steps (a file path or std for standard output)
 optimization.profiler = $(DATA).profile
 
-# Shall we optimize tree topology as well?
-optimization.topology = no
-
-# Algorithm to use for topology estimation: only NNI for now
-optimization.topology.algorithm = NNI
-
-# NNI method: fast, better or phyml
-# You should use the phyml option, since it is really more efficient!
-optimization.topology.algorithm_nni.method = phyml
-
-# Number of phyml topology movement steps before reoptimizing parameters:
-optimization.topology.nstep = 4
-
-# Shall we estimate parameters before looking for topology movements?
-optimization.topology.numfirst = no
-
-# Tolerances: These numbers should not be too low, in order to save computation
-# time and also for a better topology estimation.
-# The optimization.tolerance parameter will be used for the final optimization
-# of numerical parameters.
-#
-# Tolerance for the prior-topology estimation
-optimization.topology.tolerance.before = 100
-
-# Tolerance for the during-topology estimation
-optimization.topology.tolerance.during = 100
-
-# Shall we first scale the tree before optimizing parameters? [deprecated]
-optimization.scale_first = no
-
-
-
 
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
@@ -113,15 +81,4 @@ output.infos = $(DATA).infos
 
 # Write numerical parameter estimated values:
 output.estimates = $(DATA).params.txt
-
-# ----------------------------------------------------------------------------------------
-#                                     Bootstrap
-# ----------------------------------------------------------------------------------------
-
-bootstrap.number = 0
-# Tell if numerical parameters should be kept to their initial value when bootstrapping: 
-bootstrap.approximate = no
-# Set this to yes for detailed output when bootstrapping. 
-bootstrap.verbose = no
-bootstrap.output.file = $(DATA).ML_bstrees.dnd
 

@@ -26,11 +26,7 @@ In this tutorial, we will see several examples of usage of programs
 from bppsuite. Bppsuite programs depend on bio++ libraries, and all
 are available there:
 
-\url{http://biopp.univ-montp2.fr/wiki/index.php/Main_Page}
-
-as well as on Github:
-
-\url{http://github.com/BioPP}
+\url{https://github.com/BioPP/bpp-documentation/wiki}
 
 \medskip
 
@@ -40,7 +36,7 @@ reconstruction and substitution mapping.
 
 All the options are described in bppsuite manual:
 
-\url{http://biopp.univ-montp2.fr/manual/html/bppsuite/document}
+\url{https://github.com/BioPP/bppsuite/releases/latest/download/bppsuite.html}
 
 \section{Homogeneous simple model}
 
@@ -61,6 +57,10 @@ Given a process and data, it is possible to infer ancestral sequence
 probabilities, using program \texttt{bppancestor}. Usually this is
 done after the estimate of the best process given the data. In our
 case, we use the parameter file \texttt{hom\_Anc.bpp}
+
+\begin{verbatim}
+  bppancestor param=hom_Anc.bpp
+\end{verbatim}
 
 \section{Non-homogeneous simple model}
 
@@ -103,9 +103,9 @@ In this example, we define a distribution of substitution rates:
 which is here a Gamma distribution with 4 classes and a specific
 probability of null rate for constant sites.
 
-The \textit{a posteriori} probabilities of the 5 classes of this
+The \textit{posterior} probabilities of the 5 classes of this
 distribution are written in the info file \verb|aln1.infos_1|. We can
-see that for non-constant sites the \textit{a posteriori}
+see that for non-constant sites the \textit{posterior}
 probabilities of the first class (the invariant class) are quasi null.
 
 \section{Computing on several data}

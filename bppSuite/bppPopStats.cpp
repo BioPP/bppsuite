@@ -61,15 +61,14 @@ using namespace std;
 
 // From bpp-phyl:
 #include <Bpp/Phyl/Tree/Tree.h>
+#include <Bpp/Phyl/Tree/PhyloTreeTools.h>
 #include <Bpp/Phyl/Model/Nucleotide/K80.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Legacy/Distance/DistanceEstimation.h>
+#include <Bpp/Phyl/Distance/DistanceEstimation.h>
 #include <Bpp/Phyl/Distance/BioNJ.h>
-#include <Bpp/Phyl/Legacy/Likelihood/DRHomogeneousTreeLikelihood.h>
-#include <Bpp/Phyl/Legacy/Likelihood/MarginalAncestralStateReconstruction.h>
+#include <Bpp/Phyl/Likelihood/MarginalAncestralReconstruction.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
-#include <Bpp/Phyl/Legacy/App/PhylogeneticsApplicationTools.h>
 
 // From bpp-popgen
 #include <Bpp/PopGen/PolymorphismSequenceContainer.h>
@@ -211,12 +210,12 @@ int main(int args, char** argv)
 
     // Fit a model for later use:
     unique_ptr<Tree> tree;
-    unique_ptr<SubstitutionModel> model;
-    unique_ptr<DiscreteDistribution> rDist;
-    DRTreeLikelihood* treeLik = nullptr;
+    shared_ptr<SubstitutionModel> model;
+    shared_ptr<DiscreteDistribution> rDist;
     unique_ptr<Sequence> ancestralSequence;
     if (fitModel) {
       // Get the alignment:
+      
       bool sampleIngroup = ApplicationTools::getBooleanParameter("estimate.sample_ingroup", bpppopstats.getParams(), true);
       size_t sampleIngroupSize = 0;
       if (sampleIngroup) {
@@ -244,13 +243,13 @@ int main(int args, char** argv)
       string treeOpt = ApplicationTools::getStringParameter("input.tree.method", bpppopstats.getParams(), "bionj", "");
       if (codonAlphabet) {
         shared_ptr<FrequencySet> freqSet(new FixedCodonFrequencySet(gCode.get()));
-        model.reset(new YN98(gCode.get(), freqSet));
+        model=std::make_shared<YN98>(gCode.get(), freqSet);
       } else {
-        model.reset(new K80(&AlphabetTools::DNA_ALPHABET));
+      model=std::make_shared<K80>(&AlphabetTools::DNA_ALPHABET);
       } //Note: proteins not supported!
-      rDist.reset(new ConstantRateDistribution()); 
+      rDist=std::make_shared<ConstantRateDistribution>(); 
       if (treeOpt == "user") {
-        tree.reset(PhylogeneticsApplicationToolsOld::getTree(bpppopstats.getParams()));
+        tree.reset(PhylogeneticsApplicationTools::getTree(bpppopstats.getParams()));
       } else if (treeOpt == "bionj") {
         ApplicationTools::displayTask("Estimating distance matrix", true);
         //DistanceEstimation distEstimation(model->clone(), rDist->clone(), aln.get(), 1, false);
@@ -270,12 +269,24 @@ int main(int args, char** argv)
       }
 
       // Create a likelihood object:
-      treeLik = new DRHomogeneousTreeLikelihood(*tree, *aln, model.get(), rDist.get());
-      treeLik->initialize();
+
+      Context context;
+
+      auto phyloTree = PhyloTreeTools::buildFromTreeTemplate(*tree);
+
+      std::unique_ptr<ParametrizablePhyloTree> partree(new ParametrizablePhyloTree(*phyloTree));
+  
+      auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rDist, partree.release());
+      
+      auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *aln, *process);
+
+      PhyloLikelihood* treeLik = new SingleProcessPhyloLikelihood(context, lik);
+
       if (std::isinf(treeLik->getValue()))
         throw Exception("Error: null likelihood. Possible cause: stop codon or numerical underflow (too many sequences).");
       // Optimize parameters:
-      treeLik = dynamic_cast<DRTreeLikelihood*>(PhylogeneticsApplicationToolsOld::optimizeParameters(treeLik, treeLik->getParameters(), bpppopstats.getParams(), "", true, true, 2));
+      treeLik = PhylogeneticsApplicationTools::optimizeParameters(treeLik, treeLik->getParameters(), bpppopstats.getParams(), "", true, true, 2);
+      process->matchParametersValues(lik->getParameters());
 
       // Get kappa:              
       if (estimateTsTv) {
@@ -283,7 +294,7 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Transition / transversions ratio", kappa);
       }
       if (estimateAncestor) {
-        MarginalAncestralStateReconstruction asr(treeLik);
+        MarginalAncestralReconstruction asr(lik);
         uint outgroupId = uint(tree->getLeafId(pscOut->getSequence(0).getName()));
         ancestralSequence.reset(asr.getAncestralSequenceForNode(uint(tree->getFatherId(int(outgroupId)))));
       }
@@ -291,8 +302,6 @@ int main(int args, char** argv)
         omega = model->getParameter("omega").getValue();
       }
     }
-    if (treeLik)
-      delete treeLik; //Not needed anymore.
 
     // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     
@@ -520,10 +529,10 @@ int main(int args, char** argv)
       else if (cmdName == "CodonSiteStatistics")
       {
         if (!codonAlphabet) {
-          throw Exception("CodonSiteStatstics can only be used with a codon alignment. Check the input alphabet!");
+          throw Exception("CodonSiteStatistics can only be used with a codon alignment. Check the input alphabet!");
         }
-        string path = ApplicationTools::getAFilePath("output.file", bpppopstats.getParams(), true, false);
-        if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics"); 
+        string path = ApplicationTools::getAFilePath("output.file", cmdArgs, true, false);
+        if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics");
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
         out << "Site\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
