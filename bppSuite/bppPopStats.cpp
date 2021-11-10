@@ -483,8 +483,8 @@ int main(int args, char** argv)
         alnCons->addSequence(*consensusIn);
         alnCons->addSequence(*consensusOut);
         shared_ptr<FrequencySet> freqSetDiv(new FixedCodonFrequencySet(gCode.get()));
-        YN98* modelDiv = new YN98(gCode.get(), freqSetDiv);
-        DiscreteDistribution* rDistDiv = new ConstantRateDistribution(); 
+        auto modelDiv = std::make_shared<YN98>(gCode.get(), freqSetDiv);
+        auto rDistDiv = std::make_shared<ConstantRateDistribution>(); 
         DistanceEstimation distEstimation(modelDiv, rDistDiv, alnCons.get(), 0, false);
         distEstimation.setAdditionalParameters(modelDiv->getIndependentParameters());
         distEstimation.computeMatrix();

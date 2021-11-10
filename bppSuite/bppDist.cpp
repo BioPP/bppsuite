@@ -129,21 +129,21 @@ int main(int args, char ** argv)
 
     map<string, string> unparsedparams;
 
-    auto model = dynamic_cast<TransitionModel*>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppdist.getParams(), unparsedparams));
+    auto model = std::shared_ptr<BranchModel>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppdist.getParams(), unparsedparams));
 
     if (!model)
       ApplicationTools::displayMessage("bppDist available only for regular transition models, not " + model->getName());
 
     
-    DiscreteDistribution* rDist = 0;
+    std::shared_ptr<DiscreteDistribution> rDist;
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
-      rDist = new ConstantRateDistribution();
+      rDist = std::shared_ptr<ConstantRateDistribution>();
     }
     else
     {
-      rDist = PhylogeneticsApplicationTools::getRateDistribution(bppdist.getParams());
+      rDist = std::shared_ptr<DiscreteDistribution>(PhylogeneticsApplicationTools::getRateDistribution(bppdist.getParams()));
     }
    
     DistanceEstimation distEstimation(model, rDist, sites, 1, false);
@@ -338,7 +338,8 @@ int main(int args, char ** argv)
       {
         ApplicationTools::displayGauge(i, nbBS-1, '=');
         AlignedValuesContainer * sample = SiteContainerTools::bootstrapSites(*sites);
-        if(approx) model->setFreqFromData(*sample);
+        TransitionModel* tm=dynamic_cast<TransitionModel*>(model.get());
+        if(approx && tm) tm->setFreqFromData(*sample);
         distEstimation.setData(sample);
         bsTrees[i] = OptimizationTools::buildDistanceTree(
           distEstimation,
