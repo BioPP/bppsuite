@@ -26,6 +26,8 @@ IF(NO_DEP_CHECK)
   MESSAGE(STATUS "Dependencies checking disabled. Only distribution can be built.")
 ELSE(NO_DEP_CHECK)
 
+#This creates rpm packages:
+ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz DEPENDS dist info man)
 
 #static linkage?
 IF(NOT BUILD_STATIC)
@@ -116,15 +118,3 @@ INCLUDE(CPack)
 #This adds the 'dist' target
 ADD_CUSTOM_TARGET(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 
-IF(NOT NO_DEP_CHECK)
-IF (UNIX)
-
-#This creates rpm packages:
-ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz)
-ADD_DEPENDENCIES(rpm dist info man)
-
-#ADD_DEPENDENCIES(info install)
-
-ENDIF(UNIX)
-
-ENDIF(NOT NO_DEP_CHECK)
