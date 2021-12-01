@@ -126,13 +126,13 @@ int main(int args, char ** argv)
 
   bppconsense.done();
 
-	}
+  }
   catch(exception & e)
   {
-		cout << e.what() << endl;
-		return 1;
-	}
+    cout << e.what() << endl;
+    return 1;
+  }
 
-	return (0);
+  return (0);
 }
 

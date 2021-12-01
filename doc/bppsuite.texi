@@ -392,7 +392,16 @@ have or do not have to be aligned.
 @item format = @{sequence format description@}
 The sequence file format.
 
-@item selection = @{list of integers@}
+@item keep_names = all(default) | @{list of sequence names@}
+Provide an optional list of sequences to keep. Sequences whose name is not in the list will be discarded.
+Names in the list with no match in the sequence file will be ignored.
+
+@item remove_names = none(default) | @{list of sequence names@}
+Procide an optional list of sequences to be discarded.
+Names in the list with no match in the sequence file will raise an error.
+This option can be combined with the previous one.
+
+@item input.site.selection = @{list of integers@}
 Will only consider sites in the given list of positions, in extended
 format : positions separated with ",", and "i-j" for all positions
 between i and j, included.
@@ -1639,6 +1648,47 @@ path1=model2[T92.kappa_1] & model3[TN93.theta1_2] & model3[TN93.theta1_3]
 means that a site that has @var{T92.kappa=4} in model2 has either
 @var{TN93.theta1=0.5} or @var{TN93.theta1=0.9} in model3.
 
+It is also possible to use submodels numbers in the declaration of the
+paths. The submodels are numbered from 1 to the number of submodels,
+in the increasing order of the values of the mixed parameter.
+When several parameters are mixed inside a mixed model, it may be more
+difficult to get the numbers.
+
+Also, when several parameters are mixed inside a mixed model, when
+only a parameter value is used in a path, it means that all values of
+the other parameter are used in this path. It is possible to restrain
+this to a specific combination of parameters values using separator
+``,'' inside the brackets. When ``,'' is used before a parameter name,
+the intersection of the submodels in the path under construction and
+the submodels linked with this parameter is used. When ``,'' is used
+before a submodel number, this number is added to the computed path.
+For example:
+
+@cartouche
+@example 
+model1 = MixedModel(model=YN98(kappa=Simple(values=(3,4),probas=(0.1,0.9))\
+        ,omega=Simple(values=(0.02,0.05),probas=(0.5,0.5)), frequencies=F0))
+model2 = MixedModel(model=YN98(kappa=Simple(values=(1,2),probas=(0.1,0.9))\
+        ,omega=Simple(values=(0.1,0.5),probas=(0.2,0.8))))
+nonhomogeneous = general
+nonhomogeneous.number_of_models = 2
+nonhomogeneous.stationarity = yes
+site.number_of_paths = 2
+site.path1 = model1[YN98.kappa_1,YN98.omega_2,2]&model2[YN98.omega_1,YN98.kappa_2]
+site.path2 = model1[YN98.kappa_2,YN98.omega_2,1]&model2[YN98.omega_2,1]
+@end example
+@end cartouche
+
+will define two paths. In the first path, for the first model
+successively the submodel numbers are 1,3 (from @var{YN98.kappa_1}),
+then restricted to 3 (because submodels of @var{YN98.omega_2} are 3
+and 4), and then extended to 2,3. For the second model, they are
+successively 1,2, and then restristed to 2. In the first path, for the
+first model successively the submodel numbers are 2,4 (from
+@var{YN98.kappa_2}), then restricted to 4 (because submodels of
+@var{YN98.omega_2} are 3 and 4), and then extended to 1,4. For the
+second model, they are successively 3,4, and then extended to 1.
+
 
 Because of these constraints, the probabilities of the submodels are
 linked. In the first example, probability of @var{T92.kappa=4} in
@@ -2316,6 +2366,12 @@ Leave the field empty in order to skip this step.
 A file where to dump optimization steps (a file path or std for
 standard output or none for no output).
 
+@item optimization.backup.file = @{path@}
+A backup file where parameters values are stored during optimization
+process. If this file exists when starting the optimization, parameter
+values will be set from the ones in this file. When optimization is
+finished, this file is renamed with suffixe ".def".
+
 @item optimization.message_handler = @{@{path@}|std|none@}
 A file where to dump warning messages.
 
@@ -2839,7 +2895,6 @@ Where to write bootstrap trees.
 Probably one of the simplest program to use in the suite, just takes a list of trees (for instance produced by BppML, BppDist or BppPars with the bootstrap option enabled) and compute bootstrap values for a reference tree, provided as input, or constructed using a consensus method.
 The program uses the multiple-trees reading options for input (@pxref{Tree}) and single-tree writing options for output.
 
-There are only specific options here:
 @table @command
 
 @item tree = @{tree methods@}
@@ -2857,6 +2912,8 @@ Build a consensus tree according to a given threshold.
 
 @end table
 
+@item bootstrap.format = @{int@}
+format of the bootstrap values. If positive, output values as percentages with the specified number of decimals. If negative, output the raw counts (number of trees).
 @end table
 
 @c ------------------------------------------------------------------------------------------------------------------
@@ -3156,13 +3213,17 @@ Compute Tajima's nucleotide diversity estimator (pi, averaged per site).
 
 @item TajimaD
 Compute Tajima's D. If a codon alignment is specified (and alphabet is set to codon type),
-the @command{positions} argument further allow to compute Tajima's D on synonymous sites only
-(@command{positions=synonymous}), non-synonymous sites (@command{positions=non-synonymous}).
+the @command{positions} argument further allows to compute Tajima's D on synonymous sites only
+(@command{positions=synonymous}), or non-synonymous sites (@command{positions=non-synonymous}).
 Default is to use all sites (@command{positions=all}).
 
 @item FuAndLiDStar | FuAndLiFStar
 Compute Fu and Li's (1993) D and F statistics. If argument @command{tot_mut} is set to yes,
 then the total number of mutations is used in the calculation, instead of the number of segregating sites (default).
+The @command{positions} argument further allows to compute Fu and Li's statistics on synonymous sites only
+(@command{positions=synonymous}), or non-synonymous sites (@command{positions=non-synonymous}).
+Default is to use all sites (@command{positions=all}).
+
 
 @item PiN_PiS
 For codon sequences only, obviously. Compute nucleotide diversity at synonymous and non-synonymous site,
@@ -3175,7 +3236,7 @@ Reports the estimated parameters omega (dN / dS ratio) and kappa (transitions / 
 @item MKT
 Compute the MacDonald-Kreitman table, for codon sequences with outgroup.
 
-@item CodonSitesStatistics
+@item CodonSiteStatistics
 Generate a table with codon-site specifics statistics, including:
 
 @itemize @bullet

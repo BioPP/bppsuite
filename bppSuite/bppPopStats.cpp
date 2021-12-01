@@ -199,7 +199,9 @@ int main(int args, char** argv)
     // Shall we estimate some parameters first?
     
     bool estimateTsTv = ApplicationTools::getBooleanParameter("estimate.kappa", bpppopstats.getParams(), false, "", false, 1);
-    double kappa = 1;
+    double kappa = ApplicationTools::getDoubleParameter("kappa", bpppopstats.getParams(), 1.0, "", false, 1);
+    ApplicationTools::displayResult("Initial or fixed Ts/Tv ratio (kappa):", kappa);
+    
     double omega = -1;
     
     bool estimateAncestor = ApplicationTools::getBooleanParameter("estimate.ancestor", bpppopstats.getParams(), false, "", false, 1);
@@ -291,7 +293,11 @@ int main(int args, char** argv)
       // Get kappa:              
       if (estimateTsTv) {
         kappa = model->getParameter("kappa").getValue();
-        ApplicationTools::displayResult("Transition / transversions ratio", kappa);
+        ApplicationTools::displayResult("Estimated Ts/Tv ratio", kappa);
+      }
+      // Write to log file:
+      if (logFile != "none") {
+        *cLog << "Kappa = " << kappa << endl;
       }
       if (estimateAncestor) {
         MarginalAncestralReconstruction asr(lik);
@@ -400,8 +406,20 @@ int main(int args, char** argv)
       // +-----------+
       else if (cmdName == "FuAndLiDStar")
       {
+        string positions = ApplicationTools::getStringParameter("positions", cmdArgs, "all", "", false, 1);
+        shared_ptr<PolymorphismSequenceContainer> pscTmp;
+        if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
+          throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
+        if (positions == "synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "non-synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "all") {
+          pscTmp = pscIn;
+        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
-        double flDstar = SequenceStatistics::fuLiDStar(*pscIn, !useTotMut);
+        double flDstar = SequenceStatistics::fuLiDStar(*pscTmp, !useTotMut);
         ApplicationTools::displayResult("Fu and Li's (1993) D*:", flDstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
         //Print to logfile:
@@ -419,8 +437,20 @@ int main(int args, char** argv)
       // +-----------+
       else if (cmdName == "FuAndLiFStar")
       {
+        string positions = ApplicationTools::getStringParameter("positions", cmdArgs, "all", "", false, 1);
+        shared_ptr<PolymorphismSequenceContainer> pscTmp;
+        if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
+          throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
+        if (positions == "synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "non-synonymous") {
+          pscTmp.reset(PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode));
+        } else if (positions == "all") {
+          pscTmp = pscIn;
+        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
-        double flFstar = SequenceStatistics::fuLiFStar(*pscIn, !useTotMut);
+        double flFstar = SequenceStatistics::fuLiFStar(*pscTmp, !useTotMut);
         ApplicationTools::displayResult("Fu and Li (1993)'s F*:", flFstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
         //Print to logfile:
@@ -432,6 +462,7 @@ int main(int args, char** argv)
             *cLog << "fuLiFstarSegSit" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flFstar << endl;
         }
       }
+
       // +-----------+
       // | PiN / PiS |
       // +-----------+
@@ -482,6 +513,7 @@ int main(int args, char** argv)
         unique_ptr<AlignedSequenceContainer> alnCons(new AlignedSequenceContainer(codonAlphabet));
         alnCons->addSequence(*consensusIn);
         alnCons->addSequence(*consensusOut);
+
         shared_ptr<FrequencySet> freqSetDiv(new FixedCodonFrequencySet(gCode.get()));
         auto modelDiv = std::make_shared<YN98>(gCode.get(), freqSetDiv);
         auto rDistDiv = std::make_shared<ConstantRateDistribution>(); 
@@ -537,8 +569,10 @@ int main(int args, char** argv)
         ofstream out(path.c_str(), ios::out);
         out << "Site\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
         out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS";
-        bool outgroup = (pscOut && pscOut->getNumberOfSequences() == 1);
+        bool outgroup = (pscOut && pscOut->getNumberOfSequences() > 0);
+        bool minChange = ApplicationTools::getBooleanParameter("complex_codon.min_change", cmdArgs, false);
         if (outgroup) {
+          ApplicationTools::displayResult("Complex codons path", minChange ? "min non-synonymous" : "equal weight");
           out << "\tOutgroupAllele";
         }
         if (estimateAncestor) {
@@ -549,9 +583,19 @@ int main(int args, char** argv)
         }
         out << endl;
 
-        unique_ptr<SiteContainer> sites(pscIn->toSiteContainer());
-        for (size_t i = 0; i < sites->getNumberOfSites(); ++i) {
-          const Site& site = sites->getSite(i);
+        unique_ptr<SiteContainer> sitesIn(pscIn->toSiteContainer());
+        unique_ptr<SiteContainer> sitesOut;
+        unique_ptr<SiteContainer> consensus(new VectorSiteContainer(pscIn->getAlphabet()));
+        if (outgroup) {
+          sitesOut.reset(pscOut->toSiteContainer());
+          unique_ptr<Sequence> inseq(SiteContainerTools::getConsensus(*sitesIn, "ingroup", true, false));
+          consensus->addSequence(*inseq, false);
+          unique_ptr<Sequence> outseq(SiteContainerTools::getConsensus(*sitesOut, "outgroup", true, false));
+          consensus->addSequence(*outseq, false);
+        }
+
+        for (size_t i = 0; i < sitesIn->getNumberOfSites(); ++i) {
+          const Site& site = sitesIn->getSite(i);
           map<int, size_t> counts;
           SymbolListTools::getCounts(site, counts);
           size_t minFreq = site.size() + 1;
@@ -579,52 +623,51 @@ int main(int args, char** argv)
               nbMissing += it->second;            
             }
           }
-          
+
           out << site.getPosition() << "\t";
           out << nbMissing << "\t";
           out << nbAlleles << "\t";
-          out << minFreq << "\t";
-          out << maxFreq << "\t";
-          out << alphabet->intToChar(minState) << "\t";
-          out << alphabet->intToChar(maxState) << "\t";
-          if (estimateAncestor) {
-            out << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa) << "\t";
+          if (nbAlleles > 0) {
+            //The site is not exclusively made of missing data        
+            out << minFreq << "\t";
+            out << maxFreq << "\t";
+            out << alphabet->intToChar(minState) << "\t";
+            out << alphabet->intToChar(maxState) << "\t";
+            if (estimateAncestor) {
+              out << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa) << "\t";
+            } else {
+              out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
+            }
+            out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
+            out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
+            out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
+            out << CodonSiteTools::piSynonymous(site, *gCode);
           } else {
-            out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
+            out << "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA";        
           }
-          out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
-          out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
-          out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
-          out << CodonSiteTools::piSynonymous(site, *gCode);
+
           if (outgroup) {
-           out << "\t" << pscOut->getSequence(0).getChar(i); 
+            out << "\t" << pscOut->getSequence(0).getChar(i); 
           }
           if (estimateAncestor) {
-           out << "\t" << ancestralSequence->getChar(i); 
+            out << "\t" << (nbAlleles == 0 ? "NNN" : ancestralSequence->getChar(i)); 
           }
           if (outgroup) {
             //Add divergence
-            int outgroupState = pscOut->getSequence(0)[i];
-            if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState)) {
+            int ingroupState = consensus->getSequence(0)[i];
+            int outgroupState = consensus->getSequence(1)[i];
+            if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState) || nbAlleles == 0) {
               out << "\tNA\tNA\tNA";
             } else {
-              //Average over outgroup (Note: minState and maxState are identical in this case)
               out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
-                                     CodonSiteTools::numberOfSynonymousPositions(minState, *gCode, kappa)) / 2.;
-              if (nbAlleles == 1) {
-                //Compare with outgroup:
-                if (site[0] == outgroupState) {
-                  out << "\t0\t0";
-                } else {
-                  //This is a real substitution:
-                  double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, minState, *codonAlphabet));
-                  double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, minState, *gCode); 
-                  out << "\t" << (nt - ns) << "\t" << ns;
-                }
-              } else {
-                //Site is polymorphic, this is not a substitution    
-                out << "\t0\t0";
-              }
+                                     CodonSiteTools::numberOfSynonymousPositions(ingroupState, *gCode, kappa)) / 2.;
+              //Compare with outgroup:
+              double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, ingroupState, *codonAlphabet));
+              double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, ingroupState, *gCode, minChange); 
+              out << "\t" << (nt - ns) << "\t" << ns;
+              //double nt2 = CodonSiteTools::numberOfSubstitutions(consensus->getSite(i), *gCode);
+              //double nn2 = CodonSiteTools::numberOfNonSynonymousSubstitutions(consensus->getSite(i), *gCode);
+              //out << "\t" << nn2 << "\t" << (nt2 - nn2);
             }
           }
           out << endl;

@@ -117,7 +117,7 @@ int main(int args, char** argv)
     /////////////////
     // Computing stuff
 
-    
+
     unique_ptr<SubstitutionProcessCollection> SPC(bppmixedlikelihoods.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams));
     
     map<size_t, SequenceEvolution*> mSeqEvol = bppmixedlikelihoods.getProcesses(*SPC, unparsedParams);
@@ -327,7 +327,7 @@ int main(int args, char** argv)
 
       for (unsigned int i = 0; i < nummod; i++)
       {
-        string modname = pMSM->getNModel(i)->getName();
+        string modname = pMSM->getNModel(i)->getName()+"_"+TextTools::toString(i+1);
 
         auto func= [nummod, i](BranchModel* bmodel){
           auto pAbmtm2 = dynamic_cast<AbstractBiblioMixedTransitionModel*>(bmodel);
@@ -446,9 +446,7 @@ int main(int args, char** argv)
         {
           vector<double> vprob2;
           for (size_t j = 0; j < vvnmod[i].size(); j++)
-          {
             vprob2.push_back(vprob[static_cast<size_t>(vvnmod[i][j])]);
-          }
 
           vvprob.push_back(vprob2);
           vsprob.push_back(VectorTools::sum(vvprob[i]));
@@ -534,6 +532,7 @@ int main(int args, char** argv)
           ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
         }
 
+
         for (size_t j = 0; j < nSites; j++)
         {
           Vdouble vd;
@@ -546,7 +545,7 @@ int main(int args, char** argv)
           (*rates)(j, 2 * nbcl + 2) = TextTools::toString(VectorTools::sumExp(vd, dval));
         }
 
-        DataTable::write(*rates, out, "\t");
+       DataTable::write(*rates, out, "\t");
       }
     }
 

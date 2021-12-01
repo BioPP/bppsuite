@@ -243,7 +243,7 @@ int main(int args, char** argv)
       ApplicationTools::displayResult("Alignment information logfile", infosFile);
       PhylogeneticsApplicationTools::printAnalysisInformation(*mPhyl, infosFile);
     }
-    
+
     for (auto& it : mSeqEvol)
       delete it.second;
     

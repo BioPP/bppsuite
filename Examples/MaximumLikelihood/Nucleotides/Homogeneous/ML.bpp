@@ -71,7 +71,6 @@ optimization.message_handler = $(DATA).messages
 # A file where to dump optimization steps (a file path or std for standard output)
 optimization.profiler = $(DATA).profile
 
-
 # Should we write the resulting tree? none or file name.
 output.tree.file = $(DATA).ML.dnd
 output.tree.format = Newick
