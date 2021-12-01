@@ -136,7 +136,6 @@ int main(int args, char ** argv)
     ApplicationTools::displayTaskDone();
     double score = tp->getScore();
     ApplicationTools::displayResult("Initial parsimony score", TextTools::toString(score, 15));
-    bool optTopo = ApplicationTools::getBooleanParameter("optimization.topology", bpppars.getParams(), false);
     tree = new TreeTemplate<Node>(tp->getTree());
   
     PhylogeneticsApplicationTools::writeTree(*tree, bpppars.getParams());
