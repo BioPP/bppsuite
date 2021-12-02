@@ -5,7 +5,7 @@
 # Created: 22/08/2009
 
 cmake_minimum_required (VERSION 3.0.0)
-project (bppsuite3 CXX)
+project (bppsuite CXX)
 
 # Compile options
 SET (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
