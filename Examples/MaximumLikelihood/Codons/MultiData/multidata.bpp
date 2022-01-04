@@ -8,7 +8,6 @@ genetic_code=Standard
 
 ## model, with rate distribution and root frequencies
 model1 = YN98(frequencies=F3X4,initFreqs=observed,data=1)
-rate_distribution1=Constant()
 root_freq1=F3X4()
 
 
@@ -25,8 +24,8 @@ input.data3=alignment(format=Fasta, file=../../../Data/$(DATA).fasta)
 
 
 ##  process (link models and trees)
-process1=Homogeneous(model=1, rate=1, tree=1, root_freq=1)
-process2=Homogeneous(model=1, rate=1, tree=2, root_freq=1)
+process1=Homogeneous(model=1, tree=1, root_freq=1)
+process2=Homogeneous(model=1, tree=2, root_freq=1)
 
 process3=Partition(process1=1, process1.sites=1:80, process2=2, process2.sites=81:130)
 

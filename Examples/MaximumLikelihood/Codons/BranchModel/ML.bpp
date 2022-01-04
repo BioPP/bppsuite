@@ -28,9 +28,7 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 
 model1 = YN98(kappa=1, omega=1, frequencies=F1X4)
 
-rate_distribution1 = Constant() 
-
-process1 = OnePerBranch(model=1, tree=1, rate=1, shared_parameters=(YN98.kappa, YN98.123_*))
+process1 = OnePerBranch(model=1, tree=1, shared_parameters=(YN98.kappa, YN98.123_*))
 
 phylo1 = Single(process=1, data=1)
 

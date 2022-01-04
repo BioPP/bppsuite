@@ -37,18 +37,12 @@ model2 = HKY85(kappa=HKY85.kappa_1)
 likelihood.alias = BrLen0_1 -> BrLen0_2,  BrLen1_1 -> BrLen1_2, BrLen2_1 -> BrLen2_2, BrLen3_1 -> BrLen3_2, BrLen4_1 -> BrLen4_2,  BrLen9_1 -> BrLen7_2, BrLen10_1 -> BrLen8_2, BrLen11_1 -> BrLen10_2, BrLen12_1 -> BrLen9_2, BrLen13_1 -> BrLen11_2, BrLen14_1 -> BrLen12_2, BrLen18_1 -> BrLen31_2, BrLen19_1 -> BrLen32_2, BrLen20_1 -> BrLen33_2, BrLen21_1 -> BrLen34_2, BrLen22_1 -> BrLen35_2,  BrLen23_1 -> BrLen36_2, BrLen24_1 -> BrLen37_2, BrLen40_1 -> BrLen38_2,  BrLen41_1 -> BrLen39_2, BrLen42_1 -> BrLen40_2, BrLen43_1 -> BrLen41_2, BrLen44_1 -> BrLen42_2
 
 # --------------------------------------------------------
-#                Substitution rates
-# --------------------------------------------------------
-
-rate_distribution1 = Constant()
-
-# --------------------------------------------------------
 #                Substitution process
 # --------------------------------------------------------
 
-process1 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=1, rate=1, root_freq=1)
+process1 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=1, root_freq=1)
 
-process2 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=2, rate=1, root_freq=1)
+process2 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=2, root_freq=1)
 
 process3 = Mixture(process1=1, process2=2)
 

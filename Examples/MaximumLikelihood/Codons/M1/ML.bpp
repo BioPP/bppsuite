@@ -29,11 +29,9 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 
 model1 = YNGP_M1(kappa=1, omega=0.5, frequencies=F1X4, p0=0.5, initFreqs=observed, data=1)
 
-rate_distribution1 = Constant()
-
 scenario1= split(model=1)
 
-process1 = Homogeneous(model=1, tree=1, rate=1, scenario=1)
+process1 = Homogeneous(model=1, tree=1, scenario=1)
 
 phylo1 = Single(process=1, data=1)
 

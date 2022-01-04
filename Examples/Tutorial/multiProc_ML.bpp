@@ -39,19 +39,13 @@ model2 = T92(theta=HKY85.theta_1)
 likelihood.alias = HKY85.kappa_1 -> T92.kappa_2
 
 # --------------------------------------------------------
-#                Substitution rates
-# --------------------------------------------------------
-
-rate_distribution1 = Constant()
-
-# --------------------------------------------------------
 #                Substitution process
 # --------------------------------------------------------
 
 ## The process is non-homogeneous, different models on the branches
    of the tree
 
-process1 = NonHomogeneous(model1=1, model1.nodes_id=0:20, model2=2, model2.nodes_id=21:44, tree=1, rate=1, root_freq=1)
+process1 = NonHomogeneous(model1=1, model1.nodes_id=0:20, model2=2, model2.nodes_id=21:44, tree=1, root_freq=1)
 
 process2 = Homogeneous(model=1, tree=2, rate=1, root_freq=1)
 

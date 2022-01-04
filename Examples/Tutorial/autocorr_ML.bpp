@@ -40,15 +40,15 @@ likelihood.alias = BrLen0_1 -> BrLen0_2,  BrLen1_1 -> BrLen1_2, BrLen2_1 -> BrLe
 #                Substitution rates
 # --------------------------------------------------------
 
-rate_distribution1 = Constant()
+## If there is no declaration of rate_distribution, a Constant one will be used in processes.
 
 # --------------------------------------------------------
 #                Substitution process
 # --------------------------------------------------------
 
-process1 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=1, rate=1, root_freq=1)
+process1 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=1, root_freq=1)
 
-process2 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=2, rate=1, root_freq=1)
+process2 = NonHomogeneous(model1=1, model1.nodes_id=Leaves, model2=2, model2.nodes_id=NoLeaves, tree=2, root_freq=1)
 
 process3 = AutoCorr(process1=1, process2=2)
 

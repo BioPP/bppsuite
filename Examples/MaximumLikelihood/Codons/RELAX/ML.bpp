@@ -30,9 +30,7 @@ root_freq1=F3X4(init=observed,data=1)
 
 model1 = RELAX(kappa=1, omega=1, frequencies=F1X4,initFreqs=observed,data=1)
 
-rate_distribution1 = Constant() 
-
-process1 = OnePerBranch(model=1, tree=1, rate=1, root_freq=1, shared_parameters=(*theta*,*omega*,*kappa*,RELAX.p))
+process1 = OnePerBranch(model=1, tree=1, root_freq=1, shared_parameters=(*theta*,*omega*,*kappa*,RELAX.p))
 
 phylo1 = Single(process=1, data=1)
 

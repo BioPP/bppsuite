@@ -7,13 +7,12 @@ genetic_code=VertebrateMitochondrial
 number_of_sites=1000
 
 input.tree1=user(file = ../../../Examples/Data/lysozymeLarge.dnd)
-rate_distribution1=Constant()
 model1=K80()
 model2=T92(theta=0.1)
 root_freq1=Full(theta=0.9)
 
-process1=Homogeneous(model=1, rate=1, tree=1, root_freq=1)
-process2=Homogeneous(model=2, rate=1, tree=1)
+process1=Homogeneous(model=1, tree=1, root_freq=1)
+process2=Homogeneous(model=2, tree=1)
 process3=AutoCorr(process1=1, process2=2, probas=(0.2, 0.8))
 
 simul1=Single(process=3,output.sequence.file=simul_AutoCorr.fa)
