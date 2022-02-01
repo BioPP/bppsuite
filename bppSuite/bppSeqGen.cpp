@@ -221,7 +221,7 @@ int main(int args, char ** argv)
 
     ////// Get the optional map of the sequences
     
-    map<size_t, AlignedValuesContainer*> mSites = bppseqgen.getAlignmentsMap(alphabet, true, true);
+    auto mSites = bppseqgen.getConstAlignmentsMap(alphabet, true, true);
 
     /// collection
     

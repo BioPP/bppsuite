@@ -101,7 +101,7 @@ int main(int args, char** argv)
 
     // get the data
 
-    map<size_t, AlignedValuesContainer*> mSites = bppmixedlikelihoods.getAlignmentsMap(alphabet.get());
+    auto mSites = bppmixedlikelihoods.getConstAlignmentsMap(alphabet.get(), true);
 
     if (mSites.size()!=1)
       throw Exception("Only one alignment possible.");

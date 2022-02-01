@@ -97,7 +97,7 @@ int main(int args, char ** argv)
     //  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
     // get the result phylo likelihood
-    map<size_t, AlignedValuesContainer*> mSites = bppancestor.getAlignmentsMap(alphabet.get());
+    auto mSites = bppancestor.getConstAlignmentsMap(alphabet.get(), true);
     auto mpTree = bppancestor.getPhyloTreesMap(mSites, unparsedParams);
     auto SPC=bppancestor.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams);
     auto mSeqEvol = bppancestor.getProcesses(*SPC, unparsedParams);

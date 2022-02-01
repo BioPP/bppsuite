@@ -276,9 +276,7 @@ int main(int args, char** argv)
 
       auto phyloTree = PhyloTreeTools::buildFromTreeTemplate(*tree);
 
-      std::unique_ptr<ParametrizablePhyloTree> partree(new ParametrizablePhyloTree(*phyloTree));
-  
-      auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rDist, partree.release());
+      auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rDist, phyloTree);
       
       auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, *aln, *process);
 

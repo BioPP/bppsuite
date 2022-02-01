@@ -101,8 +101,10 @@ int main(int args, char** argv)
 
     ////// Get the map of the sequences
 
-    map<size_t, AlignedValuesContainer*> mSites = bppml.getAlignmentsMap(alphabet.get());
+    // true: changeGapstoUnknown because no RE08 model (yet)
+    auto mSites = bppml.getConstAlignmentsMap(alphabet.get(), true);
 
+    
     /////// Get the map of initial trees
 
     auto mpTree = bppml.getPhyloTreesMap(mSites, unparsedParams);
@@ -133,10 +135,6 @@ int main(int args, char** argv)
     shared_ptr<TransitionModel>    tmodel; // for legacy 
     shared_ptr<DiscreteDistribution> rDist;
 
-    // No RE08 model (yet)
-    for (auto  itc : mSites)
-      SiteContainerTools::changeGapsToUnknownCharacters(*itc.second);
-    
     SPC.reset(bppml.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams));
     
     mSeqEvol = bppml.getProcesses(*SPC, unparsedParams);
