@@ -72,7 +72,7 @@ else ()
 
 
   # Provide a "pdf" target that builds pdf doc (not installed, not part of "all").
-  find_program (TEXIDVI NAMES texi2dvi)
+  # find_program (TEXIDVI NAMES texi2dvi)
   if (TEXIDVI)
     message (STATUS "Found texi2dvi: 'pdf' target enabled (builds pdf doc)")
     set (output ${CMAKE_CURRENT_BINARY_DIR}/bppsuite.pdf)
