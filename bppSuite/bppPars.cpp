@@ -124,7 +124,7 @@ int main(int args, char ** argv)
     }
     else if (initTreeOpt == "random")
     {
-      vector<string> names = sites->getSequencesNames();
+      vector<string> names = sites->getSequenceNames();
       tree = TreeTemplateTools::getRandomTree(names, false);
       tree->setBranchLengths(1.);
     }

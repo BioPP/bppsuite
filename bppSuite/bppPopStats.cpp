@@ -232,7 +232,7 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Nb of ingroup sequences for model fitting", sampleIngroupSize);
         aln.reset(new AlignedSequenceContainer(pscIn->getAlphabet()));
         vector<string> selection(sampleIngroupSize);
-        RandomTools::getSample(pscIn->getSequencesNames(), selection, false); 
+        RandomTools::getSample(pscIn->getSequenceNames(), selection, false); 
         SequenceContainerTools::getSelectedSequences(*pscIn, selection ,*aln);
       } else {
         aln.reset(new AlignedSequenceContainer(*pscIn));

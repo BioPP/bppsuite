@@ -390,12 +390,12 @@ int main(int args, char ** argv)
           {
             ApplicationTools::displayGauge(i, nbSamples-1, '=');
             SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequences(true);
-            vector<string> names = sampleSites->getSequencesNames();
+            vector<string> names = sampleSites->getSequenceNames();
             for (unsigned int j = 0; j < names.size(); j++){
               names[j] += "_" + TextTools::toString(i+1);
             }
               
-            sampleSites->setSequencesNames(names, true);
+            sampleSites->setSequenceNames(names, true);
 
             SequenceContainerTools::append(*asSites, *sampleSites);
             delete sampleSites;

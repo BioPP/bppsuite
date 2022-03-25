@@ -85,8 +85,8 @@ int main(int args, char** argv)
     unique_ptr<SiteContainer> sitesRef(SequenceApplicationTools::getSiteContainer(alphabet.get(), bppalnscore.getParams(), ".ref", false, true));
 
     // We check if the two alignments are compatible:
-    vector<string> namesTest = sitesTest->getSequencesNames();
-    vector<string> namesRef  = sitesRef->getSequencesNames();
+    vector<string> namesTest = sitesTest->getSequenceNames();
+    vector<string> namesRef  = sitesRef->getSequenceNames();
     if (namesTest != namesRef)
     {
       ApplicationTools::displayTask("Reorder sequences in ref. alignment", true);
