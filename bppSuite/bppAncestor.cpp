@@ -300,13 +300,59 @@ int main(int args, char ** argv)
   if (std::isinf(logL))
   {
     ApplicationTools::displayError("!!! Unexpected likelihood == 0.");
-    ApplicationTools::displayError("!!! Looking at each site:");
-    for(unsigned int i = 0; i < sites->getNumberOfSites(); i++)
+    if (codonAlphabet)
     {
-      (*ApplicationTools::error << "Site " << sites->getSite(i).getPosition() << "\tlog likelihood = " << tl->getLogLikelihoodForASite(i)).endLine();
+      bool f = false;
+      size_t s;
+      for (size_t i = 0; i < sites->getNumberOfSites(); i++) {
+        if (std::isinf(tl->getLogLikelihoodForASite(i))) {
+          const Site& site = sites->getSite(i);
+          s = site.size();
+          for (size_t j = 0; j < s; j++) {
+            if (gCode->isStop(site.getValue(j))) {
+              (*ApplicationTools::error << "Stop Codon at site " << site.getPosition() << " in sequence " << sites->getSequence(j).getName()).endLine();
+              f = true;
+            }
+          }
+        }
+      }
+      if (f)
+        exit(-1);
     }
-    ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
-    exit(-1);
+    bool removeSaturated = ApplicationTools::getBooleanParameter("input.sequence.remove_saturated_sites", bppancestor.getParams(), false, "", true, 1);
+    if (!removeSaturated) {
+      ofstream debug ("DEBUG_likelihoods.txt", ios::out);
+      for (size_t i = 0; i < sites->getNumberOfSites(); i++)
+      {
+        debug << "Position " << sites->getSite(i).getPosition() << " = " << tl->getLogLikelihoodForASite(i) << endl; 
+      }
+      debug.close();
+      ApplicationTools::displayError("!!! Site-specific likelihood have been written in file DEBUG_likelihoods.txt .");
+      ApplicationTools::displayError("!!! 0 values (inf in log) may be due to computer overflow, particularily if datasets are big (>~500 sequences).");
+      ApplicationTools::displayError("!!! You may want to try input.sequence.remove_saturated_sites = yes to ignore positions with likelihood 0.");
+      exit(1);
+    } else {
+      ApplicationTools::displayBooleanResult("Saturated site masking enabled", true);
+      for (size_t i = sites->getNumberOfSites(); i > 0; --i) {
+        if (std::isinf(tl->getLogLikelihoodForASite(i - 1))) {
+          ApplicationTools::displayResult("Mask saturated site", sites->getSite(i - 1).getPosition());
+          //sites->deleteSite(i - 1);
+	  Site site(sites->getSite(i - 1));
+	  for (size_t j = 0; j < site.size(); ++j) {
+            site[j] = alphabet->getUnknownCharacterCode(); 
+	  }
+	  sites->setSite(i - 1, site, false);
+        }
+      }
+      ApplicationTools::displayResult("Number of sites retained", sites->getNumberOfSites());
+      tl->setData(*sites);
+      tl->initialize();
+      logL = tl->getValue();
+      if (std::isinf(logL)) {
+        throw Exception("Likelihood is still 0 after saturated sites are removed! Looks like a bug...");
+      }
+      ApplicationTools::displayResult("Initial log likelihood", TextTools::toString(-logL, 15));
+    }
   }
   tree = new TreeTemplate<Node>(tl->getTree());
 
