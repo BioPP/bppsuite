@@ -210,7 +210,7 @@ int main(int args, char** argv)
     string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppml.getParams(), false, false);
     bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.withalias", bppml.getParams(), true, "", false, 1);
     
-    ApplicationTools::displayResult("Process estimates to file", parametersFile);
+    ApplicationTools::displayResult("output.estimates", parametersFile);
     
     if (parametersFile != "none")
     {
