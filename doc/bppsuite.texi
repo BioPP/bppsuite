@@ -2909,8 +2909,6 @@ The BppML program allows you to optimize process parameters.
 Set how to initialize the branch lengths of all trees.
 Available methods include:
 
-@table @command
-
 @item Input(midpoint_root_branch=@{boolean@})
 Keep initial branch lengths as is. Additional argument specifies if the root position should be moved to the midpoint position of the branch containing it. 
 
@@ -2928,53 +2926,10 @@ The height of all nodes are then raised to the power of 'rho', a user specified 
 The tree is finally scaled to match a given total height, which can be the original one (@option{height=input}), or fixed to a certain value (usually @option{height=1}).
 A value of rho=0 provides a star tree, and the greater the value of rho, the more recent the inner nodes. 
 
-@end table
-
 @item input.tree.check_root = @{boolean@}
 Tell if the input tree should be checked regarding to the presence of a root. If set to yes (the default), rooted trees will be unrooted if a homogenous model is used.
 If not, a rooted tree will be fitted, which can lead to optimization issues in most cases. Use the non default option with care!
 @end table
-
-@c @subsection Topology optimization
-
-@c @table @command
-
-@c @item optimization.topology = @{boolean@}
-@c Enable the tree topology estimation.
-
-@c @item optimization.topology.algorithm = @{NNI@}
-@c Algorithm to use for topology estimation: only NNI available for now.
-
-@c @item optimization.topology.algorithm_nni.method = @{fast|better|phyml@}
-@c Set the NNI method to use.
-@c @option{fast}: test sequentially all NNI, if a NNI improving the likelihood is found, it is performed.
-@c @option{better}: test all possible NNIs, do the one with the biggest likelihood increase.
-@c @option{phyml}: test all possible NNIs, try doing all the improving ones.
-@c If the final likelihoods is better, perform all NNIs.
-@c Otherwise, try to do half of them, and so on. 
-@c In most cases the @option{phyml} option shows the best performance.
-
-@c @item optimization.topology.nstep = @{int>0@}
-@c Number of phyml topology movement steps before re-optimizing parameters.
-
-@c @item optimization.topology.numfirst = @{boolean@}
-@c Shall we estimate parameters before looking for topology movements?
-
-@c @item optimization.topology.tolerance.before = @{real>0@}
-@c Tolerance for the prior-topology estimation.
-@c The tolerance numbers should not be too low, in order to save computation time and also for a better topology estimation.
-@c The @option{optimization.tolerance} parameter will be used for the final optimization of numerical parameters (see Common options).
-
-@c @item optimization.topology.tolerance.during = 100
-@c Tolerance for the during-topology estimation
-
-@c @item optimization.scale_first = no
-@c Shall we first scale the tree before optimizing parameters?
-
-@c @item optimization.scale_first.tolerance = @{double@}
-@c The convergence criterion to achieve in the optimization.
-
-@c @end table
 
 
 @subsection Molecular clock
@@ -3005,45 +2960,6 @@ values (default: true).
 
 @end table
 
-@c @subsection Bootstrap analysis
-
-@c @table @command
-
-@c @item bootstrap.number = @{int>0@}
-@c Number of replicates. A reasonable value would be >= 100.
-
-@c @item bootstrap.approximate = @{boolean@}
-@c Tell if numerical parameters should be kept to their initial value when bootstrapping. 
-
-@c @item bootstrap.verbose = @{boolean@}
-@c Set this to yes for detailed output when bootstrapping. 
-
-@c @item bootstrap.output.file = @{@{path@}|none@}
-@c Where to write the resulting trees (multi-trees newick format).
-
-@c @end table
-
-@c @subsection Rather technical options
-
-@c Theses options are mainly for debugging or testing purpose, in most case you will be happy with the default setting.
-
-@c @table @command
-
-@c @item likelihood.recursion = @{simple|double@}
-@c Set the type of likelihood recursion to use.
-@c @option{simple}: derivatives take more time to compute, but likelihood computation is faster.
-@c For big data sets, it can save a lot of memory usage too, particularly when the data are compressed.
-@c @option{double}: uses more memory and need more time to compute likelihood, due to the double recursion.
-@c Analytical derivatives are however faster to compute.
-
-@c This command has no effect in the following cases: (i) topology estimation: this requires a double recursive algorithm, (ii) optimization with a molecular clock: a simple recursion with data compression is used in this case, due to the impossibility of computing analytical derivatives.
-@c @item likelihood.recursion_simple.compression = @{simple|recursive@}
-
-@c Site compression for the simple recursion:
-@c @option{simple}: identical sites are not computed twice, @option{recursive}: look for site patterns to save computation time during optimization, but requires extra time for building the patterns.
-@c This is usually the best option, particularly for nucleotide data sets.
-
-@c @end table
 
 @c ------------------------------------------------------------------------------------------------------------------
 
@@ -3052,63 +2968,72 @@ values (default: true).
 
 The BppSeqGen program uses the common syntax introduced in the
 previous section for setting the alphabet, loading the sequences
-(@pxref{Sequences}) and tree (@pxref{Tree}), specifying the model
-(@pxref{Model}) and writing sequence data (@pxref{WritingSequences}).
+(@pxref{Sequences}), trees (@pxref{Tree}), root frequencies
+(@pxref{FrequenciesSet}), substitution rates (@pxref{Distribution}),
+models (@pxref{Model}) and writing sequence data
+(@pxref{WritingSequences}).
 
-Several simulations are possible at the same time and they are base on
-site substitution processes or sequence substitution processes
-@pxref{Process}, or phylolikelihoods for posterior simulations. The
-declaration is :
+Several simulations are possible at the same time and they are based
+on site substitution processes or sequence substitution processes
+@pxref{Process}, or phylolikelihoods for posterior simulations
+@pxref{Phylo-likelihoods}.
+
+The root sequence can be a given sequence, or info from a specific
+file. If no specific root information is given, the root sequences are
+sampled given the root description in the process/phylo used.
+
+The basic declaration is :
 
 @table @command
-@item simul@{int@}=@{Simulation type@}(process=@{int@}, output.sequence.file=@{file path@}, number_of_sites = @{int>0@}[,output.sequence.format=@{alignement format@}, output.internal.sequences = true])
-@end table
+@item simul@{int@}=@{Simulation type@}(process=@{int@}, number_of_sites = @{int>0@}, ...)
 
 to simulate following a process, with a given number of sites.
-Optional argument @command{output.internal.sequences} tells if
-internal sequences should be written.
 
-@table @command
-@item simul@{int@}=@{Simulation type@}(phylo=@{int@}, pos=@{int@}, output.sequence.file=@{file path@}[,output.sequence.format=@{alignement format@}])
-@end table
-
-to simulate following the posterior process (ie described in
-phylolikelihoods @command{phylo}) in position @command{pos}.
-
-@table @command
-@item simul@{int@}=@{Simulation type@}(phylo=@{int@}, output.sequence.file=@{file path@}[,output.sequence.format=@{alignement format@}])
-@end table
+@item simul@{int@}=@{Simulation type@}(phylo=@{int@}, ...)
 
 to simulate following the posterior process (ie described in
 phylolikelihoods @command{phylo}) all along the alignment used in this
 phylolikelihood.
 
+@item simul@{int@}=@{Simulation type@}(phylo=@{int@}, pos=@{int@}, ...)
+
+to simulate following the posterior process (ie described in
+phylolikelihoods @command{phylo}) at position @command{pos}.
+
+@end table
+
 @sp 1
 
 Up to now, simulation type does not matter, and only @command{simul}
-is used. For example, if processes number 4 and 2 have been defined
-before.
+is used.
 
-@example
-simul1=simul(process1=4, process1.positions=0:50, process2=2, process2.positions=51:200, output.sequence.file = sim1.fa)
-@end example
+Output sequence is set through compulsory argument
+@var{output.sequence.file=@{file path@}}, and there are other options
+for output:
+
+@table @command
+@item output.sequence.format=@{alignement format@}
+Format of the output alignment (default Fasta)
+
+@item output.internal.sequences = @{boolean@}
+Tells if internal sequences should be written (default False).
+
+@end table
+
+@sp 1
 
 Also, there are several options for simulations:
 
 @table @command
 
-@item input.sequence.file=@{path@}
-The root sequence can be built from a file
-of a sequence: a sequence is be loaded, from which the simulation will be performed,
-or from which a root sequence can be sampled.
-(@pxref{Sequences}).
+@item data=@{int@}
+The root sequence is built from a sequence in a given alignment
+previously defined @pxref{Sequences}. The root sequence is randomly
+chosen among sequences in the alignment.
 
 @item input.infos = @{path@}
-A info file like the one output by bppML. The estimated site-specific
-rates will then be used to simulate the same number of sites as found
-in the info file, with the corresponding rates.
-
-In this case, additional options are possible:
+A info file like the one output by bppML. In this case, additional
+options are possible:
 
 @table @command
 
@@ -3119,34 +3044,36 @@ Name of the column on which the rates are described (default: pr).
 Name of the column on which the states are read (default: none, which
 means a random sequence).
 
-@item input.site.selection = @{string@} 
-used to sample sites from the given sequence (@pxref{Sequences}).
+@end table
+
+With both data, sites can be selected with option
+@var{input.site.selection = @{string@}} from the given sequence
+(@pxref{Sequences}).
 
 @end table
 
-Addition optional arguments include:
+@c Addition optional arguments include:
 
-@table @command
+@c @table @command
 
-@item input.tree.scale = @{float@}
-An optional scaling factor for the branch length (default to 1.0)
+@c @item input.tree.scale = @{float@}
+@c An optional scaling factor for the branch length (default to 1.0)
 
-@item input.tree.method = @{single|MS|CoaSim@}
-Format of input tree(s). By default, a single tree is expected
-('single'). Ancestral recombination graphs (ARGs), in the form of
-multiple trees, can also be provided in the MS or CoaSim format. Note
-that in the case of MS, ARG are given for a certain number of sites,
-wich should be provided as additional argument (e.g.
-@command{MS(number_of_sites=100)}). The ARG will be unscaled according
-to the given size, and rescaled according to the given number of sites
-to simulate. ARG in CoaSim format are already in relative scale.
+@c @item input.tree.method = @{single|MS|CoaSim@}
+@c Format of input tree(s). By default, a single tree is expected
+@c ('single'). Ancestral recombination graphs (ARGs), in the form of
+@c multiple trees, can also be provided in the MS or CoaSim format. Note
+@c that in the case of MS, ARG are given for a certain number of sites,
+@c wich should be provided as additional argument (e.g.
+@c @command{MS(number_of_sites=100)}). The ARG will be unscaled according
+@c to the given size, and rescaled according to the given number of sites
+@c to simulate. ARG in CoaSim format are already in relative scale.
 
-@end table
+@c @end table
 
 In addition, command line argument @option{--seed=@{int>0@}} can be
 used to set the seed of the random generator.
 
-@end table
 
  
 @c ------------------------------------------------------------------------------------------------------------------
