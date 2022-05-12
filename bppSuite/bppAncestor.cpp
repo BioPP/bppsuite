@@ -172,9 +172,10 @@ int main(int args, char ** argv)
     // ASR
     
     string sequenceFilePath = ApplicationTools::getAFilePath("asr.sequence.file", allParams, false, false, "", false, "none", 1);
+
     if (sequenceFilePath=="none")
       sequenceFilePath = ApplicationTools::getAFilePath("output.sequence.file", allParams, false, false, "", false, "none", 1);
-    
+
     string sequenceFormat="";
     bool sample=false;
     unsigned int nbSamples=0;
@@ -213,11 +214,25 @@ int main(int args, char ** argv)
         continue;
       }
 
-      const AlignedValuesContainer* sites=sPP?sPP->getData():oPSP->getData();
-            
       auto pDR=sPP?sPP->getLikelihoodCalculationSingleProcess(): oPSP->getLikelihoodCalculationSingleProcess();
+      auto sites=std::shared_ptr<const AlignedValuesContainer>(sPP?sPP->getData():oPSP->getData());
 
       // Only Marginal reconstruction method
+
+      VectorSequenceContainer vSC(alphabet.get());
+      
+      if (addSitesExtant)
+      {
+        auto vSC0=dynamic_cast<const SiteContainer*>(sites.get());
+        if (!vSC0)
+          ApplicationTools::displayWarning("Output extant sequences not possible with probabilistic sequences.");
+        // Keep only leaves
+        const auto& tree=sPP?sPP->getTree(): oPSP->getTree();
+        const auto leaves=tree.getAllLeavesNames();
+
+        SequenceContainerTools::getSelectedSequences(*vSC0, leaves, vSC);
+      }
+
       AncestralStateReconstruction *asr = new MarginalAncestralReconstruction(pDR);
 
       size_t nbStates=sPP?sPP->getNumberOfStates():oPSP->getNumberOfStates();
@@ -407,14 +422,7 @@ int main(int args, char ** argv)
           
         //Add existing sequence to output?
         if (addSitesExtant)
-        {
-          const SiteContainer* vSC=dynamic_cast<const SiteContainer*>(sites);
-          if (!vSC)
-            ApplicationTools::displayWarning("Output extant sequences not possible with probabilistic sequences.");
-          else
-            SequenceContainerTools::append(*asSites, *vSC);
-        }
-          
+          SequenceContainerTools::append(*asSites, vSC);
           
         // Write sequences:
         oAln->writeAlignment(sequenceFilePath + "_" + TextTools::toString(itm.first), *asSites, true);
