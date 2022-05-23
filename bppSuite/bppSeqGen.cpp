@@ -152,7 +152,7 @@ int main(int args, char ** argv)
       vector<double> rates;
       bool withStates=false;
       bool withRates=false; 
-      size_t nbSites;
+      size_t nbSites=0;
 
       const StateMap& sm=spc->getModel(1)->getStateMap();
       
