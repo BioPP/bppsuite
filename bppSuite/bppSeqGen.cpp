@@ -217,7 +217,7 @@ int main(int args, char ** argv)
         size_t nbStates=alphabet->getSize();
         std::vector<double> probstate(nbStates);
 
-        auto& resChar=alphabet->getResolvedChars();
+        auto resChar=alphabet->getResolvedChars();
         
         for (size_t i = 0; i < nbSites; ++i) {
           for (size_t j = 0; j< nbStates; j++) 

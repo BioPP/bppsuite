@@ -714,7 +714,7 @@ alphabets:
 
 @table @command
 
-@item @anchor{model nucleotide JC69}
+@item @anchor{model nucleotide JCnuc}
 @item  JC69
 The Jukes and Cantor model. This model has no additional parameter.
 See the
@@ -801,7 +801,7 @@ alphabets:
 
 @table @command
 
-@item @anchor{model protein JC69}
+@item @anchor{model protein JCprot}
 @item  JC69
 The Jukes and Cantor model. This model has no additional parameter. See the
 @uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1JCprot.html#details, Bio++ description, Bio++ description}.
