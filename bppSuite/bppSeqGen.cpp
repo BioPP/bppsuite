@@ -218,12 +218,12 @@ int main(int args, char ** argv)
         std::vector<double> probstate(nbStates);
 
         auto resChar=alphabet->getResolvedChars();
-        
+
         for (size_t i = 0; i < nbSites; ++i) {
           for (size_t j = 0; j< nbStates; j++) 
             probstate[j]=data->getStateValueAt(i, nseq, alphabet->getIntCodeAt(j+1));
 
-          auto pchar = RandomTools::pickOne<string>(resChar, probstate);
+          auto pchar = RandomTools::pickOne<string>(resChar, probstate, true);
           states[i] = RandomTools::pickOne<size_t>(sm.getModelStates(pchar));
         }
       }
@@ -390,19 +390,17 @@ int main(int args, char ** argv)
       ApplicationTools::displayBooleanResult(" Output internal", mintern);
       
 
-    //   if (data!=0)
-    //   {
-    //     mlength[num]=data->getNumberOfSites();
-    //   }
-    //   else 
-    //     if (dynamic_cast<GivenDataSubstitutionProcessSequenceSimulator*>(ss)==0)
-    //     {
-    //       mlength[num] = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, 100, "", false, 0);
-    //       ApplicationTools::displayResult(" Number of sites", TextTools::toString(mlength[num]));
-    //     }
+      // if (data!=0)
+      // {
+      //   mlength[num]=data->getNumberOfSites();
+      // }
+      // else 
+      if (dynamic_cast<GivenDataSubstitutionProcessSequenceSimulator*>(ss)==0)
+      {
+        nbSites = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, 100, "", false, 0);
+        ApplicationTools::displayResult(" Number of sites", TextTools::toString(nbSites));
+      }
 
-    //   mSim[num]=ss;
-    // }
 
       ss->outputInternalSequences(mintern);
       std::shared_ptr<SiteContainer> sites = 0;

@@ -271,19 +271,20 @@ int main(int args, char ** argv)
         
         for (size_t i = 0; i < nbNodes; i++) {
           shared_ptr<PhyloNode> node = nodes[i];
-          colNames.push_back("max." + TextTools::toString(ttree.getNodeIndex(node)));
+          auto nodeindex=ttree.getNodeIndex(node);
+          colNames.push_back("max." + TextTools::toString(nodeindex));
           if (probs) {
             probabilities[i] = new VVdouble();
             
             //The cast will have to be updated when more probabilistic method will be available:
-            sequences[i] = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequenceForNode(ttree.getNodeIndex(node), probabilities[i], false);
+            sequences[i] = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequenceForNode(nodeindex, probabilities[i], false);
             
             for (unsigned int j = 0; j < nbStates; j++) {
-                colNames.push_back("prob." + TextTools::toString(ttree.getNodeIndex(node)) + "." + alphabet->intToChar((int)j));
+                colNames.push_back("prob." + TextTools::toString(nodeindex) + "." + alphabet->intToChar((int)j));
             }
           }
           else
-            sequences[i] = asr->getAncestralSequenceForNode(ttree.getNodeIndex(node));
+            sequences[i] = asr->getAncestralSequenceForNode(nodeindex);
         }
 
         //Now fill the table:
@@ -346,10 +347,6 @@ int main(int args, char ** argv)
 
         // Former output of bppAncestor
         
-        // if (oPSP)
-        //   oPSP->getAncestralFrequencies(frequencies, addNodesExtant);
-        // else
-        //   sPP->getAncestralFrequencies(frequencies, addNodesExtant);
 
         vector<string> colNames;
         colNames.push_back("Nodes");
