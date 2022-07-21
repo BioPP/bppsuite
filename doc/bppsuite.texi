@@ -334,7 +334,7 @@ data=LSU
 @table @command
 @item alphabet =
 @{DNA|RNA|Protein|Binary|Lexicon(words=(list of words))|Word(letter=@{DNA|RNA|Protein@},length=@{int@})|\
-Codon(letter=@{DNA|RNA@})@}
+Codon(letter=@{DNA|RNA@})|Allelic(base=@{alphabet@}, N=@{int@})@}
 The alphabet to use when reading sequences. DNA and RNA alphabet can in addition take an argument:
 
 @table @command
@@ -346,6 +346,17 @@ Tell is exclamation mark should be considered as a gap character. The default is
 The states of the alphabets are in alphabetical order. For the proteic
 alphabet, the amino-acid are in the order of their 3-letters code
 (ALA, ARG, ASN, ...).
+
+For the allelic alphabet, the states are in order of the base
+alphabet, first the plain states and then the polymorphic states. For
+example:
+
+@example
+alphabet=Allelic(base=DNA,N=3)
+@end example
+
+has states:  A3_0, C3_0, G3_0, T3_0, A2C1, A1C2, A2G1, A1G2, A2T1, A1T2, C2G1, C1G2, C2T1, C1T2, G2T1, G1T2.
+ 
 
 @table @command
 @item Lexicon(words=(list of words))
@@ -392,6 +403,12 @@ Sequences are numbered as data like this:
 @item input.data@{int@} = alignment(@{alignment arguments@})
 A description of the set of sequence analysed, using the keyval syntax.
 
+A sequence should be in the same alphabet as the one defined. In case
+of Allelic alphabet, the format can define the allelic states
+explicitly (as in Pasta format), or in the base alphabet. In this
+latter case, the value assigned in each allelic state is the
+likelihood of the observed data (as if it was sampled from the allelic
+distribution described in the state).
 @end table
 
 The available arguments are : 
@@ -1551,6 +1568,13 @@ substitution model as argument for @var{model}. Parameter @var{lambda}
 is the insertion rate, while @var{mu} is the deletion rate. See the
 @uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1RE08.html#details, Bio++ description, Bio++ description}.
 
+@item @anchor{model meta POMO}
+@item POMO(model=@{model description@} [, fitness=@{values@}])
+De Maio, Schrempf and Kosiol 2O15's mutation model considering
+diallelic states, from a given mutation @var{model}. Following
+modeling from Borges and Kosiol, optional @var{fitness} parameters can
+be used to describe the fitness of the states.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1POMO.html#details, Bio++ description, Bio++ description}.
 
 @end table
 

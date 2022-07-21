@@ -132,7 +132,7 @@ int main(int args, char ** argv)
     auto model = std::shared_ptr<BranchModel>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppdist.getParams(), unparsedparams));
 
     if (!model)
-      ApplicationTools::displayMessage("bppDist available only for regular transition models, not " + model->getName());
+      ApplicationTools::displayMessage("bppDist available only for regular transition models, not the given one.");
 
     
     std::shared_ptr<DiscreteDistribution> rDist;
