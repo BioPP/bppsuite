@@ -235,7 +235,7 @@ int main(int args, char ** argv)
         {
           ApplicationTools::displayResult("Site information", infosFile);
           ifstream in(infosFile.c_str());
-          DataTable* infos = DataTable::read(in, "\t");
+          auto infos = DataTable::read(in, "\t");
           nbSites = infos->getNumberOfRows();
 //      ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
           string rateCol = ApplicationTools::getStringParameter("input.infos.rates", argsim, "pr", "", true, true);
