@@ -93,16 +93,18 @@ int main(int args, char** argv)
     
     ///// Alphabet
 
-    unique_ptr<Alphabet> alphabet(bppml.getAlphabet());
+    std::shared_ptr<const Alphabet> alphabet(bppml.getAlphabet());
 
     /// GeneticCode
     
-    unique_ptr<GeneticCode> gCode(bppml.getGeneticCode(alphabet.get()));
+    auto gCode(bppml.getGeneticCode(alphabet));
 
     ////// Get the map of the sequences
 
     // true: changeGapstoUnknown because no RE08 model (yet)
-    auto mSites = bppml.getConstAlignmentsMap(alphabet.get(), true);
+    auto mSitesuniq = bppml.getConstAlignmentsMap(alphabet, true);
+
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface > > mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const TemplateAlignmentDataInterface<string>>(mSitesuniq);
 
     
     /////// Get the map of initial trees
@@ -124,22 +126,23 @@ int main(int args, char** argv)
     /////////////////
     // Computing stuff
 
-    PhyloLikelihood* tl_new = 0;
+    std::shared_ptr<PhyloLikelihoodInterface> tl_new = 0;
     
-    unique_ptr<SubstitutionProcessCollection> SPC;
-    map<size_t, SequenceEvolution*> mSeqEvol;
+    shared_ptr<SubstitutionProcessCollection> SPC;
 
     shared_ptr<PhyloLikelihoodContainer> mPhyl=0;
     
-    shared_ptr<BranchModel>    model;
-    shared_ptr<TransitionModel>    tmodel; // for legacy 
+    shared_ptr<BranchModelInterface>    model;
+    shared_ptr<TransitionModelInterface>    tmodel; // for legacy 
     shared_ptr<DiscreteDistribution> rDist;
 
-    SPC.reset(bppml.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams));
+    SPC = bppml.getCollection(alphabet, gCode, mSites, mpTree, unparsedParams);
+
+    auto mSeqEvoltmp = bppml.getProcesses(SPC, unparsedParams);
     
-    mSeqEvol = bppml.getProcesses(*SPC, unparsedParams);
+    auto mSeqEvol = PhylogeneticsApplicationTools::uniqueToSharedMap<SequenceEvolution>(mSeqEvoltmp);
     
-    mPhyl=bppml.getPhyloLikelihoods(context, mSeqEvol, *SPC, mSites);
+    mPhyl=bppml.getPhyloLikelihoods(context, mSeqEvol, SPC, mSites);
     
     // retrieve Phylo 0, aka result phylolikelihood
     
@@ -160,9 +163,6 @@ int main(int args, char** argv)
 
       ParameterList pl=tl_new->getParameters();
 
-      for (auto& it : mSeqEvol)
-        delete it.second;
-      
       for (size_t i = 0; i < pl.size(); ++i) {
         pnfile << pl[i].getName() << endl;
       }
@@ -187,7 +187,7 @@ int main(int args, char** argv)
 
     //Check initial likelihood:
       
-    bppml.fixLikelihood(alphabet.get(), gCode.get(), tl_new);
+    bppml.fixLikelihood(alphabet, gCode, tl_new);
     
     // First `true` means that default is to optimize model parameters.
     if(ApplicationTools::getBooleanParameter("optimization.model_parameters", bppml.getParams(), true, "", true, 1))
@@ -214,15 +214,15 @@ int main(int args, char** argv)
     
     if (parametersFile != "none")
     {
-      StlOutputStream out(new ofstream(parametersFile.c_str(), ios::out));
+      StlOutputStream out(make_unique<ofstream>(parametersFile.c_str(), ios::out));
       
       PhylogeneticsApplicationTools::printParameters(*mPhyl, out);
       
-      PhylogeneticsApplicationTools::printParameters(SPC.get(), out, 1, withAlias);
+      PhylogeneticsApplicationTools::printParameters(*SPC, out, 1, withAlias);
       
-      for (map<size_t, SequenceEvolution*>::const_iterator it2=mSeqEvol.begin(); it2!=mSeqEvol.end(); it2++)
+      for (const auto it2:mSeqEvol)
       {
-        PhylogeneticsApplicationTools::printParameters(it2->second, out, it2->first);
+        PhylogeneticsApplicationTools::printParameters(*it2.second, out, it2.first);
         out.endLine();
       }
       
@@ -241,12 +241,6 @@ int main(int args, char** argv)
       PhylogeneticsApplicationTools::printAnalysisInformation(*mPhyl, infosFile);
     }
 
-    for (auto& it : mSeqEvol)
-      delete it.second;
-    
-    for (auto& itc : mSites)
-      delete itc.second;
-    
     bppml.done();
   }
   catch (exception& e)

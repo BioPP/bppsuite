@@ -97,16 +97,15 @@ int main(int args, char ** argv)
     BppApplication bpppars(args, argv, "BppPars");
     bpppars.startTimer();
 
-    Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bpppars.getParams(), "", false);
+    std::shared_ptr<const bpp::Alphabet> alphabet = SequenceApplicationTools::getAlphabet(bpppars.getParams(), "", false);
   
     bool includeGaps = ApplicationTools::getBooleanParameter("use.gaps", bpppars.getParams(), false, "", false, false);
     ApplicationTools::displayBooleanResult("Use gaps", includeGaps);
 
-    VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bpppars.getParams());
+    auto allSites = SequenceApplicationTools::getSiteContainer(alphabet, bpppars.getParams());
 	
-    VectorSiteContainer* sites = dynamic_cast<VectorSiteContainer*>(SequenceApplicationTools::getSitesToAnalyse(* allSites, bpppars.getParams(), "", true, !includeGaps, true));
-    delete allSites;
-  
+    shared_ptr<VectorSiteContainer> sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bpppars.getParams(), "", true, !includeGaps, true);
+
     ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
     ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
 	
@@ -114,7 +113,7 @@ int main(int args, char ** argv)
       throw Exception("Empty data.");
 
     // Get the initial tree
-    Tree* tree = 0;
+    std::shared_ptr<Tree> tree = nullptr;
     string initTreeOpt = ApplicationTools::getStringParameter("init.tree", bpppars.getParams(), "user", "", false, false);
     ApplicationTools::displayResult("Input tree", initTreeOpt);
     if (initTreeOpt == "user")
@@ -131,19 +130,16 @@ int main(int args, char ** argv)
     else throw Exception("Unknown init tree method.");
 	
     ApplicationTools::displayTask("Initializing parsimony");
-    DRTreeParsimonyScore* tp = new DRTreeParsimonyScore(*tree, *sites, false, includeGaps);
-    delete tree;
+    auto treen = make_shared<TreeTemplate<Node>>(*tree);
+    auto tp = std::make_unique<DRTreeParsimonyScore>(treen, sites, false, includeGaps);
+
     ApplicationTools::displayTaskDone();
     double score = tp->getScore();
     ApplicationTools::displayResult("Initial parsimony score", TextTools::toString(score, 15));
-    tree = new TreeTemplate<Node>(tp->getTree());
+    tree = make_shared<TreeTemplate<Node>>(tp->tree());
   
     PhylogeneticsApplicationTools::writeTree(*tree, bpppars.getParams());
   
-    delete sites;
-    delete tp;
-    delete alphabet;
-
     bpppars.done();
   }
   catch (exception & e)

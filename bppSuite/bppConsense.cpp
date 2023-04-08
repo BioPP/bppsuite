@@ -90,9 +90,9 @@ int main(int args, char ** argv)
   BppApplication bppconsense(args, argv, "BppConsense");
   bppconsense.startTimer();
 
-  vector<Tree*> list = PhylogeneticsApplicationTools::getTrees(bppconsense.getParams());
+  auto list = PhylogeneticsApplicationTools::getTrees(bppconsense.getParams());
 
-  Tree* tree = 0;
+  unique_ptr<Tree> tree = nullptr;
   string treeMethod = ApplicationTools::getStringParameter("tree", bppconsense.getParams(), "Consensus", "", false, 1);
   string cmdName;
   map<string, string> cmdArgs;
@@ -120,9 +120,6 @@ int main(int args, char ** argv)
 
   //Write resulting tree:
   PhylogeneticsApplicationTools::writeTree(*tree, bppconsense.getParams());
-  for (size_t i = 0; i < list.size(); i++)
-    delete list[i];
-  delete tree;
 
   bppconsense.done();
 

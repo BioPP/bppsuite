@@ -56,6 +56,7 @@ using namespace std;
 
 // From bpp-phy:
 #include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Simulation/SequenceSimulationTools.h>
 
 #include <Bpp/Phyl/Simulation/EvolutionSequenceSimulator.h>
@@ -94,26 +95,30 @@ int main(int args, char ** argv)
 
     Context context;
 
-    Alphabet* alphabet = bppseqgen.getAlphabet();
+    std::shared_ptr<const Alphabet> alphabet = bppseqgen.getAlphabet();
 
-    unique_ptr<GeneticCode> gCode(bppseqgen.getGeneticCode(alphabet));
+    auto gCode = bppseqgen.getGeneticCode(alphabet);
 
     // Write to file:
     BppOAlignmentWriterFormat bppoWriter(1);
 
     ////// Get the optional map of the sequences
      
-    std::map<size_t, const AlignedValuesContainer*> mSites = bppseqgen.getConstAlignmentsMap(alphabet, true, true);
+    auto mSitesuniq = bppseqgen.getConstAlignmentsMap(alphabet, true, true);
+
+    auto mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const AlignmentDataInterface>(mSitesuniq);
 
     /// collection
     
-    SubstitutionProcessCollection* spc = bppseqgen.getCollection(alphabet, gCode.get(), mSites, unparsedParams);
+    std::shared_ptr<SubstitutionProcessCollection> spc = bppseqgen.getCollection(alphabet, gCode, mSites, unparsedParams);
 
-    map<size_t, SequenceEvolution*> mSeqEvol = bppseqgen.getProcesses(*spc, unparsedParams);
+    auto mSeqEvoluniq = bppseqgen.getProcesses(spc, unparsedParams);
+
+    auto mSeqEvol = PhylogeneticsApplicationTools::uniqueToSharedMap<SequenceEvolution>(mSeqEvoluniq);
 
     /// Get optional phylolikelihoods (in case of posterior simulation)
 
-    auto phyloCont =  bppseqgen.getPhyloLikelihoods(context, mSeqEvol, *spc, mSites, "", 0);
+    auto phyloCont =  bppseqgen.getPhyloLikelihoods(context, mSeqEvol, spc, mSites, "", 0);
 
     
     /// ///////////////////
@@ -154,7 +159,7 @@ int main(int args, char ** argv)
       bool withRates=false; 
       size_t nbSites=0;
 
-      const StateMap& sm=spc->getModel(1)->getStateMap();
+      auto sm=spc->getModel(1)->getStateMap();
       
       // Data or info at root
       if (argsim.find("data")!=argsim.end())
@@ -168,7 +173,7 @@ int main(int args, char ** argv)
 
         auto nseq=RandomTools::giveIntRandomNumberBetweenZeroAndEntry(data->getNumberOfSequences());
 
-        ApplicationTools::displayResult("Using root sequence",data->getName(nseq));
+        ApplicationTools::displayResult("Using root sequence",data->sequence(nseq).getName());
 
         string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
 
@@ -224,7 +229,7 @@ int main(int args, char ** argv)
             probstate[j]=data->getStateValueAt(i, nseq, alphabet->getIntCodeAt(j+1));
 
           auto pchar = RandomTools::pickOne<string>(resChar, probstate, true);
-          states[i] = RandomTools::pickOne<size_t>(sm.getModelStates(pchar));
+          states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(pchar));
         }
       }
       else
@@ -265,7 +270,7 @@ int main(int args, char ** argv)
               //If a generic character is provided, we pick one state randomly from the possible ones:
               if (alphabet->isUnresolved(alphabetState))
                 alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
-              states[i] = RandomTools::pickOne<size_t>(sm.getModelStates(alphabetState));
+              states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(alphabetState));
             }
 
             string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
@@ -323,7 +328,7 @@ int main(int args, char ** argv)
       ////////////////////////////////////
       /////// Process
 
-      SequenceSimulator* ss;
+      SequenceSimulatorInterface* ss;
       
       if (argsim.find("process")!=argsim.end())
       {
@@ -403,7 +408,7 @@ int main(int args, char ** argv)
 
 
       ss->outputInternalSequences(mintern);
-      std::shared_ptr<SiteContainer> sites = 0;
+      std::shared_ptr<SiteContainerInterface> sites = 0;
       
       if (withStates || withRates)
       {
@@ -438,9 +443,6 @@ int main(int args, char ** argv)
 
       
     }
-    
-
-    delete alphabet;
     
     bppseqgen.done();
   }

@@ -152,7 +152,7 @@ int main(int args, char ** argv)
   {
     k++;
     bool printOrNot =true;
-    Tree * tempTree = NULL;
+    unique_ptr<Tree> tempTree;
 
     getline(treePath, temp2, '\n');  // Copy current line in temporary string
    
@@ -167,7 +167,7 @@ int main(int args, char ** argv)
       }
       else description2 += temp;
 
-      MyTree* tree = dynamic_cast <MyTree* >(tempTree);
+      MyTree* tree = dynamic_cast <MyTree* >(tempTree.get());
       //ApplicationTools::displayGauge(tr, trees.size() - 1, '=');
 
       vector<string> leavesTree;      

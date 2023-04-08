@@ -56,6 +56,7 @@ using namespace std;
 
 // From bpp-phyl:
 #include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.h>
@@ -93,15 +94,17 @@ int main(int args, char** argv)
     
     ///// Alphabet
 
-    unique_ptr<Alphabet> alphabet(bppmixedlikelihoods.getAlphabet());
+    shared_ptr<const Alphabet> alphabet(bppmixedlikelihoods.getAlphabet());
 
     /// GeneticCode
     
-    unique_ptr<GeneticCode> gCode(bppmixedlikelihoods.getGeneticCode(alphabet.get()));
+    shared_ptr<const GeneticCode> gCode(bppmixedlikelihoods.getGeneticCode(alphabet));
 
     // get the data
 
-    auto mSites = bppmixedlikelihoods.getConstAlignmentsMap(alphabet.get(), true);
+    auto mSitesuniq = bppmixedlikelihoods.getConstAlignmentsMap(alphabet, true);
+
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface > > mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const TemplateAlignmentDataInterface<string>>(mSitesuniq);
 
     if (mSites.size()!=1)
       throw Exception("Only one alignment possible.");
@@ -118,23 +121,25 @@ int main(int args, char** argv)
     // Computing stuff
 
 
-    unique_ptr<SubstitutionProcessCollection> SPC(bppmixedlikelihoods.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams));
+    shared_ptr<SubstitutionProcessCollection> SPC(bppmixedlikelihoods.getCollection(alphabet, gCode, mSites, mpTree, unparsedParams));
     
-    map<size_t, SequenceEvolution*> mSeqEvol = bppmixedlikelihoods.getProcesses(*SPC, unparsedParams);
+    auto mSeqEvoltmp = bppmixedlikelihoods.getProcesses(SPC, unparsedParams);
+    
+    auto mSeqEvol = PhylogeneticsApplicationTools::uniqueToSharedMap<SequenceEvolution>(mSeqEvoltmp);
 
-    auto mPhyl(bppmixedlikelihoods.getPhyloLikelihoods(context, mSeqEvol, *SPC, mSites));
+    auto mPhyl(bppmixedlikelihoods.getPhyloLikelihoods(context, mSeqEvol, SPC, mSites));
 
     if (!mPhyl->hasPhyloLikelihood(0))
       throw Exception("Missing phyloLikelihoods.");
 
-    AlignedPhyloLikelihood* tl=dynamic_cast<AlignedPhyloLikelihood*>((*mPhyl)[0]);
+    auto tl=dynamic_pointer_cast<AlignedPhyloLikelihoodInterface>((*mPhyl)[0]);
 
     if (tl==0)
       throw Exception("Only possible on aligned phyloLikelihood.");
         
     //Check initial likelihood:
       
-    bppmixedlikelihoods.fixLikelihood(alphabet.get(), gCode.get(), tl);
+    bppmixedlikelihoods.fixLikelihood(alphabet, gCode, tl);
 
     // /////////////////////////////////////////////
     // Getting likelihoods per submodel
@@ -155,7 +160,7 @@ int main(int args, char** argv)
     auto nMod = SPC->getModelNumbers();
     for (auto n:nMod)
     {
-      if (dynamic_cast<const MixedTransitionModel*>(SPC->getModel(n).get())!=NULL)
+      if (dynamic_pointer_cast<const MixedTransitionModelInterface>(SPC->getModel(n))!=NULL)
         vNumMix.push_back(n);
     }
     
@@ -197,12 +202,12 @@ int main(int args, char** argv)
             if (mod->hasParameter(mod->getParameterNameWithoutNamespace(parname)))
             {
               // Check it is a MixtureOfATransitionModel 
-              bool modok=(dynamic_cast<const MixtureOfATransitionModel*>(mod.get())!=NULL);
+              bool modok=(dynamic_pointer_cast<const MixtureOfATransitionModel>(mod)!=NULL);
               if (!modok)
               {
-                auto ptmp = dynamic_cast<const AbstractBiblioMixedTransitionModel*>(mod.get());
+                auto ptmp = dynamic_pointer_cast<const AbstractBiblioMixedTransitionModel>(mod);
                 if (ptmp) 
-                  modok= dynamic_cast<const MixtureOfATransitionModel*>(&ptmp->getMixedModel());
+                  modok= (dynamic_cast<const MixtureOfATransitionModel*>(&ptmp->mixedModel())!=NULL);
               }
               
               if (!modok)
@@ -229,7 +234,7 @@ int main(int args, char** argv)
       exit(-1);
     }
 
-    auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (model->getTargetValue());
+    auto mixmodel = dynamic_cast<const MixedTransitionModelInterface*> (model->targetValue().get());
 
     if (!mixmodel)
     {
@@ -242,9 +247,9 @@ int main(int args, char** argv)
     
     const AbstractBiblioMixedTransitionModel* pAbmtm(0);
     
-     auto pMatm = (pAbmtm = dynamic_cast<const AbstractBiblioMixedTransitionModel*>(mixmodel))?
+    auto pMatm = (pAbmtm = dynamic_cast<const AbstractBiblioMixedTransitionModel*>(mixmodel))?
       dynamic_cast<const MixtureOfATransitionModel*>(mixmodel):
-      dynamic_cast<const MixtureOfATransitionModel*>(&pAbmtm->getMixedModel());
+      dynamic_cast<const MixtureOfATransitionModel*>(&pAbmtm->mixedModel());
     
     if (pMatm)
     {
@@ -280,7 +285,7 @@ int main(int args, char** argv)
         if (pos!=string::npos)
           parname=parname.substr(0,pos);
       }
-      mixmodel = &pAbmtm->getMixedModel();
+      mixmodel = &pAbmtm->mixedModel();
     }
 
     
@@ -311,8 +316,8 @@ int main(int args, char** argv)
       // output sites
       for (unsigned int i = 0; i < nSites; i++)
       {
-        const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
-        int currentSitePosition = currentSite.getPosition();
+        const auto& currentSite = sites->site(i);
+        int currentSitePosition = currentSite.getCoordinate();
         (*rates)(i, "Sites") = string(TextTools::toString(currentSitePosition));
       }
 
@@ -329,8 +334,8 @@ int main(int args, char** argv)
       {
         string modname = pMSM->getNModel(i)->getName()+"_"+TextTools::toString(i+1);
 
-        auto func= [nummod, i](BranchModel* bmodel){
-          auto pAbmtm2 = dynamic_cast<AbstractBiblioMixedTransitionModel*>(bmodel);
+        auto func= [nummod, i](shared_ptr<BranchModelInterface> bmodel){
+          auto pAbmtm2 = dynamic_pointer_cast<AbstractBiblioMixedTransitionModel>(bmodel);
           if (pAbmtm2) 
           {
             for (unsigned int j = 0; j < nummod; ++j)
@@ -338,7 +343,7 @@ int main(int args, char** argv)
           }
           else
           {
-            auto pMSM2 = dynamic_cast<MixtureOfTransitionModels*>(bmodel);
+            auto pMSM2 = dynamic_pointer_cast<MixtureOfTransitionModels>(bmodel);
             if (!pMSM2)
               throw Exception("Not mixed model " + bmodel->getName());
             
@@ -394,11 +399,11 @@ int main(int args, char** argv)
           {
             string pl2n = pl[i2].getName();
 
-            if (dynamic_cast<const ConstantDistribution*>(pMatm->getDistribution(pl2n))==NULL)
+            if (dynamic_cast<const ConstantDistribution*>(&pMatm->distribution(pl2n))==NULL)
             {
               parname=pl2n;
 
-              if (parname.size()>0 && pMatm->getDistribution(parname)==NULL)
+              if (parname.size()>0 && !pMatm->hasDistribution(parname))
                 parname=parname.substr(0,parname.rfind("_"));
 
               if (parname.size()>0){
@@ -459,7 +464,7 @@ int main(int args, char** argv)
         Vdouble dval;
         for (size_t i = 0; i < nbcl; i++)
         {
-          const TransitionModel* pSM = pMatm->getNModel(static_cast<size_t>(vvnmod[i][0]));
+          auto pSM = pMatm->getNModel(static_cast<size_t>(vvnmod[i][0]));
           double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
           dval.push_back(valPar);
           colNames.push_back("Ll_" + realparname + "=" + TextTools::toString(valPar));
@@ -469,14 +474,14 @@ int main(int args, char** argv)
 
         colNames.push_back("mean");
 
-        DataTable* rates = new DataTable(nSites, colNames.size());
+        shared_ptr<DataTable> rates = make_shared<DataTable>(nSites, colNames.size());
         rates->setColumnNames(colNames);
 
         // output sites
         for (size_t i = 0; i < nSites; i++)
         {
-          const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
-          int currentSitePosition = currentSite.getPosition();
+          const auto& currentSite = sites->site(i);
+          int currentSitePosition = currentSite.getCoordinate();
           (*rates)(i,"Sites")=TextTools::toString(currentSitePosition);
         }
 
@@ -493,8 +498,8 @@ int main(int args, char** argv)
         {
           string par2 = realparname + "_" + TextTools::toString(i + 1);
           
-          auto func= [nummod, i, &vvprob, &vvnmod, &vsprob](BranchModel* cmodel){
-            auto pAbmtm2 = dynamic_cast<AbstractBiblioMixedTransitionModel*>(cmodel);
+          auto func= [nummod, i, &vvprob, &vvnmod, &vsprob](shared_ptr<BranchModelInterface> cmodel){
+            auto pAbmtm2 = dynamic_pointer_cast<AbstractBiblioMixedTransitionModel>(cmodel);
             if (pAbmtm2) 
             {
               for (unsigned int j = 0; j < nummod; ++j)
@@ -505,7 +510,7 @@ int main(int args, char** argv)
 
             }
             else{
-              auto pMatm2 = dynamic_cast<MixtureOfATransitionModel*>(cmodel);
+              auto pMatm2 = dynamic_pointer_cast<MixtureOfATransitionModel>(cmodel);
               if (!pMatm2)
                 throw Exception("Not mixed model " + cmodel->getName());
               for (unsigned int j = 0; j < nummod; ++j)

@@ -76,13 +76,15 @@ int main(int args, char** argv)
     bppalnscore.startTimer();
 
     // Get alphabet
-    unique_ptr<Alphabet> alphabet(bppalnscore.getAlphabet());
+    shared_ptr<Alphabet> alphabet(bppalnscore.getAlphabet());
 
     // Get the test alignment:
-    unique_ptr<SiteContainer> sitesTest(SequenceApplicationTools::getSiteContainer(alphabet.get(), bppalnscore.getParams(), ".test", false, true));
+    auto sitesTest = SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".test", false, true);
 
     // Get the reference alignment:
-    unique_ptr<SiteContainer> sitesRef(SequenceApplicationTools::getSiteContainer(alphabet.get(), bppalnscore.getParams(), ".ref", false, true));
+    shared_ptr<SiteContainerInterface> sitesRef;
+    
+    sitesRef = SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".ref", false, true);
 
     // We check if the two alignments are compatible:
     vector<string> namesTest = sitesTest->getSequenceNames();
@@ -96,7 +98,8 @@ int main(int args, char** argv)
         ApplicationTools::displayGauge(i, namesTest.size() - 1);
         try
         {
-          tmp->addSequence(sitesRef->getSequence(namesTest[i]));
+          auto seq=unique_ptr<Sequence>(sitesRef->sequence(namesTest[i]).clone());
+          tmp->addSequence(namesRef[i], seq);
         }
         catch (SequenceNotFoundException& ex)
         {
@@ -105,7 +108,7 @@ int main(int args, char** argv)
       }
       ApplicationTools::displayTaskDone();
 
-      sitesRef = move(tmp);
+      sitesRef = shared_ptr<SiteContainerInterface>(tmp.release());
     }
 
     // Build alignment indexes:
@@ -138,12 +141,13 @@ int main(int args, char** argv)
         // We look for the first occurrence of the given motif:
         try
         {
-          BasicSequence motif("motif", phaseOpt, sitesTest->getAlphabet());
+          auto alpha=sitesTest->getAlphabet();
+          Sequence motif("motif", phaseOpt, alpha);
           ApplicationTools::displayResult("Phase based on 1st occurence of", motif.toString());
           size_t pos = sitesTest->getNumberOfSites();
           for (size_t i = 0; i < sitesTest->getNumberOfSequences(); ++i)
           {
-            size_t p = SequenceTools::findFirstOf(sitesTest->getSequence(i), motif);
+            size_t p = SequenceTools::findFirstOf(sitesTest->sequence(i), motif);
             if (p < pos)
               pos = p;
           }
@@ -198,7 +202,7 @@ int main(int args, char** argv)
       output << "Site\tColumnScore\tSumOfPairsScore" << endl;
       for (size_t i = 0; i < cs.size(); ++i)
       {
-        output << sitesTest->getSite(i).getPosition() << "\t" << cs[i] << "\t" << sps[i] << endl;
+        output << sitesTest->site(i).getCoordinate() << "\t" << cs[i] << "\t" << sps[i] << endl;
       }
       output.close();
     }

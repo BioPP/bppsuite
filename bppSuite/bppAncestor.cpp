@@ -55,9 +55,10 @@ using namespace std;
 
 // From bpp-phyl:
 #include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
+#include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Likelihood/MarginalAncestralReconstruction.h>
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
-#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h>
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 using namespace bpp;
@@ -90,27 +91,32 @@ int main(int args, char ** argv)
     map<string, string> allParams=bppancestor.getParams();
     map<string, string> unparsedParams;
 
-    unique_ptr<Alphabet> alphabet(bppancestor.getAlphabet());
-    unique_ptr<GeneticCode> gCode(bppancestor.getGeneticCode(alphabet.get()));
+    shared_ptr<const Alphabet> alphabet(bppancestor.getAlphabet());
+    shared_ptr<const GeneticCode> gCode(bppancestor.getGeneticCode(alphabet));
 
     // Missing check
     //  if (model->getName() != "RE08") SiteContainerTools::changeGapsToUnknownCharacters(*sites);
 
     // get the result phylo likelihood
-    auto mSites = bppancestor.getConstAlignmentsMap(alphabet.get(), true);
+    auto mSitesuniq = bppancestor.getConstAlignmentsMap(alphabet, true);
+
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface > > mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const TemplateAlignmentDataInterface<string>>(mSitesuniq);
+
     auto mpTree = bppancestor.getPhyloTreesMap(mSites, unparsedParams);
-    auto SPC=bppancestor.getCollection(alphabet.get(), gCode.get(), mSites, mpTree, unparsedParams);
-    auto mSeqEvol = bppancestor.getProcesses(*SPC, unparsedParams);
-    auto mPhyl=bppancestor.getPhyloLikelihoods(context, mSeqEvol, *SPC, mSites);
+    shared_ptr<SubstitutionProcessCollection> SPC=bppancestor.getCollection(alphabet, gCode, mSites, mpTree, unparsedParams);
+    auto mSeqEvoltmp = bppancestor.getProcesses(SPC, unparsedParams);
+    auto mSeqEvol = PhylogeneticsApplicationTools::uniqueToSharedMap<SequenceEvolution>(mSeqEvoltmp);
+
+    auto mPhyl=bppancestor.getPhyloLikelihoods(context, mSeqEvol, SPC, mSites);
       
     // retrieve Phylo 0, aka result phylolikelihood
       
     if (!mPhyl->hasPhyloLikelihood(0))
       throw Exception("Missing phyloLikelihoods.");
 
-    PhyloLikelihood* tl=(*mPhyl)[0];
+    auto tl=(*mPhyl)[0];
     
-    bppancestor.fixLikelihood(alphabet.get(), gCode.get(), tl);
+    bppancestor.fixLikelihood(alphabet, gCode, tl);
     
     bppancestor.displayParameters(*tl, false);
 
@@ -121,18 +127,18 @@ int main(int args, char ** argv)
 
     
     /// map of the Single Data Process 
-    map<size_t, AbstractSingleDataPhyloLikelihood*> mSD;
+    map<size_t, shared_ptr<AbstractSingleDataPhyloLikelihood>> mSD;
         
-    if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl)!=NULL)
-      mSD[1]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(tl);
+    if (dynamic_pointer_cast<AbstractSingleDataPhyloLikelihood>(tl)!=NULL)
+      mSD[1]=dynamic_pointer_cast<AbstractSingleDataPhyloLikelihood>(tl);
     else{
-      SetOfAbstractPhyloLikelihood* sOAP=dynamic_cast<SetOfAbstractPhyloLikelihood*>(tl);
+      auto sOAP=dynamic_pointer_cast<SetOfPhyloLikelihoodInterface>(tl);
       if (sOAP)
       {
         const vector<size_t>& nSD=sOAP->getNumbersOfPhyloLikelihoods();
         
         for (size_t iSD=0; iSD< nSD.size(); iSD++){
-          AbstractSingleDataPhyloLikelihood* pASDP=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(sOAP->getAbstractPhyloLikelihood(nSD[iSD]));
+          auto pASDP=dynamic_pointer_cast<AbstractSingleDataPhyloLikelihood>(sOAP->getPhyloLikelihood(nSD[iSD]));
           if (pASDP!=NULL)
             mSD[nSD[iSD]]=pASDP;
         }
@@ -204,8 +210,8 @@ int main(int args, char ** argv)
     
     for (auto& itm:mSD)
     {
-      SingleProcessPhyloLikelihood* sPP=dynamic_cast<SingleProcessPhyloLikelihood*>(itm.second);
-      OneProcessSequencePhyloLikelihood* oPSP=dynamic_cast<OneProcessSequencePhyloLikelihood*>(itm.second);
+      auto sPP=dynamic_pointer_cast<SingleProcessPhyloLikelihood>(itm.second);
+      auto oPSP=dynamic_pointer_cast<OneProcessSequencePhyloLikelihood>(itm.second);
 
       if ((sPP==NULL) && (oPSP==NULL))
       {
@@ -215,19 +221,19 @@ int main(int args, char ** argv)
       }
 
       auto pDR=sPP?sPP->getLikelihoodCalculationSingleProcess(): oPSP->getLikelihoodCalculationSingleProcess();
-      auto sites=std::shared_ptr<const AlignedValuesContainer>(sPP?sPP->getData():oPSP->getData());
+      auto sites=std::shared_ptr<const AlignmentDataInterface>(sPP?sPP->getData():oPSP->getData());
 
       // Only Marginal reconstruction method
 
-      VectorSequenceContainer vSC(alphabet.get());
+      VectorSequenceContainer vSC(alphabet);
       
       if (addSitesExtant)
       {
-        auto vSC0=dynamic_cast<const SiteContainer*>(sites.get());
+        auto vSC0=dynamic_pointer_cast<const SiteContainerInterface>(sites);
         if (!vSC0)
           ApplicationTools::displayWarning("Output extant sequences not possible with probabilistic sequences.");
         // Keep only leaves
-        const auto& tree=sPP?sPP->getTree(): oPSP->getTree();
+        const auto tree=sPP?sPP->tree(): oPSP->tree();
         const auto leaves=tree.getAllLeavesNames();
 
         SequenceContainerTools::getSelectedSequences(*vSC0, leaves, vSC);
@@ -247,7 +253,7 @@ int main(int args, char ** argv)
         string outF=outputSitesFile + "_" + TextTools::toString(itm.first);
         ApplicationTools::displayResult(" Output file for sites", outF);
         ofstream out(outF.c_str(), ios::out);
-        PhyloTree ttree(sPP?sPP->getTree():oPSP->getTree());
+        PhyloTree ttree(sPP?sPP->tree():oPSP->tree());
         vector<shared_ptr<PhyloNode> > nodes = ttree.getAllNodes();
         size_t nbNodes = nodes.size();
 
@@ -258,7 +264,7 @@ int main(int args, char ** argv)
         Vdouble rates = sPP?sPP->getPosteriorRatePerSite():oPSP->getPosteriorRatePerSite();
 
         // Get the ancestral sequences:
-        vector<Sequence*> sequences(nbNodes);
+        vector<unique_ptr<Sequence> > sequences(nbNodes);
         vector<VVdouble*> probabilities(nbNodes);
         
         vector<string> colNames;
@@ -277,10 +283,10 @@ int main(int args, char ** argv)
             probabilities[i] = new VVdouble();
             
             //The cast will have to be updated when more probabilistic method will be available:
-            sequences[i] = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequenceForNode(nodeindex, probabilities[i], false);
+            sequences[i] = dynamic_cast<MarginalAncestralReconstruction*>(asr)->getAncestralSequenceForNode(nodeindex, probabilities[i], false);
             
             for (unsigned int j = 0; j < nbStates; j++) {
-                colNames.push_back("prob." + TextTools::toString(nodeindex) + "." + alphabet->intToChar((int)j));
+              colNames.push_back("prob." + TextTools::toString(nodeindex) + "." + alphabet->getStateAt(j).getLetter());
             }
           }
           else
@@ -294,8 +300,9 @@ int main(int args, char ** argv)
         for (size_t i = 0; i < sites->getNumberOfSites(); i++)
         {
           double lnL = sPP?sPP->getLogLikelihoodForASite(i):oPSP->getLogLikelihoodForASite(i);
-          const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
-          int currentSitePosition = currentSite.getPosition();
+
+          auto& currentSite = sites->site(i);
+          int currentSitePosition = currentSite.getCoordinate();
           string isCompl = "NA";
           string isConst = "NA";
           try { isCompl = (SiteTools::isComplete(currentSite) ? "1" : "0"); }
@@ -341,7 +348,7 @@ int main(int args, char ** argv)
         ofstream out(outF.c_str(), ios::out);
         // map<int, vector<double> > frequencies;
 
-        auto tree = pDR->getSubstitutionProcess().getParametrizablePhyloTree();
+        auto tree = pDR->getSubstitutionProcess()->getParametrizablePhyloTree();
         
         auto allIndex = addNodesExtant? tree->getAllNodesIndexes(): tree->getAllInnerNodesIndexes();
 
@@ -353,7 +360,7 @@ int main(int args, char ** argv)
         // for (size_t i = 0; i < nbStates; i++)
         //   colNames.push_back("exp" + (sPP?sPP->getData()->getAlphabet()->intToChar((int)i):oPSP->getData()->getAlphabet()->intToChar((int)i)));
         for (size_t i = 0; i < nbStates; i++)
-          colNames.push_back("eb" + (sPP?sPP->getData()->getAlphabet()->intToChar((int)i):oPSP->getData()->getAlphabet()->intToChar((int)i)));
+          colNames.push_back("eb" + (sPP?sPP->getData()->getAlphabet()->getStateAt(i).getLetter():oPSP->getData()->getAlphabet()->getStateAt(i).getLetter()));
       
         //Now fill the table:
         vector<string> row(colNames.size());
@@ -386,7 +393,7 @@ int main(int args, char ** argv)
       
       if (sequenceFilePath!="none")
       {
-        SiteContainer* asSites = 0;
+        shared_ptr<AlignedSequenceContainer> asSites = nullptr;
         
         //Write output:
         BppOAlignmentWriterFormat bppoWriter(1);
@@ -396,21 +403,21 @@ int main(int args, char ** argv)
 
         if (sample)
         {
-          asSites = new VectorSiteContainer(alphabet.get());
+          asSites = make_shared<AlignedSequenceContainer>(alphabet);
           
           for (unsigned int i = 0; i < nbSamples; i++)
           {
             ApplicationTools::displayGauge(i, nbSamples-1, '=');
-            SequenceContainer *sampleSites = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequences(true);
+            shared_ptr<AlignmentDataInterface> sampleSites = dynamic_cast<MarginalAncestralReconstruction *>(asr)->getAncestralSequences(true);
             vector<string> names = sampleSites->getSequenceNames();
+
             for (unsigned int j = 0; j < names.size(); j++){
               names[j] += "_" + TextTools::toString(i+1);
             }
               
             sampleSites->setSequenceNames(names, true);
 
-            SequenceContainerTools::append(*asSites, *sampleSites);
-            delete sampleSites;
+            SequenceContainerTools::append(*asSites, *dynamic_pointer_cast<const SequenceContainerInterface>(sampleSites));
           }
           ApplicationTools::message->endLine();
         }
@@ -424,8 +431,6 @@ int main(int args, char ** argv)
         // Write sequences:
         oAln->writeAlignment(sequenceFilePath + "_" + TextTools::toString(itm.first), *asSites, true);
           
-        delete asSites;
-        delete asr;
       }      
 
       /// end of ancestral reconstruction

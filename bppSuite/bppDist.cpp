@@ -48,8 +48,6 @@ using namespace std;
 // From bpp-core:
 #include <Bpp/Version.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
-#include <Bpp/App/BppApplication.h>
-#include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
 
@@ -57,6 +55,7 @@ using namespace std;
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
+#include <Bpp/Seq/App/BppSequenceApplication.h>
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Text/KeyvalTools.h>
@@ -103,33 +102,26 @@ int main(int args, char ** argv)
   
   try {
 
-    BppApplication bppdist(args, argv, "BppDist");
+    BppSequenceApplication bppdist(args, argv, "BppDist");
     bppdist.startTimer();
 
-    Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppdist.getParams(), "", false);
-    unique_ptr<GeneticCode> gCode;
-    CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
-    if (codonAlphabet) {
-      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppdist.getParams(), "Standard", "", true, true);
-      ApplicationTools::displayResult("Genetic Code", codeDesc);
+    std::shared_ptr<const Alphabet> alphabet = bppdist.getAlphabet();
+    
+    /// GeneticCode
+    
+    auto gCode(bppdist.getGeneticCode(alphabet));
 
-      gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
-    }
-
-    AlignedValuesContainer* allSites = SequenceApplicationTools::getAlignedContainer(alphabet, bppdist.getParams());
+    //sites
+    
+    auto allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppdist.getParams());
   
-    AlignedValuesContainer* sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppdist.getParams());
-    delete allSites;
-
-    ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
-    ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
-
-    if (sites->getNumberOfSequences()==0 || sites->getNumberOfSites()==0)
-      throw Exception("Empty data.");
-
+    shared_ptr<VectorSiteContainer> sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bppdist.getParams());
+    
+    // model
+    
     map<string, string> unparsedparams;
 
-    auto model = std::shared_ptr<BranchModel>(PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode.get(), sites, bppdist.getParams(), unparsedparams));
+    std::shared_ptr<BranchModelInterface> model = PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode, sites, bppdist.getParams(), unparsedparams);
 
     if (!model)
       ApplicationTools::displayMessage("bppDist available only for regular transition models, not the given one.");
@@ -150,7 +142,8 @@ int main(int args, char ** argv)
  
     string method = ApplicationTools::getStringParameter("method", bppdist.getParams(), "nj");
     ApplicationTools::displayResult("Tree reconstruction method", method);
-    TreeTemplate<Node>* tree;
+
+    unique_ptr<TreeTemplate<Node>> tree;
     AgglomerativeDistanceMethod* distMethod = 0;
     if(method == "wpgma")
     {
@@ -186,17 +179,19 @@ int main(int args, char ** argv)
     unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", bppdist.getParams(), 2);
 	
     string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", bppdist.getParams(), false, false);
-    OutputStream* messenger = 
+    auto messenger = shared_ptr<OutputStream>(
       (mhPath == "none") ? 0 :
       (mhPath == "std") ? ApplicationTools::message.get() :
-      new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
+      new StlOutputStream(make_unique<ofstream>(mhPath.c_str(), ios::out)));
+    
     ApplicationTools::displayResult("Message handler", mhPath);
 
     string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
-    OutputStream* profiler = 
+    auto profiler = shared_ptr<OutputStream>(
       (prPath == "none") ? 0 :
       (prPath == "std") ? ApplicationTools::message.get() :
-      new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
+      new StlOutputStream(make_unique<ofstream>(prPath.c_str(), ios::out)));
+    
     if(profiler) profiler->setPrecision(20);
     ApplicationTools::displayResult("Profiler", prPath);
 
@@ -238,8 +233,8 @@ int main(int args, char ** argv)
 	
     //Here it is:
     ofstream warn("warnings", ios::out);
-    ApplicationTools::warning=std::shared_ptr<OutputStream>(dynamic_cast<OutputStream*>(new StlOutputStreamWrapper(&warn)));
-    tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
+    ApplicationTools::warning=std::shared_ptr<OutputStream>(dynamic_cast<OutputStream*>(new StlOutputStreamWrapper(&warn))); 
+   tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
     warn.close();
 //    delete ApplicationTools::warning;
     ApplicationTools::warning = ApplicationTools::message;
@@ -332,14 +327,15 @@ int main(int args, char ** argv)
       }
       Newick newick;
     
-      vector<Tree *> bsTrees(nbBS);
+      vector<std::unique_ptr<Tree> > bsTrees(nbBS);
       ApplicationTools::displayTask("Bootstrapping", true);
       for(unsigned int i = 0; i < nbBS; i++)
       {
         ApplicationTools::displayGauge(i, nbBS-1, '=');
-        AlignedValuesContainer * sample = SiteContainerTools::bootstrapSites(*sites);
-        TransitionModel* tm=dynamic_cast<TransitionModel*>(model.get());
-        if(approx && tm) tm->setFreqFromData(*sample);
+        shared_ptr<VectorSiteContainer> sample = SiteContainerTools::bootstrapSites(*sites);
+        auto tm=dynamic_pointer_cast<TransitionModelInterface>(model);
+        if (approx && tm)
+          tm->setFreqFromData(*sample);
         distEstimation.setData(sample);
         bsTrees[i] = OptimizationTools::buildDistanceTree(
           distEstimation,
@@ -355,7 +351,6 @@ int main(int args, char ** argv)
           );
         if(out && i == 0) newick.writeTree(*bsTrees[i], bsTreesPath, true);
         if(out && i >  0) newick.writeTree(*bsTrees[i], bsTreesPath, false);
-        delete sample;
       }
       if(out) out->close();
       if(out) delete out;
@@ -363,19 +358,13 @@ int main(int args, char ** argv)
       ApplicationTools::displayTask("Compute bootstrap values");
       TreeTools::computeBootstrapValues(*tree, bsTrees);
       ApplicationTools::displayTaskDone();
-      for(unsigned int i = 0; i < nbBS; i++) delete bsTrees[i];
 
       //Write resulting tree:
       PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
     }
     
-    delete alphabet;
-    delete sites;
-    delete distMethod;
-    delete tree;
-
-    bppdist.done();}
-  
+    bppdist.done();
+  }
       
   catch(exception & e)
   {

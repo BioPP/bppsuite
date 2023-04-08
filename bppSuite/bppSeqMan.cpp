@@ -97,22 +97,19 @@ int main(int args, char** argv)
   bppseqman.startTimer();
   
   // Get alphabet
-  Alphabet* alphabet = SequenceApplicationTools::getAlphabet(bppseqman.getParams(), "", false, true, true);
-  unique_ptr<GeneticCode> gCode;
-  CodonAlphabet* codonAlphabet = dynamic_cast<CodonAlphabet*>(alphabet);
+  shared_ptr<Alphabet> alphabet = SequenceApplicationTools::getAlphabet(bppseqman.getParams(), "", false, true, true);
+
+  shared_ptr<CodonAlphabet> codonAlphabet = dynamic_pointer_cast<CodonAlphabet>(alphabet);
 
   // Get sequences:
   bool aligned = ApplicationTools::getBooleanParameter("input.alignment", bppseqman.getParams(), false, "", true, 1);
-  OrderedSequenceContainer* sequences = 0;
+  shared_ptr<SequenceContainerInterface> sequences = 0;
 
   if (aligned) {
-    VectorSiteContainer* allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppseqman.getParams());
-    sequences = dynamic_cast<VectorSiteContainer*>(SequenceApplicationTools::getSitesToAnalyse(*allSites, bppseqman.getParams(), "", true, false));
-    delete allSites;
+    shared_ptr<VectorSiteContainer> allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppseqman.getParams());
+    sequences = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppseqman.getParams(), "", true, false);
   } else {
-    SequenceContainer* tmp = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);
-    sequences = new VectorSequenceContainer(*tmp);
-    delete tmp;
+    sequences = SequenceApplicationTools::getSequenceContainer(alphabet, bppseqman.getParams(), "", true, true);
   }
 
   ApplicationTools::displayResult("Number of sequences", sequences->getNumberOfSequences());
@@ -124,6 +121,8 @@ int main(int args, char** argv)
 
   for (size_t a = 0; a < actions.size(); a++)
   {
+    auto containerWithKeys = dynamic_pointer_cast<VectorSequenceContainer>(sequences);
+
     string cmdName;
     map<string, string> cmdArgs;
     KeyvalTools::parseProcedure(actions[a], cmdName, cmdArgs);
@@ -134,16 +133,15 @@ int main(int args, char** argv)
     // +-----------------+
     if (cmdName == "Complement")
     {
-      OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      shared_ptr<SequenceContainerInterface> sc = 0;
+      if (aligned) sc = make_shared<VectorSiteContainer>(sequences->getAlphabet());
+      else         sc = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
       for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* seq = SequenceTools::getComplement(sequences->getSequence(i));
-        sc->addSequence(*seq, false);
-        delete seq;
+        auto seq = SequenceTools::getComplement(sequences->sequence(i));
+        auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+        sc->addSequence(name,seq);
       }
-      delete sequences;
       sequences = sc;
     }
     // +------------------------+
@@ -151,32 +149,30 @@ int main(int args, char** argv)
     // +------------------------+
     else if (cmdName == "Transcript")
     {
-      if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET.getAlphabetType())
+      if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET->getAlphabetType())
       {
-        OrderedSequenceContainer* sc = 0;
-        if (aligned) sc = new VectorSiteContainer(&AlphabetTools::RNA_ALPHABET);
-        else         sc = new VectorSequenceContainer(&AlphabetTools::RNA_ALPHABET);
+        shared_ptr<SequenceContainerInterface> sc = 0;
+        if (aligned) sc = make_shared<VectorSiteContainer>(AlphabetTools::RNA_ALPHABET);
+        else         sc = make_shared<VectorSequenceContainer>(AlphabetTools::RNA_ALPHABET);
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
-          Sequence* seq = SequenceTools::transcript(sequences->getSequence(i));
-          sc->addSequence(*seq, false);
-          delete seq;
+          auto seq = SequenceTools::transcript(sequences->sequence(i));
+          auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+          sc->addSequence(name, seq);
         }
-        delete sequences;
         sequences = sc;
       }
-      else if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET.getAlphabetType())
+      else if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET->getAlphabetType())
       {
-        OrderedSequenceContainer* sc = 0;
-        if (aligned) sc = new VectorSiteContainer(&AlphabetTools::DNA_ALPHABET);
-        else         sc = new VectorSequenceContainer(&AlphabetTools::DNA_ALPHABET);
+        shared_ptr<SequenceContainerInterface> sc = 0;
+        if (aligned) sc = make_shared<VectorSiteContainer>(AlphabetTools::DNA_ALPHABET);
+        else         sc = make_shared<VectorSequenceContainer>(AlphabetTools::DNA_ALPHABET);
         for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
         {
-          Sequence* seq = SequenceTools::reverseTranscript(sequences->getSequence(i));
-          sc->addSequence(*seq, false);
-          delete seq;
+          auto seq = SequenceTools::reverseTranscript(sequences->sequence(i));
+          auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+          sc->addSequence(name, seq);
         }
-        delete sequences;
         sequences = sc;
       }
       else throw Exception("Transcription error: input alphabet must be of type 'nucleic'.");
@@ -186,30 +182,34 @@ int main(int args, char** argv)
     // +-------------------------------+
     else if (cmdName == "Switch")
     {
-      const Alphabet* alpha = 0;
-      if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET.getAlphabetType())
+      std::shared_ptr<const Alphabet> alpha = 0;
+      if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET->getAlphabetType())
       {
-        alpha = &AlphabetTools::RNA_ALPHABET;
+        alpha = AlphabetTools::RNA_ALPHABET;
       }
-      else if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET.getAlphabetType())
+      else if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET->getAlphabetType())
       {
-        alpha = &AlphabetTools::DNA_ALPHABET;
+        alpha = AlphabetTools::DNA_ALPHABET;
       }
-      else throw Exception("Cannot switch alphabet type, alphabet is not of type 'nucleic'.");
-      OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(alpha);
-      else         sc = new VectorSequenceContainer(alpha);
+      else
+        throw Exception("Cannot switch alphabet type, alphabet is not of type 'nucleic'.");
+
+      shared_ptr<SequenceContainerInterface> sc = 0;
+      if (aligned)
+        sc = make_shared<VectorSiteContainer>(alpha);
+      else
+        sc = make_shared<VectorSequenceContainer>(alpha);
+      
       for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        const Sequence* old = &sequences->getSequence(i);
-        vector<int> content(old->size());
-        for (size_t j = 0; j < old->size(); ++j)
-          content[j] = (*old)[j];
-        Sequence* seq = new BasicSequence(old->getName(), content, old->getComments(), alpha);
-        sc->addSequence(*seq, false);
-        delete seq;
+        auto old = sequences->sequence(i);
+        vector<int> content(old.size());
+        for (size_t j = 0; j < old.size(); ++j)
+          content[j] = old[j];
+        auto seq = make_unique<Sequence>(old.getName(), content, old.getComments(), alpha);
+        auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+        sc->addSequence(name, seq);
       }
-      delete sequences;
       sequences = sc;
     }
     // +-------------+
@@ -217,26 +217,27 @@ int main(int args, char** argv)
     // +-------------+
     else if (cmdName == "Translate")
     {
-      if (!AlphabetTools::isCodonAlphabet(sequences->getAlphabet()))
+      if (!AlphabetTools::isCodonAlphabet(sequences->getAlphabet().get()))
         throw Exception("Error in translation: alphabet is not of type 'codon'.");
-      if (cmdArgs["code"] != "")
-        throw Exception("ERROR: 'code' argument is deprecated. The genetic code to use for translation is now set by the top-level argument 'genetic_code'.");
-      if (!gCode.get()) {
-        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
-        ApplicationTools::displayResult("Genetic Code", codeDesc);
-        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
-      }
 
-      OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(&AlphabetTools::PROTEIN_ALPHABET);
-      else         sc = new VectorSequenceContainer(&AlphabetTools::PROTEIN_ALPHABET);
+      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
+      
+      auto gCode = SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc);
+
+      ApplicationTools::displayResult("Genetic Code", codeDesc);
+
+      shared_ptr<SequenceContainerInterface> sc = 0;
+      if (aligned)
+        sc = make_shared<VectorSiteContainer>(AlphabetTools::PROTEIN_ALPHABET);
+      else
+        sc = make_shared<VectorSequenceContainer>(AlphabetTools::PROTEIN_ALPHABET);
+
       for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
       {
-        Sequence* seq = gCode->translate(sequences->getSequence(i));
-        sc->addSequence(*seq, false);
-        delete seq;
+        auto seq = gCode->translate(sequences->sequence(i));
+        auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+        sc->addSequence(name, seq);
       }
-      delete sequences;
       sequences = sc;      
     }
     // +-------------+
@@ -244,14 +245,15 @@ int main(int args, char** argv)
     // +-------------+
     else if (cmdName == "RemoveGaps")
     {
-      VectorSequenceContainer* sc = new VectorSequenceContainer(sequences->getAlphabet());
+      auto sc = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
+      
       for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        unique_ptr<Sequence> seq(sequences->getSequence(i).clone());
+        unique_ptr<Sequence> seq(sequences->sequence(i).clone());
         SequenceTools::removeGaps(*seq);
-        sc->addSequence(*seq);
+        auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+        sc->addSequence(name, seq);
       }
-      delete sequences;
       sequences = sc;
       aligned = false;
     }
@@ -260,17 +262,19 @@ int main(int args, char** argv)
     // +---------------------------+
     else if (cmdName == "GapToUnknown")
     {
-      OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      shared_ptr<SequenceContainerInterface> sc = 0;
+      if (aligned)
+        sc = make_shared<VectorSiteContainer>(sequences->getAlphabet());
+      else
+        sc = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
+
       for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* seq = new BasicSequence(sequences->getSequence(i));
+        auto seq = make_unique<Sequence>(sequences->sequence(i));
         SymbolListTools::changeGapsToUnknownCharacters(*seq);
-        sc->addSequence(*seq, false);
-        delete seq;
+        auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+        sc->addSequence(name, seq);
       }
-      delete sequences;
       sequences = sc;
     }
     // +---------------------------+
@@ -278,17 +282,19 @@ int main(int args, char** argv)
     // +---------------------------+
     else if (cmdName == "UnknownToGap")
     {
-      OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      shared_ptr<SequenceContainerInterface> sc = 0;
+      if (aligned)
+        sc = make_shared<VectorSiteContainer>(sequences->getAlphabet());
+      else
+        sc = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
+
       for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        Sequence* seq = new BasicSequence(sequences->getSequence(i));
+        auto seq = make_unique<Sequence>(sequences->sequence(i));
         SymbolListTools::changeUnresolvedCharactersToGaps(*seq);
-        sc->addSequence(*seq, false);
-        delete seq;
+        auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+        sc->addSequence(name, seq);
       }
-      delete sequences;
       sequences = sc;
     }
     
@@ -299,33 +305,33 @@ int main(int args, char** argv)
     {
       if (!codonAlphabet)
         throw Exception("RemoveStops: requires a codon alphabet.");
-      if (!gCode.get()) {
-        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
-        ApplicationTools::displayResult("Genetic Code", codeDesc);
-        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
-      }
-      SiteContainer* sites = dynamic_cast<SiteContainer*>(sequences);
+
+      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
+      ApplicationTools::displayResult("Genetic Code", codeDesc);
+      auto gCode = SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc);
+      
+      auto sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
       if (!sites)
       {
-        VectorSequenceContainer* sc = new VectorSequenceContainer(sequences->getAlphabet());
+        auto sc = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
         for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
         {
-          unique_ptr<Sequence> seq(sequences->getSequence(i).clone());
+          unique_ptr<Sequence> seq(sequences->sequence(i).clone());
           SequenceTools::removeStops(*seq, *gCode);
-          sc->addSequence(*seq);
+          auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+          sc->addSequence(name, seq);
         }
-        delete sequences;
         sequences = sc;
       } else {
-        VectorSiteContainer* sc = new VectorSiteContainer(sequences->getAlphabet());
+        auto sc = make_unique<VectorSiteContainer>(sequences->getAlphabet());
         for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
         {
-          unique_ptr<Sequence> seq(sequences->getSequence(i).clone());
+          unique_ptr<Sequence> seq(sequences->sequence(i).clone());
           SequenceTools::replaceStopsWithGaps(*seq, *gCode);
-          sc->addSequence(*seq);
+          auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+          sc->addSequence(name, seq);
         }
-        delete sequences;
-        sequences = sc;
+        sequences.reset(sc.release());
       }
     }
 
@@ -334,22 +340,21 @@ int main(int args, char** argv)
     // +--------------+
     else if (cmdName == "RemoveColumnsWithStops")
     {
-      SiteContainer* sites = dynamic_cast<SiteContainer*>(sequences);
+      auto sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
       if (!sites)
       {
         throw Exception("'RemoveColumnsWithStops' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
       if (!codonAlphabet)
         throw Exception("RemoveColumnsWithStops: requires a codon alphabet.");
-      if (!gCode.get()) {
-        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
-        ApplicationTools::displayResult("Genetic Code", codeDesc);
-        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
-      }
+      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
+      
+      ApplicationTools::displayResult("Genetic Code", codeDesc);
+      auto gCode = SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc);
 
       for (size_t i = sites->getNumberOfSites(); i > 0; i--)
       {
-        if (CodonSiteTools::hasStop(sites->getSite(i-1), *gCode))
+        if (CodonSiteTools::hasStop(sites->site(i-1), *gCode))
           sites->deleteSite(i - 1);
       }
     }
@@ -361,26 +366,28 @@ int main(int args, char** argv)
     {
       if (!codonAlphabet)
         throw Exception("GetCDS: requires a codon alphabet.");
-      if (!gCode.get()) {
-        string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
-        ApplicationTools::displayResult("Genetic Code", codeDesc);
-        gCode.reset(SequenceApplicationTools::getGeneticCode(codonAlphabet->shareNucleicAlphabet(), codeDesc));
-      }
-      OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);
+      ApplicationTools::displayResult("Genetic Code", codeDesc);
+      auto gCode = SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc);
+      
+      shared_ptr<SequenceContainerInterface> sc = 0;
+      if (aligned)
+        sc = make_shared<VectorSiteContainer>(sequences->getAlphabet());
+      else
+        sc = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
+
       for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
       {
-        BasicSequence seq = sequences->getSequence(i);
-        size_t len = seq.size();
-        SequenceTools::getCDS(seq, *gCode, false, true, true, false);
+        auto seq = unique_ptr<Sequence>(sequences->sequence(i).clone());
+        size_t len = seq->size();
+        SequenceTools::getCDS(*seq, *gCode, false, true, true, false);
         if (aligned) {
-          for (size_t c = seq.size(); c < len; ++c)
-            seq.addElement(seq.getAlphabet()->getGapCharacterCode());
+          for (size_t c = seq->size(); c < len; ++c)
+            seq->addElement(seq->getAlphabet()->getGapCharacterCode());
         }
-        sc->addSequence(seq, false);
+        auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+        sc->addSequence(name, seq);
       }
-      delete sequences;
       sequences = sc;
     }
 
@@ -389,31 +396,30 @@ int main(int args, char** argv)
     // +--------------------------+
     else if (actions[a] == "CoerceToAlignment")
     {
-      SiteContainer* sites = dynamic_cast<SiteContainer*>(sequences);
+      shared_ptr<SiteContainerInterface> sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
       if(! sites)
       {
-        sites = new VectorSiteContainer(*sequences);
-        delete sequences;
+        sites = make_shared<VectorSiteContainer>(*sequences);
         sequences = sites;
       }
       aligned = true;
     }
     else if (actions[a] == "ResolvedDotted")
     {
-      SiteContainer* sites = dynamic_cast<SiteContainer *>(sequences);
+      shared_ptr<SiteContainerInterface> sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
       if (!sites)
       {
         throw Exception("'ResolvedDotted' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
       }
 
-      const Alphabet* alpha = 0;
+      shared_ptr<const Alphabet> alpha = 0;
       string alphastr = ApplicationTools::getStringParameter("alphabet", cmdArgs, "DNA", "", false, 1);
-      if (alphastr == "DNA") alpha = &AlphabetTools::DNA_ALPHABET;
-      else if (alphastr == "RNA") alpha = &AlphabetTools::RNA_ALPHABET;
-      else if (alphastr == "Protein") alpha = &AlphabetTools::PROTEIN_ALPHABET;
+      if (alphastr == "DNA") alpha = AlphabetTools::DNA_ALPHABET;
+      else if (alphastr == "RNA") alpha = AlphabetTools::RNA_ALPHABET;
+      else if (alphastr == "Protein") alpha = AlphabetTools::PROTEIN_ALPHABET;
       else throw Exception("Resolved alphabet must be one of [DNA|RNA|Protein] for solving dotted alignment.");
-      OrderedSequenceContainer* resolvedCont = SiteContainerTools::resolveDottedAlignment(*sites, alpha);
-      delete sequences;
+
+      shared_ptr<SiteContainerInterface> resolvedCont = SiteContainerTools::resolveDottedAlignment(*sites, alpha);
       sequences = resolvedCont;
     }
     // +---------------------+
@@ -421,7 +427,7 @@ int main(int args, char** argv)
     // +---------------------+
     else if (cmdName == "KeepComplete")
     {
-      SiteContainer* sites = dynamic_cast<SiteContainer *>(sequences);
+      auto sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
       if (!sites)
       {
         throw Exception("'KeepComplete' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
@@ -434,7 +440,7 @@ int main(int args, char** argv)
         for (size_t i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, double> freqs;
-          SiteTools::getFrequencies(sites->getSite(i - 1), freqs);
+          SiteTools::getFrequencies(sites->site(i - 1), freqs);
           if (freqs[-1] > gapFreq) sites->deleteSite(i - 1);
         }
       }
@@ -444,7 +450,7 @@ int main(int args, char** argv)
         for (size_t i = sites->getNumberOfSites(); i > 0; i--)
         {
           map<int, size_t> counts;
-          SiteTools::getCounts(sites->getSite(i - 1), counts);
+          SiteTools::getCounts(sites->site(i - 1), counts);
           counts[-1]; //Needed in case this entry does not exist in the map. This will set it to 0.
           if (counts[-1] > gapNum) sites->deleteSite(i-1);
         }
@@ -455,17 +461,18 @@ int main(int args, char** argv)
     // +-----------------+
     else if (cmdName == "Invert")
     {
-      OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+      shared_ptr<SequenceContainerInterface> sc = 0;
+      if (aligned)
+        sc = make_shared<VectorSiteContainer>(sequences->getAlphabet());
+      else
+        sc = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
+
       for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
       {
-        const Sequence* old = &sequences->getSequence(i);
-        Sequence* seq = SequenceTools::getInvert(*old);
-        sc->addSequence(*seq, false);
-        delete seq;
+        auto seq = make_unique<Sequence>(*SequenceTools::getInvert(sequences->sequence(i)).release());
+        auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+        sc->addSequence(name, seq);
       }
-      delete sequences;
       sequences = sc;
     }
     // +------------------+
@@ -474,11 +481,12 @@ int main(int args, char** argv)
     else if (cmdName == "GetCodonPosition")
     {
       unsigned int pos = ApplicationTools::getParameter<unsigned int>("position", cmdArgs, 3, "", false, 1);
-      OrderedSequenceContainer* sc = dynamic_cast<OrderedSequenceContainer*>(SequenceContainerTools::getCodonPosition(*sequences, pos - 1));
-      delete sequences;
+      
+      shared_ptr<SequenceContainerInterface> sc = SequenceContainerTools::getCodonPosition(*sequences, pos - 1);
+//      auto sc = shared_ptr<SequenceContainerInterface>(gp);
+
       if (aligned) {
-        sequences = new VectorSiteContainer(*sc);
-        delete sc;
+        sequences = make_shared<VectorSiteContainer>(*sc);
       } else {
         sequences = sc;
       }
@@ -490,16 +498,19 @@ int main(int args, char** argv)
     {
       unique_ptr<Tree> tree(PhylogeneticsApplicationTools::getTree(cmdArgs, ""));
       vector<string> names = tree->getLeavesNames();
-      OrderedSequenceContainer* reorderedSequences = 0;
+
+      shared_ptr<SequenceContainerInterface> reorderedSequences = 0;
+      
       if (aligned) {
-        reorderedSequences = new VectorSiteContainer(sequences->getAlphabet());
+        reorderedSequences = make_shared<VectorSiteContainer>(sequences->getAlphabet());
       } else {
-        reorderedSequences = new VectorSequenceContainer(sequences->getAlphabet());
+        reorderedSequences = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
       }
+      
       for (size_t i = 0; i < names.size(); ++i) {
-        reorderedSequences->addSequence(sequences->getSequence(names[i]), false);
+        auto seq2 = unique_ptr<Sequence>(sequences->sequence(names[i]).clone());
+        reorderedSequences->addSequence(names[i], seq2);
       }
-      delete sequences;
       sequences = reorderedSequences;
     }
     // +----------------------+
@@ -507,15 +518,20 @@ int main(int args, char** argv)
     // +----------------------+
     else if (cmdName == "RemoveEmptySequences")
     {
-      OrderedSequenceContainer* sc = 0;
-      if (aligned) sc = new VectorSiteContainer(sequences->getAlphabet());
-      else         sc = new VectorSequenceContainer(sequences->getAlphabet());
+
+      shared_ptr<SequenceContainerInterface> sc = 0;
+
+      if (aligned) sc = make_shared<VectorSiteContainer>(sequences->getAlphabet());
+      else         sc = make_shared<VectorSequenceContainer>(sequences->getAlphabet());
       for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
       {
-        if (SequenceTools::getNumberOfSites(sequences->getSequence(i))!=0)
-          sc->addSequence(sequences->getSequence(i), false);
+        if (SequenceTools::getNumberOfSites(sequences->sequence(i))!=0)
+        {
+          auto name= containerWithKeys?containerWithKeys->sequenceKey(i):"seq_"+TextTools::toString(i);
+          auto seq2 = unique_ptr<Sequence>(sequences->sequence(i).clone());
+          sc->addSequence(name, seq2);
+        }
       }
-      delete sequences;
       sequences = sc;
     }
 
@@ -526,15 +542,13 @@ int main(int args, char** argv)
   ApplicationTools::displayBooleanResult("Final sequences are aligned", aligned);
   if (aligned)
   {
-    SequenceApplicationTools::writeAlignmentFile(*dynamic_cast<SiteContainer*>(sequences), bppseqman.getParams(), "", true, 1);
+    auto sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
+    SequenceApplicationTools::writeAlignmentFile(*sites, bppseqman.getParams(), "", true, 1);
   }
   else
   {
     SequenceApplicationTools::writeSequenceFile(*sequences, bppseqman.getParams(), "", true, 1);
   }
-
-  delete alphabet;
-  delete sequences;
 
   bppseqman.done();
 

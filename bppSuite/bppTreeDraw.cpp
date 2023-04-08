@@ -94,11 +94,11 @@ int main(int args, char ** argv)
   bpptreedraw.startTimer();
 
   // Get the tree to plot:
-  Tree* tree = PhylogeneticsApplicationTools::getTree(bpptreedraw.getParams());
+  auto tree = PhylogeneticsApplicationTools::getTree(bpptreedraw.getParams());
   ApplicationTools::displayResult("Number of leaves", TextTools::toString(tree->getNumberOfLeaves()));
   
   // Get the graphic device:
-  GraphicDevice* gd = 0;
+  unique_ptr<GraphicDevice> gd = 0;
 	string outputPath = ApplicationTools::getAFilePath("output.drawing.file", bpptreedraw.getParams(), true, false, "", false);
   ofstream file(outputPath.c_str(), ios::out);
   string graphicTypeCmd = ApplicationTools::getStringParameter("output.drawing.format", bpptreedraw.getParams(), "Svg");
@@ -107,39 +107,39 @@ int main(int args, char ** argv)
   KeyvalTools::parseProcedure(graphicTypeCmd, graphicType, graphicTypeArgs);
   if (graphicType == "Svg")
   {
-    gd = new SvgGraphicDevice(file);
+    gd = make_unique<SvgGraphicDevice>(file);
   }
   else if (graphicType == "Inkscape")
   {
-    gd = new SvgGraphicDevice(file, true);
+    gd = make_unique<SvgGraphicDevice>(file, true);
   }
   else if (graphicType == "Xfig")
   {
-    gd = new XFigGraphicDevice(file);
-    dynamic_cast<XFigGraphicDevice *>(gd)->setFontFlag(XFigGraphicDevice::FONTFLAG_POSTSCRIPT);
+    gd = make_unique<XFigGraphicDevice>(file);
+    dynamic_cast<XFigGraphicDevice *>(gd.get())->setFontFlag(XFigGraphicDevice::FONTFLAG_POSTSCRIPT);
   }
   else if (graphicType == "Pgf")
   {
-    gd = new PgfGraphicDevice(file, 0.045);
+    gd = make_unique<PgfGraphicDevice>(file, 0.045);
   }
   else throw Exception("Unknown output format: " + graphicType);
 
   // Get the tree plotter:
-  TreeDrawing* td = 0;
+  unique_ptr<TreeDrawing> td = 0;
   string plotTypeCmd = ApplicationTools::getStringParameter("output.drawing.plot", bpptreedraw.getParams(), "Cladogram");
   string plotType;
   map<string, string> plotTypeArgs;
   KeyvalTools::parseProcedure(plotTypeCmd, plotType, plotTypeArgs);
   if (plotType == "Cladogram")
   {
-    td = new CladogramPlot();
+    td = make_unique<CladogramPlot>();
   }
   else if (plotType == "Phylogram")
   {
-    td = new PhylogramPlot();
+    td = make_unique<PhylogramPlot>();
   }
   else throw Exception("Unknown output format: " + plotType);
-  td->setTree(tree);
+  td->setTree(tree.release());
   ApplicationTools::displayResult("Plot type", plotType);
   double xunit = ApplicationTools::getDoubleParameter("xu", plotTypeArgs, 10);
   double yunit = ApplicationTools::getDoubleParameter("yu", plotTypeArgs, 10);
@@ -148,28 +148,28 @@ int main(int args, char ** argv)
   string hOrientation = ApplicationTools::getStringParameter("direction.h", plotTypeArgs, "left2right");
   if (hOrientation == "left2right")
   {
-    dynamic_cast<AbstractDendrogramPlot*>(td)->setHorizontalOrientation(AbstractDendrogramPlot::ORIENTATION_LEFT_TO_RIGHT);
+    dynamic_cast<AbstractDendrogramPlot*>(td.get())->setHorizontalOrientation(AbstractDendrogramPlot::ORIENTATION_LEFT_TO_RIGHT);
   }
   else if (hOrientation == "right2left")
   {
-    dynamic_cast<AbstractDendrogramPlot*>(td)->setHorizontalOrientation(AbstractDendrogramPlot::ORIENTATION_RIGHT_TO_LEFT);
+    dynamic_cast<AbstractDendrogramPlot*>(td.get())->setHorizontalOrientation(AbstractDendrogramPlot::ORIENTATION_RIGHT_TO_LEFT);
   }
   else throw Exception("Unknown orientation option: " + hOrientation);
   string vOrientation = ApplicationTools::getStringParameter("direction.v", plotTypeArgs, "top2bottom");
   if (vOrientation == "top2bottom")
   {
-    dynamic_cast<AbstractDendrogramPlot*>(td)->setVerticalOrientation(AbstractDendrogramPlot::ORIENTATION_TOP_TO_BOTTOM);
+    dynamic_cast<AbstractDendrogramPlot*>(td.get())->setVerticalOrientation(AbstractDendrogramPlot::ORIENTATION_TOP_TO_BOTTOM);
   }
   else if (vOrientation == "bottom2top")
   {
-    dynamic_cast<AbstractDendrogramPlot*>(td)->setVerticalOrientation(AbstractDendrogramPlot::ORIENTATION_BOTTOM_TO_TOP);
+    dynamic_cast<AbstractDendrogramPlot*>(td.get())->setVerticalOrientation(AbstractDendrogramPlot::ORIENTATION_BOTTOM_TO_TOP);
   }
   else throw Exception("Unknown orientation option: " + vOrientation);
  
   //Plotting option:
   TreeDrawingSettings tds;
-  BasicTreeDrawingDisplayControler* controler = new BasicTreeDrawingDisplayControler(&tds);
-  controler->registerTreeDrawing(td);
+  auto controler = make_unique<BasicTreeDrawingDisplayControler>(&tds);
+  controler->registerTreeDrawing(td.get());
 
   bool drawLeafNames       = ApplicationTools::getBooleanParameter("draw.leaves", plotTypeArgs, true);
   bool drawNodesId         = ApplicationTools::getBooleanParameter("draw.ids"   , plotTypeArgs, false);
@@ -193,10 +193,6 @@ int main(int args, char ** argv)
 
   //Finishing things:
   file.close();
-  delete controler;
-  delete tree;
-  delete td;
-  delete gd;
 
   bpptreedraw.done(); 
  
