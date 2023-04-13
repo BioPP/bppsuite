@@ -57,7 +57,6 @@ using namespace std;
 #include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
-#include <Bpp/Phyl/Io/Newick.h>
 
 using namespace bpp;
 

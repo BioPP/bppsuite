@@ -234,7 +234,7 @@ int main(int args, char ** argv)
           ApplicationTools::displayWarning("Output extant sequences not possible with probabilistic sequences.");
         // Keep only leaves
         const auto tree=sPP?sPP->tree(): oPSP->tree();
-        const auto leaves=tree.getAllLeavesNames();
+        const auto leaves=tree->getAllLeavesNames();
 
         SequenceContainerTools::getSelectedSequences(*vSC0, leaves, vSC);
       }
@@ -253,8 +253,8 @@ int main(int args, char ** argv)
         string outF=outputSitesFile + "_" + TextTools::toString(itm.first);
         ApplicationTools::displayResult(" Output file for sites", outF);
         ofstream out(outF.c_str(), ios::out);
-        PhyloTree ttree(sPP?sPP->tree():oPSP->tree());
-        vector<shared_ptr<PhyloNode> > nodes = ttree.getAllNodes();
+        auto ttree(sPP?sPP->tree():oPSP->tree());
+        vector<shared_ptr<PhyloNode> > nodes = ttree->getAllNodes();
         size_t nbNodes = nodes.size();
 
         // Get the class with maximum posterior probability:
@@ -277,7 +277,7 @@ int main(int args, char ** argv)
         
         for (size_t i = 0; i < nbNodes; i++) {
           shared_ptr<PhyloNode> node = nodes[i];
-          auto nodeindex=ttree.getNodeIndex(node);
+          auto nodeindex=ttree->getNodeIndex(node);
           colNames.push_back("max." + TextTools::toString(nodeindex));
           if (probs) {
             probabilities[i] = new VVdouble();
