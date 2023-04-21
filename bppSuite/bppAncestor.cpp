@@ -243,6 +243,8 @@ int main(int args, char ** argv)
 
       size_t nbStates=sPP?sPP->getNumberOfStates():oPSP->getNumberOfStates();
 
+      const auto& stateMap = pDR->stateMap();
+
       ApplicationTools::displayMessage("\nPhylo " + TextTools::toString(itm.first));
           
       /////////////////////////////////////
@@ -286,7 +288,7 @@ int main(int args, char ** argv)
             sequences[i] = dynamic_cast<MarginalAncestralReconstruction*>(asr)->getAncestralSequenceForNode(nodeindex, probabilities[i], false);
             
             for (unsigned int j = 0; j < nbStates; j++) {
-              colNames.push_back("prob." + TextTools::toString(nodeindex) + "." + alphabet->getStateAt(j).getLetter());
+              colNames.push_back("prob." + TextTools::toString(nodeindex) + "." + stateMap.getStateDescription(j));
             }
           }
           else
@@ -295,7 +297,7 @@ int main(int args, char ** argv)
 
         //Now fill the table:
         vector<string> row(colNames.size());
-        DataTable* infos = new DataTable(colNames);
+        auto infos = make_unique<DataTable>(colNames);
 
         for (size_t i = 0; i < sites->getNumberOfSites(); i++)
         {
@@ -332,8 +334,6 @@ int main(int args, char ** argv)
         }
 
         DataTable::write(*infos, out, "\t");
-        
-        delete infos;
       }
 
       
@@ -360,11 +360,11 @@ int main(int args, char ** argv)
         // for (size_t i = 0; i < nbStates; i++)
         //   colNames.push_back("exp" + (sPP?sPP->getData()->getAlphabet()->intToChar((int)i):oPSP->getData()->getAlphabet()->intToChar((int)i)));
         for (size_t i = 0; i < nbStates; i++)
-          colNames.push_back("eb" + (sPP?sPP->getData()->getAlphabet()->getStateAt(i).getLetter():oPSP->getData()->getAlphabet()->getStateAt(i).getLetter()));
+          colNames.push_back("eb" + stateMap.getStateDescription(i));
       
         //Now fill the table:
         vector<string> row(colNames.size());
-        DataTable* infos = new DataTable(colNames);
+        auto infos = make_unique<DataTable>(colNames);
 
         for (const auto& index:allIndex)
         {
@@ -384,8 +384,6 @@ int main(int args, char ** argv)
         }
        
         DataTable::write(*infos, out, "\t");
-       
-        delete infos;
       }
 
       ////////////////////////////////////////////////

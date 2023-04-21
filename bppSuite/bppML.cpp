@@ -100,12 +100,10 @@ int main(int args, char** argv)
 
     ////// Get the map of the sequences
 
-    // true: changeGapstoUnknown because no RE08 model (yet)
     auto mSitesuniq = bppml.getConstAlignmentsMap(alphabet, true);
 
     const std::map<size_t, std::shared_ptr<const AlignmentDataInterface > > mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const TemplateAlignmentDataInterface<string>>(mSitesuniq);
 
-    
     /////// Get the map of initial trees
 
     auto mpTree = bppml.getPhyloTreesMap(mSites, unparsedParams);
@@ -216,7 +214,7 @@ int main(int args, char** argv)
       StlOutputStream out(make_unique<ofstream>(parametersFile.c_str(), ios::out));
       
       PhylogeneticsApplicationTools::printParameters(*mPhyl, out);
-      
+
       PhylogeneticsApplicationTools::printParameters(*SPC, out, 1, withAlias);
       
       for (const auto it2:mSeqEvol)
