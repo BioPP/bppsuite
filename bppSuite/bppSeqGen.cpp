@@ -149,7 +149,7 @@ int main(int args, char ** argv)
       //////////////////////
       
       if (argsim.find("process")==argsim.end() && (argsim.find("phylo")==argsim.end()))
-        throw BadIntegerException("bppseqgen::readSimul. Missing process or phylo argument for simul:",(int)num);
+        throw BadIntegerException("bppseqgen. Missing process or phylo argument for simul:",(int)num);
 
       
       // Root states
@@ -328,7 +328,7 @@ int main(int args, char ** argv)
       ////////////////////////////////////
       /////// Process
 
-      SequenceSimulatorInterface* ss;
+      unique_ptr<SequenceSimulatorInterface> ss;
       
       if (argsim.find("process")!=argsim.end())
       {
@@ -340,13 +340,13 @@ int main(int args, char ** argv)
         {
           if (mSeqEvol.find(indProcess)==mSeqEvol.end())
           
-            throw BadIntegerException("bppseqgen::readSimul. Unknown process number:",(int)indProcess);
+            throw BadIntegerException("bppseqgen. Unknown process number:",(int)indProcess);
         
-          ss= new EvolutionSequenceSimulator(*mSeqEvol.find(indProcess)->second);
+          ss= make_unique<EvolutionSequenceSimulator>(*mSeqEvol.find(indProcess)->second);
         }
         else
         {
-          ss=new SimpleSubstitutionProcessSequenceSimulator(spc->getSubstitutionProcess(indProcess));
+          ss= make_unique<SimpleSubstitutionProcessSequenceSimulator>(spc->getSubstitutionProcess(indProcess));
         }
       }
       else
@@ -354,32 +354,32 @@ int main(int args, char ** argv)
         size_t indPhylo=(size_t)ApplicationTools::getIntParameter("phylo", argsim, 1, "", true, 0);
 
         if (!phyloCont)
-          throw BadIntegerException("bppseqgen::readSimul. Empty phylocontainer for simul:",(int)num);
+          throw BadIntegerException("bppseqgen. Empty phylocontainer for simul:",(int)num);
 
         auto phylo = phyloCont->getPhyloLikelihood(indPhylo);
 
         ApplicationTools::displayResult(" Phylolikelihood", TextTools::toString(indPhylo));
 
         if (!phylo)
-          throw BadIntegerException("bppseqgen::readSimul. Unknown phylo number:",(int)indPhylo);
+          throw BadIntegerException("bppseqgen. Unknown phylo number:",(int)indPhylo);
 
         auto spph = dynamic_pointer_cast<SingleProcessPhyloLikelihood>(phylo);
         auto opsp = dynamic_pointer_cast<OneProcessSequencePhyloLikelihood>(phylo);
 
         if (!spph && !opsp)
-          throw BadIntegerException("bppseqgen::readSimul. Posterior simulation not implemented for this kind of phylolikelihood. Ask developpers.",(int)num);
+          throw BadIntegerException("bppseqgen. Posterior simulation not implemented for this kind of phylolikelihood. Ask developpers.",(int)num);
 
         std::shared_ptr<LikelihoodCalculationSingleProcess> lcsp = spph?spph->getLikelihoodCalculationSingleProcess():
           opsp->getLikelihoodCalculationSingleProcess();
 
         if (argsim.find("pos")==argsim.end()) // Sequence simulation similar to the data, number_of_sites will not be used
-          ss=new GivenDataSubstitutionProcessSequenceSimulator(lcsp);
+          ss= make_unique<GivenDataSubstitutionProcessSequenceSimulator>(lcsp);
         else
         {        
           size_t pos=(size_t)ApplicationTools::getIntParameter("pos", argsim, 1, "", true, 0);
           ApplicationTools::displayResult(" Position", TextTools::toString(pos));
 
-          ss=new SimpleSubstitutionProcessSequenceSimulator(lcsp, pos);
+          ss= make_unique<SimpleSubstitutionProcessSequenceSimulator>(lcsp, pos);
         }
       }
     
@@ -395,16 +395,15 @@ int main(int args, char ** argv)
       ApplicationTools::displayBooleanResult(" Output internal", mintern);
       
 
-      // if (data!=0)
-      // {
-      //   mlength[num]=data->getNumberOfSites();
-      // }
-      // else 
-      if (dynamic_cast<GivenDataSubstitutionProcessSequenceSimulator*>(ss)==0)
-      {
-        nbSites = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, 100, "", false, 0);
-        ApplicationTools::displayResult(" Number of sites", TextTools::toString(nbSites));
-      }
+
+
+      auto gds = dynamic_cast<GivenDataSubstitutionProcessSequenceSimulator*>(ss.get());
+      auto pps = dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());
+      
+      size_t nbmin = gds?gds->getNumberOfSites():pps?pps->getNumberOfSites():100;
+
+      nbSites = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, (int)nbmin, "", false, 0);
+      ApplicationTools::displayResult(" Number of sites", TextTools::toString(nbSites));
 
 
       ss->outputInternalSequences(mintern);
@@ -412,7 +411,7 @@ int main(int args, char ** argv)
       
       if (withStates || withRates)
       {
-        SubstitutionProcessSequenceSimulator* pss=dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss);
+        auto pss=dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());
 
         if (withStates)
           if (withRates)
