@@ -3473,6 +3473,10 @@ the reference alignment.
 Specific options:
 @table @command
 
+@item input.alignment = @{bool@}
+Tell whether to read an alignment. This enables alignment-specific format (e.g. Clustal, Phylip) and alignment specific option (e.g. Mase(siteSelection=...).
+By default, sequences are not considered to be aligned.
+
 @item output.scores = @{path@}
 A text file where scores can be written, one row per column.
 If set to 'none', no file will be produced.
