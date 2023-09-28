@@ -217,7 +217,7 @@ int main(int args, char** argv)
 
       PhylogeneticsApplicationTools::printParameters(*SPC, out, 1, withAlias);
       
-      for (const auto it2:mSeqEvol)
+      for (const auto& it2:mSeqEvol)
       {
         PhylogeneticsApplicationTools::printParameters(*it2.second, out, it2.first);
         out.endLine();

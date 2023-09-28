@@ -47,7 +47,7 @@ optimization = FullD(derivatives=Newton)
 
 # Tell if the parameter should be transformed in order to remove constraints.
 # This can improve the optimization, but might be a bit slower.
-optimization.reparametrization = no
+optimization.reparametrization = yes
 
 # Final optimization step, may be useful if numerical derivatives are used:
 # powell or simplex or none.
