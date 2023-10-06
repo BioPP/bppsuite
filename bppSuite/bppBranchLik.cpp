@@ -176,7 +176,7 @@ int main(int args, char** argv)
 
     ApplicationTools::displayMessage("\n");
     int altprocnum = ApplicationTools::getIntParameter("alt_process", bppbranchlik.getParams(), 1, "", true, false);
-    ApplicationTools::displayResult("Alternatice process", altprocnum);
+    ApplicationTools::displayResult("Alternative process", altprocnum);
 
     std::map<size_t, rangeProc> maltproc;
     
