@@ -6,17 +6,19 @@ input texinfo                  @c -*-texinfo-*-
 @afourpaper
 @dircategory Science Biology Genetics
 @direntry
-* bppml: (bppml)                Bio++ Maximum Likelihood.
-* bppseqgen: (bppseqgen)        Bio++ Sequence Generator.
-* bppancestor: (bppancestor)    Bio++ Ancestral Sequences and Rates reconstruction.
-* bppdist: (bppdist)            Bio++ Distance Methods.
-* bpppars: (bpppars)            Bio++ Maximum Parsimony.
-* bppconsense: (bppconsense)    Bio++ Consensus Trees.
-* bppreroot: (bppreroot)        Bio++ Serial Tree Re-rooting.
-* bppseqman: (bppseqman)        Bio++ Sequences Manipulation.
-* bppalnscore: (bppalnscore)    Bio++ Alignment Scoring.
-* bpppopstats: (bpppopstats)    Bio++ Population Genetics.
-* bpptreedraw: (bpptreedraw)    Bio++ Tree Drawing.
+* bppml: (bppml)                                     Bio++ Maximum Likelihood.
+* bppseqgen: (bppseqgen)                             Bio++ Sequence Generator.
+* bppancestor: (bppancestor)                         Bio++ Ancestral Sequences and Rates reconstruction.
+* bppmixedlikelihoods: (bppmixedlikelihoods)         Bio++ Site-Likelihoods Inside Mixed Models.
+* bppbranchlik: (bppbranchlik)                       Bio++ Likelihood on branches.
+* bppdist: (bppdist)                                 Bio++ Distance Methods.
+* bpppars: (bpppars)                                 Bio++ Maximum Parsimony.
+* bppconsense: (bppconsense)                         Bio++ Consensus Trees.
+* bppreroot: (bppreroot)                             Bio++ Serial Tree Re-rooting.
+* bppseqman: (bppseqman)                             Bio++ Sequences Manipulation.
+* bppalnscore: (bppalnscore)                         Bio++ Alignment Scoring.
+* bpppopstats: (bpppopstats)                         Bio++ Population Genetics.
+* bpptreedraw: (bpptreedraw)                         Bio++ Tree Drawing.
 @end direntry
 @c %**end of header
 
@@ -94,6 +96,7 @@ Bio++ Program Suite Reference
 * bppseqgen::                   Bio++ Sequence Generator.
 * bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction.
 * bppmixedlikelihoods::         Bio++ Site-Likelihoods Inside Mixed Models.
+* bppbranchlik::                Bio++ Likelihood on branches.
 * bppdist::                     Bio++ Distance Methods.
 * bpppars::                     Bio++ Maximum Parsimony.
 * bppconsense::                 Bio++ Consensus Trees.
@@ -2905,6 +2908,7 @@ This section now details the specific options for each program in the Bio++ Prog
 * bppseqgen::                   Bio++ Sequence Generator.
 * bppancestor::                 Bio++ Ancestral Sequences and Rates reconstruction.
 * bppmixedlikelihoods::         Bio++ Site-Likelihoods Inside Mixed Models.
+* bppbranchlik::                Bio++ Likelihood on branches.
 * bppdist::                     Bio++ Distance Methods.
 * bpppars::                     Bio++ Maximum Parsimony.
 * bppconsense::                 Bio++ Consensus Trees.
@@ -3163,7 +3167,7 @@ sequence with unknown characters will be used.
 @end table
 
 @c ------------------------------------------------------------------------------------------------------------------
-@node bppmixedlikelihoods, bppdist, bppancestor, Reference
+@node bppmixedlikelihoods, bppbranchlik, bppancestor, Reference
 @section BppMixedLikelihoods: Bio++ Site-Likelihoods Inside Mixed Models.
 
 The BppMixedLikelihoods program uses the common syntax introduced in
@@ -3183,7 +3187,7 @@ Specific options are:
 @table @command
 
 @item output.likelihoods.file = @{@{path@}@}
-Ouput file of the program (site specific log-likelihood, and mean of
+Output file of the program (site specific log-likelihood, and mean of
 the mixed parameters, if any).
 
 @item likelihoods.model_number = @{integer@}
@@ -3197,6 +3201,37 @@ an additional column is written, in which the average a posteriori
 value of the parameter is.
 
 @end table
+
+@c ------------------------------------------------------------------------------------------------------------------
+@node bppbranchlik, bppdist, bppmixedlikelihoods, Reference
+@section BppBranchLik: Bio++ Branch-Likelihoods of alternative models
+inside a process
+
+The BppBranchLik program uses the common syntax introduced in
+the previous section for setting the alphabet, loading the sequences
+(@pxref{Sequences}) and tree (@pxref{Tree}) and specifying the process
+(@pxref{Process}).
+
+Given a phylo-likelihood computed on a process or a set of processes
+in a Partition, the model(s) of another process -- aka the alternative
+process -- are applied on all branches the one after the other, and
+(site-)likelihoods are computed given this change. The alternative
+process is described as normal, the keyword @option{alt_process} is
+used to give the number of the alternative process.
+
+Specific options are:
+@table @command
+
+@item output.lik = PerBranchPerSite|PerBranch(file=@{@{path@}@})
+Output file of the program, either per branch-site or per branch.
+
+@item alt_process = @{integer@}
+Number of the alternative process. Only single process or partition
+processes are accepted.
+
+@end table
+
+@c ------------------------------------------------------------------------------------------------------------------
 
 @c ------------------------------------------------------------------------------------------------------------------
 @node bppdist, bpppars, bppmixedlikelihoods, Reference
