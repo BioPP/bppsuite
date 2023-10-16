@@ -144,28 +144,26 @@ int main(int args, char ** argv)
     ApplicationTools::displayResult("Tree reconstruction method", method);
 
     unique_ptr<TreeTemplate<Node>> tree;
-    AgglomerativeDistanceMethod* distMethod = 0;
+    unique_ptr<AgglomerativeDistanceMethodInterface> distMethod;
     if(method == "wpgma")
     {
-      PGMA* wpgma = new PGMA(true);
-      distMethod = wpgma;
+      distMethod = make_unique<PGMA>(true);
     }
     else if(method == "upgma")
     {
-      PGMA* upgma = new PGMA(false);
-      distMethod = upgma;
+      distMethod = make_unique<PGMA>(false);
     }
     else if(method == "nj")
     {
-      NeighborJoining* nj = new NeighborJoining();
+      auto nj = make_unique<NeighborJoining>();
       nj->outputPositiveLengths(true);
-      distMethod = nj;
+      distMethod = move(nj);
     }
     else if(method == "bionj")
     {
-      BioNJ* bionj = new BioNJ();
+      auto bionj = make_unique<BioNJ>();
       bionj->outputPositiveLengths(true);
-      distMethod = bionj;
+      distMethod = move(bionj);
     }
     else throw Exception("Unknown tree reconstruction method.");
   
