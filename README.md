@@ -4,11 +4,13 @@ BppSuite is a suite of ready-to-use programs for phylogenetic and sequence analy
 
 ## Installation 
 
+<!--
 ### Standalone executables 
 
 Standalone executables are available for [linux64](https://github.com/BioPP/bppsuite/releases/tag/v2.3.2)
 
-[//]: [win32](http://biopp.univ-montp2.fr/repos/exe/win32/), [win64](http://biopp.univ-montp2.fr/repos/exe/win64/) and [Mac](http://biopp.univ-montp2.fr/repos/exe/mac/)
+[//]: # [win32](http://biopp.univ-montp2.fr/repos/exe/win32/), [win64](http://biopp.univ-montp2.fr/repos/exe/win64/) and [Mac](http://biopp.univ-montp2.fr/repos/exe/mac/)
+-->
 
 ### From source files 
 
