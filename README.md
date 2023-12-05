@@ -86,5 +86,6 @@ Many examples are available in the subdirectory of <tt>Examples</tt>.
 
 ### Documentation 
 
-Documentation can be found at: https://github.com/BioPP/bppsuite/releases/download/v3.0.0/bppsuite.html
+Documentation can be found at: https://pbil.univ-lyon1.fr/bpp-doc/bppsuite/bppsuite.html
+
  
