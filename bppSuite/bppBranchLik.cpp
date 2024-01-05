@@ -175,7 +175,7 @@ int main(int args, char** argv)
     // Get the alternate process
 
     ApplicationTools::displayMessage("\n");
-    int altprocnum = ApplicationTools::getIntParameter("alt_process", bppbranchlik.getParams(), 1, "", true, false);
+    auto altprocnum = ApplicationTools::getParameter<size_t>("alt_process", bppbranchlik.getParams(), 1, "", true, false);
     ApplicationTools::displayResult("Alternative process", altprocnum);
 
     std::map<size_t, rangeProc> maltproc;
@@ -190,14 +190,14 @@ int main(int args, char** argv)
     }
     else
     {
-      if (mSeqEvol.find(altprocnum)==mSeqEvol.end())
-        throw BadIntegerException("Unknown alt_process number", altprocnum);
+      if (mSeqEvol.find(altprocnum) == mSeqEvol.end())
+        throw BadIntegerException("Unknown alt_process number", static_cast<int>(altprocnum));
 
       auto seqev = mSeqEvol[altprocnum];
 
       auto partev = dynamic_pointer_cast<PartitionSequenceEvolution>(seqev);
       if (!partev)
-        throw BadIntegerException("Unfit alt_process number: ask developers.", altprocnum);
+        throw BadIntegerException("Unfit alt_process number: ask developers.", static_cast<int>(altprocnum));
 
       const auto& mapproc = partev->mapOfProcessSites();
 
@@ -218,11 +218,11 @@ int main(int args, char** argv)
     for (auto prn:maltproc)
     {
       const auto& brn = prn.second.proc_->parametrizablePhyloTree().getAllEdgesIndexes();
-      if (brnum.size()==0)
-        brnum=brn;
+      if (brnum.size() == 0)
+        brnum = brn;
       else
-        if (brn!=brnum)
-          throw BadIntegerException("Non compatible trees in alternative process ", altprocnum);
+        if (brn != brnum)
+          throw BadIntegerException("Non compatible trees in alternative process ", static_cast<int>(altprocnum));
     }
 
 
