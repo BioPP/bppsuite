@@ -127,7 +127,7 @@ int main(int args, char ** argv)
       ApplicationTools::displayMessage("bppDist available only for regular transition models, not the given one.");
 
     
-    std::shared_ptr<DiscreteDistribution> rDist;
+    std::shared_ptr<DiscreteDistributionInterface> rDist;
     if (model->getNumberOfStates() > model->getAlphabet()->getSize())
     {
       //Markov-modulated Markov model!
@@ -135,7 +135,7 @@ int main(int args, char ** argv)
     }
     else
     {
-      rDist = std::shared_ptr<DiscreteDistribution>(PhylogeneticsApplicationTools::getRateDistribution(bppdist.getParams()));
+      rDist = std::shared_ptr<DiscreteDistributionInterface>(PhylogeneticsApplicationTools::getRateDistribution(bppdist.getParams()));
     }
    
     DistanceEstimation distEstimation(model, rDist, sites, 1, false);

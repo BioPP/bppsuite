@@ -213,7 +213,7 @@ int main(int args, char** argv)
     // Fit a model for later use:
     unique_ptr<Tree> tree;
     shared_ptr<SubstitutionModelInterface> model;
-    shared_ptr<DiscreteDistribution> rDist;
+    shared_ptr<DiscreteDistributionInterface> rDist;
     unique_ptr<Sequence> ancestralSequence;
     if (fitModel) {
       // Get the alignment:
