@@ -213,7 +213,7 @@ int main(int args, char** argv)
     // Fit a model for later use:
     unique_ptr<Tree> tree;
     shared_ptr<SubstitutionModelInterface> model;
-    shared_ptr<DiscreteDistribution> rDist;
+    shared_ptr<DiscreteDistributionInterface> rDist;
     unique_ptr<Sequence> ancestralSequence;
     if (fitModel) {
       // Get the alignment:
@@ -291,7 +291,7 @@ int main(int args, char** argv)
 
       // Get kappa:              
       if (estimateTsTv) {
-        kappa = model->getParameter("kappa").getValue();
+        kappa = model->parameter("kappa").getValue();
         ApplicationTools::displayResult("Estimated Ts/Tv ratio", kappa);
       }
       // Write to log file:
@@ -304,7 +304,7 @@ int main(int args, char** argv)
         ancestralSequence = asr.getAncestralSequenceForNode(uint(tree->getFatherId(int(outgroupId))));
       }
       if (codonAlphabet) {
-        omega = model->getParameter("omega").getValue();
+        omega = model->parameter("omega").getValue();
       }
     }
 
@@ -520,13 +520,13 @@ int main(int args, char** argv)
         distEstimation.setAdditionalParameters(modelDiv->getIndependentParameters());
         distEstimation.computeMatrix();
         unique_ptr<DistanceMatrix> matrix(distEstimation.getMatrix());
-        ApplicationTools::displayResult("Yang and Nielsen's Omega (dN/dS):", modelDiv->getParameter("omega").getValue());
-        ApplicationTools::displayResult("Yang and Nielsen's Kappa:", modelDiv->getParameter("kappa").getValue());
+        ApplicationTools::displayResult("Yang and Nielsen's Omega (dN/dS):", modelDiv->parameter("omega").getValue());
+        ApplicationTools::displayResult("Yang and Nielsen's Kappa:", modelDiv->parameter("kappa").getValue());
         ApplicationTools::displayResult("Yang and Nielsen's Distance:", (*matrix)(1,0));
         if (logFile != "none") {
           *cLog << "# dN and dS (Yang and Nielsen's 1998 substitution model)" << endl;
-          *cLog << "OmegaDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << modelDiv->getParameter("omega").getValue() << endl;
-          *cLog << "KappaDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << modelDiv->getParameter("kappa").getValue() << endl;
+          *cLog << "OmegaDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << modelDiv->parameter("omega").getValue() << endl;
+          *cLog << "KappaDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << modelDiv->parameter("kappa").getValue() << endl;
           *cLog << "DistanceDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << (*matrix)(1,0) << endl;
         }
       }
