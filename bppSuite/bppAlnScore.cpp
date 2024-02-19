@@ -193,7 +193,7 @@ int main(int args, char** argv)
       }
     }
 
-    // Output scores to file:
+    // Output scores to SGED file:
     string outputScores = ApplicationTools::getAFilePath("output.scores", bppalnscore.getParams(), false, false);
     if (outputScores != "none")
     {
@@ -202,7 +202,7 @@ int main(int args, char** argv)
       output << "Site\tColumnScore\tSumOfPairsScore" << endl;
       for (size_t i = 0; i < cs.size(); ++i)
       {
-        output << sitesTest->site(i).getCoordinate() << "\t" << cs[i] << "\t" << sps[i] << endl;
+        output << "[" << sitesTest->site(i).getCoordinate() << "]\t" << cs[i] << "\t" << sps[i] << endl;
       }
       output.close();
     }
