@@ -15,6 +15,7 @@ add_executable (bppseqman bppSeqMan.cpp)
 add_executable (bppconsense bppConsense.cpp)
 add_executable (bppancestor bppAncestor.cpp)
 add_executable (bppmixedlikelihoods bppMixedLikelihoods.cpp)
+add_executable (bppbranchlik bppBranchLik.cpp)
 add_executable (bppreroot bppReRoot.cpp)
 add_executable (bpptreedraw bppTreeDraw.cpp)
 add_executable (bppalnscore bppAlnScore.cpp)
@@ -29,6 +30,7 @@ set (bppsuite-targets
   bppconsense
   bppancestor
   bppmixedlikelihoods
+  bppbranchlik
   bppreroot
   bpptreedraw
   bppalnscore

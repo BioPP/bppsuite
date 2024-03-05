@@ -269,7 +269,7 @@ int main(int args, char** argv)
         colNames.push_back("Pr_" + pMSM->getNModel(i)->getName());
       }
 
-      DataTable* rates = new DataTable(nSites, colNames.size());
+      auto rates = make_shared<DataTable>(nSites, colNames.size());
       rates->setColumnNames(colNames);
 
       // output sites
