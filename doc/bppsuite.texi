@@ -57,7 +57,7 @@ Copyright @copyright{} 2007-2018 Bio++ development team
 @detailmenu
  --- The Detailed Node Listing ---
 
-Common options encountered in several programs.
+Common arguments encountered in several programs.
 
 * Alphabet::                    Alphabets and genetic codes.
 * Sequences::                   Loading sequences/alignments.
@@ -69,15 +69,16 @@ Common options encountered in several programs.
 * WritingSequences::            Writing sequences/alignments to files. 
 * WritingTrees::                Writing trees to files. 
 
-Declaring likelihoods
+Declaring Phylo-likelihoods
 
-* Model::                       Markov model specification
+* Model::                       Substitution model specification
 * Root::                        Root frequencies
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
 * Process::                     Process along trees
-* Phylo-likelihoods::           Likelihoods of data given process
-* Linking::                     Alias between parameters
+* Scenarios::                   Scenarios of model mixing in process
+* Phylo-likelihoods::           Declaration of phylogenetic likelihoods
+* Linking::                     Linking parameters
 
 Setting up the substitution models
 
@@ -669,7 +670,7 @@ whether distances should be signed or not.
 @c ------------------------------------------------------------------------------------------------------------------
 
 
-@node Likelihoods, Distribution, AlphabetIndex, Common
+@node Likelihoods, Estimation, AlphabetIndex, Common
 @section Declaring Phylo-likelihoods
 
 @menu
@@ -695,6 +696,7 @@ whether distances should be signed or not.
 * Meta::                        Meta models
 * Mixture::                     Mixture of models
 * Conditioned::                 Models conditioned by events
+* Register::
 @end menu
 
 @table @command
@@ -1648,7 +1650,7 @@ See the
 
 @end table
 
-@node Conditioned, , Mixture, Model
+@node Conditioned, Register, Mixture, Model
 @subsubsection Conditioned models
 
 The transition probabilities on the branches are conditioned by the
@@ -1662,7 +1664,7 @@ register) defined for substitution mapping (see the testnh manual).
 @item  OneChange(model=@{model description@})
 The transition probabilities along each branch are conditioned by the
 fact that there has been at least one substitution on this branch with
-thid model.
+this model.
 
 @item @anchor{model general OneChangeRegister}
 @item  OneChange(model=@{model description@}, register=@{register
@@ -1672,6 +1674,26 @@ The transition probabilities along each branch are conditioned by the
 fact that there has been on this branch at least one substitution
 of the specific types in the register. The "+" permits the declaration
 of several types.
+
+@end table
+
+@node Register, , Conditioned, Model
+@subsubsection Models from Registers
+
+Given a register, the substitutions are clustered per type, and a
+specific rate is associated for each type (denoted
+@var{rho_typename}). Then, from a given model generator, all
+substitution rates are multiplied by the specific rate of their type.
+Per default, the resulting model is not normalized, but it can be with
+option @option{isNormalized=true}. The sets of types follow the ones
+(ie register) defined for substitution mapping (see the testnh
+manual).
+
+@table @command
+
+@item @anchor{model general FromRegister}
+@item  FromRegister(model=@{model description@}, register=@{register
+name@} [, isNormalized=true])
 
 @end table
 

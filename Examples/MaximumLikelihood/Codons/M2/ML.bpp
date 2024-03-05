@@ -13,8 +13,7 @@ alphabet=Codon(letter=DNA)
 genetic_code=Standard
 
 # The sequence file to use (sequences must be aligned!)
-input.data1=alignment(file=../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes)
-input.sequence.file=../../../Data/$(DATA).fasta
+input.data1=alignment(file=../../../Data/$(DATA).fasta, format=Fasta, sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%, remove_stop_codons = yes,selection=1:20)
 
 # ----------------------------------------------------------------------------------------
 #                                     Input tree file
@@ -61,7 +60,7 @@ optimization.verbose = 3
 optimization.ignore_parameters = YNGP_M1.*Full*
 
 # Maximum number of likelihood evaluations:
-optimization.max_number_f_eval = 10000
+optimization.max_number_f_eval = 2
 
 # Precision to reach:
 optimization.tolerance = 0.000001

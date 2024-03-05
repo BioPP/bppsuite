@@ -131,7 +131,7 @@ int main(int args, char** argv)
     
     shared_ptr<BranchModelInterface>    model;
     shared_ptr<TransitionModelInterface>    tmodel; // for legacy 
-    shared_ptr<DiscreteDistribution> rDist;
+    shared_ptr<DiscreteDistributionInterface> rDist;
 
     SPC = bppml.getCollection(alphabet, gCode, mSites, mpTree, unparsedParams);
 

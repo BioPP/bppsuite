@@ -58,7 +58,7 @@ using namespace std;
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Likelihood/MarginalAncestralReconstruction.h>
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
-#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h>
+#include <Bpp/Phyl/Likelihood/PhyloLikelihoods/AlignedPhyloLikelihoodSet.h>
 #include <Bpp/Phyl/Likelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 using namespace bpp;
@@ -132,7 +132,7 @@ int main(int args, char ** argv)
     if (dynamic_pointer_cast<AbstractSingleDataPhyloLikelihood>(tl)!=NULL)
       mSD[1]=dynamic_pointer_cast<AbstractSingleDataPhyloLikelihood>(tl);
     else{
-      auto sOAP=dynamic_pointer_cast<SetOfPhyloLikelihoodInterface>(tl);
+      auto sOAP=dynamic_pointer_cast<AlignedPhyloLikelihoodSetInterface>(tl);
       if (sOAP)
       {
         const vector<size_t>& nSD=sOAP->getNumbersOfPhyloLikelihoods();
