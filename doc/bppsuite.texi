@@ -1667,13 +1667,13 @@ fact that there has been at least one substitution on this branch with
 this model.
 
 @item @anchor{model general OneChangeRegister}
-@item  OneChange(model=@{model description@}, register=@{register
-name@}, numReg=num1+num2+...)
+@item  OneChange(model=@{model description@}, register=@{register name@}, numReg=num1+num2+...)
 
 The transition probabilities along each branch are conditioned by the
-fact that there has been on this branch at least one substitution
-of the specific types in the register. The "+" permits the declaration
-of several types.
+fact that there has been on this branch at least one substitution of
+the specific types in the register. The types are indicated through
+their number in the register, and the "+" permits the declaration of
+several types.
 
 @end table
 
@@ -3025,8 +3025,8 @@ models (@pxref{Model}) and writing sequence data
 
 Several simulations are possible at the same time and they are based
 on site substitution processes or sequence substitution processes
-@pxref{Process}, or phylolikelihoods for posterior simulations
-@pxref{Phylo-likelihoods}.
+(@pxref{Process}), or phylolikelihoods for posterior simulations
+(@pxref{Phylo-likelihoods}).
 
 The root sequence can be a given sequence, or info from a specific
 file. If no specific root information is given, the root sequences are
