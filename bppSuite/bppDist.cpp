@@ -157,13 +157,13 @@ int main(int args, char ** argv)
     {
       auto nj = make_unique<NeighborJoining>();
       nj->outputPositiveLengths(true);
-      distMethod = move(nj);
+      distMethod = std::move(nj);
     }
     else if(method == "bionj")
     {
       auto bionj = make_unique<BioNJ>();
       bionj->outputPositiveLengths(true);
-      distMethod = move(bionj);
+      distMethod = std::move(bionj);
     }
     else throw Exception("Unknown tree reconstruction method.");
   
