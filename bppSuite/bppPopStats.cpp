@@ -563,7 +563,7 @@ int main(int args, char** argv)
           throw Exception("CodonSiteStatistics can only be used with a codon alignment. Check the input alphabet!");
         }
         string path = ApplicationTools::getAFilePath("output.file", cmdArgs, true, false);
-        if (path == "none") throw Exception("You must specify an ouptut file for CodonSiteStatistics");
+        if (path == "none") throw Exception("You must specify an output file for CodonSiteStatistics");
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
         out << "Site\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
