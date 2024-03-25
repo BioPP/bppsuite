@@ -143,7 +143,7 @@ int main(int args, char** argv)
         {
           auto alpha=sitesTest->getAlphabet();
           Sequence motif("motif", phaseOpt, alpha);
-          ApplicationTools::displayResult("Phase based on 1st occurence of", motif.toString());
+          ApplicationTools::displayResult("Phase based on 1st occurrence of", motif.toString());
           size_t pos = sitesTest->getNumberOfSites();
           for (size_t i = 0; i < sitesTest->getNumberOfSequences(); ++i)
           {
@@ -155,7 +155,7 @@ int main(int args, char** argv)
         }
         catch (Exception& ex)
         {
-          throw Exception("Error, unvalid motif specified for phase option.");
+          throw Exception("Error, invalid motif specified for phase option.");
         }
       }
       ApplicationTools::displayResult("First word starts at", phase + 1);

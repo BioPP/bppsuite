@@ -99,7 +99,7 @@ rm -rf $RPM_BUILD_ROOT
 - Compatibility update. Bio++ Program Suite version number is now indexed
   on Bio++'s version.
 - Programs support the --seed argument for setting the random seed.
-- bppSeqGen suport generic characters as input.
+- bppSeqGen supports generic characters as input.
 - bppPhySamp outputs sampled trees.
 * Fri Mar 08 2013 Julien Dutheil <julien.dutheil@univ-montp2.fr> 0.8.0-1
 - New models for proteins (COaLA)

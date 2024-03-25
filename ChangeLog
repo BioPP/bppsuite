@@ -48,7 +48,7 @@
 * bppSeqGen supports simulation under Markov-Modulated models.
 
 06/06/14 Julien Dutheil
-* bppPhySamp now ouput trees as well.
+* bppPhySamp now output trees as well.
 
 17/04/14 Julien Dutheil
 * bppSeqMan: Translate uses global genetic_code argument instead of local 'code' argument.
@@ -173,7 +173,7 @@ recursion and data compression method.
 07/11/07 Julien Dutheil
 * Compatibility update with Bio++ cvs.
 * Bug fixed in BppSeqGen.
-* BppSeqGen can now simulate datas from a set of trees (ancestral
+* BppSeqGen can now simulate data from a set of trees (ancestral
   recombination graph).
 
 25/10/07 Julien Dutheil
