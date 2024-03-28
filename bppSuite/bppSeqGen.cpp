@@ -367,7 +367,7 @@ int main(int args, char ** argv)
         auto opsp = dynamic_pointer_cast<OneProcessSequencePhyloLikelihood>(phylo);
 
         if (!spph && !opsp)
-          throw BadIntegerException("bppseqgen. Posterior simulation not implemented for this kind of phylolikelihood. Ask developpers.",(int)num);
+          throw BadIntegerException("bppseqgen. Posterior simulation not implemented for this kind of phylolikelihood. Ask developers.",(int)num);
 
         std::shared_ptr<LikelihoodCalculationSingleProcess> lcsp = spph?spph->getLikelihoodCalculationSingleProcess():
           opsp->getLikelihoodCalculationSingleProcess();

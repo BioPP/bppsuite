@@ -38,7 +38,7 @@ phylo1 = Single(process=1, data=1)
 # ----------------------------------------------------------------------------------------
 
 # Should we reestimate likelihood parameters? Tree topology will not be optimized.
-# (recommanded)
+# (recommended)
 # Method to use for optimizing numerical parameters:
 # - None, no optimization performed
 # - DB derivatives for branch lengths + Brent for other parameters

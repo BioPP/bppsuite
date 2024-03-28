@@ -8,7 +8,7 @@ cmake_minimum_required (VERSION 3.5.0)
 project (bppsuite CXX)
 
 # Compile options
-SET (CMAKE_CXX_FLAGS "-std=c++14 -Wall -Weffc++ -Wshadow -Wconversion")
+add_compile_options(-std=c++14 -Wall -Weffc++ -Wshadow -Wconversion)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING

@@ -435,7 +435,7 @@ This option can be combined with the previous one.
 
 @item selection = @{list of integers@}
 Will only consider sites in the given list of positions, in extended
-format : positions separated with ",", and "i-j" for all positions
+format : positions separated with ",", and "i:j" for all positions
 between i and j, included.
 
 @item selection = @{Sample(n=@{integer@} [, replace=@{true@}])@}
@@ -575,6 +575,14 @@ this case the syntax is
 The file containing multiple trees.
 @end table
 
+Options:
+
+@table @command
+@item data = @{int@}
+The number of the data on which the tree will be fit by pruning.
+
+@end table
+
 
 The branch lengths can be aliased to other parameters (such as to
 other branch lengths) as in the example:
@@ -589,7 +597,7 @@ tree 1, and branch 2 of tree 1 is aliased to branch 3 of tree 2.
 
 
 In case the input tree does not specify node identifiers, some will be
-generated automatically. Nodes identifiers can be outputed using the
+generated automatically. Nodes identifiers can be outputted using the
 following option:
 
 @table @command
@@ -656,7 +664,7 @@ Allow to compute a distance matrix by taking the difference for, each
 pair of state, of an Index1 value. The Index1 to use is specified
 using the @command{index1=@{Index1 description@}} argument. An
 additional argument allow to specify whether the resulting matrix
-should be symetric (@command{symmetrical=@{boolean@}}): if so, the
+should be symmetric (@command{symmetrical=@{boolean@}}): if so, the
 absolute difference will be used. Alternatively, the distance will be
 signed and d[i,j] = - d[j,i].
 @item User
@@ -1119,7 +1127,7 @@ The options are:
 @item @var{Rate} words have specific rates
 @item @var{Prot} use proteic models 
 @item @var{AAClust} clustered sets of amino-acids and specific intra and
-inter subtitution rates
+inter substitution rates
 @item @var{Dist} non-synonymous vs synonymous substitution rates.
 
 @end itemize
@@ -1243,7 +1251,7 @@ model1=CodonProt(model=T92, protmodel=LG08)
 @end cartouche
 
 builds a model on codons, such all sites follow the same T92 model,
-and amino-acid rates are proportional to LG08 substition matrice.
+and amino-acid rates are proportional to LG08 substitution matrice.
 The parameters names are @var{CodonProt.123_T92.kappa} and 
 @var{CodonProt.beta}.
 
@@ -1251,7 +1259,7 @@ The parameters names are @var{CodonProt.123_T92.kappa} and
 
 Optional words to describe the use of equilibrium frequencies
 sets. This word should be used with nucleotidic models which
-equilibrium distribution is fixed, ans does not depend on parameters.
+equilibrium distribution is fixed, and does not depend on parameters.
 Otherwise there may be problems of identifiability of the parameters.
 
 @table @command
@@ -1259,7 +1267,7 @@ Otherwise there may be problems of identifiability of the parameters.
 @item @anchor{CodonDistFreq}
 @item Freq(frequencies=@{frequencies set description@})
 
-Sustitution rates are multiplied by the frequency of the target codon
+Substitution rates are multiplied by the frequency of the target codon
 in the given frequencies set. This factor is described by the
 @var{frequencies} argument. @xref{Codon frequencies}.
 
@@ -1281,7 +1289,7 @@ See the
 
 @item PhasFreq(frequencies=@{frequencies set description@})
 
-The sustitution rates are multiplied by the product of the frequencies
+The substitution rates are multiplied by the product of the frequencies
 of the changed nucleotides -- conditioned on the phase -- in the given
 frequencies set. This factor is described by the @var{frequencies}
 argument. @xref{Codon frequencies}.
@@ -1294,7 +1302,7 @@ For example, see the
 
 
 
-In addition some models are defined that allow multiple substitions,
+In addition some models are defined that allow multiple substitutions,
 with similar logic of included words. These models are prefixed by @var{Kron}.
 
 
@@ -1525,7 +1533,7 @@ See the
 @item @anchor{model word YpR_Sym}
 @item  YpR_Sym(model=@{model description@}, [rCgT=@{real>=0@}, rTgC=@{real>=0@}, rCaT=@{real>=0@}, rTaC=@{real>=0@}])
 
-substitution model on quotiented triplets to handle strand symetric
+substitution model on quotiented triplets to handle strand symmetric
 neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
 2012). See the
 @uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YpR_SymSubstitutionModel.html#details, Bio++ description, Bio++ description}.
@@ -1534,7 +1542,7 @@ neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
 @item @anchor{model word YpR_Gen}
 @item  YpR_Gen(model=@{model description@}, [rCgT=@{real>=0@}, rcGA=@{real>=0@}, rTgC=@{real>=0@}, rtGA=@{real>=0@}, rCaT=@{real>=0@}, rcAG=@{real>=0@}, rTaC=@{real>=0@}, rtAG=@{real>=0@}])
 
-substitution model on quotiented triplets to handle general symetric
+substitution model on quotiented triplets to handle general symmetric
 neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
 2012). See the
 @uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YpR_GenSubstitutionModel.html#details, Bio++ description, Bio++ description}.
@@ -1633,7 +1641,7 @@ probability and rate.
 Arguments @var{relproba@{i@}} stands for the relative probability and
 @var{relrate@{i@}} stands for the relative rate of each model (in the
 order the models are given). Default: @var{relproba@{i@}=1/@{n-i+1@}},
-such that the probabilty of each site is 1/n, and
+such that the probability of each site is 1/n, and
 @var{relrate@{i@}=1/@{n-i+1@}} such that the rate of each site is 1.
 
 @cartouche
@@ -1654,7 +1662,7 @@ See the
 @subsubsection Conditioned models
 
 The transition probabilities on the branches are conditioned by the
-occurence of given events. The model is then no-markovian, but
+occurrence of given events. The model is then no-markovian, but
 semi-markovian. The sets of considered events follow the one (ie
 register) defined for substitution mapping (see the testnh manual).
 
@@ -2052,7 +2060,7 @@ the process. It describes how the submodels are organized along the
 phylogeny. @xref{Scenario}.
 
 In the case of mixed models, if no scenario is declared, the mixture
-is made inside each branch, wich means that a site can swtch between
+is made inside each branch, which means that a site can swtch between
 submodels at any node. 
 
 @end table
@@ -2224,7 +2232,7 @@ likelihood along path2 with probability 0.9.
 
 When process definition is @option{OnePerBranch}, there are no
 constraint on the paths, and each site can freely switch between
-submodels at each node. Different modeling is possible, ask developpers.
+submodels at each node. Different modeling is possible, ask developers.
 
 
 @sp 1
@@ -2631,7 +2639,7 @@ likelihood.alias=Full.theta1_1->GTR.theta1_1
 @section Discrete distributions
 
 Bio++ contains several probability distributions (currently only
-dicrete or discretized ones). These are:
+discrete or discretized ones). These are:
 
 @subsection Standard Distributions
 
@@ -2977,7 +2985,7 @@ The tree is finally scaled to match a given total height, which can be the origi
 A value of rho=0 provides a star tree, and the greater the value of rho, the more recent the inner nodes. 
 
 @item input.tree.check_root = @{boolean@}
-Tell if the input tree should be checked regarding to the presence of a root. If set to yes (the default), rooted trees will be unrooted if a homogenous model is used.
+Tell if the input tree should be checked regarding to the presence of a root. If set to yes (the default), rooted trees will be unrooted if a homogeneous model is used.
 If not, a rooted tree will be fitted, which can lead to optimization issues in most cases. Use the non default option with care!
 @end table
 
@@ -3062,7 +3070,7 @@ Output sequence is set through compulsory argument
 for output:
 
 @table @command
-@item output.sequence.format=@{alignement format@}
+@item output.sequence.format=@{alignment format@}
 Format of the output alignment (default Fasta)
 
 @item output.internal.sequences = @{boolean@}
@@ -3114,7 +3122,7 @@ With both data, sites can be selected with option
 @c ('single'). Ancestral recombination graphs (ARGs), in the form of
 @c multiple trees, can also be provided in the MS or CoaSim format. Note
 @c that in the case of MS, ARG are given for a certain number of sites,
-@c wich should be provided as additional argument (e.g.
+@c which should be provided as additional argument (e.g.
 @c @command{MS(number_of_sites=100)}). The ARG will be unscaled according
 @c to the given size, and rescaled according to the given number of sites
 @c to simulate. ARG in CoaSim format are already in relative scale.
@@ -3202,7 +3210,7 @@ several models, the BppMixedLikelihoods program computes site per site
 log-likelihoods of the several values of the parameter, or of the
 several sub-models of the mixture. If the mixed model is built on a
 parameter which value follows a distribution, and in an additional
-column -- named "mean" -- the a posteriori mean value of the paramater
+column -- named "mean" -- the a posteriori mean value of the parameter
 is computed.
 
 Specific options are:
@@ -3567,7 +3575,7 @@ word in all sequences will be used to determine the phase.
 @node bpppopstats, bpptreedraw, bppalnscore, Reference
 @section BppPopStats: Bio++ Population Genetics Statistics
 
-The @command{BppPopStats} program computes population genetics statistics from a sequence input alignement.
+The @command{BppPopStats} program computes population genetics statistics from a sequence input alignment.
 It can compute glabal alignment statistics, as well as site-specific statistics. In the first case, results
 are output on screen or in a log file. In the second case, results are written in a table file, with one site per line.
 Statistics available also depend on the type on input data (coding or non-coding).

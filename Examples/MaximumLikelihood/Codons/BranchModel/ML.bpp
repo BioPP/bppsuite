@@ -38,7 +38,7 @@ phylo1 = Single(process=1, data=1)
 # ----------------------------------------------------------------------------------------
 
 # Should we reestimate likelihood parameters? Tree topology will not be optimized.
-# (recommanded)
+# (recommended)
 optimization = FullD(derivatives=Newton)
 
 # Tell if the parameter should be transformed in order to remove constraints.

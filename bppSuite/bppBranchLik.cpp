@@ -244,7 +244,7 @@ int main(int args, char** argv)
     {
       auto parphyl = dynamic_pointer_cast<PartitionProcessPhyloLikelihood>(tl);
       if (!parphyl)
-        throw Exception("Up to now, only available non Single Process is Partition. Ask developpers.");
+        throw Exception("Up to now, only available non Single Process is Partition. Ask developers.");
 
       const auto& mapproc = parphyl->getPartitionSequenceEvolution()->mapOfProcessSites();
 
