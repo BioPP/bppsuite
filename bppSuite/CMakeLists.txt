@@ -44,7 +44,7 @@ foreach (target ${bppsuite-targets})
     set_target_properties (${target} PROPERTIES LINK_SEARCH_END_STATIC TRUE)
   else (BUILD_STATIC)
     target_link_libraries (${target} ${BPP_LIBS_SHARED} Eigen3::Eigen)
-    set_target_properties (${target} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+    set_target_properties (${target} PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
   endif (BUILD_STATIC)
 endforeach (target)
 

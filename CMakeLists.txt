@@ -4,7 +4,7 @@
 #   Francois Gindraud (2017)
 # Created: 22/08/2009
 
-cmake_minimum_required (VERSION 3.0.0)
+cmake_minimum_required (VERSION 3.5.0)
 project (bppsuite CXX)
 
 # Compile options
