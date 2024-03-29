@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: The Bio++ Development Group
+
+SPDX-License-Identifier: CECILL-2.1
+-->
+
 # BppSuite presentation
 
 BppSuite is a suite of ready-to-use programs for phylogenetic and sequence analysis. 

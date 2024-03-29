@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
 input.trees.file = ../Data/treeList.dnd
 input.trees.format = Newick
 # [input|consensus]

@@ -1,3 +1,7 @@
+@c SPDX-FileCopyrightText: The Bio++ Development Group
+@c
+@c SPDX-License-Identifier: CECILL-2.1
+
 input texinfo                  @c -*-texinfo-*-
 @c %**start of header
 @setfilename bppsuite.info
