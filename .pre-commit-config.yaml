@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
+repos:
+-   repo: https://github.com/fsfe/reuse-tool
+    rev: v1.0.0
+    hooks:
+    - id: reuse

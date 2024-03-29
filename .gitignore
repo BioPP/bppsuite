@@ -1,22 +1,22 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
+# files to be ignored
+
+*.tag
 CMakeCache.txt
 CMakeFiles
-CMakeScripts
+*.cmake
+*.cmake.in
 Makefile
-cmake_install.cmake
+html
 install_manifest.txt
-CPackConfig.cmake
-CPackSourceConfig.cmake
-bppSuite/bppalnscore
-bppSuite/bppancestor
-bppSuite/bppconsense
-bppSuite/bppdist
-bppSuite/bppmixedlikelihoods
-bppSuite/bppml
-bppSuite/bpppars
-bppSuite/bppphysamp
-bppSuite/bppreroot
-bppSuite/bppseqgen
-bppSuite/bppseqman
-bppSuite/bpptreedraw
-doc/bppsuite.info
-man/*.1.gz
+.clang*
+*.sw*
+build
+
+# file to be specifically not ignored by previous rules
+
+!/CTestConfig.cmake
+!/cmake/*

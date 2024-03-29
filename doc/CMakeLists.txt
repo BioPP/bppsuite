@@ -1,8 +1,6 @@
-# CMake script for Bio++ Program Suite
-# Authors:
-#   Julien Dutheil
-#   Francois Gindraud (2017)
-# Created: 22/08/2009
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
 
 # Builds info, html, pdf doc.
 # Info doc is built and install as part of "all" if makeinfo is found.

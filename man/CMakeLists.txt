@@ -1,8 +1,6 @@
-# CMake script for Bio++ Program Suite
-# Authors:
-#   Julien Dutheil
-#   Francois gindraud (2017)
-# Created: 22/08/2009
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
 
 # Build manpages.
 # In practice, they are just compressed from the text files using COMPRESS_PROGRAM

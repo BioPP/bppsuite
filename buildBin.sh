@@ -1,6 +1,10 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
 #! /bin/sh
 arch=x86_64 #i686
-version=2.3.2
+version=3.0.0
 
 strip bppSuite/bppdist
 strip bppSuite/bpppars

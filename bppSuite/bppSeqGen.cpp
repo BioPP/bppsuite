@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: bppSeqGen.cpp
-// Created by: Julien Dutheil
-// Created on: Oct Mon 24 18:50 2005
-//
-
-/*
-  Copyright or � or Copr. Bio++ Development Team
-
-  This software is a computer program whose purpose is to simulate sequence
-  data according to a phylogenetic tree and an evolutionary model.
-
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
-
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
-
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
-
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 // From the STL:
 #include <iostream>
@@ -68,7 +33,7 @@ using namespace std;
 
 using namespace bpp;
 
-int main(int args, char ** argv)
+int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*            Bio++ Sequence Generator, version " << BPP_VERSION << "             *" << endl;
@@ -80,11 +45,11 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  try {
-
+  try
+  {
     BppPhylogeneticsApplication bppseqgen(args, argv, "bppseqgen");
 
-    if(args == 1)
+    if (args == 1)
     {
       bppseqgen.help("bppSeqGen");
       return 0;
@@ -103,13 +68,13 @@ int main(int args, char ** argv)
     BppOAlignmentWriterFormat bppoWriter(1);
 
     ////// Get the optional map of the sequences
-     
+
     auto mSitesuniq = bppseqgen.getConstAlignmentsMap(alphabet, true, true);
 
     auto mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const AlignmentDataInterface>(mSitesuniq);
 
     /// collection
-    
+
     std::shared_ptr<SubstitutionProcessCollection> spc = bppseqgen.getCollection(alphabet, gCode, mSites, unparsedParams);
 
     auto mSeqEvoluniq = bppseqgen.getProcesses(spc, unparsedParams);
@@ -120,23 +85,24 @@ int main(int args, char ** argv)
 
     auto phyloCont =  bppseqgen.getPhyloLikelihoods(context, mSeqEvol, spc, mSites, "", 0);
 
-    
+
     /// ///////////////////
     // Simulators
-    vector<string> vSimulName=ApplicationTools::matchingParameters("simul*", bppseqgen.getParams());
+    vector<string> vSimulName = ApplicationTools::matchingParameters("simul*", bppseqgen.getParams());
 
-    if (vSimulName.size() == 0) {
+    if (vSimulName.size() == 0)
+    {
       ApplicationTools::displayWarning("Did not find any descriptor matching `simul*`, so no simulation performed.");
     }
-  
-    for (size_t nS=0; nS< vSimulName.size(); nS++)
+
+    for (size_t nS = 0; nS < vSimulName.size(); nS++)
     {
-      size_t poseq=vSimulName[nS].find("=");
-      string suff = vSimulName[nS].substr(5,poseq-5);
+      size_t poseq = vSimulName[nS].find("=");
+      string suff = vSimulName[nS].substr(5, poseq - 5);
 
-      size_t num=static_cast<size_t>(TextTools::toInt(suff));
+      size_t num = static_cast<size_t>(TextTools::toInt(suff));
 
-      string simulDesc=ApplicationTools::getStringParameter(vSimulName[nS], bppseqgen.getParams(), "", "", true, true);
+      string simulDesc = ApplicationTools::getStringParameter(vSimulName[nS], bppseqgen.getParams(), "", "", true, true);
 
       map<string, string> argsim;
       string simulName;
@@ -147,44 +113,46 @@ int main(int args, char ** argv)
       ApplicationTools::displayMessage("Simulation " + TextTools::toString(num));
 
       //////////////////////
-      
-      if (argsim.find("process")==argsim.end() && (argsim.find("phylo")==argsim.end()))
-        throw BadIntegerException("bppseqgen. Missing process or phylo argument for simul:",(int)num);
 
-      
+      if (argsim.find("process") == argsim.end() && (argsim.find("phylo") == argsim.end()))
+        throw BadIntegerException("bppseqgen. Missing process or phylo argument for simul:", (int)num);
+
+
       // Root states
       vector<size_t> states;
       vector<double> rates;
-      bool withStates=false;
-      bool withRates=false; 
-      size_t nbSites=0;
+      bool withStates = false;
+      bool withRates = false;
+      size_t nbSites = 0;
 
-      auto sm=spc->getModel(1)->getStateMap();
-      
+      auto sm = spc->getModel(1)->getStateMap();
+
       // Data or info at root
-      if (argsim.find("data")!=argsim.end())
+      if (argsim.find("data") != argsim.end())
       {
-        size_t indData=(size_t)ApplicationTools::getIntParameter("data", argsim, 1, "", true, 0);
+        size_t indData = (size_t)ApplicationTools::getIntParameter("data", argsim, 1, "", true, 0);
 
-        if (mSites.find(indData)==mSites.end())
-          throw BadIntegerException("bppseqgen : Unknown data number:",(int)indData);
+        if (mSites.find(indData) == mSites.end())
+          throw BadIntegerException("bppseqgen : Unknown data number:", (int)indData);
 
-        auto data=mSites.at(indData);
+        auto data = mSites.at(indData);
 
-        auto nseq=RandomTools::giveIntRandomNumberBetweenZeroAndEntry(data->getNumberOfSequences());
+        auto nseq = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(data->getNumberOfSequences());
 
-        ApplicationTools::displayResult("Using root sequence",data->sequence(nseq).getName());
+        ApplicationTools::displayResult("Using root sequence", data->sequence(nseq).getName());
 
         string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
 
         nbSites = data->getNumberOfSites();
-        
+
         if (siteSet != "none")
         {
           vector<size_t> vSite;
-          try {
-            vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet,",",":");
-            for (size_t i = 0; i < vSite1.size(); ++i){
+          try
+          {
+            vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet, ",", ":");
+            for (size_t i = 0; i < vSite1.size(); ++i)
+            {
               int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
               if (x >= 0)
                 vSite.push_back(static_cast<size_t>(x));
@@ -205,7 +173,9 @@ int main(int args, char ** argv)
               vSite.resize(n);
               vector<size_t> vPos;
               for (size_t p = 0; p < nbSites; ++p)
+              {
                 vPos.push_back(p);
+              }
 
               RandomTools::getSample(vPos, vSite, replace);
             }
@@ -214,19 +184,22 @@ int main(int args, char ** argv)
           nbSites = vSite.size();
         }
 
-        ApplicationTools::displayResult("Number of sites",nbSites);
+        ApplicationTools::displayResult("Number of sites", nbSites);
         states.resize(nbSites);
 
         withStates = true;
 
-        size_t nbStates=alphabet->getSize();
+        size_t nbStates = alphabet->getSize();
         std::vector<double> probstate(nbStates);
 
-        auto resChar=alphabet->getResolvedChars();
+        auto resChar = alphabet->getResolvedChars();
 
-        for (size_t i = 0; i < nbSites; ++i) {
-          for (size_t j = 0; j< nbStates; j++) 
-            probstate[j]=data->getStateValueAt(i, nseq, alphabet->getIntCodeAt(j+1));
+        for (size_t i = 0; i < nbSites; ++i)
+        {
+          for (size_t j = 0; j < nbStates; j++)
+          {
+            probstate[j] = data->getStateValueAt(i, nseq, alphabet->getIntCodeAt(j + 1));
+          }
 
           auto pchar = RandomTools::pickOne<string>(resChar, probstate, true);
           states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(pchar));
@@ -248,8 +221,8 @@ int main(int args, char ** argv)
           withRates = rateCol != "none";
           withStates = stateCol != "none";
 
-      
-          // Specific input data 
+
+          // Specific input data
           if (withRates)
           {
             rates.resize(nbSites);
@@ -262,12 +235,12 @@ int main(int args, char ** argv)
           if (withStates)
           {
             vector<string> ancestralStates = infos->getColumn(stateCol);
-        
+
             states.resize(nbSites);
             for (size_t i = 0; i < nbSites; i++)
             {
               int alphabetState = alphabet->charToInt(ancestralStates[i]);
-              //If a generic character is provided, we pick one state randomly from the possible ones:
+              // If a generic character is provided, we pick one state randomly from the possible ones:
               if (alphabet->isUnresolved(alphabetState))
                 alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
               states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(alphabetState));
@@ -278,9 +251,11 @@ int main(int args, char ** argv)
             if (siteSet != "none")
             {
               vector<size_t> vSite;
-              try {
-                vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet,",",":");
-                for (size_t i = 0; i < vSite1.size(); ++i){
+              try
+              {
+                vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet, ",", ":");
+                for (size_t i = 0; i < vSite1.size(); ++i)
+                {
                   int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
                   if (x >= 0)
                     vSite.push_back(static_cast<size_t>(x));
@@ -301,7 +276,9 @@ int main(int args, char ** argv)
                   vSite.resize(n);
                   vector<size_t> vPos;
                   for (size_t p = 0; p < nbSites; ++p)
+                  {
                     vPos.push_back(p);
+                  }
 
                   RandomTools::getSample(vPos, vSite, replace);
                 }
@@ -329,78 +306,76 @@ int main(int args, char ** argv)
       /////// Process
 
       unique_ptr<SequenceSimulatorInterface> ss;
-      
-      if (argsim.find("process")!=argsim.end())
+
+      if (argsim.find("process") != argsim.end())
       {
-        size_t indProcess=(size_t)ApplicationTools::getIntParameter("process", argsim, 1, "", true, 0);
+        size_t indProcess = (size_t)ApplicationTools::getIntParameter("process", argsim, 1, "", true, 0);
 
         ApplicationTools::displayResult(" Process", TextTools::toString(indProcess));
 
-        if (! spc->hasSubstitutionProcessNumber(indProcess))
+        if (!spc->hasSubstitutionProcessNumber(indProcess))
         {
-          if (mSeqEvol.find(indProcess)==mSeqEvol.end())
-          
-            throw BadIntegerException("bppseqgen. Unknown process number:",(int)indProcess);
-        
-          ss= make_unique<EvolutionSequenceSimulator>(*mSeqEvol.find(indProcess)->second);
+          if (mSeqEvol.find(indProcess) == mSeqEvol.end())
+
+            throw BadIntegerException("bppseqgen. Unknown process number:", (int)indProcess);
+
+          ss = make_unique<EvolutionSequenceSimulator>(*mSeqEvol.find(indProcess)->second);
         }
         else
         {
-          ss= make_unique<SimpleSubstitutionProcessSequenceSimulator>(spc->getSubstitutionProcess(indProcess));
+          ss = make_unique<SimpleSubstitutionProcessSequenceSimulator>(spc->getSubstitutionProcess(indProcess));
         }
       }
       else
       {
-        size_t indPhylo=(size_t)ApplicationTools::getIntParameter("phylo", argsim, 1, "", true, 0);
+        size_t indPhylo = (size_t)ApplicationTools::getIntParameter("phylo", argsim, 1, "", true, 0);
 
         if (!phyloCont)
-          throw BadIntegerException("bppseqgen. Empty phylocontainer for simul:",(int)num);
+          throw BadIntegerException("bppseqgen. Empty phylocontainer for simul:", (int)num);
 
         auto phylo = phyloCont->getPhyloLikelihood(indPhylo);
 
         ApplicationTools::displayResult(" Phylolikelihood", TextTools::toString(indPhylo));
 
         if (!phylo)
-          throw BadIntegerException("bppseqgen. Unknown phylo number:",(int)indPhylo);
+          throw BadIntegerException("bppseqgen. Unknown phylo number:", (int)indPhylo);
 
         auto spph = dynamic_pointer_cast<SingleProcessPhyloLikelihood>(phylo);
         auto opsp = dynamic_pointer_cast<OneProcessSequencePhyloLikelihood>(phylo);
 
         if (!spph && !opsp)
-          throw BadIntegerException("bppseqgen. Posterior simulation not implemented for this kind of phylolikelihood. Ask developpers.",(int)num);
+          throw BadIntegerException("bppseqgen. Posterior simulation not implemented for this kind of phylolikelihood. Ask developers.", (int)num);
 
-        std::shared_ptr<LikelihoodCalculationSingleProcess> lcsp = spph?spph->getLikelihoodCalculationSingleProcess():
-          opsp->getLikelihoodCalculationSingleProcess();
+        std::shared_ptr<LikelihoodCalculationSingleProcess> lcsp = spph ? spph->getLikelihoodCalculationSingleProcess() :
+            opsp->getLikelihoodCalculationSingleProcess();
 
-        if (argsim.find("pos")==argsim.end()) // Sequence simulation similar to the data, number_of_sites will not be used
-          ss= make_unique<GivenDataSubstitutionProcessSequenceSimulator>(lcsp);
+        if (argsim.find("pos") == argsim.end())// Sequence simulation similar to the data, number_of_sites will not be used
+          ss = make_unique<GivenDataSubstitutionProcessSequenceSimulator>(lcsp);
         else
-        {        
-          size_t pos=(size_t)ApplicationTools::getIntParameter("pos", argsim, 1, "", true, 0);
+        {
+          size_t pos = (size_t)ApplicationTools::getIntParameter("pos", argsim, 1, "", true, 0);
           ApplicationTools::displayResult(" Position", TextTools::toString(pos));
 
-          ss= make_unique<SimpleSubstitutionProcessSequenceSimulator>(lcsp, pos);
+          ss = make_unique<SimpleSubstitutionProcessSequenceSimulator>(lcsp, pos);
         }
       }
-    
+
       // output
 
       string mfnames = ApplicationTools::getAFilePath("output.sequence.file", argsim, true, false, "", false, "none", true);
       ApplicationTools::displayResult(" Output file", mfnames);
-    
+
       string mformats = ApplicationTools::getStringParameter("output.sequence.format", argsim, "Fasta", "", false, true);
       ApplicationTools::displayResult(" Output format", mformats);
 
       auto mintern = ApplicationTools::getBooleanParameter("output.internal.sequences", argsim, false, "", true, 1);
       ApplicationTools::displayBooleanResult(" Output internal", mintern);
-      
-
 
 
       auto gds = dynamic_cast<GivenDataSubstitutionProcessSequenceSimulator*>(ss.get());
       auto pps = dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());
-      
-      size_t nbmin = gds?gds->getNumberOfSites():pps?pps->getNumberOfSites():100;
+
+      size_t nbmin = gds ? gds->getNumberOfSites() : pps ? pps->getNumberOfSites() : 100;
 
       nbSites = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, (int)nbmin, "", false, 0);
       ApplicationTools::displayResult(" Number of sites", TextTools::toString(nbSites));
@@ -408,24 +383,23 @@ int main(int args, char ** argv)
 
       ss->outputInternalSequences(mintern);
       std::shared_ptr<SiteContainerInterface> sites = 0;
-      
+
       if (withStates || withRates)
       {
-        auto pss=dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());
+        auto pss = dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());
 
         if (withStates)
           if (withRates)
-            sites = pss?pss->simulate(rates, states):SequenceSimulationTools::simulateSites(*ss, rates, states);
+            sites = pss ? pss->simulate(rates, states) : SequenceSimulationTools::simulateSites(*ss, rates, states);
           else
-            sites = pss?pss->simulate(states):SequenceSimulationTools::simulateSites(*ss, states);
+            sites = pss ? pss->simulate(states) : SequenceSimulationTools::simulateSites(*ss, states);
         else
-          sites = pss?pss->simulate(rates):SequenceSimulationTools::simulateSites(*ss, rates);
-        
+          sites = pss ? pss->simulate(rates) : SequenceSimulationTools::simulateSites(*ss, rates);
+
         ApplicationTools::displayTaskDone();
       }
       else
       {
-      
         ApplicationTools::displayMessage("");
         ApplicationTools::displayTask("Perform simulations");
 
@@ -439,10 +413,8 @@ int main(int args, char ** argv)
       // ApplicationTools::displayResult("Output alignment format ", oAln->getFormatName());
 
       oAln->writeAlignment(mfnames, *sites, true);
-
-      
     }
-    
+
     bppseqgen.done();
   }
   catch (exception& e)

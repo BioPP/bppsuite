@@ -1,42 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: bppConsense.cpp
-// Created by: Julien Dutheil
-// Created on: Jun Wed 06 11:17 2007
-//
-
-/*
-Copyright or © or Copr. CNRS
-
-This software is a computer program whose purpose is to estimate
-phylogenies and evolutionary parameters from a dataset according to
-the maximum likelihood principle.
-
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
-
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
-
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
-
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
-*/
+// SPDX-License-Identifier: CECILL-2.1
 
 // From the STL:
 #include <iostream>
@@ -70,7 +34,7 @@ void help()
   (*ApplicationTools::message << "__________________________________________________________________________").endLine();
 }
 
-int main(int args, char ** argv)
+int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*       Bio++ Consensus and Bootstrap Methods, version " << BPP_VERSION << "     *" << endl;
@@ -79,57 +43,56 @@ int main(int args, char ** argv)
   cout << "******************************************************************" << endl;
   cout << endl;
 
-  if(args == 1)
+  if (args == 1)
   {
     help();
     return 0;
   }
-  
-  try {
-  
-  BppApplication bppconsense(args, argv, "BppConsense");
-  bppconsense.startTimer();
 
-  auto list = PhylogeneticsApplicationTools::getTrees(bppconsense.getParams());
+  try
+  {
+    BppApplication bppconsense(args, argv, "BppConsense");
+    bppconsense.startTimer();
 
-  unique_ptr<Tree> tree = nullptr;
-  string treeMethod = ApplicationTools::getStringParameter("tree", bppconsense.getParams(), "Consensus", "", false, 1);
-  string cmdName;
-  map<string, string> cmdArgs;
-  KeyvalTools::parseProcedure(treeMethod, cmdName, cmdArgs);
-  if(cmdName == "Input")
-  {
-    tree = PhylogeneticsApplicationTools::getTree(bppconsense.getParams());
-    ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
-  }
-  else if(cmdName == "Consensus")
-  {
-    double threshold = ApplicationTools::getDoubleParameter("threshold", cmdArgs, 0, "", false, 1);
-    ApplicationTools::displayResult("Consensus threshold", TextTools::toString(threshold));
-    ApplicationTools::displayTask("Computing consensus tree");
-    tree = TreeTools::thresholdConsensus(list, threshold, true);
+    auto list = PhylogeneticsApplicationTools::getTrees(bppconsense.getParams());
+
+    unique_ptr<Tree> tree = nullptr;
+    string treeMethod = ApplicationTools::getStringParameter("tree", bppconsense.getParams(), "Consensus", "", false, 1);
+    string cmdName;
+    map<string, string> cmdArgs;
+    KeyvalTools::parseProcedure(treeMethod, cmdName, cmdArgs);
+    if (cmdName == "Input")
+    {
+      tree = PhylogeneticsApplicationTools::getTree(bppconsense.getParams());
+      ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
+    }
+    else if (cmdName == "Consensus")
+    {
+      double threshold = ApplicationTools::getDoubleParameter("threshold", cmdArgs, 0, "", false, 1);
+      ApplicationTools::displayResult("Consensus threshold", TextTools::toString(threshold));
+      ApplicationTools::displayTask("Computing consensus tree");
+      tree = TreeTools::thresholdConsensus(list, threshold, true);
+      ApplicationTools::displayTaskDone();
+    }
+    else
+      throw Exception("Unknown input tree method: " + treeMethod);
+
+    ApplicationTools::displayTask("Compute bootstrap values");
+
+    int bsformat = ApplicationTools::getIntParameter("bootstrap.format", bppconsense.getParams(), 0, "", false, 1);
+    TreeTools::computeBootstrapValues(*tree, list, true, bsformat);
     ApplicationTools::displayTaskDone();
+
+    // Write resulting tree:
+    PhylogeneticsApplicationTools::writeTree(*tree, bppconsense.getParams());
+
+    bppconsense.done();
   }
-  else throw Exception("Unknown input tree method: " + treeMethod);
-  
-  ApplicationTools::displayTask("Compute bootstrap values");
-
-  int bsformat = ApplicationTools::getIntParameter("bootstrap.format", bppconsense.getParams(), 0, "", false, 1);
-  TreeTools::computeBootstrapValues(*tree, list, true, bsformat);
-  ApplicationTools::displayTaskDone();
-
-  //Write resulting tree:
-  PhylogeneticsApplicationTools::writeTree(*tree, bppconsense.getParams());
-
-  bppconsense.done();
-
-  }
-  catch(exception & e)
+  catch (exception& e)
   {
     cout << e.what() << endl;
     return 1;
   }
 
-  return (0);
+  return 0;
 }
-

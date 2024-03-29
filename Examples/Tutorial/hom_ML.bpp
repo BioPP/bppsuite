@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
 RESULT_DIR=hom_Res
 
 # The alphabet to use:
@@ -24,7 +28,7 @@ input.tree1=user(file = Data/aln1.tree, format = Newick)
 
 model1 = HKY85(kappa=3, initFreqs=observed, data=1)
 ## equilibrium frequencies are initialized from the data
-## (initFreqs=observed) so a number refering to the data must be given
+## (initFreqs=observed) so a number referring to the data must be given
 ## (data=1)
 
 # --------------------------------------------------------

@@ -1,41 +1,6 @@
+// SPDX-FileCopyrightText: The Bio++ Development Group
 //
-// File: bppAlnScore.cpp
-// Created by: Julien Dutheil
-// Created on: Dec Thu 15 16:16 2011
-//
-
-/*
-   Copyright or © or Copr. Bio++ Development Team
-
-   This software is a computer program whose purpose is to simulate sequence
-   data according to a phylogenetic tree and an evolutionary model.
-
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
-
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
-
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
-
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
+// SPDX-License-Identifier: CECILL-2.1
 
 // From the STL:
 #include <iostream>
@@ -83,7 +48,7 @@ int main(int args, char** argv)
 
     // Get the reference alignment:
     shared_ptr<SiteContainerInterface> sitesRef;
-    
+
     sitesRef = SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".ref", false, true);
 
     // We check if the two alignments are compatible:
@@ -98,7 +63,7 @@ int main(int args, char** argv)
         ApplicationTools::displayGauge(i, namesTest.size() - 1);
         try
         {
-          auto seq=unique_ptr<Sequence>(sitesRef->sequence(namesTest[i]).clone());
+          auto seq = unique_ptr<Sequence>(sitesRef->sequence(namesTest[i]).clone());
           tmp->addSequence(namesRef[i], seq);
         }
         catch (SequenceNotFoundException& ex)
@@ -141,9 +106,9 @@ int main(int args, char** argv)
         // We look for the first occurrence of the given motif:
         try
         {
-          auto alpha=sitesTest->getAlphabet();
+          auto alpha = sitesTest->getAlphabet();
           Sequence motif("motif", phaseOpt, alpha);
-          ApplicationTools::displayResult("Phase based on 1st occurence of", motif.toString());
+          ApplicationTools::displayResult("Phase based on 1st occurrence of", motif.toString());
           size_t pos = sitesTest->getNumberOfSites();
           for (size_t i = 0; i < sitesTest->getNumberOfSequences(); ++i)
           {
@@ -155,7 +120,7 @@ int main(int args, char** argv)
         }
         catch (Exception& ex)
         {
-          throw Exception("Error, unvalid motif specified for phase option.");
+          throw Exception("Error, invalid motif specified for phase option.");
         }
       }
       ApplicationTools::displayResult("First word starts at", phase + 1);
@@ -221,21 +186,23 @@ int main(int args, char** argv)
       size_t s = alphabet->getStateCodingSize();
       for (size_t i = 0; i < cs.size(); ++i)
       {
-        if (cs[i] == 1 && i > 0 && cs[i-1] != 1)
+        if (cs[i] == 1 && i > 0 && cs[i - 1] != 1)
           csBeg = i;
-        if (cs[i] != 1 && i > 0 && cs[i-1] == 1) {
+        if (cs[i] != 1 && i > 0 && cs[i - 1] == 1)
+        {
           csEnd = i;
           csRanges.addRange(Range<size_t>(csBeg * s, csEnd * s));
         }
 
-        if (sps[i] >= spsThreshold && i > 0 && sps[i-1] < spsThreshold)
+        if (sps[i] >= spsThreshold && i > 0 && sps[i - 1] < spsThreshold)
           spsBeg = i;
-        if (sps[i] < spsThreshold && i > 0 && sps[i-1] >= spsThreshold) {
+        if (sps[i] < spsThreshold && i > 0 && sps[i - 1] >= spsThreshold)
+        {
           spsEnd = i;
           spsRanges.addRange(Range<size_t>(spsBeg * s, spsEnd * s));
         }
       }
-      //Add the last range if any:
+      // Add the last range if any:
       if (cs.back() == 1)
         csRanges.addRange(Range<size_t>(csBeg * s, cs.size() * s));
       if (sps.back() >= spsThreshold)
@@ -259,4 +226,3 @@ int main(int args, char** argv)
 
   return 0;
 }
-

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
 #Example data set adapted from PAML
 #
 
@@ -48,7 +52,7 @@ phylo1 = Single(process=1, data=1)
 # ----------------------------------------------------------------------------------------
 
 # Should we reestimate likelihood parameters? Tree topology will not be optimized.
-# (recommanded)
+# (recommended)
 optimization = FullD(derivatives=Newton)
 
 # Tell if the parameter should be transformed in order to remove constraints.

@@ -1,14 +1,18 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
 # CMake script for Bio++ Program Suite
 # Authors:
 #   Julien Dutheil
 #   Francois Gindraud (2017)
 # Created: 22/08/2009
 
-cmake_minimum_required (VERSION 3.0.0)
+cmake_minimum_required (VERSION 3.5.0)
 project (bppsuite CXX)
 
 # Compile options
-SET (CMAKE_CXX_FLAGS "-std=c++14 -Wall -Weffc++ -Wshadow -Wconversion")
+add_compile_options(-std=c++14 -Wall -Weffc++ -Wshadow -Wconversion)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
