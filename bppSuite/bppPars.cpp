@@ -6,38 +6,38 @@
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team
+   Copyright or © or Copr. Bio++ Development Team
 
-  This software is a computer program whose purpose is to estimate
-  phylogenies and evolutionary parameters from a dataset according to
-  the maximum likelihood principle.
+   This software is a computer program whose purpose is to estimate
+   phylogenies and evolutionary parameters from a dataset according to
+   the maximum likelihood principle.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use, 
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info". 
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability. 
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or 
-  data to be ensured and,  more generally, to use and operate it in the 
-  same conditions as regards security. 
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 // From the STL:
 #include <iostream>
@@ -77,7 +77,7 @@ void help()
   (*ApplicationTools::message << "__________________________________________________________________________").endLine();
 }
 
-int main(int args, char ** argv)
+int main(int args, char** argv)
 {
   cout << "******************************************************************" << endl;
   cout << "*             Bio++ Parsimony Methods, version " << BPP_VERSION << "             *" << endl;
@@ -91,25 +91,25 @@ int main(int args, char ** argv)
     help();
     return 0;
   }
-  
-  try {
- 
+
+  try
+  {
     BppApplication bpppars(args, argv, "BppPars");
     bpppars.startTimer();
 
     std::shared_ptr<const bpp::Alphabet> alphabet = SequenceApplicationTools::getAlphabet(bpppars.getParams(), "", false);
-  
+
     bool includeGaps = ApplicationTools::getBooleanParameter("use.gaps", bpppars.getParams(), false, "", false, false);
     ApplicationTools::displayBooleanResult("Use gaps", includeGaps);
 
     auto allSites = SequenceApplicationTools::getSiteContainer(alphabet, bpppars.getParams());
-	
-    shared_ptr<VectorSiteContainer> sites = SequenceApplicationTools::getSitesToAnalyse(* allSites, bpppars.getParams(), "", true, !includeGaps, true);
+
+    shared_ptr<VectorSiteContainer> sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bpppars.getParams(), "", true, !includeGaps, true);
 
     ApplicationTools::displayResult("Number of sequences", TextTools::toString(sites->getNumberOfSequences()));
     ApplicationTools::displayResult("Number of sites", TextTools::toString(sites->getNumberOfSites()));
-	
-    if (sites->getNumberOfSequences()==0 || sites->getNumberOfSites()==0)
+
+    if (sites->getNumberOfSequences() == 0 || sites->getNumberOfSites() == 0)
       throw Exception("Empty data.");
 
     // Get the initial tree
@@ -127,8 +127,9 @@ int main(int args, char ** argv)
       tree = TreeTemplateTools::getRandomTree(names, false);
       tree->setBranchLengths(1.);
     }
-    else throw Exception("Unknown init tree method.");
-	
+    else
+      throw Exception("Unknown init tree method.");
+
     ApplicationTools::displayTask("Initializing parsimony");
     auto treen = make_shared<TreeTemplate<Node>>(*tree);
     auto tp = std::make_unique<DRTreeParsimonyScore>(treen, sites, false, includeGaps);
@@ -137,12 +138,12 @@ int main(int args, char ** argv)
     double score = tp->getScore();
     ApplicationTools::displayResult("Initial parsimony score", TextTools::toString(score, 15));
     tree = make_shared<TreeTemplate<Node>>(tp->tree());
-  
+
     PhylogeneticsApplicationTools::writeTree(*tree, bpppars.getParams());
-  
+
     bpppars.done();
   }
-  catch (exception & e)
+  catch (exception& e)
   {
     cout << e.what() << endl;
     return 1;
@@ -150,4 +151,3 @@ int main(int args, char ** argv)
 
   return 0;
 }
-

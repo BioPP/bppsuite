@@ -109,7 +109,7 @@ int main(int args, char** argv)
   if (logFile != "none")
     cLog.reset(new ofstream(logFile.c_str(), ios::out));
 
-  //This counts instances of each tool, in case one is used several times, for instance with different options:
+  // This counts instances of each tool, in case one is used several times, for instance with different options:
   map<string, unsigned int> toolCounter;
 
   try
@@ -120,38 +120,48 @@ int main(int args, char** argv)
     // Get the genetic code, if codon alphabet
     shared_ptr<GeneticCode> gCode;
     auto codonAlphabet = dynamic_pointer_cast<const CodonAlphabet>(alphabet);
-    if (codonAlphabet) {
+    if (codonAlphabet)
+    {
       string codeDesc = ApplicationTools::getStringParameter("genetic_code", bpppopstats.getParams(), "Standard", "", true, true);
       ApplicationTools::displayResult("Genetic Code", codeDesc);
       gCode = SequenceApplicationTools::getGeneticCode(codonAlphabet->getNucleicAlphabet(), codeDesc);
     }
 
     unique_ptr<PolymorphismSequenceContainer> psc;
-    if (ApplicationTools::parameterExists("input.sequence.file.ingroup", bpppopstats.getParams())) {
+    if (ApplicationTools::parameterExists("input.sequence.file.ingroup", bpppopstats.getParams()))
+    {
       // Get the ingroup alignment:
       unique_ptr<SiteContainerInterface> sitesIn(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".ingroup", false, true));
       psc.reset(new PolymorphismSequenceContainer(*sitesIn));
-      if (ApplicationTools::parameterExists("input.sequence.file.outgroup", bpppopstats.getParams())) {
+      if (ApplicationTools::parameterExists("input.sequence.file.outgroup", bpppopstats.getParams()))
+      {
         // Get the outgroup alignment:
         unique_ptr<SiteContainerInterface> sitesOut(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), ".outgroup", false, true));
         SequenceContainerTools::append(*psc, *sitesOut);
-        for (size_t i = sitesIn->getNumberOfSequences(); i < psc->getNumberOfSequences(); ++i) {
+        for (size_t i = sitesIn->getNumberOfSequences(); i < psc->getNumberOfSequences(); ++i)
+        {
           psc->setAsOutgroupMember(i);
         }
       }
-    } else {
-      //Everything in one file
+    }
+    else
+    {
+      // Everything in one file
       unique_ptr<SiteContainerInterface> sites(SequenceApplicationTools::getSiteContainer(alphabet, bpppopstats.getParams(), "", false, true));
       psc.reset(new PolymorphismSequenceContainer(*sites));
-      if (ApplicationTools::parameterExists("input.sequence.outgroup.index", bpppopstats.getParams())) {
+      if (ApplicationTools::parameterExists("input.sequence.outgroup.index", bpppopstats.getParams()))
+      {
         vector<size_t> outgroups = ApplicationTools::getVectorParameter<size_t>("input.sequence.outgroup.index", bpppopstats.getParams(), ',', "");
-        for (auto g : outgroups) {
-          psc->setAsOutgroupMember(g-1);
+        for (auto g : outgroups)
+        {
+          psc->setAsOutgroupMember(g - 1);
         }
       }
-      if (ApplicationTools::parameterExists("input.sequence.outgroup.name", bpppopstats.getParams())) {
+      if (ApplicationTools::parameterExists("input.sequence.outgroup.name", bpppopstats.getParams()))
+      {
         vector<string> outgroups = ApplicationTools::getVectorParameter<string>("input.sequence.outgroup.name", bpppopstats.getParams(), ',', "");
-        for (auto g : outgroups) {
+        for (auto g : outgroups)
+        {
           ApplicationTools::displayResult("Sequence from outgroup", g);
           psc->setAsOutgroupMember(g);
         }
@@ -162,50 +172,62 @@ int main(int args, char** argv)
     string stopCodonOpt = ApplicationTools::getStringParameter("input.sequence.stop_codons_policy", bpppopstats.getParams(), "Keep", "", true, true);
     ApplicationTools::displayResult("Stop codons policy", stopCodonOpt);
 
-    if (stopCodonOpt == "Keep") {
-      //do nothing
-    } else if (stopCodonOpt == "RemoveIfLast") {
-      if (CodonSiteTools::hasStop(psc->site(psc->getNumberOfSites() - 1), *gCode)) {
+    if (stopCodonOpt == "Keep")
+    {
+      // do nothing
+    }
+    else if (stopCodonOpt == "RemoveIfLast")
+    {
+      if (CodonSiteTools::hasStop(psc->site(psc->getNumberOfSites() - 1), *gCode))
+      {
         psc->deleteSite(psc->getNumberOfSites() - 1);
         ApplicationTools::displayMessage("Info: last site contained a stop codon and was discarded.");
         if (logFile != "none")
           *cLog << "# Info: last site contained a stop codon and was discarded." << endl;
       }
-    } else if (stopCodonOpt == "RemoveAll") {
+    }
+    else if (stopCodonOpt == "RemoveAll")
+    {
       size_t l1 = psc->getNumberOfSites();
       SiteContainerTools::removeSitesWithStopCodon(*psc, *gCode);
       size_t l2 = psc->getNumberOfSites();
-      if (l2 != l1) {
+      if (l2 != l1)
+      {
         ApplicationTools::displayMessage("Info: discarded " + TextTools::toString(l1 - l2) + " sites with stop codons.");
         if (logFile != "none")
           *cLog << "# Info: discarded " << (l1 - l2) << " sites with stop codons." << endl;
       }
-    } else {
+    }
+    else
+    {
       throw Exception("Unrecognized option for input.sequence.stop_codons_policy: " + stopCodonOpt);
     }
 
     shared_ptr<PolymorphismSequenceContainer> pscIn;
     shared_ptr<PolymorphismSequenceContainer> pscOut;
 
-    if (psc->hasOutgroup()) {
+    if (psc->hasOutgroup())
+    {
       pscIn = PolymorphismSequenceContainerTools::extractIngroup(*psc);
       pscOut = PolymorphismSequenceContainerTools::extractOutgroup(*psc);
-    } else {
+    }
+    else
+    {
       pscIn = std::move(psc);
     }
     ApplicationTools::displayResult("Number of sequences in ingroup", pscIn->getNumberOfSequences());
     ApplicationTools::displayResult("Number of sequences in outgroup", pscOut.get() ? pscOut->getNumberOfSequences() : 0);
-   
+
     // Shall we estimate some parameters first?
-    
+
     bool estimateTsTv = ApplicationTools::getBooleanParameter("estimate.kappa", bpppopstats.getParams(), false, "", false, 1);
     double kappa = ApplicationTools::getDoubleParameter("kappa", bpppopstats.getParams(), 1.0, "", false, 1);
     ApplicationTools::displayResult("Initial or fixed Ts/Tv ratio (kappa):", kappa);
-    
+
     double omega = -1;
-    
+
     bool estimateAncestor = ApplicationTools::getBooleanParameter("estimate.ancestor", bpppopstats.getParams(), false, "", false, 1);
-    if (estimateAncestor & ! pscOut)
+    if (estimateAncestor & !pscOut)
       throw Exception("Error: an outgroup sequence is needed for estimating ancestral states.");
 
     bool fitModel = estimateTsTv || estimateAncestor;
@@ -215,51 +237,64 @@ int main(int args, char** argv)
     shared_ptr<SubstitutionModelInterface> model;
     shared_ptr<DiscreteDistributionInterface> rDist;
     unique_ptr<Sequence> ancestralSequence;
-    if (fitModel) {
+    if (fitModel)
+    {
       // Get the alignment:
-      
+
       bool sampleIngroup = ApplicationTools::getBooleanParameter("estimate.sample_ingroup", bpppopstats.getParams(), true);
       size_t sampleIngroupSize = 0;
-      if (sampleIngroup) {
+      if (sampleIngroup)
+      {
         sampleIngroupSize = ApplicationTools::getParameter<size_t>("estimate.sample_ingroup.size", bpppopstats.getParams(), 10);
-        if (sampleIngroupSize > pscIn->getNumberOfSequences()) {
+        if (sampleIngroupSize > pscIn->getNumberOfSequences())
+        {
           ApplicationTools::displayWarning("Sample size higher than number of sequence. No sampling performed.");
           sampleIngroup = false;
         }
       }
       shared_ptr<AlignedSequenceContainer> aln;
-      if (sampleIngroup) {
+      if (sampleIngroup)
+      {
         ApplicationTools::displayResult("Nb of ingroup sequences for model fitting", sampleIngroupSize);
         aln.reset(new AlignedSequenceContainer(pscIn->getAlphabet()));
         vector<string> selection(sampleIngroupSize);
-        RandomTools::getSample(pscIn->getSequenceNames(), selection, false); 
-        SequenceContainerTools::getSelectedSequences(*pscIn, selection ,*aln);
-      } else {
+        RandomTools::getSample(pscIn->getSequenceNames(), selection, false);
+        SequenceContainerTools::getSelectedSequences(*pscIn, selection, *aln);
+      }
+      else
+      {
         aln.reset(new AlignedSequenceContainer(*pscIn));
       }
-      if (pscOut) {
+      if (pscOut)
+      {
         auto seq = unique_ptr<Sequence>(pscOut->sequence(0).clone());
-        aln->addSequence(pscOut->getSequenceNames()[0], seq); //As for now, we only consider one sequence as outgroup, the first one.
+        aln->addSequence(pscOut->getSequenceNames()[0], seq); // As for now, we only consider one sequence as outgroup, the first one.
       }
 
       // Get a tree:
       string treeOpt = ApplicationTools::getStringParameter("input.tree.method", bpppopstats.getParams(), "bionj", "");
-      if (codonAlphabet) {
+      if (codonAlphabet)
+      {
         unique_ptr<CodonFrequencySetInterface> freqSet(new FixedCodonFrequencySet(gCode));
-        model=std::make_shared<YN98>(gCode, std::move(freqSet));
-      } else {
-      model=std::make_shared<K80>(AlphabetTools::DNA_ALPHABET);
-      } //Note: proteins not supported!
-      rDist=std::make_shared<ConstantRateDistribution>(); 
-      if (treeOpt == "user") {
+        model = std::make_shared<YN98>(gCode, std::move(freqSet));
+      }
+      else
+      {
+        model = std::make_shared<K80>(AlphabetTools::DNA_ALPHABET);
+      } // Note: proteins not supported!
+      rDist = std::make_shared<ConstantRateDistribution>();
+      if (treeOpt == "user")
+      {
         tree = PhylogeneticsApplicationTools::getTree(bpppopstats.getParams());
-      } else if (treeOpt == "bionj") {
+      }
+      else if (treeOpt == "bionj")
+      {
         ApplicationTools::displayTask("Estimating distance matrix", true);
-        //DistanceEstimation distEstimation(model->clone(), rDist->clone(), aln.get(), 1, false);
-        //distEstimation.computeMatrix();
-        //unique_ptr<DistanceMatrix> matrix(distEstimation.getMatrix());
+        // DistanceEstimation distEstimation(model->clone(), rDist->clone(), aln.get(), 1, false);
+        // distEstimation.computeMatrix();
+        // unique_ptr<DistanceMatrix> matrix(distEstimation.getMatrix());
         unique_ptr<DistanceMatrix> matrix(SiteContainerTools::computeSimilarityMatrix(*aln, true, SiteContainerTools::SIMILARITY_NOGAP, true));
-        
+
         ApplicationTools::displayTaskDone();
         ApplicationTools::displayTask("Computing BioNJ tree", true);
         BioNJ bionj(false, true);
@@ -267,7 +302,9 @@ int main(int args, char** argv)
         bionj.computeTree();
         ApplicationTools::displayTaskDone();
         tree = unique_ptr<Tree>(bionj.tree().clone());
-      } else {
+      }
+      else
+      {
         throw Exception("Invalid input.tree.method. Should be either 'user' or 'bionj'.");
       }
 
@@ -277,11 +314,11 @@ int main(int args, char** argv)
 
       auto phyloTree = PhyloTreeTools::buildFromTreeTemplate(*tree);
 
-      auto process=std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rDist, phyloTree);
-      
+      auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(model, rDist, phyloTree);
+
       auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, aln, process);
 
-      auto  treeLik = shared_ptr<PhyloLikelihoodInterface>(new SingleProcessPhyloLikelihood(context, lik));
+      auto treeLik = shared_ptr<PhyloLikelihoodInterface>(new SingleProcessPhyloLikelihood(context, lik));
 
       if (std::isinf(treeLik->getValue()))
         throw Exception("Error: null likelihood. Possible cause: stop codon or numerical underflow (too many sequences).");
@@ -289,27 +326,31 @@ int main(int args, char** argv)
       treeLik = PhylogeneticsApplicationTools::optimizeParameters(treeLik, treeLik->getParameters(), bpppopstats.getParams(), "", true, true, 2);
       process->matchParametersValues(lik->getParameters());
 
-      // Get kappa:              
-      if (estimateTsTv) {
+      // Get kappa:
+      if (estimateTsTv)
+      {
         kappa = model->parameter("kappa").getValue();
         ApplicationTools::displayResult("Estimated Ts/Tv ratio", kappa);
       }
       // Write to log file:
-      if (logFile != "none") {
+      if (logFile != "none")
+      {
         *cLog << "Kappa = " << kappa << endl;
       }
-      if (estimateAncestor) {
+      if (estimateAncestor)
+      {
         MarginalAncestralReconstruction asr(lik);
         uint outgroupId = uint(tree->getLeafId(pscOut->sequence(0).getName()));
         ancestralSequence = asr.getAncestralSequenceForNode(uint(tree->getFatherId(int(outgroupId))));
       }
-      if (codonAlphabet) {
+      if (codonAlphabet)
+      {
         omega = model->parameter("omega").getValue();
       }
     }
 
     // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    
+
     // Compute statistics
     vector<string> actions = ApplicationTools::getVectorParameter<string>("pop.stats", bpppopstats.getParams(), ',', "", "", false, 1);
 
@@ -329,8 +370,9 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Number of segregating sites:", s);
         unsigned int nsg = SequenceStatistics::numberOfSingletons(*pscIn);
         ApplicationTools::displayResult("Number of singletons:", nsg);
-        //Print to logfile:
-        if (logFile != "none") {
+        // Print to logfile:
+        if (logFile != "none")
+        {
           *cLog << "# Site frequencies" << endl;
           *cLog << "NbSegSites" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << s << endl;
           *cLog << "NbSingl" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nsg << endl;
@@ -344,8 +386,9 @@ int main(int args, char** argv)
       {
         double thetaW75 = SequenceStatistics::watterson75(*pscIn, true, true, true);
         ApplicationTools::displayResult("Watterson's (1975) theta:", thetaW75);
-        //Print to logfile:
-        if (logFile != "none") {
+        // Print to logfile:
+        if (logFile != "none")
+        {
           *cLog << "# Watterson's (1975) theta" << endl;
           *cLog << "thetaW75" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << thetaW75 << endl;
         }
@@ -358,8 +401,9 @@ int main(int args, char** argv)
       {
         double piT83 = SequenceStatistics::tajima83(*pscIn, true, true, true);
         ApplicationTools::displayResult("Tajima's (1983) pi:", piT83);
-        //Print to logfile:
-        if (logFile != "none") {
+        // Print to logfile:
+        if (logFile != "none")
+        {
           *cLog << "# Tajima's (1983) pi" << endl;
           *cLog << "piT83" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piT83 << endl;
         }
@@ -374,29 +418,40 @@ int main(int args, char** argv)
         shared_ptr<PolymorphismSequenceContainer> pscTmp;
         if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
           throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
-        if (positions == "synonymous") {
+        if (positions == "synonymous")
+        {
           pscTmp = PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode);
-        } else if (positions == "non-synonymous") {
+        }
+        else if (positions == "non-synonymous")
+        {
           pscTmp = PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode);
-        } else if (positions == "all") {
+        }
+        else if (positions == "all")
+        {
           pscTmp = pscIn;
-        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+        }
+        else
+          throw Exception("Unrecognized option for argument 'positions': " + positions);
 
-        if (SequenceStatistics::numberOfPolymorphicSites(*pscTmp) > 0) {
+        if (SequenceStatistics::numberOfPolymorphicSites(*pscTmp) > 0)
+        {
           double tajimaD = SequenceStatistics::tajimaDss(*pscTmp, true, true);
           ApplicationTools::displayResult("Tajima's (1989) D:", tajimaD);
-          //Print to logfile:
-          if (logFile != "none") {
+          // Print to logfile:
+          if (logFile != "none")
+          {
             *cLog << "# Tajima's (1989) D (" << positions << " sites)" << endl;
             *cLog << "tajD" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << tajimaD << endl;
           }
-        } else {
+        }
+        else
+        {
           ApplicationTools::displayResult<string>("Tajima's (1989) D:", "NA (0 polymorphic sites)");
-          if (logFile != "none") {
+          if (logFile != "none")
+          {
             *cLog << "# Tajima's (1989) D (" << positions << " sites)" << endl;
             *cLog << "tajD" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = NA" << endl;
           }
-          
         }
       }
 
@@ -409,20 +464,28 @@ int main(int args, char** argv)
         shared_ptr<PolymorphismSequenceContainer> pscTmp;
         if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
           throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
-        if (positions == "synonymous") {
+        if (positions == "synonymous")
+        {
           pscTmp = PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode);
-        } else if (positions == "non-synonymous") {
+        }
+        else if (positions == "non-synonymous")
+        {
           pscTmp = PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode);
-        } else if (positions == "all") {
+        }
+        else if (positions == "all")
+        {
           pscTmp = pscIn;
-        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+        }
+        else
+          throw Exception("Unrecognized option for argument 'positions': " + positions);
 
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
         double flDstar = SequenceStatistics::fuLiDStar(*pscTmp, !useTotMut);
         ApplicationTools::displayResult("Fu and Li's (1993) D*:", flDstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
-        //Print to logfile:
-        if (logFile != "none") {
+        // Print to logfile:
+        if (logFile != "none")
+        {
           *cLog << "# Fu and Li's (1993) D*" << endl;
           if (useTotMut)
             *cLog << "fuLiDstarTotMut" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flDstar << endl;
@@ -440,20 +503,28 @@ int main(int args, char** argv)
         shared_ptr<PolymorphismSequenceContainer> pscTmp;
         if ((positions == "synonymous" || positions == "non-synonymous") && !codonAlphabet)
           throw Exception("Error: synonymous and non-synonymous positions can only be defined with a codon alphabet.");
-        if (positions == "synonymous") {
+        if (positions == "synonymous")
+        {
           pscTmp = PolymorphismSequenceContainerTools::getSynonymousSites(*pscIn, *gCode);
-        } else if (positions == "non-synonymous") {
+        }
+        else if (positions == "non-synonymous")
+        {
           pscTmp = PolymorphismSequenceContainerTools::getNonSynonymousSites(*pscIn, *gCode);
-        } else if (positions == "all") {
+        }
+        else if (positions == "all")
+        {
           pscTmp = pscIn;
-        } else throw Exception("Unrecognized option for argument 'positions': " + positions);
+        }
+        else
+          throw Exception("Unrecognized option for argument 'positions': " + positions);
 
         bool useTotMut = ApplicationTools::getBooleanParameter("tot_mut", cmdArgs, true, "", false, 1);
         double flFstar = SequenceStatistics::fuLiFStar(*pscTmp, !useTotMut);
         ApplicationTools::displayResult("Fu and Li (1993)'s F*:", flFstar);
         ApplicationTools::displayResult("  computed using", (useTotMut ? "total number of mutations" : "number of segregating sites"));
-        //Print to logfile:
-        if (logFile != "none") {
+        // Print to logfile:
+        if (logFile != "none")
+        {
           *cLog << "# Fu and Li's (1993) F*" << endl;
           if (useTotMut)
             *cLog << "fuLiFstarTotMut" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << flFstar << endl;
@@ -467,7 +538,8 @@ int main(int args, char** argv)
       // +-----------+
       else if (cmdName == "PiN_PiS")
       {
-        if (!codonAlphabet) {
+        if (!codonAlphabet)
+        {
           throw Exception("PiN_PiS can only be used with a codon alignment. Check the input alphabet!");
         }
         double piS = SequenceStatistics::piSynonymous(*pscIn, *gCode);
@@ -480,17 +552,20 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("#N:", nbN);
         ApplicationTools::displayResult("#S:", nbS);
         ApplicationTools::displayResult("PiN / PiS (corrected for #N and #S):", r);
-        if (fitModel) {
+        if (fitModel)
+        {
           ApplicationTools::displayResult("Omega (YN98 model):", omega);
         }
 
-        if (logFile != "none") {
+        if (logFile != "none")
+        {
           *cLog << "# PiN and PiS" << endl;
           *cLog << "PiN" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piN << endl;
           *cLog << "PiS" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << piS << endl;
           *cLog << "NbN" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nbN << endl;
           *cLog << "NbS" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << nbS << endl;
-          if (fitModel) {
+          if (fitModel)
+          {
             *cLog << "Omega" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << omega << endl;
           }
         }
@@ -501,10 +576,11 @@ int main(int args, char** argv)
       // +---------+
       else if (cmdName == "dN_dS")
       {
-        if (!codonAlphabet) {
+        if (!codonAlphabet)
+        {
           throw Exception("dN_dS can only be used with a codon alignment. Check the input alphabet!");
         }
-        //Get consensus sequences:
+        // Get consensus sequences:
         unique_ptr<SiteContainerInterface> alnIn(pscIn->toSiteContainer());
         unique_ptr<SiteContainerInterface> alnOut(pscOut->toSiteContainer());
         unique_ptr<Sequence> consensusIn(SiteContainerTools::getConsensus(*alnIn, "consIn", true, false));
@@ -515,19 +591,20 @@ int main(int args, char** argv)
 
         unique_ptr<CodonFrequencySetInterface> freqSetDiv(new FixedCodonFrequencySet(gCode));
         auto modelDiv = std::make_shared<YN98>(gCode, std::move(freqSetDiv));
-        auto rDistDiv = std::make_shared<ConstantRateDistribution>(); 
+        auto rDistDiv = std::make_shared<ConstantRateDistribution>();
         DistanceEstimation distEstimation(modelDiv, rDistDiv, alnCons, 0, false);
         distEstimation.setAdditionalParameters(modelDiv->getIndependentParameters());
         distEstimation.computeMatrix();
         unique_ptr<DistanceMatrix> matrix(distEstimation.getMatrix());
         ApplicationTools::displayResult("Yang and Nielsen's Omega (dN/dS):", modelDiv->parameter("omega").getValue());
         ApplicationTools::displayResult("Yang and Nielsen's Kappa:", modelDiv->parameter("kappa").getValue());
-        ApplicationTools::displayResult("Yang and Nielsen's Distance:", (*matrix)(1,0));
-        if (logFile != "none") {
+        ApplicationTools::displayResult("Yang and Nielsen's Distance:", (*matrix)(1, 0));
+        if (logFile != "none")
+        {
           *cLog << "# dN and dS (Yang and Nielsen's 1998 substitution model)" << endl;
           *cLog << "OmegaDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << modelDiv->parameter("omega").getValue() << endl;
           *cLog << "KappaDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << modelDiv->parameter("kappa").getValue() << endl;
-          *cLog << "DistanceDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << (*matrix)(1,0) << endl;
+          *cLog << "DistanceDiv" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << (*matrix)(1, 0) << endl;
         }
       }
 
@@ -536,10 +613,12 @@ int main(int args, char** argv)
       // +---------+
       else if (cmdName == "MKT")
       {
-        if (!codonAlphabet) {
+        if (!codonAlphabet)
+        {
           throw Exception("MacDonald-Kreitman test can only be performed on a codon alignment. Check the input alphabet!");
         }
-        if (!pscOut) {
+        if (!pscOut)
+        {
           throw Exception("MacDonald-Kreitman test requires at least one outgroup sequence.");
         }
         vector<unsigned int> mktable = SequenceStatistics::mkTable(*pscIn, *pscOut, *gCode);
@@ -547,7 +626,8 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("MK table, Ps:", mktable[1]);
         ApplicationTools::displayResult("MK table, Da:", mktable[2]);
         ApplicationTools::displayResult("MK table, Ds:", mktable[3]);
-        if (logFile != "none") {
+        if (logFile != "none")
+        {
           *cLog << "# MK table" << endl;
           *cLog << "# Pa Ps Da Ds" << endl;
           *cLog << "MKtable" << (toolCounter[cmdName] > 1 ? TextTools::toString(toolCounter[cmdName]) : "") << " = " << mktable[0] << " " << mktable[1] << " " << mktable[2] << " " << mktable[3] << endl;
@@ -559,25 +639,30 @@ int main(int args, char** argv)
       // +-----------------------+
       else if (cmdName == "CodonSiteStatistics")
       {
-        if (!codonAlphabet) {
+        if (!codonAlphabet)
+        {
           throw Exception("CodonSiteStatistics can only be used with a codon alignment. Check the input alphabet!");
         }
         string path = ApplicationTools::getAFilePath("output.file", cmdArgs, true, false);
-        if (path == "none") throw Exception("You must specify an output file for CodonSiteStatistics");
+        if (path == "none")
+          throw Exception("You must specify an output file for CodonSiteStatistics");
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
         out << "Site\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
         out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS";
         bool outgroup = (pscOut && pscOut->getNumberOfSequences() > 0);
         bool minChange = ApplicationTools::getBooleanParameter("complex_codon.min_change", cmdArgs, false);
-        if (outgroup) {
+        if (outgroup)
+        {
           ApplicationTools::displayResult("Complex codons path", minChange ? "min non-synonymous" : "equal weight");
           out << "\tOutgroupAllele";
         }
-        if (estimateAncestor) {
+        if (estimateAncestor)
+        {
           out << "\tAncestralAllele";
         }
-        if (outgroup) {
+        if (outgroup)
+        {
           out << "\tMeanNumberSynPosDiv\tdN\tdS";
         }
         out << endl;
@@ -585,15 +670,17 @@ int main(int args, char** argv)
         unique_ptr<SiteContainerInterface> sitesIn(pscIn->toSiteContainer());
         unique_ptr<SiteContainerInterface> sitesOut;
         shared_ptr<SiteContainerInterface> consensus(new VectorSiteContainer(pscIn->getAlphabet()));
-        if (outgroup) {
+        if (outgroup)
+        {
           sitesOut = pscOut->toSiteContainer();
           unique_ptr<Sequence> inseq(SiteContainerTools::getConsensus(*sitesIn, "ingroup", true, false));
-          consensus->addSequence("InGroup",inseq);
+          consensus->addSequence("InGroup", inseq);
           unique_ptr<Sequence> outseq(SiteContainerTools::getConsensus(*sitesOut, "outgroup", true, false));
-          consensus->addSequence("OutGroup",outseq);
+          consensus->addSequence("OutGroup", outseq);
         }
 
-        for (size_t i = 0; i < sitesIn->getNumberOfSites(); ++i) {
+        for (size_t i = 0; i < sitesIn->getNumberOfSites(); ++i)
+        {
           const Site& site = sitesIn->site(i);
           map<int, size_t> counts;
           SymbolListTools::getCounts(site, counts);
@@ -606,76 +693,95 @@ int main(int args, char** argv)
           for (map<int, size_t>::iterator it = counts.begin(); it != counts.end(); it++)
           {
             if (!alphabet->isUnresolved(it->first)
-              && !alphabet->isGap(it->first)) {
-              nbAlleles++; 
-              if (it->second != 0) {
-                if (it->second < minFreq) {
+                && !alphabet->isGap(it->first))
+            {
+              nbAlleles++;
+              if (it->second != 0)
+              {
+                if (it->second < minFreq)
+                {
                   minFreq = it->second;
-                  minState = it->first;        
+                  minState = it->first;
                 }
-                if (it->second > maxFreq) {
+                if (it->second > maxFreq)
+                {
                   maxFreq = it->second;
                   maxState = it->first;
                 }
               }
-            } else {
-              nbMissing += it->second;            
+            }
+            else
+            {
+              nbMissing += it->second;
             }
           }
 
           out << site.getCoordinate() << "\t";
           out << nbMissing << "\t";
           out << nbAlleles << "\t";
-          if (nbAlleles > 0) {
-            //The site is not exclusively made of missing data        
+          if (nbAlleles > 0)
+          {
+            // The site is not exclusively made of missing data
             out << minFreq << "\t";
             out << maxFreq << "\t";
             out << alphabet->intToChar(minState) << "\t";
             out << alphabet->intToChar(maxState) << "\t";
-            if (estimateAncestor) {
+            if (estimateAncestor)
+            {
               out << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa) << "\t";
-            } else {
+            }
+            else
+            {
               out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
             }
             out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
             out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
             out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
             out << CodonSiteTools::piSynonymous(site, *gCode);
-          } else {
-            out << "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA";        
+          }
+          else
+          {
+            out << "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA";
           }
 
-          if (outgroup) {
-            out << "\t" << pscOut->sequence(0).getChar(i); 
+          if (outgroup)
+          {
+            out << "\t" << pscOut->sequence(0).getChar(i);
           }
-          if (estimateAncestor) {
-            out << "\t" << (nbAlleles == 0 ? "NNN" : ancestralSequence->getChar(i)); 
+          if (estimateAncestor)
+          {
+            out << "\t" << (nbAlleles == 0 ? "NNN" : ancestralSequence->getChar(i));
           }
-          if (outgroup) {
-            //Add divergence
+          if (outgroup)
+          {
+            // Add divergence
             int ingroupState = consensus->sequence(0)[i];
             int outgroupState = consensus->sequence(1)[i];
-            if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState) || nbAlleles == 0) {
+            if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState) || nbAlleles == 0)
+            {
               out << "\tNA\tNA\tNA";
-            } else {
+            }
+            else
+            {
               out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
-                                     CodonSiteTools::numberOfSynonymousPositions(ingroupState, *gCode, kappa)) / 2.;
-              //Compare with outgroup:
+              CodonSiteTools::numberOfSynonymousPositions(ingroupState, *gCode, kappa)) / 2.;
+              // Compare with outgroup:
               double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, ingroupState, *codonAlphabet));
-              double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, ingroupState, *gCode, minChange); 
+              double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, ingroupState, *gCode, minChange);
               out << "\t" << (nt - ns) << "\t" << ns;
-              //double nt2 = CodonSiteTools::numberOfSubstitutions(consensus->getSite(i), *gCode);
-              //double nn2 = CodonSiteTools::numberOfNonSynonymousSubstitutions(consensus->getSite(i), *gCode);
-              //out << "\t" << nn2 << "\t" << (nt2 - nn2);
+              // double nt2 = CodonSiteTools::numberOfSubstitutions(consensus->getSite(i), *gCode);
+              // double nn2 = CodonSiteTools::numberOfNonSynonymousSubstitutions(consensus->getSite(i), *gCode);
+              // out << "\t" << nn2 << "\t" << (nt2 - nn2);
             }
           }
           out << endl;
         }
       }
-      
-      else throw Exception("Unknown operation " + cmdName + ".");
+
+      else
+        throw Exception("Unknown operation " + cmdName + ".");
     }
- 
+
     // We're done!
     bpppopstats.done();
   }
@@ -689,4 +795,3 @@ int main(int args, char** argv)
 
   return 0;
 }
-

@@ -80,8 +80,8 @@ struct rangeLik
   rangeLik() :
     lik_(0),
     range_()
-  {};
-  
+  {}
+
   std::shared_ptr<LikelihoodCalculationSingleProcess> lik_;   // LikelihoodCalculationSingleProcess used
   std::vector<size_t> range_;    // vector of the positions for this process
 };
@@ -91,8 +91,8 @@ struct rangeProc
   rangeProc() :
     proc_(0),
     range_()
-  {};
-  
+  {}
+
   std::shared_ptr<const SubstitutionProcessInterface> proc_;   // LikelihoodCalculationSingleProcess used
   std::vector<size_t> range_;    // vector of the positions for this process
 };
@@ -119,27 +119,27 @@ int main(int args, char** argv)
     bppbranchlik.startTimer();
 
     Context context;
-    
+
     ///// Alphabet
 
     shared_ptr<const Alphabet> alphabet(bppbranchlik.getAlphabet());
 
     /// GeneticCode
-    
+
     shared_ptr<const GeneticCode> gCode(bppbranchlik.getGeneticCode(alphabet));
 
     // get the data
 
     auto mSitesuniq = bppbranchlik.getConstAlignmentsMap(alphabet, true);
 
-    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface > > mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const TemplateAlignmentDataInterface<string>>(mSitesuniq);
+    const std::map<size_t, std::shared_ptr<const AlignmentDataInterface >> mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const TemplateAlignmentDataInterface<string>>(mSitesuniq);
 
-    if (mSites.size()!=1)
+    if (mSites.size() != 1)
       throw Exception("Only one alignment possible.");
 
     auto sites = mSites.begin()->second;
     const size_t nSites = sites->getNumberOfSites();
-        
+
     /////// Get the map of initial trees
 
     map<string, string> unparsedParams;
@@ -151,9 +151,9 @@ int main(int args, char** argv)
 
 
     shared_ptr<SubstitutionProcessCollection> SPC(bppbranchlik.getCollection(alphabet, gCode, mSites, mpTree, unparsedParams));
-    
+
     auto mSeqEvoltmp = bppbranchlik.getProcesses(SPC, unparsedParams);
-    
+
     auto mSeqEvol = PhylogeneticsApplicationTools::uniqueToSharedMap<SequenceEvolution>(mSeqEvoltmp);
 
     auto mPhyl(bppbranchlik.getPhyloLikelihoods(context, mSeqEvol, SPC, mSites));
@@ -161,16 +161,16 @@ int main(int args, char** argv)
     if (!mPhyl->hasPhyloLikelihood(0))
       throw Exception("Missing phyloLikelihoods.");
 
-    auto tl=dynamic_pointer_cast<AlignedPhyloLikelihoodInterface>((*mPhyl)[0]);
+    auto tl = dynamic_pointer_cast<AlignedPhyloLikelihoodInterface>((*mPhyl)[0]);
 
-    if (tl==0)
+    if (tl == 0)
       throw Exception("Only possible on aligned phyloLikelihood.");
-        
-    //Check initial likelihood:
-      
+
+    // Check initial likelihood:
+
     bppbranchlik.fixLikelihood(alphabet, gCode, tl);
 
-    
+
     // /////////////////////////////////////////////
     // Get the alternate process
 
@@ -179,14 +179,14 @@ int main(int args, char** argv)
     ApplicationTools::displayResult("Alternative process", altprocnum);
 
     std::map<size_t, rangeProc> maltproc;
-    
+
     if (SPC->hasSubstitutionProcessNumber(altprocnum))
     {
       rangeProc rl;
-      rl.proc_=SPC->getSubstitutionProcess(altprocnum);
-      rl.range_=std::vector<size_t>(nSites);
+      rl.proc_ = SPC->getSubstitutionProcess(altprocnum);
+      rl.range_ = std::vector<size_t>(nSites);
       std::iota(rl.range_.begin(), rl.range_.end(), 0);
-      maltproc[1]=rl;
+      maltproc[1] = rl;
     }
     else
     {
@@ -206,12 +206,12 @@ int main(int args, char** argv)
         rangeProc rl;
         rl.proc_ = partev->getSubstitutionProcess(proc.first);
         rl.range_ = proc.second;
-        maltproc[proc.first]=rl;
+        maltproc[proc.first] = rl;
       }
     }
-    
+
     // Up to now only for simple Seq Evolution
-    
+
 
     // get the branch numbers of tree for alt process: all process must have the same numbers
     std::vector<uint> brnum;
@@ -220,25 +220,23 @@ int main(int args, char** argv)
       const auto& brn = prn.second.proc_->parametrizablePhyloTree().getAllEdgesIndexes();
       if (brnum.size() == 0)
         brnum = brn;
-      else
-        if (brn != brnum)
-          throw BadIntegerException("Non compatible trees in alternative process ", static_cast<int>(altprocnum));
+      else if (brn != brnum)
+        throw BadIntegerException("Non compatible trees in alternative process ", static_cast<int>(altprocnum));
     }
-
 
 
     // Set up segmentation of data following likelihoods
     std::map<size_t, rangeLik> mlik; // Vector of which likelihood calculation of the main phylo is assessed to each site
-    
+
     auto calc = dynamic_pointer_cast<LikelihoodCalculationSingleProcess>(tl->getAlignedLikelihoodCalculation());
 
     if (calc)
     {
       rangeLik rl;
-      rl.lik_=calc;
-      rl.range_=std::vector<size_t>(nSites);
+      rl.lik_ = calc;
+      rl.range_ = std::vector<size_t>(nSites);
       std::iota(rl.range_.begin(), rl.range_.end(), 0);
-      mlik[1]=rl;
+      mlik[1] = rl;
     }
     else
     {
@@ -261,10 +259,10 @@ int main(int args, char** argv)
         else
           throw Exception("LikelihoodSingleProcess not available for phylolikelihood " + TextTools::toString(proc.first));
         rl.range_ = proc.second;
-        mlik[proc.first]=rl;
+        mlik[proc.first] = rl;
       }
     }
-    
+
     // Output Format
 
     string outputDesc = ApplicationTools::getStringParameter("output.lik", bppbranchlik.getParams(), "PerBranch(file=outlik.txt)");
@@ -273,24 +271,27 @@ int main(int args, char** argv)
     map<string, string> outputArgs;
     KeyvalTools::parseProcedure(outputDesc, outputType, outputArgs);
 
-    bool perSite=(outputType.find("Site")!=string::npos);
-    
+    bool perSite = (outputType.find("Site") != string::npos);
+
     string outputFile = ApplicationTools::getStringParameter("file", outputArgs, "", "", true, 1);
     ofstream out(outputFile.c_str(), ios::out);
     out << std::setprecision(12);
 
-    ApplicationTools::displayResult("Type of output", perSite?"perSitePerBranch":"PerBranch");
+    ApplicationTools::displayResult("Type of output", perSite ? "perSitePerBranch" : "PerBranch");
     ApplicationTools::displayResult("Output file", outputFile);
 
     // DataTable for output
     vector<string> colNames;
     shared_ptr<DataTable> rates;
 
-    if (perSite){
+    if (perSite)
+    {
       colNames.push_back("Sites");
 
       for (auto edgeid:brnum)
+      {
         colNames.push_back(TextTools::toString(edgeid));
+      }
 
       rates = make_shared<DataTable>(nSites, colNames.size());
       rates->setColumnNames(colNames);
@@ -309,7 +310,7 @@ int main(int args, char** argv)
     }
 
     // Now branch wise computation
-    
+
     for (auto edgeid:brnum)
     {
       double value = 0;
@@ -322,39 +323,39 @@ int main(int args, char** argv)
 
         for (const auto& pproc:maltproc)
         {
-          const auto& rangealt=pproc.second.range_;
+          const auto& rangealt = pproc.second.range_;
 
-          if ((rangealt.back()<rangelik[0]) || (rangealt[0]>rangelik.back()))
+          if ((rangealt.back() < rangelik[0]) || (rangealt[0] > rangelik.back()))
             continue;
 
-          auto altmodel = std::unique_ptr<BranchModelInterface>(pproc.second.proc_->model(edgeid,0).clone());
+          auto altmodel = std::unique_ptr<BranchModelInterface>(pproc.second.proc_->model(edgeid, 0).clone());
           auto confmodel = ConfiguredParametrizable::createConfigured<BranchModelInterface, ConfiguredModel>(context, std::move(altmodel));
-          
+
           obp.setModel(confmodel);
-        
+
           const auto& vl = obp.getLikelihoodPerSite();
-          
-          size_t poslik=0;
-          while (rangelik[poslik]<rangealt[0])
+
+          size_t poslik = 0;
+          while (rangelik[poslik] < rangealt[0])
             poslik++;
-          
-          size_t posalt=0;
-          while (rangealt[posalt]<rangelik[0])
+
+          size_t posalt = 0;
+          while (rangealt[posalt] < rangelik[0])
             posalt++;
-          
-          while (poslik<rangelik.size() && posalt<rangealt.size())
+
+          while (poslik < rangelik.size() && posalt < rangealt.size())
           {
-            if (rangealt[posalt]<rangelik[poslik])
+            if (rangealt[posalt] < rangelik[poslik])
             {
               posalt++;
               continue;
             }
-            if (rangelik[poslik]<rangealt[posalt])
+            if (rangelik[poslik] < rangealt[posalt])
             {
               poslik++;
               continue;
             }
-            
+
             if (perSite)
               (*rates)(rangealt[posalt], TextTools::toString(edgeid)) = TextTools::toString(log(vl[poslik]));
             else
@@ -365,22 +366,22 @@ int main(int args, char** argv)
           }
         }
       }
-      
+
       if (!perSite)
       {
         out << edgeid << "\t" << value << "\n";
       }
     }
-    
+
     if (perSite)
     {
       DataTable::write(*rates, out, "\t");
     }
-    
+
     ApplicationTools::displayMessage("\n");
     bppbranchlik.done();
   }
-  
+
   catch (exception& e)
   {
     cout << e.what() << endl;
@@ -389,4 +390,3 @@ int main(int args, char** argv)
 
   return 0;
 }
-

@@ -83,7 +83,7 @@ int main(int args, char** argv)
 
     // Get the reference alignment:
     shared_ptr<SiteContainerInterface> sitesRef;
-    
+
     sitesRef = SequenceApplicationTools::getSiteContainer(alphabet, bppalnscore.getParams(), ".ref", false, true);
 
     // We check if the two alignments are compatible:
@@ -98,7 +98,7 @@ int main(int args, char** argv)
         ApplicationTools::displayGauge(i, namesTest.size() - 1);
         try
         {
-          auto seq=unique_ptr<Sequence>(sitesRef->sequence(namesTest[i]).clone());
+          auto seq = unique_ptr<Sequence>(sitesRef->sequence(namesTest[i]).clone());
           tmp->addSequence(namesRef[i], seq);
         }
         catch (SequenceNotFoundException& ex)
@@ -141,7 +141,7 @@ int main(int args, char** argv)
         // We look for the first occurrence of the given motif:
         try
         {
-          auto alpha=sitesTest->getAlphabet();
+          auto alpha = sitesTest->getAlphabet();
           Sequence motif("motif", phaseOpt, alpha);
           ApplicationTools::displayResult("Phase based on 1st occurrence of", motif.toString());
           size_t pos = sitesTest->getNumberOfSites();
@@ -221,21 +221,23 @@ int main(int args, char** argv)
       size_t s = alphabet->getStateCodingSize();
       for (size_t i = 0; i < cs.size(); ++i)
       {
-        if (cs[i] == 1 && i > 0 && cs[i-1] != 1)
+        if (cs[i] == 1 && i > 0 && cs[i - 1] != 1)
           csBeg = i;
-        if (cs[i] != 1 && i > 0 && cs[i-1] == 1) {
+        if (cs[i] != 1 && i > 0 && cs[i - 1] == 1)
+        {
           csEnd = i;
           csRanges.addRange(Range<size_t>(csBeg * s, csEnd * s));
         }
 
-        if (sps[i] >= spsThreshold && i > 0 && sps[i-1] < spsThreshold)
+        if (sps[i] >= spsThreshold && i > 0 && sps[i - 1] < spsThreshold)
           spsBeg = i;
-        if (sps[i] < spsThreshold && i > 0 && sps[i-1] >= spsThreshold) {
+        if (sps[i] < spsThreshold && i > 0 && sps[i - 1] >= spsThreshold)
+        {
           spsEnd = i;
           spsRanges.addRange(Range<size_t>(spsBeg * s, spsEnd * s));
         }
       }
-      //Add the last range if any:
+      // Add the last range if any:
       if (cs.back() == 1)
         csRanges.addRange(Range<size_t>(csBeg * s, cs.size() * s));
       if (sps.back() >= spsThreshold)
@@ -259,4 +261,3 @@ int main(int args, char** argv)
 
   return 0;
 }
-
