@@ -5,7 +5,7 @@
 
 ## The Bio++ Program Suite
 
-[Programs][^1] for sequence analysis, phylogenetics, population genetics, and molecular evolution, written with the [Bio++ libraries][^2].
+Programs[^1] for sequence analysis, phylogenetics, population genetics, and molecular evolution, written with the Bio++ libraries[^2].
 
 Executables for Linux 64 bits systems are available from [here](https://github.com/BioPP/bppsuite/releases).
 
