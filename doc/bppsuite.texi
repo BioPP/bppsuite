@@ -913,6 +913,15 @@ Lartillot 2008, with a given number (@var{nbCat}) of profiles. See the
 @uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LGL08__CAT.html#details,
 Bio++ description, Bio++ description}.
 
+@item @anchor{model protein Coala}
+@item Coala(exch=@{model name@}, nbrAxes=@{integer@} ,data=@{integer@})
+Coala model, where amino acid equilibrium frequencies are
+parameterized through coordinates on main COA axes, computed from the
+data. From Groussin, Boussau, Gouy 2015. @var{exch} describes the
+exchangeability matrix from an available protein model, @var{nbrAxes}
+sets the numbre of axes used in the COA, and @var{data} refers to the
+number of the data used for the COA.
+
 @item @anchor{model protein DSO78+F}
 @item  DSO78+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., initFreqs])
 Protein substitution model, using the dcmutt implementation of Kosiol

@@ -15,6 +15,20 @@ install_manifest.txt
 .clang*
 *.sw*
 build
+bppSuite/bppalnscore
+bppSuite/bppancestor
+bppSuite/bppbranchlik
+bppSuite/bppconsense
+bppSuite/bppdist
+bppSuite/bppllik
+bppSuite/bppmixedlikelihoods
+bppSuite/bppml
+bppSuite/bpppars
+bppSuite/bpppopstats
+bppSuite/bppreroot
+bppSuite/bppseqgen
+bppSuite/bppseqman
+bppSuite/bpptreedraw
 
 # file to be specifically not ignored by previous rules
 

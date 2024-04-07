@@ -1,0 +1,92 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
+# Global variables:
+DATA = LSU
+
+# Sequences:
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=DNA
+
+# The sequence file to use (sequences must be aligned!)
+input.data1=alignment(file=../../../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+
+
+# ----------------------------------------------------------------------------------------
+#                                     Input tree file
+# ----------------------------------------------------------------------------------------
+
+# user or random
+input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+# See the manual for a description of the syntax and available options.
+#
+
+model1 = HKY85(kappa=3, initFreqs=observed, data=1)
+
+model2 = HKY85(kappa=3, initFreqs=observed, data=1)
+
+root_freq1  = GC()
+
+process1 = Homogeneous(model=1, tree=1, rate=1, root_freq=1)
+
+process2 = Homogeneous(model=2, tree=1, rate=1)
+
+process3 = Partition(process1=1, process1.sites=(1:1000,2000:2353), process2=2, process2.sites=1001:1999)
+
+phylo1 = Single(process=3, data=1)
+
+# ----------------------------------------------------------------------------------------
+#                                     Optimization
+# ----------------------------------------------------------------------------------------
+
+# Should we reestimate likelihood parameters? Tree topology will not be optimized.
+# (recommanded)
+# Method to use for optimizing numerical parameters:
+# - None, no optimization performed
+# - DB derivatives for branch lengths + Brent for other parameters
+# - FullD derivatives for all parameters, using numerical derivatives for non-branch lengths parameters.
+optimization = FullD(derivatives=Newton)
+
+# Tell if the parameter should be transformed in order to remove constraints.
+# This can improve the optimization, but might be a bit slower.
+# optimization.reparametrization = yes
+
+# Final optimization step, may be useful if numerical derivatives are used:
+# powell or simplex or none.
+optimization.final = none
+
+# Set the quantity of output to the screen:
+optimization.verbose = 3
+
+# Parameters to ignore (for instance equilibrium frequencies)
+optimization.ignore_parameters =
+
+# Maximum number of likelihood evaluations:
+optimization.max_number_f_eval = 1000
+
+# Precision to reach:
+optimization.tolerance = 0.000001
+
+# idem for error or warning messages:
+optimization.message_handler = $(DATA).messages
+
+# A file where to dump optimization steps (a file path or std for standard output)
+optimization.profiler = $(DATA).profile
+
+# Should we write the resulting tree? none or file name.
+output.tree.file = $(DATA).ML.dnd
+output.tree.format = Newick
+
+# Alignment information log file (site specific rates, etc):
+output.infos = $(DATA).infos
+
+# Write numerical parameter estimated values:
+output.estimates = $(DATA).params.txt
+
