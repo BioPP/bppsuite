@@ -11,6 +11,7 @@ Executables for Linux 64 bits systems are available from [here](https://github.c
 
 The Bio++ programs use the BppO syntaxe to parameterize option files (see the documentation for more details), and output results in the [Site/Group Extended Data format](https://jydu.github.io/sgedtools/).
 
+---
 
-[^1]: https://doi.org/10.1186/1471-2148-8-255
-[^2]: https://doi.org/10.1093/molbev/mst097 
+[^1]: [https://doi.org/10.1186/1471-2148-8-255](https://doi.org/10.1186/1471-2148-8-255)
+[^2]: [https://doi.org/10.1093/molbev/mst097](https://doi.org/10.1093/molbev/mst097)
