@@ -18,7 +18,7 @@ using namespace std;
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/SiteContainerTools.h>
-#include <Bpp/Seq/App/BppSequenceApplication.h>
+#include <Bpp/Seq/Io/IoDistanceMatrixFactory.h>
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Text/KeyvalTools.h>
@@ -27,9 +27,9 @@ using namespace std;
 // From PhylLib:
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/PatternTools.h>
+#include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/Io/IoDistanceMatrixFactory.h>
 #include <Bpp/Phyl/Distance/DistanceEstimation.h>
 #include <Bpp/Phyl/Distance/PGMA.h>
 #include <Bpp/Phyl/Distance/BioNJ.h>
@@ -65,7 +65,9 @@ int main(int args, char** argv)
 
   try
   {
-    BppSequenceApplication bppdist(args, argv, "BppDist");
+    Context context;
+
+    BppPhylogeneticsApplication bppdist(args, argv, "BppDist");
     bppdist.startTimer();
 
     std::shared_ptr<const Alphabet> alphabet = bppdist.getAlphabet();
@@ -74,35 +76,47 @@ int main(int args, char** argv)
 
     auto gCode(bppdist.getGeneticCode(alphabet));
 
-    // sites
+    ////// Get the map of the sequences
 
-    auto allSites = SequenceApplicationTools::getSiteContainer(alphabet, bppdist.getParams());
+    auto mSitesuniq = bppdist.getConstAlignmentsMap(alphabet, true);
 
-    shared_ptr<VectorSiteContainer> sites = SequenceApplicationTools::getSitesToAnalyse(*allSites, bppdist.getParams());
+    std::map<size_t, std::shared_ptr<const AlignmentDataInterface >> mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const TemplateAlignmentDataInterface<string>>(mSitesuniq);
 
-    // model
+    if (mSites.find(1)==mSites.end())
+      throw Exception("Missing number 1 for data.");
+    
+    auto align = mSites[1];
 
+    // Build a random tree from data 1, used to construct processes
     map<string, string> unparsedparams;
 
-    std::shared_ptr<BranchModelInterface> model = PhylogeneticsApplicationTools::getBranchModel(alphabet, gCode, sites, bppdist.getParams(), unparsedparams);
+    map<string, string> args2;
+    args2["input.tree1"]="random(data=1)";
+    
+    auto mpTree = PhylogeneticsApplicationTools::getPhyloTrees(args2, mSites, unparsedparams);
 
-    if (!model)
-      ApplicationTools::displayMessage("bppDist available only for regular transition models, not the given one.");
+    // process & phyloli
+    auto SPC = std::shared_ptr<SubstitutionProcessCollection>(bppdist.getCollection(alphabet, gCode, mSites, mpTree, unparsedparams).release());;
 
+    /// Only simple processes
+    auto mSeqEvoltmp = bppdist.getProcesses(SPC, unparsedparams);
 
-    std::shared_ptr<DiscreteDistributionInterface> rDist;
-    if (model->getNumberOfStates() > model->getAlphabet()->getSize())
-    {
-      // Markov-modulated Markov model!
-      rDist = std::shared_ptr<ConstantRateDistribution>();
-    }
-    else
-    {
-      rDist = std::shared_ptr<DiscreteDistributionInterface>(PhylogeneticsApplicationTools::getRateDistribution(bppdist.getParams()));
-    }
+    map<size_t, shared_ptr<SequenceEvolution>> mSeqEvol = PhylogeneticsApplicationTools::uniqueToSharedMap<SequenceEvolution>(mSeqEvoltmp);
 
-    DistanceEstimation distEstimation(model, rDist, sites, 1, false);
+    args2["phylo1"]="Single(process=1, data=1)";
+    auto mPhyl = PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, SPC, mSeqEvol, mSites, args2);
 
+    //////////////////////////////////////////////////////////
+    /// Now get distEstimation
+    // Only Model 1 is considered
+
+    if (!SPC->hasSubstitutionProcessNumber(1))
+      throw Exception("Missing process 1.");
+    auto process = SPC->getSubstitutionProcess(1);
+
+    DistanceEstimation distEstimation(process, align, 1, false);
+
+    /// Dist Method
     string method = ApplicationTools::getStringParameter("method", bppdist.getParams(), "nj");
     ApplicationTools::displayResult("Tree reconstruction method", method);
 
@@ -142,80 +156,28 @@ int main(int args, char** argv)
     else
       throw Exception("Unknown parameter estimation procedure '" + type + "'.");
 
-    unsigned int optVerbose = ApplicationTools::getParameter<unsigned int>("optimization.verbose", bppdist.getParams(), 2);
+    //// Optimization
+    
+    auto lcp = std::make_shared<LikelihoodCalculationSingleProcess>(context, align, process);
+    auto lik = std::make_shared<SingleProcessPhyloLikelihood>(context, lcp);
+    
+    OptimizationTools::OptimizationOptions optopt(lik,bppdist.getParams());
 
-    string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", bppdist.getParams(), false, false);
-    auto messenger = shared_ptr<OutputStream>(
-          (mhPath == "none") ? 0 :
-          (mhPath == "std") ? ApplicationTools::message.get() :
-          new StlOutputStream(make_unique<ofstream>(mhPath.c_str(), ios::out)));
+    tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, type, optopt);
 
-    ApplicationTools::displayResult("Message handler", mhPath);
-
-    string prPath = ApplicationTools::getAFilePath("optimization.profiler", bppdist.getParams(), false, false);
-    auto profiler = shared_ptr<OutputStream>(
-          (prPath == "none") ? 0 :
-          (prPath == "std") ? ApplicationTools::message.get() :
-          new StlOutputStream(make_unique<ofstream>(prPath.c_str(), ios::out)));
-
-    if (profiler)
-      profiler->setPrecision(20);
-    ApplicationTools::displayResult("Profiler", prPath);
-
-    // Should I ignore some parameters?
-    ParameterList allParameters = model->getParameters();
-    allParameters.addParameters(rDist->getParameters());
-    ParameterList parametersToIgnore;
-    string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", bppdist.getParams(), "", "", true, false);
-    bool ignoreBrLen = false;
-    StringTokenizer st(paramListDesc, ",");
-    while (st.hasMoreToken())
-    {
-      try
-      {
-        string param = st.nextToken();
-        if (param == "BrLen")
-          ignoreBrLen = true;
-        else
-        {
-          if (allParameters.hasParameter(param))
-          {
-            Parameter* p = &allParameters.parameter(param);
-            parametersToIgnore.addParameter(*p);
-          }
-          else
-            ApplicationTools::displayWarning("Parameter '" + param + "' not found.");
-        }
-      }
-      catch (ParameterNotFoundException& pnfe)
-      {
-        ApplicationTools::displayError("Parameter '" + pnfe.parameter() + "' not found, and so can't be ignored!");
-      }
-    }
-
-    unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", bppdist.getParams(), 1000000);
-    ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
-
-    double tolerance = ApplicationTools::getDoubleParameter("optimization.tolerance", bppdist.getParams(), .000001);
-    ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
-
-    // Here it is:
-    ofstream warn("warnings", ios::out);
-    ApplicationTools::warning = std::shared_ptr<OutputStream>(dynamic_cast<OutputStream*>(new StlOutputStreamWrapper(&warn)));
-    tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, parametersToIgnore, !ignoreBrLen, type, tolerance, nbEvalMax, profiler, messenger, optVerbose);
-    warn.close();
-//    delete ApplicationTools::warning;
+    //// Output
     ApplicationTools::warning = ApplicationTools::message;
 
     string matrixPath = ApplicationTools::getAFilePath("output.matrix.file", bppdist.getParams(), false, false, "", false);
     if (matrixPath != "none")
     {
       ApplicationTools::displayResult("Output matrix file", matrixPath);
-      string matrixFormat = ApplicationTools::getAFilePath("output.matrix.format", bppdist.getParams(), false, false, "", false);
+      string matrixFormat = ApplicationTools::getStringParameter("output.matrix.format", bppdist.getParams(), IODistanceMatrixFactory::PHYLIP_FORMAT);
       string format = "";
       bool extended = false;
       std::map<std::string, std::string> unparsedArguments_;
       KeyvalTools::parseProcedure(matrixFormat, format, unparsedArguments_);
+
       if (unparsedArguments_.find("type") != unparsedArguments_.end())
       {
         if (unparsedArguments_["type"] == "extended")
@@ -232,42 +194,30 @@ int main(int args, char** argv)
       else
         ApplicationTools::displayWarning("Argument 'Phylip#type' not found. Default used instead: not extended.");
 
-      ODistanceMatrix* odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT, extended);
+      auto odm = IODistanceMatrixFactory().createWriter(format, extended);
       odm->writeDistanceMatrix(*distEstimation.getMatrix(), matrixPath, true);
-      delete odm;
     }
+    
     PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
 
     // Output some parameters:
-    if (type == OptimizationTools::DISTANCEMETHOD_ITERATIONS)
+    string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppdist.getParams(), false, false);
+    bool withAlias = ApplicationTools::getBooleanParameter("output.estimates.withalias", bppdist.getParams(), true, "", false, 1);
+
+    ApplicationTools::displayResult("output.estimates", parametersFile);
+
+    if (parametersFile != "none")
     {
-      // Write parameters to screen:
-      ParameterList parameters = model->getParameters();
-      for (unsigned int i = 0; i < parameters.size(); i++)
+      StlOutputStream out(make_unique<ofstream>(parametersFile.c_str(), ios::out));
+
+      PhylogeneticsApplicationTools::printParameters(*mPhyl, out);
+
+      PhylogeneticsApplicationTools::printParameters(*SPC, out, 1, withAlias);
+      
+      for (const auto& it2 : mSeqEvol)
       {
-        ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-      }
-      parameters = rDist->getParameters();
-      for (unsigned int i = 0; i < parameters.size(); i++)
-      {
-        ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-      }
-      // Write parameters to file:
-      string parametersFile = ApplicationTools::getAFilePath("output.estimates", bppdist.getParams(), false, false);
-      if (parametersFile != "none")
-      {
-        ofstream out(parametersFile.c_str(), ios::out);
-        parameters = model->getParameters();
-        for (unsigned int i = 0; i < parameters.size(); i++)
-        {
-          out << parameters[i].getName() << " = " << parameters[i].getValue() << endl;
-        }
-        parameters = rDist->getParameters();
-        for (unsigned int i = 0; i < parameters.size(); i++)
-        {
-          out << parameters[i].getName() << " = " << parameters[i].getValue() << endl;
-        }
-        out.close();
+        PhylogeneticsApplicationTools::printParameters(*it2.second, out, it2.first);
+        out.endLine();
       }
     }
 
@@ -275,48 +225,46 @@ int main(int args, char** argv)
     unsigned int nbBS = ApplicationTools::getParameter<unsigned int>("bootstrap.number", bppdist.getParams(), 0);
     if (nbBS > 0)
     {
+      auto sites = dynamic_pointer_cast<const SiteContainerInterface>(align);
+
+      if (sites==0)
+        throw Exception("bppDist: bootstrap yet only for sites. Ask developpers");
+      
       ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
       bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", bppdist.getParams(), true);
       ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
       if (approx)
-      {
         type = OptimizationTools::DISTANCEMETHOD_INIT;
-        parametersToIgnore = allParameters;
-        ignoreBrLen = true;
-      }
-      bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppdist.getParams(), false, "", true, false);
 
+      bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppdist.getParams(), false, "", true, false);
+      optopt.verbose = bootstrapVerbose;
+      
       string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bppdist.getParams(), false, false);
-      ofstream* out = NULL;
+      shared_ptr<ofstream> out = NULL;
       if (bsTreesPath != "none")
       {
         ApplicationTools::displayResult("Bootstrap trees stored in file", bsTreesPath);
-        out = new ofstream(bsTreesPath.c_str(), ios::out);
+        out = make_shared<ofstream>(bsTreesPath.c_str(), ios::out);
       }
       Newick newick;
 
-      vector<std::unique_ptr<Tree>> bsTrees(nbBS);
+      vector<std::unique_ptr<TreeTemplate<Node>>> bsTrees(nbBS);
       ApplicationTools::displayTask("Bootstrapping", true);
+      // auto vMod = process->getModelNumbers();
+      
       for (unsigned int i = 0; i < nbBS; i++)
       {
         ApplicationTools::displayGauge(i, nbBS - 1, '=');
-        shared_ptr<VectorSiteContainer> sample = SiteContainerTools::bootstrapSites(*sites);
-        auto tm = dynamic_pointer_cast<TransitionModelInterface>(model);
-        if (approx && tm)
-          tm->setFreqFromData(*sample);
-        distEstimation.setData(sample);
-        bsTrees[i] = OptimizationTools::buildDistanceTree(
-              distEstimation,
-              *distMethod,
-              parametersToIgnore,
-              ignoreBrLen,
-              type,
-              tolerance,
-              nbEvalMax,
-              NULL,
-              NULL,
-              (bootstrapVerbose ? 1 : 0)
-              );
+        auto sample = SiteContainerTools::bootstrapSites(*sites);
+        // if (approx)
+        //   for (auto modi:vMod)
+        //   {
+        //     auto& model = dynamic_pointer_cast<AbstractSubstitutionModel>(process->getModel(modi));
+        //     if (model)
+        //       model->setFreqFromData(*sample);
+        //   }
+        distEstimation.setData(shared_ptr<SiteContainerInterface>(sample.release()));
+        bsTrees[i].reset(OptimizationTools::buildDistanceTree(distEstimation, *distMethod, type, optopt).release());
         if (out && i == 0)
           newick.writeTree(*bsTrees[i], bsTreesPath, true);
         if (out && i >  0)
@@ -324,11 +272,9 @@ int main(int args, char** argv)
       }
       if (out)
         out->close();
-      if (out)
-        delete out;
       ApplicationTools::displayTaskDone();
       ApplicationTools::displayTask("Compute bootstrap values");
-      TreeTools::computeBootstrapValues(*tree, bsTrees);
+//      TreeTools::computeBootstrapValues(*tree, bsTrees);
       ApplicationTools::displayTaskDone();
 
       // Write resulting tree:

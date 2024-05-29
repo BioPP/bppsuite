@@ -154,11 +154,7 @@ int main(int args, char** argv)
 
     bppml.fixLikelihood(alphabet, gCode, tl_new);
 
-    // First `true` means that default is to optimize model parameters.
-    if (ApplicationTools::getBooleanParameter("optimization.model_parameters", bppml.getParams(), true, "", true, 1))
-      tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getParameters(), bppml.getParams());
-    else
-      tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, tl_new->getBranchLengthParameters(), bppml.getParams());
+    tl_new = PhylogeneticsApplicationTools::optimizeParameters(tl_new, bppml.getParams());
 
     SPC->matchParametersValues(tl_new->getParameters());
 

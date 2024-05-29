@@ -13,16 +13,8 @@ METHOD = bionj
 alphabet=DNA
 
 # The sequence file to use (sequences must be aligned!)
-input.sequence.file=../Data/$(DATA).phy
+input.data1=alignment(file=../Data/$(DATA).phy, format=Phylip(order=sequential, type=extended), sites_to_use = complete, max_gap_allowed = 100%, selection=1:50)
 
-# The alignment format:
-input.sequence.format=Phylip(order=sequential, type=extended)
-
-#Sites to use:
-# all, nogap or complete (=only resolved chars)
-input.sequence.sites_to_use = complete
-# Specify a maximum amount of gaps: may be an absolute number or a percentage.
-input.sequence.max_gap_allowed=100%
 
 # Output the distance matrix if any.
 output.matrix.file = $(DATA).mat
@@ -32,9 +24,12 @@ output.matrix.file = $(DATA).mat
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
-model = HKY85(kappa=2.843, theta=0.5, theta1=0.5, theta2=0.5, useObservedFrequencies=yes)
+model1 = HKY85(kappa=1, theta=0.5, theta1=0.5, theta2=0.5, useObservedFrequencies=yes)
 
-rate_distribution = Constant() #Gamma(n=4, alpha=0.358)
+rate_distribution1 = Constant() #Gamma(n=4, alpha=0.358)
+
+process1 = Homogeneous(model=1, tree=1, rate=1)
+
 
 # Tree reconstruction method [wpgma|upgma|nj|bionj]
 method = $(METHOD)
@@ -42,9 +37,10 @@ method = $(METHOD)
 // - init = keep as initial values,
 // - pairwise = estimate separately for each pair of sequences,
 // - iterations = use iterations and ML to estimate these parameters globally.
-optimization.method = init
-optimization.verbose = 1
-optimization.ignore_parameter =
+optimization.method = iterations
+optimization = Brent
+optimization.verbose = 2
+optimization.ignore_parameters = Model
 optimization.max_number_f_eval = 10000
 optimization.tolerance = 0.000001
 optimization.message_handler = $(DATA).messages
@@ -54,8 +50,10 @@ optimization.profiler = $(DATA).profile
 output.tree.file = $(DATA).$(METHOD).dnd
 output.tree.format = Newick
 
+output.estimates = $(DATA).params.txt
+
 # Bootstrap:
-bootstrap.number = 10
+bootstrap.number = 0
 bootstrap.approximate = no
 # Set this to yes for detailed output when bootstrapping. 
 bootstrap.verbose = no

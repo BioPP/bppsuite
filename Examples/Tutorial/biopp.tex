@@ -39,13 +39,22 @@ We will give examples how to simulate sequences, perform maximum
 likelihood estimates of models and branch lengths, perform ancestral
 reconstruction and substitution mapping.
 
-All the options are described in bppsuite manual:
+All the options are described in the bppsuite manual:
 
 \url{https://github.com/BioPP/bppsuite/releases/latest/download/bppsuite.html}
 
-\section{Homogeneous simple model}
+\medskip
 
-\subsection*{Maximum Likelihood}
+
+\section{Site process}
+
+The basic brick is the site process. A site process is the necessary
+material to define the evolution of a site : a root, a tree, and a
+model. In bio++, it is possible to mix several roots, trees and models
+in many ways, to define simple to complex site process.
+
+
+\subsubsection*{Maximum Likelihood}
 
 In \texttt{ML\_hom.bpp}, we define an homogeneous model on DNA evolution.
 The results are stored in directory \texttt{hom\_Res}, defined through
@@ -56,7 +65,7 @@ a macro. Make sure this directory exists before executing
   bppml param=hom_ML.bpp
 \end{verbatim}
 
-\subsection*{Ancestral sequence inference}
+\subsubsection*{Ancestral sequence inference}
 
 Given a process and data, it is possible to infer ancestral sequence
 probabilities, using program \texttt{bppancestor}. Usually this is
@@ -67,7 +76,7 @@ case, we use the parameter file \texttt{hom\_Anc.bpp}
   bppancestor param=hom_Anc.bpp
 \end{verbatim}
 
-\section{Non-homogeneous simple model}
+\subsection{Non-homogeneous simple model}
 
 Now, we define several models of the tree, with specific assignations
 to branches. For example, in file \verb#nonhom_ML.bpp#.
@@ -77,7 +86,7 @@ case of trees read from newick files, the branches are numbered in the
 reading order of the description string. In NHX format, branches are
 explicitly numbered, which is much easier to handle.
 
-\subsection*{Aliases}
+\subsubsection*{Aliases}
 
 We see in the declaration of second model
 
@@ -97,7 +106,7 @@ Another way to alias parameters is through the line:
 which means that kappa parameter model HKY85 is equal to kappa
 parameter of model T92.
 
-\subsection*{Substitution rates}
+\subsubsection*{Substitution rates}
 
 In this example, we define a distribution of substitution rates:
 
@@ -113,9 +122,9 @@ distribution are written in the info file \verb|aln1.infos_1|. We can
 see that for non-constant sites the \textit{posterior}
 probabilities of the first class (the invariant class) are quasi null.
 
-\section{Computing on several data}
+\subsection{Computing on several data}
 
-\subsection{Shared process}
+\subsubsection{Shared process}
 
 In \verb#multidata_ML.bpp#, we compute the likelihood of the same
 process as before on two alignments. 
@@ -136,7 +145,7 @@ to define its own calculation, such as:
   result=phylo1 + phylo2/2
 \end{verbatim}
 
-\subsection{Several processes}
+\subsubsection{Several processes}
 
 If we want to compute likelihood on several data with different trees,
 we have to define several processes. See \verb#multiProc_ML.bpp#.
@@ -148,11 +157,12 @@ convenient. See \verb#multiProcNHX_ML.bpp#, where the matching
 branches of trees from files \verb#aln1.nhx# and \verb#aln2.nhx# are
 linked. 
 
-\section{Mixing processes}
+\section{Sequence processes}
 
-It is also possible to mix several processes, in a predetermined or
-probabilistic (mixture or HMM) way. In the following examples, both
-processes differ on the topology of the tree.
+It is also possible to model the evolution of a sequence through
+several processes, in a predetermined or probabilistic (mixture or
+HMM) way. In the following examples, both processes differ on the
+topology of the tree.
 
 In \verb#partition_ML.bpp#, an \textit{a priori} partition of the data
 is proposed, defined in \verb#process3#, which uses \verb#process1#
