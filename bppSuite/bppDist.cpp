@@ -13,6 +13,7 @@ using namespace std;
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Io/FileTools.h>
 #include <Bpp/Text/TextTools.h>
+#include <Bpp/Text/KeyvalTools.h>
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
@@ -21,10 +22,10 @@ using namespace std;
 #include <Bpp/Seq/Io/IoDistanceMatrixFactory.h>
 #include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
-#include <Bpp/Text/KeyvalTools.h>
+#include <Bpp/Seq/Io/IoDistanceMatrixFactory.h>
 
 
-// From PhylLib:
+// From bpp-phyl:
 #include <Bpp/Phyl/Tree/Tree.h>
 #include <Bpp/Phyl/PatternTools.h>
 #include <Bpp/Phyl/App/BppPhylogeneticsApplication.h>
@@ -194,7 +195,7 @@ int main(int args, char** argv)
       else
         ApplicationTools::displayWarning("Argument 'Phylip#type' not found. Default used instead: not extended.");
 
-      auto odm = IODistanceMatrixFactory().createWriter(format, extended);
+      auto odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT, extended);
       odm->writeDistanceMatrix(*distEstimation.getMatrix(), matrixPath, true);
     }
     

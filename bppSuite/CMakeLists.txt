@@ -2,11 +2,6 @@
 #
 # SPDX-License-Identifier: CECILL-2.1
 
-# CMake script for Bio++ Program Suite
-# Authors:
-#   Julien Dutheil
-#   Francois Gindraud (2017)
-# Created: 22/08/2009
 
 # Executables of bppsuite.
 # Generation of targets from file name is not automated in case of executables not following the pattern.
