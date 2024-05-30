@@ -115,7 +115,7 @@ int main(int args, char** argv)
       throw Exception("Missing process 1.");
     auto process = SPC->getSubstitutionProcess(1);
 
-    DistanceEstimation distEstimation(process, align, 1, false);
+    DistanceEstimation distEstimation(process, align, 1, false); //!process is shared between distEstimation & collection
 
     /// Dist Method
     string method = ApplicationTools::getStringParameter("method", bppdist.getParams(), "nj");
@@ -237,9 +237,9 @@ int main(int args, char** argv)
       if (approx)
         type = OptimizationTools::DISTANCEMETHOD_INIT;
 
-      bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppdist.getParams(), false, "", true, false);
+      uint bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppdist.getParams(), false, "", true, false);
       optopt.verbose = bootstrapVerbose;
-      
+
       string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bppdist.getParams(), false, false);
       shared_ptr<ofstream> out = NULL;
       if (bsTreesPath != "none")
@@ -265,6 +265,8 @@ int main(int args, char** argv)
         //       model->setFreqFromData(*sample);
         //   }
         distEstimation.setData(shared_ptr<SiteContainerInterface>(sample.release()));
+        auto procMb3 = dynamic_pointer_cast<const SubstitutionProcessCollectionMember>(distEstimation.getProcess());
+
         bsTrees[i].reset(OptimizationTools::buildDistanceTree(distEstimation, *distMethod, type, optopt).release());
         if (out && i == 0)
           newick.writeTree(*bsTrees[i], bsTreesPath, true);
