@@ -31,7 +31,7 @@ IF(NO_DEP_CHECK)
 ELSE(NO_DEP_CHECK)
 
 #This creates rpm packages:
-ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz DEPENDS dist info man)
+ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz DEPENDS dist info)
 
 #static linkage?
 IF(NOT BUILD_STATIC)
@@ -91,7 +91,6 @@ find_package (Eigen3 3.3 REQUIRED PATHS /usr/lib NO_MODULE)
 # Subdirectories
 add_subdirectory (bppSuite)
 add_subdirectory (doc)
-add_subdirectory (man)
 
 ENDIF(NO_DEP_CHECK)
 
