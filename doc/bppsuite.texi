@@ -2614,25 +2614,23 @@ model2 = T92(theta=0.39, kappa=T92.kappa_1)
 @end example
 @end cartouche
 
-Parameters can be linked between objects in the usual way (see
-@pxref{Linking}), or using @command{likelihood.alias}, for example to
-linked branch lengths.
+Parameters can also be linked out of objects, using their name. For example to linked branch lengths:
 
 @cartouche
 @example
-likelihood.alias= BrLen3_2-> BrLen0_1, BrLen3_2-> BrLen1_1
+BrLen3_2 = BrLen0_1
+BrLen3_2 = BrLen1_1
 @end example
 @end cartouche
 
-where each alias is described as `param1->param2'. The full name of
-the parameters has to be used, see for example:
+The full name of the parameters has to be used, see for example:
 
 @cartouche
 @example
 model1 = T92(theta=0.4, kappa=4)
 model2 = GTR(theta=0.4, a = 1.1, b=0.4, c=0.4, d=0.25, e=0.1)
 
-likelihood.alias=GTR.theta1_2->T92.theta1_1
+GTR.theta1_2 = T92.theta1_1
 
 @end example
 @end cartouche
@@ -2643,7 +2641,19 @@ This option can be used to link parameters of the root frequencies:
 @example
 model1=GTR(theta1=0.7)
 root_freq1=Full(init=balanced)
-likelihood.alias=Full.theta1_1->GTR.theta1_1
+
+Full.theta1_1 = GTR.theta1_1
+@end example
+@end cartouche
+
+It is also possible to set parameter values:
+
+@cartouche
+@example
+model1=GTR(theta1=0.7)
+root_freq1=Full(init=balanced)
+
+Full.theta1_1 = 0.1
 @end example
 @end cartouche
 
