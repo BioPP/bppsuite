@@ -92,7 +92,7 @@ int main(int args, char** argv)
       throw Exception("Unknown output format: " + graphicType);
 
     // Get the tree plotter:
-    unique_ptr<TreeDrawing> td = 0;
+    shared_ptr<TreeDrawing> td = 0;
     string plotTypeCmd = ApplicationTools::getStringParameter("output.drawing.plot", bpptreedraw.getParams(), "Cladogram");
     string plotType;
     map<string, string> plotTypeArgs;
@@ -107,7 +107,7 @@ int main(int args, char** argv)
     }
     else
       throw Exception("Unknown output format: " + plotType);
-    td->setTree(tree.release());
+    td->setTree(*tree);
     ApplicationTools::displayResult("Plot type", plotType);
     double xunit = ApplicationTools::getDoubleParameter("xu", plotTypeArgs, 10);
     double yunit = ApplicationTools::getDoubleParameter("yu", plotTypeArgs, 10);
@@ -137,9 +137,9 @@ int main(int args, char** argv)
       throw Exception("Unknown orientation option: " + vOrientation);
 
     // Plotting option:
-    TreeDrawingSettings tds;
-    auto controler = make_unique<BasicTreeDrawingDisplayControler>(&tds);
-    controler->registerTreeDrawing(td.get());
+    auto tds = make_shared<TreeDrawingSettings>();
+    auto controler = make_unique<BasicTreeDrawingDisplayControler>(tds);
+    controler->registerTreeDrawing(td);
 
     bool drawLeafNames       = ApplicationTools::getBooleanParameter("draw.leaves", plotTypeArgs, true);
     bool drawNodesId         = ApplicationTools::getBooleanParameter("draw.ids", plotTypeArgs, false);
