@@ -194,7 +194,7 @@ int main(int args, char** argv)
       // +-------------+
       else if (cmdName == "Translate")
       {
-        if (!AlphabetTools::isCodonAlphabet(sequences->getAlphabet().get()))
+        if (!AlphabetTools::isCodonAlphabet(sequences->alphabet()))
           throw Exception("Error in translation: alphabet is not of type 'codon'.");
 
         string codeDesc = ApplicationTools::getStringParameter("genetic_code", bppseqman.getParams(), "Standard", "", true, 1);

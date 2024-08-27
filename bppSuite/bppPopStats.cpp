@@ -33,6 +33,7 @@ using namespace std;
 #include <Bpp/Phyl/Distance/DistanceEstimation.h>
 #include <Bpp/Phyl/Distance/BioNJ.h>
 #include <Bpp/Phyl/Likelihood/MarginalAncestralReconstruction.h>
+#include <Bpp/Phyl/Likelihood/RateAcrossSitesSubstitutionProcess.h>
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 
 // From bpp-popgen
@@ -288,7 +289,7 @@ int main(int args, char** argv)
       if (std::isinf(treeLik->getValue()))
         throw Exception("Error: null likelihood. Possible cause: stop codon or numerical underflow (too many sequences).");
       // Optimize parameters:
-      treeLik = PhylogeneticsApplicationTools::optimizeParameters(treeLik, treeLik->getParameters(), bpppopstats.getParams(), "", true, true, 2);
+      treeLik = PhylogeneticsApplicationTools::optimizeParameters(treeLik, bpppopstats.getParams(), "", true, true, 2);
       process->matchParametersValues(lik->getParameters());
 
       // Get kappa:
@@ -557,7 +558,9 @@ int main(int args, char** argv)
         unique_ptr<CodonFrequencySetInterface> freqSetDiv(new FixedCodonFrequencySet(gCode));
         auto modelDiv = std::make_shared<YN98>(gCode, std::move(freqSetDiv));
         auto rDistDiv = std::make_shared<ConstantRateDistribution>();
-        DistanceEstimation distEstimation(modelDiv, rDistDiv, alnCons, 0, false);
+        shared_ptr<ParametrizablePhyloTree> pt(nullptr);
+        auto process = std::make_shared<RateAcrossSitesSubstitutionProcess>(modelDiv, rDistDiv, pt);
+        DistanceEstimation distEstimation(process, alnCons, 0, false);
         distEstimation.setAdditionalParameters(modelDiv->getIndependentParameters());
         distEstimation.computeMatrix();
         unique_ptr<DistanceMatrix> matrix(distEstimation.getMatrix());

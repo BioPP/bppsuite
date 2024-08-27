@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: CECILL-2.1
 
-#final   logL: -65428.449112789
-
 # Global variables:
 DATA = LSU
 
@@ -29,20 +27,27 @@ input.tree1=user(file = ../../../Data/$(DATA).dnd, format = Newick)
 # ----------------------------------------------------------------------------------------
 # See the manual for a description of the syntax and available options.
 #
+
 model1 = HKY85(kappa=3, initFreqs=observed, data=1)
 
-rate_distribution1 = Constant() #Gamma(n=4, alpha=1)
+model2 = HKY85(kappa=3, initFreqs=observed, data=1)
 
-process1 = Homogeneous(model=1, tree=1, rate=1)
+root_freq1  = GC()
 
-phylo1 = Single(process=1, data=1)
+process1 = Homogeneous(model=1, tree=1, rate=1, root_freq=1)
+
+process2 = Homogeneous(model=2, tree=1, rate=1)
+
+process3 = Partition(process1=1, process1.sites=(1:1000,2000:2353), process2=2, process2.sites=1001:1999)
+
+phylo1 = Single(process=3, data=1)
 
 # ----------------------------------------------------------------------------------------
 #                                     Optimization
 # ----------------------------------------------------------------------------------------
 
 # Should we reestimate likelihood parameters? Tree topology will not be optimized.
-# (recommended)
+# (recommanded)
 # Method to use for optimizing numerical parameters:
 # - None, no optimization performed
 # - DB derivatives for branch lengths + Brent for other parameters
@@ -51,7 +56,7 @@ optimization = FullD(derivatives=Newton)
 
 # Tell if the parameter should be transformed in order to remove constraints.
 # This can improve the optimization, but might be a bit slower.
-optimization.reparametrization = yes
+# optimization.reparametrization = yes
 
 # Final optimization step, may be useful if numerical derivatives are used:
 # powell or simplex or none.
