@@ -14,11 +14,11 @@ project (bppsuite CXX)
 # Compile options
 add_compile_options(-std=c++14 -Wall -Weffc++ -Wshadow -Wconversion)
 
-IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 IF(NOT NO_DEP_CHECK)
   SET(NO_DEP_CHECK FALSE CACHE BOOL
@@ -34,15 +34,15 @@ ELSE(NO_DEP_CHECK)
 ADD_CUSTOM_TARGET(rpm rpmbuild -ta ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.gz DEPENDS dist info man)
 
 #static linkage?
-IF(NOT BUILD_STATIC)
-  SET(BUILD_STATIC FALSE CACHE BOOL
+if(NOT BUILD_STATIC)
+  set(BUILD_STATIC FALSE CACHE BOOL
       "Enable static linkage."
       FORCE)
-ENDIF()
-IF(BUILD_STATIC)
-  MESSAGE(STATUS "Static linkage requested.")
-  SET(CMAKE_CXX_FLAGS "-static -static-libgcc ${CMAKE_CXX_FLAGS}")
-ENDIF()
+endif()
+if(BUILD_STATIC)
+  message(STATUS "Static linkage requested.")
+  add_compile_options(-static -static-libgcc)
+endif()
 
 # Check compression program
 # COMPRESS_PROGRAM controls the choice of program
