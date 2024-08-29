@@ -445,6 +445,10 @@ between i and j, included.
 @item selection = @{Sample(n=@{integer@} [, replace=@{true@}])@}
 Will consider @{n@} random sites, with optional replacement.
 
+@item selection = @{Bootstrap()@}
+Will perform bootstrap (ie sampling with replacement of the same
+number of sites).
+
 @end table
 
 @table @command
@@ -824,6 +828,13 @@ the transversion rates are only dependent of the target nucleotide,
 and strand symmetry. See the
 @uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1RN95s.html#details,Bio++
 description, Bio++ description}.
+
+@item @anchor{model nucleotide gBGC}
+@item  @{model name@}+gBGC([parameters of the model], [B=@{real@}])
+Strong<->Weak substitution rates of a base nucleotide model are
+multiplied by a ratio depending on gBGC. Beware: over-parameterization
+is possible, depending on the base model.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/gBGC_8h_source.html, Bio++ description}.
 
 @end table
 
