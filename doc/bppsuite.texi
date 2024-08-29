@@ -829,14 +829,6 @@ and strand symmetry. See the
 @uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1RN95s.html#details,Bio++
 description, Bio++ description}.
 
-@item @anchor{model nucleotide RN95s}
-@item  RN95s([thetaA=@{real]0,0.5[@}, gamma=@{real]0,0.5[@}, alphaP=@{real>1@}]) 
-The instersection of models RN95 and L95. The two hypotheses are that
-the transversion rates are only dependent of the target nucleotide,
-and strand symmetry. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1RN95s.html#details,Bio++
-description, Bio++ description}.
-
 @item @anchor{model nucleotide gBGC}
 @item  @{model name@}+gBGC([parameters of the model], [B=@{real@}])
 Strong<->Weak substitution rates of a base nucleotide model are
