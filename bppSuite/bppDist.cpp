@@ -147,6 +147,7 @@ int main(int args, char** argv)
       throw Exception("Unknown tree reconstruction method.");
 
     string type = ApplicationTools::getStringParameter("optimization.method", bppdist.getParams(), "init");
+    
     ApplicationTools::displayResult("Model parameters estimation method", type);
     if (type == "init")
       type = OptimizationTools::DISTANCEMETHOD_INIT;
@@ -161,8 +162,12 @@ int main(int args, char** argv)
     
     auto lcp = std::make_shared<LikelihoodCalculationSingleProcess>(context, align, process);
     auto lik = std::make_shared<SingleProcessPhyloLikelihood>(context, lcp);
-    
-    OptimizationTools::OptimizationOptions optopt(lik,bppdist.getParams());
+
+    auto params = bppdist.getParams();
+
+    params["optimization"] = ApplicationTools::getStringParameter("optimization", params, "D-Brent(derivatives=Newton)");
+
+    OptimizationTools::OptimizationOptions optopt(lik,params);
 
     tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, type, optopt);
 
