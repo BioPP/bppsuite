@@ -756,13 +756,13 @@ alphabets:
 @item  JC69
 The Jukes and Cantor model. This model has no additional parameter.
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1JCnuc.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1JCnuc.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model nucleotide K80}
 @item  K80([kappa=@{real>0@}])
 The Kimura 2 parameters model. @var{kappa} is the transition over
 transversion ratio. Default: @var{kappa}=1. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1K80.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1K80.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model nucleotide F84}
@@ -772,7 +772,7 @@ ratio @var{kappa} and 4 distinct equilibrium frequencies, set with three
 independent parameters: @var{theta} is the GC content, @var{theta1} is
 the proportion of G / (G + C) and @var{theta2} is the proportion of A
 / (A + T or U). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1F84.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1F84.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model nucleotide HKY85}
 @item HKY85([kappa=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, initFreqs])
@@ -780,19 +780,19 @@ Hasegawa, Kishino and Yano 1985's substitution model. The model is
 similar to @command{F84}, but with a different implementation. The
 @var{kappa} parameter used here is comparable to the one in
 @command{K80}. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1HKY85.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1HKY85.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model nucleotide T92}
 @item T92([kappa=@{real>0@}, theta=@{real]0,1[@}, initFreqs])
 Tamura 1992's model for nucleotides, similar to @command{HKY85}, yet
 assuming that the equilibrium frequencies of A = T/U and G = C. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1T92.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1T92.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model nucleotide TN93}
 @item TN93([kappa1=@{real>0@}, kappa2=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, initFreqs])
 Tamura and Nei 1993's model, similar to @command{HKY85}, but allowing
 for two distinct transition/transversion ratios. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1TN93.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1TN93.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model nucleotide GTR}
@@ -800,25 +800,25 @@ for two distinct transition/transversion ratios. See the
 The General Time-Reversible substitution model. Parameters @var{a},
 @var{b}, @var{c}, @var{d}, @var{e} are the entries of the
 exchangeability matrix. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1GTR.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1GTR.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model nucleotide L95}
 @item  L95([beta=@{real>0@}, gamma=@{real>0@}, delta=@{real>0@}, theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, initFreqs])
 The strand-symmetric model of Lobry 1995, for nucleotides. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1L95.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1L95.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model nucleotide SSR}
 @item  SSR([beta=@{real>0@}, gamma=@{real>0@}, delta=@{real>0@}, theta=@{real]0,1[@}])
 The strand-symmetric reversible model, for nucleotides. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1SSR.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1SSR.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model nucleotide RN95}
 @item  RN95([thetaR=@{real]0,1[@}, thetaC=@{real]0,1[@}, thetaG=@{real]0,1[@}, kappaP=@{real[0,1[@}, gammaP=@{real[0,1[@}, sigmaP=@{real>1@}, alphaP=@{real>1@}])
 The model described by Rhetsky and Nei, where the only hypothesis is
 that the transversion rates are only dependent of the target
 nucleotide. This model is not reversible. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1RN95.html#details,Bio++
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1RN95.html#details,Bio++
 description, Bio++ description}.
 
 @item @anchor{model nucleotide RN95s}
@@ -826,7 +826,7 @@ description, Bio++ description}.
 The instersection of models RN95 and L95. The two hypotheses are that
 the transversion rates are only dependent of the target nucleotide,
 and strand symmetry. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1RN95s.html#details,Bio++
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1RN95s.html#details,Bio++
 description, Bio++ description}.
 
 @item @anchor{model nucleotide gBGC}
@@ -834,7 +834,7 @@ description, Bio++ description}.
 Strong<->Weak substitution rates of a base nucleotide model are
 multiplied by a ratio depending on gBGC. Beware: over-parameterization
 is possible, depending on the base model.
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/gBGC_8h_source.html, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/gBGC_8h_source.html, Bio++ description}.
 
 @end table
 
@@ -849,79 +849,79 @@ alphabets:
 @item @anchor{model protein JCprot}
 @item  JC69
 The Jukes and Cantor model. This model has no additional parameter. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1JCprot.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1JCprot.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein DSO78}
 @item  DSO78
 Protein substitution model, using the dcmutt implementation of Kosiol
 and Goldman 2005. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1DSO78.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1DSO78.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein JTT92}
 @item  JTT92
 Protein substitution model, using the dcmutt implementation of Kosiol
 and Goldman 2005. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1JTT92.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1JTT92.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein WAG01}
 @item  WAG01
 Protein substitution model, from Whelan & Goldman 2001. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1WAG01.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1WAG01.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein LG08}
 @item  LG08
 Protein substitution model, from Le & Gascuel 2008. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LG08.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LG08.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein LLG08_EX2}
 @item  LLG08_EX2([relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008.
 @xref{Mixture}, for the meaning of the variables. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LLG08__EX2.html#details,
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LLG08__EX2.html#details,
 Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein LLG08_EX3}
 @item  LLG08_EX3([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. @xref{Mixture}, for the meaning of the variables. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LLG08__EX3.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LLG08__EX3.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein LLG08_EHO}
 @item  LLG08_EHO([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. @xref{Mixture}, for the meaning of the variables. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LLG08__EHO.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LLG08__EHO.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein LLG08_UL2}
 @item  LLG08_UL2([relrate1=@{real]0,1[@}, relproba1=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. @xref{Mixture}, for the meaning of the variables. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LLG08__UL2.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LLG08__UL2.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein LLG08_UL3}
 @item  LLG08_UL3([relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}])
 Protein substitution model, from Le, Lartillot & Gascuel 2008. @xref{Mixture}, for the meaning of the variables. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LLG08__UL3.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LLG08__UL3.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model protein LGL08_CAT}
 @item  LGL08_CAT(nbCat=@{[10,20,30,40,50,60]@}, [relrate1=@{real]0,1[@}, relrate2=@{real]0,1[@}, ..., relproba1=@{real]0,1[@}, relproba2=@{real]0,1[@}, ...] ))
 CAT protein substitution model, from Le, Gascuel & Lartillot 2008, with a
 given number (@var{nbCat}) of profiles. @xref{Mixture}, for the meaning
 of the variables. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LGL08__CAT.html#details,
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LGL08__CAT.html#details,
 Bio++ description, Bio++ description}.
 
 @item @anchor{model protein LGL08_CAT_C}
 @item  LGL08_CAT_C@{[1|...|nbCat]@}(nbCat=@{[10|20|30|40|50|60]@})
 Submodel of a given CAT Protein substitution model, from Le, Gascuel &
 Lartillot 2008, with a given number (@var{nbCat}) of profiles. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LGL08__CAT.html#details,
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LGL08__CAT.html#details,
 Bio++ description, Bio++ description}.
 
 @item @anchor{model protein Coala}
@@ -940,28 +940,28 @@ and Goldman 2005 and free equilibrium frequencies. The @var{thetaX}
 are frequencies parameters, where X is 1 to 19. Parameter @var{theta1}
 is the proportion of A, @var{theta2} is the proportion of R over
 (1-A), @var{theta3} the proportion of N over (1-A-R), etc. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1DSO78.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1DSO78.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein JTT92+F}
 @item  JTT92+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., initFreqs])
 Protein substitution model, using the dcmutt implementation of Kosiol
 and Goldman 2005 and free equilibrium frequencies. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1JTT92.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1JTT92.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein WAG01+F}
 @item  WAG01+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., initFreqs])
 Protein substitution model, from Whelan & Goldman 2001, and free
 equilibrium frequencies. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1WAG01.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1WAG01.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein LG08+F}
 @item  LG08+F([theta=@{real]0,1[@}, theta1=@{real]0,1[@}, theta2=@{real]0,1[@}, ..., initFreqs])
 Protein substitution model, from Le & Gascuel 2008, and free
 equilibrium frequencies. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1LG08.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1LG08.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model protein Empirical}
@@ -989,7 +989,7 @@ alphabets:
 Build the model on binary alphabet, where @var{kappa} is the relative
 proportion of 1 over 0 in the equilibrium distribution. Default:
 @var{kappa}=1. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1BinarySubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1BinarySubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 @end table
 
@@ -997,7 +997,7 @@ proportion of 1 over 0 in the equilibrium distribution. Default:
 @item @anchor{model misc Equi}
 @item  Equi([initFreqs])
 Build the equiprobable model, between any set of states. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1EquiprobableSubstitutionModel.html, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1EquiprobableSubstitutionModel.html, Bio++ description}.
 
 @end table
 
@@ -1018,27 +1018,27 @@ models, in the case of non stationarity.
 @item  GY94([kappa=@{real>0@}, V=@{real>0@}, initFreqs])
 Goldman and Yang (1994) substitution model for codons (default values:
 @var{kappa}=1 and @var{V}=10000). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1GY94.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1GY94.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model codon MG94}
 @item  MG94([rho=@{real>0@}, initFreqs])
 Muse and Gaut (1994) substitution model for codons (default values:
 @var{rho}=1). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1MG94.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1MG94.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model codon YN98}
 @item  YN98([kappa=@{real>0@}, omega=@{real>0@}, initFreqs])
 Yang and Nielsen (1998) substitution model for codons (default values:
 @var{kappa}=1 and @var{omega}=1). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YN98.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YN98.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model codon YNGP_M0}
 @item  YNGP_M0([kappa=@{real>0@}, omega=@{real>0@}, initFreqs])
 The M0 model of PAML, ie the same as YN98. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YN98.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YN98.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model codon YNGP_M1}
@@ -1046,7 +1046,7 @@ The M0 model of PAML, ie the same as YN98. See the
 The M1a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000) (default values: @var{kappa}=1, @var{p0}=0.5,
 @var{omega}=0.5). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YNGP__M1.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YNGP__M1.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model codon YNGP_M2}
@@ -1056,7 +1056,7 @@ The M2a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with  p0=theta1  and
 p1=(1-theta1)*theta2 (default values: @var{kappa}=1, @var{theta1}=0.33333,
 @var{theta2}=0.5, @var{omega0}=0.5, @var{omega2}=0.5). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YNGP__M2.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YNGP__M2.html#details, Bio++ description, Bio++ description}.
   
 
 @item  @anchor{model codon YNGP_M3}
@@ -1068,7 +1068,7 @@ and pk=(1-theta1)*...*(1-thetak)*theta(k+1), and
 omegak=omega0+delta1+....+deltak (default values: @var{n}=3,
 @var{kappa}=1, @var{thetak}=1/(n-k+1), @var{omega0}=0.5,
 @var{deltak}=0.5). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YNGP__M3.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YNGP__M3.html#details, Bio++ description, Bio++ description}.
 
 
 @item  @anchor{model codon YNGP_M7}
@@ -1077,7 +1077,7 @@ omegak=omega0+delta1+....+deltak (default values: @var{n}=3,
 The M7 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YNGP__M7.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YNGP__M7.html#details, Bio++ description, Bio++ description}.
 
 
 @item  @anchor{model codon YNGP_M8}
@@ -1087,7 +1087,7 @@ The M8 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
 @var{p0}=0.5, @var{omegas}=2). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YNGP__M8.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YNGP__M8.html#details, Bio++ description, Bio++ description}.
 
 @item  @anchor{model codon YNGP_M8a}
 @item  YNGP_M8a(n=@{integer>0@}, [kappa=@{real>0@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, initFreqs])
@@ -1096,7 +1096,7 @@ The M8a model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{n}
 classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
 @var{p0}=0.5). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YNGP__M8a.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YNGP__M8a.html#details, Bio++ description, Bio++ description}.
 
 @item  @anchor{model codon YNGP_M9}
 @item  YNGP_M9(nbeta=@{integer>0@}, ngamma=@{integer>0@}, [kappa=@{real>0@}, initFreqs])
@@ -1104,7 +1104,7 @@ classes (default values: @var{kappa}=1, @var{p}=2, @var{q}=2,
 The M9 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{nbeta}
 classes and Gamma distribution in @var{ngamma} classes. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YNGP__M9.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YNGP__M9.html#details, Bio++ description, Bio++ description}.
 
 @item  @anchor{model codon YNGP_M10}
 @item  YNGP_M10(n=@{integer>0@}, [kappa=@{real>0@}, p0=@{real>0@},p=@{real>1@}, q=@{real>1 @}, initFreqs])
@@ -1112,7 +1112,7 @@ classes and Gamma distribution in @var{ngamma} classes. See the
 The M10 model of PAML, see Yang, Z., R. Nielsen, N. Goldman, and A.-M.
 K. Pedersen (2000), with the Beta distribution discretized in @var{nbeta}
 classes and Gamma distribution in @var{ngamma} classes and @var{omega=1}. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YNGP__M10.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YNGP__M10.html#details, Bio++ description, Bio++ description}.
 
 
 @end table
@@ -1215,7 +1215,7 @@ model1=CodonRate(model1=T92(theta=0.5, kappa=2), \
 @end cartouche
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1CodonRateSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1CodonRateSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 
 @item Dist(model...[, beta=@{real>0@}])
@@ -1250,7 +1250,7 @@ parameters names are @var{CodonDist.1_T92.kappa},
 @var{CodonDist.2_T92.kappa}, @var{CodonDist.beta}.
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1CodonDistanceSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1CodonDistanceSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 
 @item Prot(model..., protmodel=@{proteic model name@}[, beta=@{real>0@}])
@@ -1309,7 +1309,7 @@ has parameters @var{CodonDistFreq.012_T92.kappa},
 @var{CodonDistFreq.beta}.
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1CodonDistanceFrequenciesSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1CodonDistanceFrequenciesSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 @item PhasFreq(frequencies=@{frequencies set description@})
 
@@ -1320,7 +1320,7 @@ argument. @xref{Codon frequencies}.
 
 
 For example, see the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1CodonDistancePhaseFrequenciesSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1CodonDistancePhaseFrequenciesSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 @end table
 
@@ -1342,7 +1342,7 @@ simultaneous substitutions.
 
 Optional argument @var{positions} can be used to describe which
 substitutions are allowed. See the @xref{model word Kron} modeling and the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1KroneckerCodonDistanceFrequenciesSubstitutionModel.html,
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1KroneckerCodonDistanceFrequenciesSubstitutionModel.html,
 Bio++ description}.
 
 @item @anchor{model codon KronDist}
@@ -1355,7 +1355,7 @@ simultaneous substitutions.
 
 Optional argument @var{positions} can be used to describe which
 substitutions are allowed. See the @xref{model word Kron} modeling and the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1KroneckerCodonDistanceSubstitutionModel.html,
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1KroneckerCodonDistanceSubstitutionModel.html,
 Bio++ description}.
 
 
@@ -1366,7 +1366,7 @@ Kronecker Codon Model based on a unique (KCM7) or one per position
 (KCM19) GTR model. From Zaheri & al, MBE, 2014.
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1KCM.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1KCM.html#details, Bio++ description, Bio++ description}.
 
 
 
@@ -1432,7 +1432,7 @@ site follows a HKY85 model. Then the parameters names are
 @var{Word.relrate1}, @var{Word.relrate2}, @var{Word.relrate3}.
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1WordSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1WordSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model word Kron}
 @item Kron(model=@{model name@} [,positions=pos1*pos2*...*posn + posx*...*posm + ...)])
@@ -1500,7 +1500,7 @@ model.
 
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1KronSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1KronSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model word Triplet}
@@ -1552,7 +1552,7 @@ parameters names are @var{Triplet.1_T92.kappa},
 @var{Triplet.relrate2}.
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1TripletSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1TripletSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model word YpR_Sym}
 @item  YpR_Sym(model=@{model description@}, [rCgT=@{real>=0@}, rTgC=@{real>=0@}, rCaT=@{real>=0@}, rTaC=@{real>=0@}])
@@ -1560,7 +1560,7 @@ See the
 substitution model on quotiented triplets to handle strand symmetric
 neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
 2012). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YpR_SymSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YpR_SymSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model word YpR_Gen}
@@ -1569,7 +1569,7 @@ neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
 substitution model on quotiented triplets to handle general symmetric
 neighbour-dependency inside dinucleotides YpR (see Bérard and Guéguen
 2012). See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1YpR_GenSubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1YpR_GenSubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 
 @end table
@@ -1586,7 +1586,7 @@ These substitution models take as argument another substitution model, and add s
 Tuffley and Steel 1998's 'covarion' model, taking a nested
 substitution model as argument for @var{model}. The nested model can
 be any substitution model for any alphabet. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1TS98.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1TS98.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model meta G01}
@@ -1595,7 +1595,7 @@ Galtier 2001's 'covarion' model, taking a nested substitution model as
 argument for @var{model} and a rate distribution for parameter
 @var{rdist} @pxref{Discrete distributions}. The nested model can be any substitution
 model for any alphabet. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1G01.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1G01.html#details, Bio++ description, Bio++ description}.
 
 
 @item @anchor{model meta RE08}
@@ -1603,7 +1603,7 @@ model for any alphabet. See the
 Rivas and Eddy 2008's substitution model with gaps, taking a nested
 substitution model as argument for @var{model}. Parameter @var{lambda}
 is the insertion rate, while @var{mu} is the deletion rate. See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1RE08.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1RE08.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model meta POMO}
 @item POMO(model=@{model description@} [, fitness=@{values@}])
@@ -1611,7 +1611,7 @@ De Maio, Schrempf and Kosiol 2O15's mutation model considering
 diallelic states, from a given mutation @var{model}. Following
 modeling from Borges and Kosiol, optional @var{fitness} parameters can
 be used to describe the fitness of the states.
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1POMO.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1POMO.html#details, Bio++ description, Bio++ description}.
 
 @end table
 
@@ -1655,7 +1655,7 @@ has parameters @var{TN93.kappa1_Gamma.alpha},
 @var{TN93.theta2}.
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1MixtureOfASubstitutionModel.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1MixtureOfASubstitutionModel.html#details, Bio++ description, Bio++ description}.
 
 @item @anchor{model general Mixture}
 @item  Mixture(model1=@{model description@},..., modeln=@{model description@} [, relrate1=@{1>real>0@},..., relrate@{n-1@}=@{1>real>0@}, relproba1=@{1>real>0@}, ..., relproba@{n-1@}=@{1>real>0@}, initFreqs])
@@ -1678,7 +1678,7 @@ has parameters@var{Mixture.relrate1}, @var{Mixture.relproba1},
 @var{Mixture.2_YN98.kappa}, @var{Mixture.2_YN98.omega}.
 
 See the
-@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/classbpp_1_1MixtureOfSubstitutionModels.html#details, Bio++ description, Bio++ description}.
+@uref{https://pbil.univ-lyon1.fr/bpp-doc/bpp-phyl/html/classbpp_1_1MixtureOfSubstitutionModels.html#details, Bio++ description, Bio++ description}.
 
 @end table
 
@@ -2011,9 +2011,7 @@ process1 = Homogeneous(model=1, tree=1)
 @end cartouche
 
 @item @anchor{process OnePerBranch}
-@item  process@{int@} = @{OnePerBranch@}(tree=@{int@}, model@{int@}=@{int@},
-                         [rate=@{int@} , root_freq=@{int@}, scenario=@{int@}, 
-                         shared_parameters=@{vector of @{list<chars>@}, @{list<chars>_[list<int>]@}@}]) 
+@item  process@{int@} = @{OnePerBranch@}(tree=@{int@}, model@{int@}=@{int@}, [rate=@{int@} , root_freq=@{int@}, scenario=@{int@}, shared_parameters=@{vector of @{list<chars>@}, @{list<chars>_[list<int>]@}@}]) 
 
 @command{OnePerBranch} type is used for setting all branch models (for
 instance Galtier and Gouy 97 for branch GC content, or PAML branch
@@ -2026,10 +2024,7 @@ defined by nodes ids between brackets.
 
 
 @item @anchor{process NonHomogeneous}
-@item  process@{int@} =
-@{NonHomogeneous@}(tree=@{int@}, model@{int@}=@{int@},
-model@{int@}.nodes_id=(@{int@},...,@{int@})[, rate=@{int@} ,
-root_freq=@{int@}, scenario=@{int@}]) 
+@item  process@{int@} = @{NonHomogeneous@}(tree=@{int@}, model@{int@}=@{int@}, model@{int@}.nodes_id=(@{int@},...,@{int@})[, rate=@{int@} , root_freq=@{int@}, scenario=@{int@}]) 
 
 
 The @command{NonHomogeneous} type is used for the most general case,
