@@ -239,7 +239,6 @@ int main(int args, char** argv)
 
     string outputFile = ApplicationTools::getStringParameter("file", outputArgs, "", "", true, 1);
     ofstream out(outputFile.c_str(), ios::out);
-    out << std::setprecision(12);
 
     ApplicationTools::displayResult("Type of output", perSite ? "perSitePerBranch" : "PerBranch");
     ApplicationTools::displayResult("Output file", outputFile);
@@ -265,7 +264,7 @@ int main(int args, char** argv)
       {
         const auto& currentSite = sites->site(i);
         int currentSitePosition = currentSite.getCoordinate();
-        (*rates)(i, "Sites") = string(TextTools::toString(currentSitePosition));
+        (*rates)(i, "Sites") = TextTools::toString(currentSitePosition);
       }
     }
     else
@@ -321,7 +320,7 @@ int main(int args, char** argv)
             }
 
             if (perSite)
-              (*rates)(rangealt[posalt], TextTools::toString(edgeid)) = TextTools::toString(log(vl[poslik]));
+              (*rates)(rangealt[posalt], TextTools::toString(edgeid)) = TextTools::toString(log(vl[poslik]),12);
             else
               value += -log(vl[poslik]);
 
