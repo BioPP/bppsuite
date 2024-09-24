@@ -3076,11 +3076,20 @@ The basic declaration is :
 
 to simulate following a process, with a given number of sites.
 
-@item simul@{int@}=@{Simulation type@}(phylo=@{int@}, ...)
+@item simul@{int@}=@{Simulation type@}(phylo=@{int@}, [number_of_sites = @{int>0@}, nullnodes = (@{int@},...,@{int@}), ...])
+
 
 to simulate following the posterior process (ie described in
 phylolikelihoods @command{phylo}) all along the alignment used in this
-phylolikelihood.
+phylolikelihood. With now optional parameter @option{number_of_sites},
+the first selected sites of the alignment are simulated.
+
+Optional parameter @option{nullnodes} lists branch ids where the
+simulation is done following the process used in phylo, and not using
+posterior probabilities. Key words @option{All}, @option{Leaves}, and
+@option{NoLeaves} (explicit meaning) can be used instead of explicit
+nodes id.
+
 
 @item simul@{int@}=@{Simulation type@}(phylo=@{int@}, pos=@{int@}, ...)
 

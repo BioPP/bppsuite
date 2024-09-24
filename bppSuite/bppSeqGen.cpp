@@ -83,8 +83,11 @@ int main(int args, char** argv)
 
     /// Get optional phylolikelihoods (in case of posterior simulation)
 
-    auto phyloCont =  bppseqgen.getPhyloLikelihoods(context, mSeqEvol, spc, mSites, "", 0);
 
+    bppseqgen.setWarningLevel(0);
+    std::shared_ptr<PhyloLikelihoodContainer> phyloCont =  bppseqgen.getPhyloLikelihoods(context, mSeqEvol, spc, mSites, "");
+
+    bppseqgen.setWarningLevel(1);
 
     /// ///////////////////
     // Simulators
@@ -307,6 +310,10 @@ int main(int args, char** argv)
 
       unique_ptr<SequenceSimulatorInterface> ss;
 
+      // for null nodes in posterior phylo simulations
+      vector<unsigned int> nodesId(0);
+
+
       if (argsim.find("process") != argsim.end())
       {
         size_t indProcess = (size_t)ApplicationTools::getIntParameter("process", argsim, 1, "", true, 0);
@@ -347,16 +354,43 @@ int main(int args, char** argv)
           throw BadIntegerException("bppseqgen. Posterior simulation not implemented for this kind of phylolikelihood. Ask developers.", (int)num);
 
         std::shared_ptr<LikelihoodCalculationSingleProcess> lcsp = spph ? spph->getLikelihoodCalculationSingleProcess() :
-            opsp->getLikelihoodCalculationSingleProcess();
+          opsp->getLikelihoodCalculationSingleProcess();
 
+        // Get nodes with no phyloLik
+        auto descnodes = ApplicationTools::getStringParameter("nullnodes", argsim, "", "", true, 0);
+
+        if (descnodes!="")
+        {
+          auto tree= lcsp->substitutionProcess().getParametrizablePhyloTree();
+        
+          if (descnodes == "All")
+          {
+            nodesId = tree->getEdgeIndexes(tree->getSubtreeEdges(tree->getRoot()));
+          }
+          else if (descnodes == "Leaves")
+          {
+            nodesId = tree->getNodeIndexes(tree->getLeavesUnderNode(tree->getRoot()));
+          }
+          else if (descnodes == "NoLeaves")
+          {
+            auto allIds = tree->getEdgeIndexes(tree->getSubtreeEdges(tree->getRoot()));
+            auto leavesId = tree->getNodeIndexes(tree->getLeavesUnderNode(tree->getRoot()));
+            VectorTools::diff(allIds, leavesId, nodesId);
+          }
+          else
+            nodesId = ApplicationTools::getVectorParameter<unsigned int>("nullnodes", argsim, ',', ':', "", "", true, 1);
+        }
+
+        
+        ///////////////: Specific sites? 
         if (argsim.find("pos") == argsim.end())// Sequence simulation similar to the data, number_of_sites will not be used
-          ss = make_unique<GivenDataSubstitutionProcessSequenceSimulator>(lcsp);
+          ss = make_unique<GivenDataSubstitutionProcessSequenceSimulator>(lcsp, nodesId);
         else
         {
           size_t pos = (size_t)ApplicationTools::getIntParameter("pos", argsim, 1, "", true, 0);
           ApplicationTools::displayResult(" Position", TextTools::toString(pos));
-
-          ss = make_unique<SimpleSubstitutionProcessSequenceSimulator>(lcsp, pos);
+          
+          ss = make_unique<SimpleSubstitutionProcessSequenceSimulator>(lcsp, pos, false, nodesId);
         }
       }
 
@@ -371,7 +405,9 @@ int main(int args, char** argv)
       auto mintern = ApplicationTools::getBooleanParameter("output.internal.sequences", argsim, false, "", true, 1);
       ApplicationTools::displayBooleanResult(" Output internal", mintern);
 
-
+      if (nodesId.size()!=0)
+        ApplicationTools::displayResult(" No phylo nodes", VectorTools::paste(nodesId, ", "));
+        
       auto gds = dynamic_cast<GivenDataSubstitutionProcessSequenceSimulator*>(ss.get());
       auto pps = dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());
 
