@@ -2233,7 +2233,7 @@ model1=MixedModel(model=T92(kappa=Simple(values=(4,10,20),probas=(0.1,0.5,0.4)))
 path1 = model1[1]
 path2 = model1[2] & model1[3]
 
-scenario1 = path1 & path2
+scenario1 = path1 | path2
 
 process1 = Homogeneous(model=1, tree=1, scenario = 1)
 
@@ -2268,7 +2268,7 @@ model2=MixedModel(model=TN93(kappa=Simple(values=(1,2),probas=(0.3,0.7))))
 path1 = model1[1] & model2[1]
 path2 = model1[2,3] & model2[2]
 
-scenario1 = path1 & path2
+scenario1 = path1 | path2
 
 process1=NonHomogeneous(model1=1, model1.nodes_id=0:1, model2=2, \
                         model2.nodes_id=2:3, tree=1, root_freq=2, scenario = 1)
@@ -2300,7 +2300,7 @@ model2=MixedModel(model=T92(kappa=Simple(values=(4,10,20),probas=(0.1,0.5,0.4)))
 path1 = model1[1] & model2[1]
 path2 = model1[2] & model2[2,3]
 
-scenario1 = path1 & path2
+scenario1 = path1 | path2
 
 process1=NonHomogeneous(model1=1, model1.nodes_id=0:1, model2=2, \
                         model2.nodes_id=2:3, tree=1, root_freq=2, scenario = 1)
@@ -2468,8 +2468,9 @@ path2=model1[1] & model2[2, 3]
 @sp 1
 
 @item @anchor{scenario}
-@item  scenario@{int@} = path@{int@} & ... & path@{int@} [& complete]
+@item scenario@{int@} = path@{int@} & ... & path@{int@} [& complete]
 @item scenario@{int@} = split(model=@{int@})
+@item scenario@{int@} = split(model=(@{int@},...,@{int@}))
 
 A scenario sets together a list of predefined paths. For example:
 
@@ -2481,7 +2482,7 @@ path1 = model1[1]
 path2 = model1[2]
 path3 = model1[3]
 
-scenario1 = path1 & path2 & path3
+scenario1 = path1 | path2 | path3
 
 process1 = Homogeneous(model=1, tree=1, scenario = 1)
 
@@ -2499,7 +2500,7 @@ path1 = model2[1]
 path2 = model2[2]
 path3 = model2[3]
 
-scenario1 = path1 & path2 & path3
+scenario1 = path1 | path2 | path3
 
 process1=NonHomogeneous(model1=1, model1.nodes_id=0:1, model2=2,
 model2.nodes_id=2:3, model3=3, model3.nodes_id=4:5, tree=1, rate=1,
@@ -2520,6 +2521,21 @@ process1=NonHomogeneous(model1=1, model1.nodes_id=0:1, model2=2,\
                 tree=1, rate=1, root_freq=2, scenario = 1)
 
 @end example
+
+When several models are totally split, all possible combinations of
+submodels between them can be set up. With
+
+@example
+
+scenario1 = split(model=(1,2))
+
+process1=NonHomogeneous(model1=1, model1.nodes_id=0:1, model2=2,\
+                model2.nodes_id=2:3, model3=3, model3.nodes_id=4:5,\
+                tree=1, rate=1, root_freq=2, scenario = 1)
+
+@end example
+
+all 9 paths combining submodels of model1 and submodels of model2 are used.
 
 @sp 1
 
@@ -2554,7 +2570,7 @@ model2 = MixedModel(model=YN98(kappa=Simple(values=(1,2),probas=(0.1,0.9))\
 
 path1 = model1[YN98.kappa_1] & model2[YN98.omega_2,YN98.kappa_2]
 path2 = model1[YN98.kappa_2,YN98.omega_2,1]&model2[YN98.omega_2,1]
-scenario1 = path1 & path2 & complete
+scenario1 = path1 | path2 | complete
 @end example
 
 @end table

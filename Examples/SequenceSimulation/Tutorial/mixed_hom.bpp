@@ -1,0 +1,36 @@
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=Protein
+
+# ----------------------------------------------------------------------------------------
+#                                     Input tree file
+# ----------------------------------------------------------------------------------------
+
+input.tree1=user(file = ../../Data/LSU.dnd, format = Newick)
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+
+
+model1 = LGL08_CAT(nbCat=$(NBCAT))
+
+scenario1= split(model=1)
+
+# ----------------------------------------------------------------------------------------
+#                                     Process specification
+# ----------------------------------------------------------------------------------------
+
+process1 = Homogeneous(model=1, tree=1, scenario=1)
+
+process2 = Homogeneous(model=1, tree=1)
+
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+
+simul1=Single(process=1, output.sequence.file = LSU_mixed_$(NBCAT)_hom.fasta, output.sequence.format = Fasta, number_of_sites = 300)
+
+simul2=Single(process=2, output.sequence.file = LSU_mixed2_$(NBCAT)_hom.fasta, output.sequence.format = Fasta, number_of_sites = 500)
+

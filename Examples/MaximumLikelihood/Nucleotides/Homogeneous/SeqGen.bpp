@@ -26,6 +26,6 @@ input.tree1=user(file = $(DATA).ML.dnd_1, format = Newick)
 param = LSU.params.txt
 
 
-simul1=Single(phylo=1, output.sequence.file = LSUSim.fasta, output.internal.sequences = false, output.sequence.format = Fasta, nullnodes=0)
+simul1=Single(phylo=1, output.sequence.file = LSUSim.fasta, output.internal.sequences = true, output.sequence.format = Fasta, number_of_sites = 300)
 
 

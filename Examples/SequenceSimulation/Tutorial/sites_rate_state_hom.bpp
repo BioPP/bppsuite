@@ -1,0 +1,45 @@
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=Protein
+
+# ----------------------------------------------------------------------------------------
+#                                     Input tree file
+# ----------------------------------------------------------------------------------------
+
+input.tree1=user(file = ../../Data/LSU.dnd, format = Newick)
+
+# ----------------------------------------------------------------------------------------
+#                                     Input Data
+# ----------------------------------------------------------------------------------------
+
+input.data1=alignment(file=../../Data/LSU.phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+
+# ----------------------------------------------------------------------------------------
+#                                     Model specification
+# ----------------------------------------------------------------------------------------
+
+
+model1 = LGL08_CAT(nbCat=$(NBCAT))
+
+scenario1= split(model=1)
+
+# ----------------------------------------------------------------------------------------
+#                                     Process specification
+# ----------------------------------------------------------------------------------------
+
+process1 = Homogeneous(model=1, tree=1, rate=1, scenario=1)
+
+
+# ----------------------------------------------------------------------------------------
+#                                     Simulation specification
+# ----------------------------------------------------------------------------------------
+
+simul1=Single(process=1, output.sequence.file = LSU_states_$(NBCAT)_hom.fasta, output.sequence.format = Fasta, input.infos = infos_rates.tsv, input.infos.states=States)
+
+simul2=Single(process=1, output.sequence.file = LSU_data_$(NBCAT)_hom.fasta, output.sequence.format = Fasta, data=1)
+
+simul3=Single(process=1, output.sequence.file = LSU_rates_$(NBCAT)_hom.fasta, output.sequence.format = Fasta, input.infos = infos_rates.tsv, input.infos.rates=Rates, input.infos.states=States)
+
+simul4=Single(process=1, output.sequence.file = LSU_states_$(NBCAT)_hom.fasta, output.sequence.format = Fasta, input.infos = infos_rates.tsv, input.infos.rates=Rates, data=1)
+
+

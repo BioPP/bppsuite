@@ -131,7 +131,9 @@ int main(int args, char** argv)
       auto sm = spc->getModel(1)->getStateMap();
 
       // Data or info at root
-      if (argsim.find("data") != argsim.end())
+      auto withData = (argsim.find("data") != argsim.end());
+
+      if (withData)
       {
         size_t indData = (size_t)ApplicationTools::getIntParameter("data", argsim, 1, "", true, 0);
 
@@ -208,99 +210,108 @@ int main(int args, char** argv)
           states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(pchar));
         }
       }
-      else
+
+      /// Info file
+      string infosFile = ApplicationTools::getAFilePath("input.infos", argsim, false, false,"",1,"",1);
+      
+      if (infosFile != "none")
       {
-        string infosFile = ApplicationTools::getAFilePath("input.infos", argsim, false, true);
+        ApplicationTools::displayResult("Site information", infosFile);
+        ifstream in(infosFile.c_str());
+        auto infos = DataTable::read(in, "\t");
+        auto nbSitesinfo = infos->getNumberOfRows();
 
-        if (infosFile != "none")
+        if (nbSites==0)
+          nbSites=nbSitesinfo;
+        else // data seen
         {
-          ApplicationTools::displayResult("Site information", infosFile);
-          ifstream in(infosFile.c_str());
-          auto infos = DataTable::read(in, "\t");
-          nbSites = infos->getNumberOfRows();
+          if (nbSitesinfo<nbSites)
+            nbSites=nbSitesinfo;
+        }
+        
 //      ApplicationTools::displayResult("Number of sites", TextTools::toString(nbSites));
-          string rateCol = ApplicationTools::getStringParameter("input.infos.rates", argsim, "pr", "", true, true);
-          string stateCol = ApplicationTools::getStringParameter("input.infos.states", argsim, "none", "", true, true);
-          withRates = rateCol != "none";
-          withStates = stateCol != "none";
+        string rateCol = ApplicationTools::getStringParameter("input.infos.rates", argsim, "none", "", true, true);
+        string stateCol = ApplicationTools::getStringParameter("input.infos.states", argsim, "none", "", true, true);
 
+        withRates = rateCol != "none";
+        withStates = (!withData) && (stateCol != "none");
+        
 
-          // Specific input data
-          if (withRates)
+        // Specific input files
+        if (withRates)
+        {
+          rates.resize(nbSites);
+          vector<string> ratesStrings = infos->getColumn(rateCol);
+          for (size_t i = 0; i < nbSites; i++)
           {
-            rates.resize(nbSites);
-            vector<string> ratesStrings = infos->getColumn(rateCol);
-            for (size_t i = 0; i < nbSites; i++)
-            {
-              rates[i] = TextTools::toDouble(ratesStrings[i]);
-            }
+            rates[i] = TextTools::toDouble(ratesStrings[i]);
           }
-          if (withStates)
+        }
+        if (withStates)
+        {
+          vector<string> ancestralStates = infos->getColumn(stateCol);
+
+          states.resize(nbSites);
+          for (size_t i = 0; i < nbSites; i++)
           {
-            vector<string> ancestralStates = infos->getColumn(stateCol);
+            int alphabetState = alphabet->charToInt(ancestralStates[i]);
+            // If a generic character is provided, we pick one state randomly from the possible ones:
+            if (alphabet->isUnresolved(alphabetState))
+              alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
+            states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(alphabetState));
+          }
 
-            states.resize(nbSites);
-            for (size_t i = 0; i < nbSites; i++)
+          string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
+
+          if (siteSet != "none")
+          {
+            vector<size_t> vSite;
+            try
             {
-              int alphabetState = alphabet->charToInt(ancestralStates[i]);
-              // If a generic character is provided, we pick one state randomly from the possible ones:
-              if (alphabet->isUnresolved(alphabetState))
-                alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
-              states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(alphabetState));
+              vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet, ",", ":");
+              for (size_t i = 0; i < vSite1.size(); ++i)
+              {
+                int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
+                if (x >= 0)
+                  vSite.push_back(static_cast<size_t>(x));
+                else
+                  throw Exception("bppseqgen : incorrect negative index: " + TextTools::toString(x));
+              }
             }
-
-            string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
-
-            if (siteSet != "none")
+            catch (Exception& e)
             {
-              vector<size_t> vSite;
-              try
+              string seln;
+              map<string, string> selArgs;
+              KeyvalTools::parseProcedure(siteSet, seln, selArgs);
+              if (seln == "Sample")
               {
-                vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet, ",", ":");
-                for (size_t i = 0; i < vSite1.size(); ++i)
+                size_t n = ApplicationTools::getParameter<size_t>("n", selArgs, nbSites, "", true, 1);
+                bool replace = ApplicationTools::getBooleanParameter("replace", selArgs, false, "", true, 1);
+                
+                vSite.resize(n);
+                vector<size_t> vPos;
+                for (size_t p = 0; p < nbSites; ++p)
                 {
-                  int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
-                  if (x >= 0)
-                    vSite.push_back(static_cast<size_t>(x));
-                  else
-                    throw Exception("bppseqgen : incorrect negative index: " + TextTools::toString(x));
+                  vPos.push_back(p);
                 }
+                
+                RandomTools::getSample(vPos, vSite, replace);
               }
-              catch (Exception& e)
-              {
-                string seln;
-                map<string, string> selArgs;
-                KeyvalTools::parseProcedure(siteSet, seln, selArgs);
-                if (seln == "Sample")
-                {
-                  size_t n = ApplicationTools::getParameter<size_t>("n", selArgs, nbSites, "", true, 1);
-                  bool replace = ApplicationTools::getBooleanParameter("replace", selArgs, false, "", true, 1);
-
-                  vSite.resize(n);
-                  vector<size_t> vPos;
-                  for (size_t p = 0; p < nbSites; ++p)
-                  {
-                    vPos.push_back(p);
-                  }
-
-                  RandomTools::getSample(vPos, vSite, replace);
-                }
-              }
-
-              nbSites = vSite.size();
-
-              vector<size_t> newStates(nbSites);
-              vector<double> newRates(nbSites);
-
-              for (size_t ni = 0; ni < nbSites; ++ni)
-              {
-                newStates[ni] = states[vSite[ni]];
-                newRates[ni]  = rates[vSite[ni]];
-              }
-
-              states = newStates;
-              rates = newRates;
             }
+            
+            nbSites = vSite.size();
+
+            vector<size_t> newStates(nbSites);
+            vector<double> newRates(nbSites);
+
+            for (size_t ni = 0; ni < nbSites; ++ni)
+            {
+              newStates[ni] = states[vSite[ni]];
+              newRates[ni]  = rates[vSite[ni]];
+            }
+            
+            states = newStates;
+            rates = newRates;
           }
         }
       }
@@ -320,15 +331,15 @@ int main(int args, char** argv)
 
         ApplicationTools::displayResult(" Process", TextTools::toString(indProcess));
 
-        if (!spc->hasSubstitutionProcessNumber(indProcess))
+        if (!spc->hasSubstitutionProcessNumber(indProcess))  // Sequence process
         {
           if (mSeqEvol.find(indProcess) == mSeqEvol.end())
 
             throw BadIntegerException("bppseqgen. Unknown process number:", (int)indProcess);
 
           ss = make_unique<EvolutionSequenceSimulator>(*mSeqEvol.find(indProcess)->second);
-        }
-        else
+        } 
+        else // Site Process
         {
           ss = make_unique<SimpleSubstitutionProcessSequenceSimulator>(spc->getSubstitutionProcess(indProcess));
         }
@@ -411,9 +422,12 @@ int main(int args, char** argv)
       auto gds = dynamic_cast<GivenDataSubstitutionProcessSequenceSimulator*>(ss.get());
       auto pps = dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());
 
+      // Number of sites
       size_t nbmin = gds ? gds->getNumberOfSites() : pps ? pps->getNumberOfSites() : 100;
 
-      nbSites = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, (int)nbmin, "", false, 0);
+      if (nbSites==0)
+        nbSites = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, (int)nbmin, "", false, 0);
+
       ApplicationTools::displayResult(" Number of sites", TextTools::toString(nbSites));
 
 
@@ -422,15 +436,13 @@ int main(int args, char** argv)
 
       if (withStates || withRates)
       {
-        auto pss = dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());
-
         if (withStates)
           if (withRates)
-            sites = pss ? pss->simulate(rates, states) : SequenceSimulationTools::simulateSites(*ss, rates, states);
+            sites = pps ? pps->simulate(rates, states) : SequenceSimulationTools::simulateSites(*ss, rates, states);
           else
-            sites = pss ? pss->simulate(states) : SequenceSimulationTools::simulateSites(*ss, states);
+            sites = pps ? pps->simulate(states) : SequenceSimulationTools::simulateSites(*ss, states);
         else
-          sites = pss ? pss->simulate(rates) : SequenceSimulationTools::simulateSites(*ss, rates);
+          sites = pps ? pps->simulate(rates) : SequenceSimulationTools::simulateSites(*ss, rates);
 
         ApplicationTools::displayTaskDone();
       }
