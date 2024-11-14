@@ -221,7 +221,7 @@ all paths where an identical submodel of each CAT model is used on all
 branches where this model is set. For example, with command:
 
 ```{bash}
-  bppseqgen param=nonstat_CAT_nonhom.bpp NBCAT=10
+bppseqgen param=nonstat_CAT_nonhom.bpp NBCAT=10
 ```
 
 all 100 possible paths are with 2 submodels of CAT 10 are possible.
