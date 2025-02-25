@@ -33,6 +33,6 @@ output.sequence.format=Fasta()
 # Sequences manipulations
 # -----------------------
 #For example (see manual for a detailed list of available options):
-sequence.manip = CoerceToAlignment,RemoveStops,KeepComplete(maxGapAllowed=30%),Translate
+sequence.manip = CoerceToAlignment,RemoveStops,KeepComplete(max_gap_allowed=30%),Translate
   
 

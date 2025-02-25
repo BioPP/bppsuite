@@ -89,8 +89,6 @@ int main(int args, char** argv)
 
     for (size_t a = 0; a < actions.size(); a++)
     {
-      auto containerWithKeys = dynamic_pointer_cast<VectorSequenceContainer>(sequences);
-
       string cmdName;
       map<string, string> cmdArgs;
       KeyvalTools::parseProcedure(actions[a], cmdName, cmdArgs);
@@ -109,7 +107,7 @@ int main(int args, char** argv)
         for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
         {
           auto seq = SequenceTools::getComplement(sequences->sequence(i));
-          auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+          auto name = sequences->sequenceKey(i);
           sc->addSequence(name, seq);
         }
         sequences = sc;
@@ -119,7 +117,7 @@ int main(int args, char** argv)
       // +------------------------+
       else if (cmdName == "Transcript")
       {
-        if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET->getAlphabetType())
+        if (sequences->alphabet().getAlphabetType() == AlphabetTools::DNA_ALPHABET->getAlphabetType())
         {
           shared_ptr<SequenceContainerInterface> sc = 0;
           if (aligned)
@@ -129,12 +127,12 @@ int main(int args, char** argv)
           for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
           {
             auto seq = SequenceTools::transcript(sequences->sequence(i));
-            auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+            auto name = sequences->sequenceKey(i);
             sc->addSequence(name, seq);
           }
           sequences = sc;
         }
-        else if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET->getAlphabetType())
+        else if (sequences->alphabet().getAlphabetType() == AlphabetTools::RNA_ALPHABET->getAlphabetType())
         {
           shared_ptr<SequenceContainerInterface> sc = 0;
           if (aligned)
@@ -144,7 +142,7 @@ int main(int args, char** argv)
           for (unsigned int i = 0; i < sequences->getNumberOfSequences(); i++)
           {
             auto seq = SequenceTools::reverseTranscript(sequences->sequence(i));
-            auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+            auto name = sequences->sequenceKey(i);
             sc->addSequence(name, seq);
           }
           sequences = sc;
@@ -158,11 +156,11 @@ int main(int args, char** argv)
       else if (cmdName == "Switch")
       {
         std::shared_ptr<const Alphabet> alpha = 0;
-        if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::DNA_ALPHABET->getAlphabetType())
+        if (sequences->alphabet().getAlphabetType() == AlphabetTools::DNA_ALPHABET->getAlphabetType())
         {
           alpha = AlphabetTools::RNA_ALPHABET;
         }
-        else if (sequences->getAlphabet()->getAlphabetType() == AlphabetTools::RNA_ALPHABET->getAlphabetType())
+        else if (sequences->alphabet().getAlphabetType() == AlphabetTools::RNA_ALPHABET->getAlphabetType())
         {
           alpha = AlphabetTools::DNA_ALPHABET;
         }
@@ -184,7 +182,7 @@ int main(int args, char** argv)
             content[j] = old[j];
           }
           auto seq = make_unique<Sequence>(old.getName(), content, old.getComments(), alpha);
-          auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+          auto name = sequences->sequenceKey(i);
           sc->addSequence(name, seq);
         }
         sequences = sc;
@@ -212,7 +210,7 @@ int main(int args, char** argv)
         for (size_t i = 0; i < sequences->getNumberOfSequences(); ++i)
         {
           auto seq = gCode->translate(sequences->sequence(i));
-          auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+          auto name = sequences->sequenceKey(i);
           sc->addSequence(name, seq);
         }
         sequences = sc;
@@ -228,7 +226,7 @@ int main(int args, char** argv)
         {
           unique_ptr<Sequence> seq(sequences->sequence(i).clone());
           SequenceTools::removeGaps(*seq);
-          auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+          auto name = sequences->sequenceKey(i);
           sc->addSequence(name, seq);
         }
         sequences = sc;
@@ -249,7 +247,7 @@ int main(int args, char** argv)
         {
           auto seq = make_unique<Sequence>(sequences->sequence(i));
           SymbolListTools::changeGapsToUnknownCharacters(*seq);
-          auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+          auto name = sequences->sequenceKey(i);
           sc->addSequence(name, seq);
         }
         sequences = sc;
@@ -269,7 +267,7 @@ int main(int args, char** argv)
         {
           auto seq = make_unique<Sequence>(sequences->sequence(i));
           SymbolListTools::changeUnresolvedCharactersToGaps(*seq);
-          auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+          auto name = sequences->sequenceKey(i);
           sc->addSequence(name, seq);
         }
         sequences = sc;
@@ -295,7 +293,7 @@ int main(int args, char** argv)
           {
             unique_ptr<Sequence> seq(sequences->sequence(i).clone());
             SequenceTools::removeStops(*seq, *gCode);
-            auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+            auto name = sequences->sequenceKey(i);
             sc->addSequence(name, seq);
           }
           sequences = sc;
@@ -307,7 +305,7 @@ int main(int args, char** argv)
           {
             unique_ptr<Sequence> seq(sequences->sequence(i).clone());
             SequenceTools::replaceStopsWithGaps(*seq, *gCode);
-            auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+            auto name = sequences->sequenceKey(i);
             sc->addSequence(name, seq);
           }
           sequences.reset(sc.release());
@@ -364,18 +362,18 @@ int main(int args, char** argv)
           {
             for (size_t c = seq->size(); c < len; ++c)
             {
-              seq->addElement(seq->getAlphabet()->getGapCharacterCode());
+              seq->addElement(seq->alphabet().getGapCharacterCode());
             }
           }
-          auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+          auto name = sequences->sequenceKey(i);
           sc->addSequence(name, seq);
         }
         sequences = sc;
       }
 
-      // +--------------------------+
-      // | Resolve dotted alignment |
-      // +--------------------------+
+      // +---------------------+
+      // | Coerce to alignment |
+      // +---------------------+
       else if (actions[a] == "CoerceToAlignment")
       {
         shared_ptr<SiteContainerInterface> sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
@@ -386,6 +384,9 @@ int main(int args, char** argv)
         }
         aligned = true;
       }
+      // +--------------------------+
+      // | Resolve dotted alignment |
+      // +--------------------------+
       else if (actions[a] == "ResolvedDotted")
       {
         shared_ptr<SiteContainerInterface> sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
@@ -419,7 +420,9 @@ int main(int args, char** argv)
           throw Exception("'KeepComplete' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
         }
 
-        string maxGapOption = ApplicationTools::getStringParameter("maxGapAllowed", cmdArgs, "100%", "", false, 1);
+	if (ApplicationTools::parameterExists("maxGapAllowed", cmdArgs))
+	  throw Exception("Argument maxGapAllowed is deprecated and has been replaced by max_gap_allowed.");
+        string maxGapOption = ApplicationTools::getStringParameter("max_gap_allowed", cmdArgs, "100%", "", false, 1);
         if (maxGapOption[maxGapOption.size() - 1] == '%')
         {
           double gapFreq = TextTools::toDouble(maxGapOption.substr(0, maxGapOption.size() - 1)) / 100.;
@@ -444,6 +447,23 @@ int main(int args, char** argv)
           }
         }
       }
+     // +----------------+
+      // | Get consensus |
+      // +---------------+
+      else if (cmdName == "Consensus")
+      {
+        auto sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
+        if (!sites)
+        {
+          throw Exception("'Consensus' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
+        }
+
+        bool ignoreGaps = ApplicationTools::getBooleanParameter("ignore_gaps", cmdArgs, true, "", false, 1);
+        bool resolveUnknown = ApplicationTools::getBooleanParameter("resolve_unknown", cmdArgs, true, "", false, 1);
+
+	auto consensusSeq = SiteContainerTools::getConsensus(*sites, "consensus", ignoreGaps, resolveUnknown);
+	sites->addSequence("consensus", consensusSeq);
+      }
       // +-----------------+
       // | Invert sequence |
       // +-----------------+
@@ -458,7 +478,7 @@ int main(int args, char** argv)
         for (size_t i = 0; i < sequences->getNumberOfSequences(); i++)
         {
           auto seq = make_unique<Sequence>(*SequenceTools::getInvert(sequences->sequence(i)).release());
-          auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+          auto name = sequences->sequenceKey(i);
           sc->addSequence(name, seq);
         }
         sequences = sc;
@@ -523,7 +543,7 @@ int main(int args, char** argv)
         {
           if (SequenceTools::getNumberOfSites(sequences->sequence(i)) != 0)
           {
-            auto name = containerWithKeys ? containerWithKeys->sequenceKey(i) : "seq_" + TextTools::toString(i);
+            auto name = sequences->sequenceKey(i);
             auto seq2 = unique_ptr<Sequence>(sequences->sequence(i).clone());
             sc->addSequence(name, seq2);
           }
