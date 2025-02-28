@@ -3624,6 +3624,12 @@ Eather a number (1-based) stating the starting position for words,
 or the starting word. In this latter case, the first occurrence of the
 word in all sequences will be used to determine the phase.
 
+@item output.index.cs = @{path@}
+Output an index mapping the selected CS alignment positions to the original alignment (1-based coordinates).
+
+@item output.index.sps = @{path@}
+Output an index mapping the selected SPS alignment positions to the original alignment (1-based coordinates), according to the selected SPS threshold.
+
 @end table
 
 
