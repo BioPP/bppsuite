@@ -3496,7 +3496,7 @@ Genetic code is set once for all sequences.
 @item RemoveEmptySequences
 Remove all empty sequences (ie sequences with only gaps).
 
-@item RemoveColumnsWithStop
+@item RemoveColumnsWithStops
 Remove all sites with at least one stop codon.
 The genetic code used for translation is set via the genetic_code option.
 Genetic code is set once for all sequences.
@@ -3513,10 +3513,13 @@ Convert a human-readable alignment to a machine-readable alignment.
 This manipulation must be first if it is used, and the data must be load with the @option{Generic} alphabet.
 @option{alphabet}: The alphabet to use in order to resolve a dotted alignment.
 
-@item KeepComplete(maxGapAllowed=@{int>0@} or @{float[0,100]@}+%) [[Aligned sequences]]
+@item KeepComplete(max_gap_allowed=@{int>0@} or @{float[0,100]@}+%) [[Aligned sequences]]
 Keep only complete sites, ie sites without any gap. Sites with unresolved characters are not removed.
 It is also possible to fix a maximum proportion of gaps, see specific options.
 @option{maxGapAllowed}: The maximum proportion of gaps allowed.
+
+@item Consensus(ignore_gaps=@{bool@}, resolve_unknown=@{bool@}) [[Aligned sequences]]
+Add a consensus sequence to the alignment. Specify whether gaps should be counted as a character or ignored. Specify whether unresolved characters should be split into corresponding possible characters (e.g. N: 0.25 A, 0.25 C, 0.25 G 0.25 T for nucleotide alphabets).
 
 @item GetCodonPosition(position=@{1|2|3@})
 Retrieve the given positions from codon sequences (aligned or not).
@@ -3627,6 +3630,12 @@ the world alphabet, but the corresponding letter alphabet.
 Eather a number (1-based) stating the starting position for words,
 or the starting word. In this latter case, the first occurrence of the
 word in all sequences will be used to determine the phase.
+
+@item output.index.cs = @{path@}
+Output an index mapping the selected CS alignment positions to the original alignment (1-based coordinates).
+
+@item output.index.sps = @{path@}
+Output an index mapping the selected SPS alignment positions to the original alignment (1-based coordinates), according to the selected SPS threshold.
 
 @end table
 

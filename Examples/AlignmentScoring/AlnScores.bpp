@@ -15,3 +15,6 @@ score.phase     = ATG
 output.scores = $(DATA).scores.txt
 output.mase = $(DATA).filter.mase
 output.sps_thresholds = 0.8
+
+output.index.cs = $(DATA)_CSindex.csv
+output.index.sps = $(DATA)_SPSindex.csv
