@@ -2020,8 +2020,15 @@ independent model per branch.
 
 Optional argument @option{shared_parameters} is the vector of model
 parameters that are shared by all branches, or by a set of branches,
-defined by nodes ids between brackets.
+defined by nodes ids between brackets. Joker `*' can be used to avoid
+long enumeration of parameters.
 
+@cartouche
+@example
+model1 = YN98(frequencies=F1X4)
+process=OnePerBranch(tree=1, model=1, rate=1, root_freq=2, shared_parameters=(YN98.kappa, YN98.123_Full*))
+@end example
+@end cartouche
 
 @item @anchor{process NonHomogeneous}
 @item  process@{int@} = @{NonHomogeneous@}(tree=@{int@}, model@{int@}=@{int@}, model@{int@}.nodes_id=(@{int@},...,@{int@})[, rate=@{int@} , root_freq=@{int@}, scenario=@{int@}]) 

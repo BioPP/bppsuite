@@ -12,7 +12,7 @@ which all information is available [here](https://github.com/BioPP/bpp-documenta
 
 All the options are described in the [bppsuite manual](https://pbil.univ-lyon1.fr/bpp-doc/bppsuite/bppsuite.html).
 
-We will specifically explore the simulation of protein algnments, but
+We will specifically explore the simulation of protein alignments, but
 these approaches are also available for nucleotide and codon
 alignments.
 
