@@ -73,7 +73,7 @@ on the upper branch. In file `mixed_hom.bpp`, the line
 scenario1=split(model=1)
 ```
 
-defines a simple modle *organizaiton scenario*: a
+defines a simple model *organizaiton scenario*: a
 site will follow the same model all along the tree, which with CAT
 means the same profile. `process1` follows this scenario, for
 `simul1`.
@@ -120,6 +120,14 @@ Both simulations can be run with the command:
 ```
 bppseqgen param=mixed_IG_hom.bpp NBCAT=40
 ```
+
+### Root data
+
+In `simul` command, option `root.data` can be set to use alignment for
+root sequence. If `root.data=SequenceFrom(nb)`, a sequence is randomly
+taken from the alignment, anf with With option
+`root.data=SitesFrom(nb)`, each letter is sampled on each site from
+all sequences.
 
 
 ## <a name="sec-non-homog-space"></a>Non-homogeneous in space

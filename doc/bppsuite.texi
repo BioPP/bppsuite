@@ -3145,10 +3145,11 @@ Also, there are several options for simulations:
 
 @table @command
 
-@item data=@{int@}
-The root sequence is built from a sequence in a given alignment
-previously defined @pxref{Sequences}. The root sequence is randomly
-chosen among sequences in the alignment.
+@item root.data=(SequenceFrom@{int@}|SitesFrom@{int@})
+The root sequence is built from a given alignment previously defined
+@pxref{Sequences}. With option @var{SequenceFrom}, a sequence is
+randomly taken from the alignment. With option @var{SitesFrom}, each
+letter is sampled on each site from all sequences.
 
 @item input.infos = @{path@}
 A info file like the one output by bppML. In this case, additional
@@ -3168,6 +3169,9 @@ means a random sequence).
 With both data, sites can be selected with option
 @var{input.site.selection = @{string@}} from the given sequence
 (@pxref{Sequences}).
+
+Whenever several options are based on a number of sites, and those are
+different, the smallest number of sites is considered.
 
 @end table
 
