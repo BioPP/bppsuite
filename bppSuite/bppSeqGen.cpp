@@ -131,25 +131,44 @@ int main(int args, char** argv)
       auto sm = spc->getModel(1)->getStateMap();
 
       // Data or info at root
-      auto withData = (argsim.find("data") != argsim.end());
+      auto withData = (argsim.find("root.data") != argsim.end());
+      auto rootData = ApplicationTools::getStringParameter("root.data", argsim, "", "", true, 0);
+
+      withData &= (rootData!="");
 
       if (withData)
-      {
-        size_t indData = (size_t)ApplicationTools::getIntParameter("data", argsim, 1, "", true, 0);
-
+      {        
+        auto paro = rootData.find("(");
+        if (paro==std::string::npos)
+          throw Exception("Bad syntax for root.data: need SequenceFrom(<int>) or SitesFrom(<int>)");
+        auto pref= rootData.substr(0,paro);
+        auto parc = rootData.find(")",paro);
+        uint indData = TextTools::toInt(rootData.substr(paro+1,parc-paro-1));
+        
         if (mSites.find(indData) == mSites.end())
           throw BadIntegerException("bppseqgen : Unknown data number:", (int)indData);
-
+        
         auto data = mSites.at(indData);
+        
+        uint nseq=0;
 
-        auto nseq = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(data->getNumberOfSequences());
+        bool sampleseq=(pref=="SequenceFrom");
 
-        ApplicationTools::displayResult("Using root sequence", data->sequence(nseq).getName());
+        if (sampleseq)
+        {
+          nseq = (uint)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(data->getNumberOfSequences());
+          
+          ApplicationTools::displayResult("Using root sequence", data->sequence(nseq).getName());
+        }
+        else
+          ApplicationTools::displayMessage("Using root sequence from site-sampling in alignment " + TextTools::toString(indData));
 
+        
+        // Select sites
         string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
-
+        
         nbSites = data->getNumberOfSites();
-
+        
         if (siteSet != "none")
         {
           vector<size_t> vSite;
@@ -201,12 +220,17 @@ int main(int args, char** argv)
 
         for (size_t i = 0; i < nbSites; ++i)
         {
+          if (sampleseq)
+            nseq = (uint)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(data->getNumberOfSequences());
           for (size_t j = 0; j < nbStates; j++)
-          {
             probstate[j] = data->getStateValueAt(i, nseq, alphabet->getIntCodeAt(j + 1));
-          }
 
-          auto pchar = RandomTools::pickOne<string>(resChar, probstate, true);
+          string pchar;
+          if (VectorTools::sum(probstate)>0.001)
+            pchar = RandomTools::pickOne<string>(resChar, probstate, true);
+          else
+            pchar = alphabet->intToChar(alphabet->getGapCharacterCode());
+
           states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(pchar));
         }
       }
@@ -261,8 +285,9 @@ int main(int args, char** argv)
             states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(alphabetState));
           }
 
+          // Site selection
           string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
-
+          
           if (siteSet != "none")
           {
             vector<size_t> vSite;
@@ -424,18 +449,23 @@ int main(int args, char** argv)
 
       // Number of sites
       size_t nbmin = gds ? gds->getNumberOfSites() : pps ? pps->getNumberOfSites() : 100;
-
-      if (nbSites==0)
-        nbSites = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, (int)nbmin, "", false, 0);
+      nbmin = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, (int)nbmin, "", false, 0);
+      
+      if (nbSites==0 || nbSites>nbmin)
+        nbSites = nbmin;
 
       ApplicationTools::displayResult(" Number of sites", TextTools::toString(nbSites));
-
-
+      
       ss->outputInternalSequences(mintern);
       std::shared_ptr<SiteContainerInterface> sites = 0;
 
       if (withStates || withRates)
       {
+        if (rates.size()>nbSites)
+          rates.erase(rates.begin()+nbSites,rates.end());
+        if (states.size()>nbSites)
+          states.erase(states.begin()+nbSites,states.end());
+        
         if (withStates)
           if (withRates)
             sites = pps ? pps->simulate(rates, states) : SequenceSimulationTools::simulateSites(*ss, rates, states);
