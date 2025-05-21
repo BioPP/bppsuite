@@ -16,12 +16,11 @@ input.tree1=user(file = ../../Data/LSU.dnd, format = Newick)
 #                                     Input Data
 # ----------------------------------------------------------------------------------------
 
-input.data1=alignment(file=../../Data/LSU.phy, format=Phylip(order=sequential, type=extended, split=spaces), sites_to_use = all, max_gap_allowed = 50%, max_unresolved_allowed = 100%)
+input.data1=alignment(file=../../Data/Myo.mase, format=Mase)
 
 # ----------------------------------------------------------------------------------------
 #                                     Model specification
 # ----------------------------------------------------------------------------------------
-
 
 model1 = WAG01
 
@@ -42,5 +41,5 @@ phylo1 = Simple(process=1, data=1)
 #                                     Simulation specification
 # ----------------------------------------------------------------------------------------
 
-simul1=Single(phylo=1, output.sequence.file = LSU_sim_data.fasta, output.sequence.format = Fasta, nullnodes=Leaves)
+simul1=Single(phylo=1, output.sequence.file = Myo_sim_data.fasta, output.sequence.format = Fasta, nullnodes=Leaves)
 

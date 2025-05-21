@@ -136,6 +136,7 @@ int main(int args, char** argv)
 
       withData &= (rootData!="");
 
+      // withData
       if (withData)
       {        
         auto paro = rootData.find("(");
@@ -209,8 +210,9 @@ int main(int args, char** argv)
         }
 
         ApplicationTools::displayResult("Number of sites", nbSites);
-        states.resize(nbSites);
 
+        // Build starting states
+        states.resize(nbSites);
         withStates = true;
 
         size_t nbStates = alphabet->getSize();
@@ -220,7 +222,7 @@ int main(int args, char** argv)
 
         for (size_t i = 0; i < nbSites; ++i)
         {
-          if (sampleseq)
+          if (!sampleseq)
             nseq = (uint)RandomTools::giveIntRandomNumberBetweenZeroAndEntry(data->getNumberOfSequences());
           for (size_t j = 0; j < nbStates; j++)
             probstate[j] = data->getStateValueAt(i, nseq, alphabet->getIntCodeAt(j + 1));
@@ -234,7 +236,8 @@ int main(int args, char** argv)
           states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(pchar));
         }
       }
-
+      // end withData
+      
       /// Info file
       string infosFile = ApplicationTools::getAFilePath("input.infos", argsim, false, false,"",1,"",1);
       
@@ -258,8 +261,6 @@ int main(int args, char** argv)
         string stateCol = ApplicationTools::getStringParameter("input.infos.states", argsim, "none", "", true, true);
 
         withRates = rateCol != "none";
-        withStates = (!withData) && (stateCol != "none");
-        
 
         // Specific input files
         if (withRates)
@@ -271,72 +272,77 @@ int main(int args, char** argv)
             rates[i] = TextTools::toDouble(ratesStrings[i]);
           }
         }
-        if (withStates)
+        
+        if (!withData)
         {
-          vector<string> ancestralStates = infos->getColumn(stateCol);
-
-          states.resize(nbSites);
-          for (size_t i = 0; i < nbSites; i++)
+          withStates = (stateCol != "none");
+          if (withStates)
           {
-            int alphabetState = alphabet->charToInt(ancestralStates[i]);
-            // If a generic character is provided, we pick one state randomly from the possible ones:
-            if (alphabet->isUnresolved(alphabetState))
-              alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
-            states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(alphabetState));
-          }
-
-          // Site selection
-          string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
-          
-          if (siteSet != "none")
-          {
-            vector<size_t> vSite;
-            try
+            vector<string> ancestralStates = infos->getColumn(stateCol);
+            
+            states.resize(nbSites);
+            for (size_t i = 0; i < nbSites; i++)
             {
-              vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet, ",", ":");
-              for (size_t i = 0; i < vSite1.size(); ++i)
-              {
-                int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
-                if (x >= 0)
-                  vSite.push_back(static_cast<size_t>(x));
-                else
-                  throw Exception("bppseqgen : incorrect negative index: " + TextTools::toString(x));
-              }
+              int alphabetState = alphabet->charToInt(ancestralStates[i]);
+              // If a generic character is provided, we pick one state randomly from the possible ones:
+              if (alphabet->isUnresolved(alphabetState))
+                alphabetState = RandomTools::pickOne<int>(alphabet->getAlias(alphabetState));
+              states[i] = RandomTools::pickOne<size_t>(sm->getModelStates(alphabetState));
             }
-            catch (Exception& e)
+            
+            // Site selection
+            string siteSet = ApplicationTools::getStringParameter("input.site.selection", argsim, "none", "", true, 1);
+            
+            if (siteSet != "none")
             {
-              string seln;
-              map<string, string> selArgs;
-              KeyvalTools::parseProcedure(siteSet, seln, selArgs);
-              if (seln == "Sample")
+              vector<size_t> vSite;
+              try
               {
-                size_t n = ApplicationTools::getParameter<size_t>("n", selArgs, nbSites, "", true, 1);
-                bool replace = ApplicationTools::getBooleanParameter("replace", selArgs, false, "", true, 1);
-                
-                vSite.resize(n);
-                vector<size_t> vPos;
-                for (size_t p = 0; p < nbSites; ++p)
+                vector<int> vSite1 = NumCalcApplicationTools::seqFromString(siteSet, ",", ":");
+                for (size_t i = 0; i < vSite1.size(); ++i)
                 {
-                  vPos.push_back(p);
+                  int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
+                  if (x >= 0)
+                    vSite.push_back(static_cast<size_t>(x));
+                  else
+                    throw Exception("bppseqgen : incorrect negative index: " + TextTools::toString(x));
                 }
-                
-                RandomTools::getSample(vPos, vSite, replace);
               }
-            }
+              catch (Exception& e)
+              {
+                string seln;
+                map<string, string> selArgs;
+                KeyvalTools::parseProcedure(siteSet, seln, selArgs);
+                if (seln == "Sample")
+                {
+                  size_t n = ApplicationTools::getParameter<size_t>("n", selArgs, nbSites, "", true, 1);
+                  bool replace = ApplicationTools::getBooleanParameter("replace", selArgs, false, "", true, 1);
+                  
+                  vSite.resize(n);
+                  vector<size_t> vPos;
+                  for (size_t p = 0; p < nbSites; ++p)
+                  {
+                    vPos.push_back(p);
+                  }
+                  
+                  RandomTools::getSample(vPos, vSite, replace);
+                }
+              }
+              
+              nbSites = vSite.size();
+              
+              vector<size_t> newStates(nbSites);
+              vector<double> newRates(nbSites);
+              
+              for (size_t ni = 0; ni < nbSites; ++ni)
+              {
+                newStates[ni] = states[vSite[ni]];
+                newRates[ni]  = rates[vSite[ni]];
+              }
             
-            nbSites = vSite.size();
-
-            vector<size_t> newStates(nbSites);
-            vector<double> newRates(nbSites);
-
-            for (size_t ni = 0; ni < nbSites; ++ni)
-            {
-              newStates[ni] = states[vSite[ni]];
-              newRates[ni]  = rates[vSite[ni]];
+              states = newStates;
+              rates = newRates;
             }
-            
-            states = newStates;
-            rates = newRates;
           }
         }
       }
