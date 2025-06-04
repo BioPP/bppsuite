@@ -33,7 +33,7 @@ git clone https://github.com/BioPP/bppsuite
 
 #### Compiling 
 
-Bio++ libraries need to be installed beforehand, for example in <tt>$bpp_dir</tt>. The needed libraries are [bpp-core](https://github.com/BioPP/bpp-core), [bpp-seq](https://github.com/BioPP/bpp-seq), [bpp-phyl](https://github.com/BioPP/bpp-phyl), [bpp-popgen](https://github.com/BioPP/bpp-popgen).
+Bio++ libraries need to be installed beforehand, for example in <tt>$bpp_dir</tt>. The needed libraries are [bpp-core](https://github.com/BioPP/bpp-core), [bpp-seq](https://github.com/BioPP/bpp-seq), [bpp-phyl](https://github.com/BioPP/bpp-phyl), [bpp-popgen](https://github.com/BioPP/bpp-popgen). See [installation](https://github.com/BioPP/bpp-documentation/wiki/Installation) for instructions.
 
 After, you proceed:
 
@@ -49,6 +49,10 @@ make install # move files to the installation directory (this will create a $bpp
 That's it ! The executables are now installed in <tt>$bpp_dir/bin</tt>. 
 
 Without the option <tt>-DCMAKE_INSTALL_PREFIX=$bpp_dir</tt>, the standard <tt>/usr/local</tt> directory will be used, and the executables installed in  <tt>/usr/local/bin</tt>, a location which requires superuser access rights.
+
+### Containers
+
+Bppsuite and testnh are available in a singularity container, [there](https://biopp.github.io/).
 
 ## Usage
 
