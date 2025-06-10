@@ -1,0 +1,104 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
+RESULT_DIR=hom_Res
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+
+FSEQ=example.fa
+
+# ----------------------------------------------------------------
+#         Alignment
+# ----------------------------------------------------------------
+
+input.data1=alignment(format=Fasta, file=$(FSEQ), sites_to_use=all)
+
+# ----------------------------------------------------------------
+#                             Input tree file
+# ----------------------------------------------------------------
+
+## data is used to prune the tree to correct leaves
+input.tree1=user(file=spec_tree.dnd, format=Newick, data=1)
+
+# --------------------------------------------------------
+#                Model
+# --------------------------------------------------------
+
+model1=YN98(omega=0.01, frequencies=F3X4, initFreqs=observed,data=1)
+
+root_freq1=F3X4(initFreqs=observed,data=1)
+
+## equilibrium and root frequencies are initialized from the data
+## (initFreqs=observed) so a number referring to the data must be
+## given (data=1)
+
+# --------------------------------------------------------
+#                Substitution rates
+# --------------------------------------------------------
+
+## Distribution of site substitution rates : here constant
+
+rate_distribution1 = Constant()
+
+# --------------------------------------------------------
+#                Substitution process
+# --------------------------------------------------------
+
+## A process describes entirely how sequences evolve (tree, model,
+##   rates, ...). So it should contain at least numbers of model & tree.
+
+process1 = Homogeneous(model=1, tree=1, rate=1, root_freq=1)
+
+## The process is homogeneous: same model on every branches of the tree
+
+# --------------------------------------------------------
+#                Links the data and the process
+# --------------------------------------------------------
+
+phylo1 = Single(process=1, data=1)
+
+# --------------------------------------------------------
+#                                     Optimization
+# --------------------------------------------------------
+
+# Method to use for optimizing numerical parameters:
+# - None, no optimization performed
+# - DB derivatives for branch lengths + Brent for other parameters
+# - FullD derivatives for all parameters, using numerical derivatives for non-branch lengths parameters.
+
+optimization = FullD(derivatives=Newton)
+
+# Set the quantity of output to the screen:
+optimization.verbose = 3
+
+# Parameters to ignore (for instance equilibrium frequencies)
+optimization.ignore_parameters =
+
+# Maximum number of likelihood evaluations:
+optimization.max_number_f_eval = 1000
+
+# Precision to reach:
+optimization.tolerance = 0.0001
+
+# idem for error or warning messages:
+optimization.message_handler = $(RESULT_DIR)/messages
+
+# A file where to dump optimization steps (a file path or std for standard output)
+optimization.profiler = $(RESULT_DIR)/profile
+
+# Should we write the resulting tree? none or file name.
+output.tree.file = $(RESULT_DIR)/tree_ML.dnd
+output.tree.format = Newick
+
+# Alignment information log file (site specific rates, etc):
+output.infos = $(RESULT_DIR)/infos
+
+# Write numerical parameter estimated values:
+output.estimates = $(RESULT_DIR)/params.txt
+
+# Backup file
+optimization.backup.file = $(RESULT_DIR)/params.bup
