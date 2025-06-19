@@ -1,0 +1,37 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/workspaces/bin/bppml",
+            "args": ["param=/workspaces/bppsuite/Examples/MaximumLikelihood/Proteins/Homogeneous/ML.bpp"],
+            "stopAtEntry": false,
+            "cwd": "/workspaces/bppsuite/Examples/MaximumLikelihood/Proteins/Homogeneous",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "skip -gfi std::*"
+                },
+                {
+                    "text": "skip -gfi __gnu_cxx::*"
+                },
+                {
+                    "text": "skip -gfi __cxxabiv1::*"
+                }
+            ],
+            //"logging" : { "trace": true, "traceResponse": true, "engineLogging": true }
+        }
+    ]
+}

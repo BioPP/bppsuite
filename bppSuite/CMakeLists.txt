@@ -19,6 +19,7 @@ add_executable (bppreroot bppReRoot.cpp)
 add_executable (bpptreedraw bppTreeDraw.cpp)
 add_executable (bppalnscore bppAlnScore.cpp)
 add_executable (bpppopstats bppPopStats.cpp)
+add_executable (bppr4s bppR4S.cpp)
 
 set (bppsuite-targets
   bppml
@@ -34,6 +35,7 @@ set (bppsuite-targets
   bpptreedraw
   bppalnscore
   bpppopstats
+  bppr4s
   )
 
 foreach (target ${bppsuite-targets})
