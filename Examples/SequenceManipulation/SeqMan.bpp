@@ -28,6 +28,8 @@ output.sequence.file=$(DATA).fas
 # The file format:
 output.sequence.format=Fasta()
 
+output.index = $(DATA)_index.txt
+
 # -----------------------
 # Sequences manipulations
 # -----------------------

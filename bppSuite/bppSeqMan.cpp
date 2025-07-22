@@ -561,6 +561,22 @@ int main(int args, char** argv)
     {
       auto sites = dynamic_pointer_cast<SiteContainerInterface>(sequences);
       SequenceApplicationTools::writeAlignmentFile(*sites, bppseqman.getParams(), "", true, 1);
+
+      // Write index
+      string indexPath = ApplicationTools::getAFilePath("output.index",  bppseqman.getParams(), false, false);
+      if (indexPath != "none" && indexPath != "None")
+      {
+        ofstream indexFile(indexPath, ios::out);
+	indexFile << "# SGED index file version 1.00" << endl;
+        indexFile << "# SGED index start" << endl;
+        indexFile << "AlnPos,OrigPos" << endl;
+        for (size_t i = 0; i < sites->getNumberOfSites(); ++i)
+	{
+          auto& site = sites->site(i);
+	  indexFile << (i + 1) << "," << site.getCoordinate() << endl;
+	}
+	indexFile.close();
+      }
     }
     else
     {
