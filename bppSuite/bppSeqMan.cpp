@@ -563,7 +563,7 @@ int main(int args, char** argv)
       SequenceApplicationTools::writeAlignmentFile(*sites, bppseqman.getParams(), "", true, 1);
 
       // Write index
-      string indexPath = ApplicationTools::getAFilePath("output.index",  bppseqman.getParams(), false, false);
+      string indexPath = ApplicationTools::getAFilePath("output.index.file",  bppseqman.getParams(), false, false);
       if (indexPath != "none" && indexPath != "None")
       {
         ofstream indexFile(indexPath, ios::out);
