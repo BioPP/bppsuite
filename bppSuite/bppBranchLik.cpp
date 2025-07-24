@@ -239,7 +239,8 @@ int main(int args, char** argv)
 
     string outputFile = ApplicationTools::getStringParameter("file", outputArgs, "", "", true, 1);
     ofstream out(outputFile.c_str(), ios::out);
-
+    out.precision(12);
+      
     ApplicationTools::displayResult("Type of output", perSite ? "perSitePerBranch" : "PerBranch");
     ApplicationTools::displayResult("Output file", outputFile);
 
