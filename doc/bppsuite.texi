@@ -3261,6 +3261,18 @@ sequence with unknown characters will be used.
 
 @end table
 
+To link the node ids with the trees, it is possible to output the
+trees in Newick format, with nodes ids as bootstrap values. The
+option is:
+
+@table @command
+
+@item output.tree.file=@{string@}
+
+with the desired tree filename. The number of the tree will be put as
+suffix of this filename.
+
+@end table
 @c ------------------------------------------------------------------------------------------------------------------
 @node bppmixedlikelihoods, bppbranchlik, bppancestor, Reference
 @section BppMixedLikelihoods: Bio++ Site-Likelihoods Inside Mixed Models.
