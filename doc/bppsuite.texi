@@ -3123,8 +3123,21 @@ phylolikelihoods @command{phylo}) at position @command{pos}.
 
 @sp 1
 
-Up to now, simulation type does not matter, and only @command{simul}
-is used.
+Simulation types can be either:
+
+@table @command
+@item Single(...)
+
+a unique simulation
+
+@item Multiple(n=@{int@}, ...)
+
+@var{n} simulation with similar parameterization. Output alignments
+have then suffixes '_1', '_2', ...
+
+
+@end table
+
 
 Output sequence is set through compulsory argument
 @var{output.sequence.file=@{file path@}}, and there are other options
