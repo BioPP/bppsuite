@@ -86,6 +86,11 @@ int main(int args, char** argv)
 
     ApplicationTools::displayMessage("");
 
+    string outputTreesFile = ApplicationTools::getAFilePath("output.tree.file", allParams, false, false);
+
+    if (outputTreesFile!="")
+      PhylogeneticsApplicationTools::writePhyloTrees(*SPC, allParams, "output.", "", true, false, false, false, true);
+    
     //////////////////////////////////////
     // Reconstruct ancestral sequences:
 

@@ -265,11 +265,11 @@ meaning that parameter2 is available only if parameter1 is set to 'zzz'.
 
 Any optional argument will be noted within hooks [].
 
-In some cases, the argument value is more complexe and follows the 'keyval'
+In some cases, the argument value is more complex and follows the 'keyval'
 syntax.
 @c This syntax will be quite familiar for users using languages like R, Python, or
 @c certain LaTeX packages.
-A keyval procedure is a name that does no contain any space, together with some
+A keyval procedure is a name that does not contain any space, together with some
 arguments within parentheses.
 The arguments take the form @command{key=value}, separated by comas:
 @cartouche
@@ -3274,6 +3274,18 @@ sequence with unknown characters will be used.
 
 @end table
 
+To link the node ids with the trees, it is possible to output the
+trees in Newick format, with nodes ids as bootstrap values. The
+option is:
+
+@table @command
+
+@item output.tree.file=@{string@}
+
+with the desired tree filename. The number of the tree will be put as
+suffix of this filename.
+
+@end table
 @c ------------------------------------------------------------------------------------------------------------------
 @node bppmixedlikelihoods, bppbranchlik, bppancestor, Reference
 @section BppMixedLikelihoods: Bio++ Site-Likelihoods Inside Mixed Models.
