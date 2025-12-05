@@ -118,7 +118,7 @@ public:
       if (size>states_.size())
         throw BadSizeException("pickSeveral: too many sites to extract.",size,states_.size());
       
-      vS.insert(vS.begin(), states_.begin(), states_.begin()+size);
+      vS.insert(vS.begin(), states_.begin(), states_.begin() + static_cast<bpp::ModelPath::PathNode::difference_type>(size));
     }
     
     return vS;
@@ -364,7 +364,7 @@ int main(int args, char** argv)
           throw Exception("Bad syntax for root.data: need SequenceFrom(<int>) or SitesFrom(<int>)");
         auto pref= rootData.substr(0,paro);
         auto parc = rootData.find(")",paro);
-        uint indData = TextTools::toInt(rootData.substr(paro+1,parc-paro-1));
+        unsigned int indData = TextTools::to<unsigned int>(rootData.substr(paro+1, parc-paro-1));
         
         if (mSites.find(indData) == mSites.end())
           throw BadIntegerException("bppseqgen : Unknown data number:", (int)indData);
@@ -452,7 +452,7 @@ int main(int args, char** argv)
             int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
             if (x >= 0)
               if ((nbSites!=0) && (x>=(int)nbSites)) // because up to now sites are contiguous
-                throw BadSizeException("bppseqgen. Incorrect too large index for site selection: " , nbSites, x);
+                throw BadSizeException("bppseqgen. Incorrect too large index for site selection: " , nbSites, static_cast<size_t>(x));
               else                
                 vS.push_back((size_t)x);
             else

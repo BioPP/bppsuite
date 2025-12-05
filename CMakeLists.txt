@@ -2,17 +2,13 @@
 #
 # SPDX-License-Identifier: CECILL-2.1
 
-# CMake script for Bio++ Program Suite
-# Authors:
-#   Julien Dutheil
-#   Francois Gindraud (2017)
-# Created: 22/08/2009
-
-cmake_minimum_required (VERSION 3.10)
-project (bppsuite CXX)
+cmake_minimum_required(VERSION 3.10)
+project(bppsuite CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compile options
-add_compile_options(-std=c++14 -Wall -Weffc++ -Wshadow -Wconversion)
+add_compile_options(-Wall -Weffc++ -Wshadow -Wconversion)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -81,8 +77,8 @@ if (CMAKE_INSTALL_PREFIX)
 endif (CMAKE_INSTALL_PREFIX)
 
 include (GNUInstallDirs)
-find_package (bpp-phyl3 1.0.0 REQUIRED)
-find_package (bpp-popgen3 1.0.0 REQUIRED)
+find_package (bpp-phyl 3.0.0 REQUIRED)
+find_package (bpp-popgen 3.0.0 REQUIRED)
 
 find_package (Eigen3 3.3 REQUIRED PATHS /usr/lib NO_MODULE)
 
