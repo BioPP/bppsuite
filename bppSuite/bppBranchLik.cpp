@@ -240,7 +240,7 @@ int main(int args, char** argv)
     string outputFile = ApplicationTools::getStringParameter("file", outputArgs, "", "", true, 1);
     ofstream out(outputFile.c_str(), ios::out);
     out.precision(12);
-      
+
     ApplicationTools::displayResult("Type of output", perSite ? "perSitePerBranch" : "PerBranch");
     ApplicationTools::displayResult("Output file", outputFile);
 
@@ -321,7 +321,7 @@ int main(int args, char** argv)
             }
 
             if (perSite)
-              (*rates)(rangealt[posalt], TextTools::toString(edgeid)) = TextTools::toString(log(vl[poslik]),12);
+              (*rates)(rangealt[posalt], TextTools::toString(edgeid)) = TextTools::toString(log(vl[poslik]), 12);
             else
               value += -log(vl[poslik]);
 
