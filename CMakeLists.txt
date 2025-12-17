@@ -47,7 +47,6 @@ else(NO_DEP_CHECK)
     endif()
     if(BUILD_STATIC)
         message(STATUS "Static linkage requested.")
-        add_compile_options(-static -static-libgcc)
     endif()
 
     # Check compression program

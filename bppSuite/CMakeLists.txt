@@ -40,6 +40,7 @@ foreach(target ${bppsuite-targets})
     if(BUILD_STATIC)
         target_link_libraries(${target} ${BPP_LIBS_STATIC} Eigen3::Eigen)
         set_target_properties(${target} PROPERTIES LINK_SEARCH_END_STATIC TRUE)
+	target_link_options(${target} PRIVATE -static-libgcc -static-libstdc++)
     else(BUILD_STATIC)
         target_link_libraries(${target} ${BPP_LIBS_SHARED} Eigen3::Eigen)
         set_target_properties(
