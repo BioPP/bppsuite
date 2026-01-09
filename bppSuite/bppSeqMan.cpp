@@ -420,8 +420,8 @@ int main(int args, char** argv)
           throw Exception("'KeepComplete' can only be used on alignment. You may consider using the 'CoerceToAlignment' command.");
         }
 
-	if (ApplicationTools::parameterExists("maxGapAllowed", cmdArgs))
-	  throw Exception("Argument maxGapAllowed is deprecated and has been replaced by max_gap_allowed.");
+        if (ApplicationTools::parameterExists("maxGapAllowed", cmdArgs))
+          throw Exception("Argument maxGapAllowed is deprecated and has been replaced by max_gap_allowed.");
         string maxGapOption = ApplicationTools::getStringParameter("max_gap_allowed", cmdArgs, "100%", "", false, 1);
         if (maxGapOption[maxGapOption.size() - 1] == '%')
         {
@@ -447,7 +447,7 @@ int main(int args, char** argv)
           }
         }
       }
-     // +----------------+
+      // +----------------+
       // | Get consensus |
       // +---------------+
       else if (cmdName == "Consensus")
@@ -461,8 +461,8 @@ int main(int args, char** argv)
         bool ignoreGaps = ApplicationTools::getBooleanParameter("ignore_gaps", cmdArgs, true, "", false, 1);
         bool resolveUnknown = ApplicationTools::getBooleanParameter("resolve_unknown", cmdArgs, true, "", false, 1);
 
-	auto consensusSeq = SiteContainerTools::getConsensus(*sites, "consensus", ignoreGaps, resolveUnknown);
-	sites->addSequence("consensus", consensusSeq);
+        auto consensusSeq = SiteContainerTools::getConsensus(*sites, "consensus", ignoreGaps, resolveUnknown);
+        sites->addSequence("consensus", consensusSeq);
       }
       // +-----------------+
       // | Invert sequence |
@@ -491,7 +491,7 @@ int main(int args, char** argv)
         unsigned int pos = ApplicationTools::getParameter<unsigned int>("position", cmdArgs, 3, "", false, 1);
 
         shared_ptr<SequenceContainerInterface> sc = SequenceContainerTools::getCodonPosition(*sequences, pos - 1);
-//      auto sc = shared_ptr<SequenceContainerInterface>(gp);
+        //      auto sc = shared_ptr<SequenceContainerInterface>(gp);
 
         if (aligned)
         {
@@ -567,15 +567,15 @@ int main(int args, char** argv)
       if (indexPath != "none" && indexPath != "None")
       {
         ofstream indexFile(indexPath, ios::out);
-	indexFile << "# SGED index file version 1.00" << endl;
+        indexFile << "# SGED index file version 1.00" << endl;
         indexFile << "# SGED index start" << endl;
         indexFile << "AlnPos,OrigPos" << endl;
         for (size_t i = 0; i < sites->getNumberOfSites(); ++i)
-	{
+        {
           auto& site = sites->site(i);
-	  indexFile << (i + 1) << "," << site.getCoordinate() << endl;
-	}
-	indexFile.close();
+          indexFile << (i + 1) << "," << site.getCoordinate() << endl;
+        }
+        indexFile.close();
       }
     }
     else

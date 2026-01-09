@@ -83,28 +83,28 @@ int main(int args, char** argv)
 
     std::map<size_t, std::shared_ptr<const AlignmentDataInterface >> mSites = PhylogeneticsApplicationTools::uniqueToSharedMap<const TemplateAlignmentDataInterface<string>>(mSitesuniq);
 
-    if (mSites.find(1)==mSites.end())
+    if (mSites.find(1) == mSites.end())
       throw Exception("Missing number 1 for data.");
-    
+
     auto align = mSites[1];
 
     // Build a random tree from data 1, used to construct processes
     map<string, string> unparsedparams;
 
     map<string, string> args2;
-    args2["input.tree1"]="random(data=1)";
-    
+    args2["input.tree1"] = "random(data=1)";
+
     auto mpTree = PhylogeneticsApplicationTools::getPhyloTrees(args2, mSites, unparsedparams);
 
     // process & phyloli
-    auto SPC = std::shared_ptr<SubstitutionProcessCollection>(bppdist.getCollection(alphabet, gCode, mSites, mpTree, unparsedparams).release());;
+    auto SPC = std::shared_ptr<SubstitutionProcessCollection>(bppdist.getCollection(alphabet, gCode, mSites, mpTree, unparsedparams).release());
 
     /// Only simple processes
     auto mSeqEvoltmp = bppdist.getProcesses(SPC, unparsedparams);
 
     map<size_t, shared_ptr<SequenceEvolution>> mSeqEvol = PhylogeneticsApplicationTools::uniqueToSharedMap<SequenceEvolution>(mSeqEvoltmp);
 
-    args2["phylo1"]="Single(process=1, data=1)";
+    args2["phylo1"] = "Single(process=1, data=1)";
     auto mPhyl = PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(context, SPC, mSeqEvol, mSites, args2);
 
     //////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ int main(int args, char** argv)
       throw Exception("Missing process 1.");
     auto process = SPC->getSubstitutionProcess(1);
 
-    DistanceEstimation distEstimation(process, align, 1, false); //!process is shared between distEstimation & collection
+    DistanceEstimation distEstimation(process, align, 1, false); // !process is shared between distEstimation & collection
 
     /// Dist Method
     string method = ApplicationTools::getStringParameter("method", bppdist.getParams(), "nj");
@@ -147,7 +147,7 @@ int main(int args, char** argv)
       throw Exception("Unknown tree reconstruction method.");
 
     string type = ApplicationTools::getStringParameter("optimization.method", bppdist.getParams(), "init");
-    
+
     ApplicationTools::displayResult("Model parameters estimation method", type);
     if (type == "init")
       type = OptimizationTools::DISTANCEMETHOD_INIT;
@@ -159,7 +159,7 @@ int main(int args, char** argv)
       throw Exception("Unknown parameter estimation procedure '" + type + "'.");
 
     //// Optimization
-    
+
     auto lcp = std::make_shared<LikelihoodCalculationSingleProcess>(context, align, process);
     auto lik = std::make_shared<SingleProcessPhyloLikelihood>(context, lcp);
 
@@ -167,7 +167,7 @@ int main(int args, char** argv)
 
     params["optimization"] = ApplicationTools::getStringParameter("optimization", params, "D-Brent(derivatives=Newton)");
 
-    OptimizationTools::OptimizationOptions optopt(lik,params);
+    OptimizationTools::OptimizationOptions optopt(lik, params);
 
     tree = OptimizationTools::buildDistanceTree(distEstimation, *distMethod, type, optopt);
 
@@ -203,7 +203,7 @@ int main(int args, char** argv)
       auto odm = IODistanceMatrixFactory().createWriter(IODistanceMatrixFactory::PHYLIP_FORMAT, extended);
       odm->writeDistanceMatrix(*distEstimation.getMatrix(), matrixPath, true);
     }
-    
+
     PhylogeneticsApplicationTools::writeTree(*tree, bppdist.getParams());
 
     // Output some parameters:
@@ -219,7 +219,7 @@ int main(int args, char** argv)
       PhylogeneticsApplicationTools::printParameters(*mPhyl, out);
 
       PhylogeneticsApplicationTools::printParameters(*SPC, out, 1, withAlias);
-      
+
       for (const auto& it2 : mSeqEvol)
       {
         PhylogeneticsApplicationTools::printParameters(*it2.second, out, it2.first);
@@ -233,9 +233,9 @@ int main(int args, char** argv)
     {
       auto sites = dynamic_pointer_cast<const SiteContainerInterface>(align);
 
-      if (sites==0)
+      if (sites == 0)
         throw Exception("bppDist: bootstrap yet only for sites. Ask developpers");
-      
+
       ApplicationTools::displayResult("Number of bootstrap samples", TextTools::toString(nbBS));
       bool approx = ApplicationTools::getBooleanParameter("bootstrap.approximate", bppdist.getParams(), true);
       ApplicationTools::displayResult("Use approximate bootstrap", TextTools::toString(approx ? "yes" : "no"));
@@ -257,7 +257,7 @@ int main(int args, char** argv)
       vector<std::unique_ptr<TreeTemplate<Node>>> bsTrees(nbBS);
       ApplicationTools::displayTask("Bootstrapping", true);
       // auto vMod = process->getModelNumbers();
-      
+
       for (unsigned int i = 0; i < nbBS; i++)
       {
         ApplicationTools::displayGauge(i, nbBS - 1, '=');
@@ -282,7 +282,7 @@ int main(int args, char** argv)
         out->close();
       ApplicationTools::displayTaskDone();
       ApplicationTools::displayTask("Compute bootstrap values");
-//      TreeTools::computeBootstrapValues(*tree, bsTrees);
+      //      TreeTools::computeBootstrapValues(*tree, bsTrees);
       ApplicationTools::displayTaskDone();
 
       // Write resulting tree:

@@ -37,34 +37,34 @@ using namespace bpp;
 
 
 template<class T>
-class SampleClass 
+class SampleClass
 {
 private:
   std::vector<T> states_;
   bool replace_;
   bool ordered_; // fix the sampling
-  
-public:
-  SampleClass() : states_(), replace_(false), ordered_(false){};
 
-  SampleClass(const SampleClass<T>& po) : states_(po.states_), replace_(po.replace_), ordered_(po.ordered_) {};
+public:
+  SampleClass() : states_(), replace_(false), ordered_(false){}
+
+  SampleClass(const SampleClass<T>& po) : states_(po.states_), replace_(po.replace_), ordered_(po.ordered_) {}
 
   SampleClass<T>& operator=(const SampleClass<T>& po)
   {
-    states_=po.states_;
-    replace_=po.replace_;
-    ordered_=po.ordered_;
+    states_ = po.states_;
+    replace_ = po.replace_;
+    ordered_ = po.ordered_;
     return *this;
   }
 
   void setStates(const std::vector<T>& states)
   {
-    states_=states;
+    states_ = states;
   }
 
   void setStates(const T& state)
   {
-    states_=std::vector<T>(1,state);
+    states_ = std::vector<T>(1, state);
   }
 
   const std::vector<T> getStates() const
@@ -74,7 +74,7 @@ public:
 
   void setOrdered(bool ordered)
   {
-    ordered_=ordered;
+    ordered_ = ordered;
   }
 
   bool getOrdered() const
@@ -84,7 +84,7 @@ public:
 
   void setReplace(bool replace)
   {
-    replace_=replace;
+    replace_ = replace;
   }
 
   bool getReplace() const
@@ -94,7 +94,7 @@ public:
 
   T pickOne() const
   {
-    if (states_.size()==1)
+    if (states_.size() == 1)
       return states_[0];
     else
       return RandomTools::pickOne<T>(states_);
@@ -106,7 +106,6 @@ public:
    * If ordered_, returns size first elements, otherwise samples from
    * it.
    */
-
   std::vector<T> pickSeveral(size_t size) const
   {
     std::vector<T> vS(size);
@@ -115,15 +114,14 @@ public:
       RandomTools::getSample(states_, vS, replace_);
     else
     {
-      if (size>states_.size())
-        throw BadSizeException("pickSeveral: too many sites to extract.",size,states_.size());
-      
-      vS.insert(vS.begin(), states_.begin(), states_.begin()+size);
+      if (size > states_.size())
+        throw BadSizeException("pickSeveral: too many sites to extract.", size, states_.size());
+
+      vS.insert(vS.begin(), states_.begin(), states_.begin() + static_cast<bpp::ModelPath::PathNode::difference_type>(size));
     }
-    
+
     return vS;
   }
-
 };
 
 
@@ -227,7 +225,7 @@ int main(int args, char** argv)
       auto mintern = ApplicationTools::getBooleanParameter("output.internal.sequences", argsim, false, "", true, 1);
       ApplicationTools::displayBooleanResult(" Output internal", mintern);
 
-      
+
       //////////////////////////////////////////////////////
       /////// Process
       size_t nbSites = 0;
@@ -251,7 +249,7 @@ int main(int args, char** argv)
             throw BadIntegerException("bppseqgen. Unknown process number:", (int)indProcess);
 
           ss = make_unique<EvolutionSequenceSimulator>(*mSeqEvol.find(indProcess)->second);
-        } 
+        }
         else // Site Process
         {
           ss = make_unique<SimpleSubstitutionProcessSequenceSimulator>(spc->getSubstitutionProcess(indProcess));
@@ -278,15 +276,15 @@ int main(int args, char** argv)
           throw BadIntegerException("bppseqgen. Posterior simulation not implemented for this kind of phylolikelihood. Ask developers.", (int)num);
 
         std::shared_ptr<LikelihoodCalculationSingleProcess> lcsp = spph ? spph->getLikelihoodCalculationSingleProcess() :
-          opsp->getLikelihoodCalculationSingleProcess();
-        
+            opsp->getLikelihoodCalculationSingleProcess();
+
         // Get nodes with no phyloLik
         auto descnodes = ApplicationTools::getStringParameter("nullnodes", argsim, "", "", true, 0);
 
-        if (descnodes!="")
+        if (descnodes != "")
         {
-          auto tree= lcsp->substitutionProcess().getParametrizablePhyloTree();
-        
+          auto tree = lcsp->substitutionProcess().getParametrizablePhyloTree();
+
           if (descnodes == "All")
           {
             nodesId = tree->getEdgeIndexes(tree->getSubtreeEdges(tree->getRoot()));
@@ -305,7 +303,7 @@ int main(int args, char** argv)
             nodesId = ApplicationTools::getVectorParameter<unsigned int>("nullnodes", argsim, ',', ':', "", "", true, 1);
         }
 
-        
+
         ///////////////: Simulation of a specific site
         if (argsim.find("pos") == argsim.end())// Sequence simulation similar to the data, number_of_sites will not be used
           ss = make_unique<GivenDataSubstitutionProcessSequenceSimulator>(lcsp, nodesId);
@@ -313,28 +311,28 @@ int main(int args, char** argv)
         {
           size_t pos = (size_t)ApplicationTools::getIntParameter("pos", argsim, 1, "", true, 0);
           ApplicationTools::displayResult(" Position", TextTools::toString(pos));
-          
+
           ss = make_unique<SimpleSubstitutionProcessSequenceSimulator>(lcsp, pos, false, nodesId);
         }
       }
 
       ss->outputInternalSequences(mintern);
 
-      if (nodesId.size()!=0)
+      if (nodesId.size() != 0)
         ApplicationTools::displayResult(" No phylo nodes", VectorTools::paste(nodesId, ", "));
 
-      
+
       auto gds = dynamic_cast<GivenDataSubstitutionProcessSequenceSimulator*>(ss.get());  // Constrained by data
-      auto pps = dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get());// Constrained by sequence structure
+      auto pps = dynamic_cast<SubstitutionProcessSequenceSimulator*>(ss.get()); // Constrained by sequence structure
 
       // Number of sites from process
       nbSites = gds ? gds->getNumberOfSites() : pps ? pps->getNumberOfSites() : 0;
 
       // Specified number of sites
       size_t nbmin = (size_t)ApplicationTools::getIntParameter("number_of_sites", argsim, 0, "", false, 2);
-      if (nbSites==0 || nbmin<nbSites)
-        nbSites=nbmin;
-      
+      if (nbSites == 0 || nbmin < nbSites)
+        nbSites = nbmin;
+
       ////////////////////////////////////////////////
       // Root states
       vector<SampleClass<size_t>> states;
@@ -346,50 +344,50 @@ int main(int args, char** argv)
 
       // Data or info at root
       auto rootData = ApplicationTools::getStringParameter("root.data", argsim, "", "", true, 0);
-      auto withData = (rootData!="");
+      auto withData = (rootData != "");
 
       std::shared_ptr<const AlignmentDataInterface> data;
       bool sampleseq = false;
       SampleClass<uint> nseq;
 
-      string infosFile = ApplicationTools::getAFilePath("input.infos", argsim, false, false,"",1,"",1);
+      string infosFile = ApplicationTools::getAFilePath("input.infos", argsim, false, false, "", 1, "", 1);
 
       // withData
       if (withData)
       {
-        withStates=true;
-        
+        withStates = true;
+
         auto paro = rootData.find("(");
-        if (paro==std::string::npos)
+        if (paro == std::string::npos)
           throw Exception("Bad syntax for root.data: need SequenceFrom(<int>) or SitesFrom(<int>)");
-        auto pref= rootData.substr(0,paro);
-        auto parc = rootData.find(")",paro);
-        uint indData = TextTools::toInt(rootData.substr(paro+1,parc-paro-1));
-        
+        auto pref = rootData.substr(0, paro);
+        auto parc = rootData.find(")", paro);
+        unsigned int indData = TextTools::to<unsigned int>(rootData.substr(paro + 1, parc - paro - 1));
+
         if (mSites.find(indData) == mSites.end())
           throw BadIntegerException("bppseqgen : Unknown data number:", (int)indData);
-        
+
         data = mSites.at(indData);
-        if (nbSites==0 || data->getNumberOfSites()<nbSites)
-          nbSites=data->getNumberOfSites();
-        
-        sampleseq=(pref=="SequenceFrom");
+        if (nbSites == 0 || data->getNumberOfSites() < nbSites)
+          nbSites = data->getNumberOfSites();
+
+        sampleseq = (pref == "SequenceFrom");
         Vuint vseq(data->getNumberOfSequences());
         std::iota(vseq.begin(), vseq.end(), 0);
-          
+
         nseq.setStates(vseq);
       }
 
       // end withData
-      
-      /// Info file      
+
+      /// Info file
       if (infosFile != "none")
       {
         ApplicationTools::displayResult("Site information", infosFile);
         ifstream in(infosFile.c_str());
         auto infos = DataTable::read(in, "\t");
 
-        if (nbSites==0 || (infos->getNumberOfRows()< nbSites))
+        if (nbSites == 0 || (infos->getNumberOfRows() < nbSites))
           nbSites = infos->getNumberOfRows();
 
         string rateCol = ApplicationTools::getStringParameter("input.infos.rates", argsim, "none", "", true, true);
@@ -407,14 +405,14 @@ int main(int args, char** argv)
             rates[i] = TextTools::toDouble(ratesStrings[i]);
           }
         }
-        
+
         if (!withData) // if no Data already seen
         {
           withStates = (stateCol != "none");
           if (withStates)
           {
             vector<string> ancestralStates = infos->getColumn(stateCol);
-            
+
             states.resize(nbSites);
             for (size_t i = 0; i < nbSites; i++)
             {
@@ -423,11 +421,15 @@ int main(int args, char** argv)
               // If a generic character is provided, we pick one state randomly from the possible ones:
               if (alphabet->isUnresolved(alphabetState))
                 for (const auto& vs : alphabet->getAlias(alphabetState))
+                {
                   for (const auto& j : sm->getModelStates(vs))
+                  {
                     vstates.push_back(j);
+                  }
+                }
               else
-                vstates=sm->getModelStates(alphabetState);
-              
+                vstates = sm->getModelStates(alphabetState);
+
               states[i].setStates(vstates);
             }
           }
@@ -440,7 +442,7 @@ int main(int args, char** argv)
         siteSet = siteSet.substr(1, siteSet.size() - 2);
 
       SampleClass<size_t> vSite;
-      
+
       if (siteSet != "none")
       {
         try
@@ -451,9 +453,9 @@ int main(int args, char** argv)
           {
             int x = (vSite1[i] >= 0 ? vSite1[i] : static_cast<int>(nbSites) + vSite1[i]);
             if (x >= 0)
-              if ((nbSites!=0) && (x>=(int)nbSites)) // because up to now sites are contiguous
-                throw BadSizeException("bppseqgen. Incorrect too large index for site selection: " , nbSites, x);
-              else                
+              if ((nbSites != 0) && (x >= (int)nbSites))// because up to now sites are contiguous
+                throw BadSizeException("bppseqgen. Incorrect too large index for site selection: ", nbSites, static_cast<size_t>(x));
+              else
                 vS.push_back((size_t)x);
             else
               throw Exception("bppseqgen. Incorrect negative index for site selection: " + TextTools::toString(x));
@@ -464,21 +466,21 @@ int main(int args, char** argv)
         }
         catch (Exception& e)
         {
-          if (nbSites==0)
-            nbSites=100;
+          if (nbSites == 0)
+            nbSites = 100;
           string seln;
           map<string, string> selArgs;
           KeyvalTools::parseProcedure(siteSet, seln, selArgs);
           if (seln == "Sample")
           {
             size_t n = ApplicationTools::getParameter<size_t>("n", selArgs, nbSites, "", true, 1);
-            if (n==0)
+            if (n == 0)
               throw Exception("Missing simul length for Sample in  input.site.selection " + siteSet);
             bool replace = ApplicationTools::getBooleanParameter("replace", selArgs, false, "", true, 1);
-            
+
             vector<size_t> vPos(nbSites);
             std::iota(vPos.begin(), vPos.end(), 0);
-            
+
             vSite.setReplace(replace);
             vSite.setStates(vPos);
             nbSites = n;
@@ -489,37 +491,37 @@ int main(int args, char** argv)
       }
       else
       {
-        if (nbSites==0)
-          nbSites=100;
+        if (nbSites == 0)
+          nbSites = 100;
 
         vector<size_t> vPos(nbSites);
         std::iota(vPos.begin(), vPos.end(), 0);
-          
+
         vSite.setOrdered(true);
         vSite.setStates(vPos);
       }
-      
+
       ApplicationTools::displayResult(" Number of sites", nbSites);
-      
+
       // Type of simulation
 
-      size_t nbsimul=1;
-      if (simulName=="Multiple")
+      size_t nbsimul = 1;
+      if (simulName == "Multiple")
         nbsimul = (size_t)ApplicationTools::getIntParameter("n", argsim, 1, "", true, 0);
 
       unique_ptr<OAlignment> oAln(bppoWriter.read(mformats));
 
-      for (size_t isimul=0; isimul<nbsimul; isimul++)
+      for (size_t isimul = 0; isimul < nbsimul; isimul++)
       {
         vector<size_t> newStates(nbSites);
         vector<double> newRates(nbSites);
 
-        auto vsitesR = vSite.pickSeveral(nbSites); // Take sites 
-        
+        auto vsitesR = vSite.pickSeveral(nbSites); // Take sites
+
         if (withData)
         {
-          size_t iseq=0;
-          
+          size_t iseq = 0;
+
           if (sampleseq)
           {
             iseq = nseq.pickOne();
@@ -533,24 +535,26 @@ int main(int args, char** argv)
           {
             if (!sampleseq)
               iseq = nseq.pickOne();
-            
+
             for (size_t j = 0; j < nbStates; j++)
+            {
               probstate[j] = data->getStateValueAt(vsitesR[i], iseq, alphabet->getIntCodeAt(j + 1));
-            
+            }
+
             string pchar;
-            if (VectorTools::sum(probstate)>0.001)
+            if (VectorTools::sum(probstate) > 0.001)
               pchar = RandomTools::pickOne<string>(resChar, probstate, true);
             else
               pchar = alphabet->intToChar(alphabet->getGapCharacterCode());
-            
+
             newStates[i] = RandomTools::pickOne<size_t>(sm->getModelStates(pchar));
-            newRates[i] = withRates?rates[vsitesR[i]]:1;
+            newRates[i] = withRates ? rates[vsitesR[i]] : 1;
           }
         }
-        
+
         std::shared_ptr<SiteContainerInterface> sites = 0;
 
-        ApplicationTools::displayTask(" Perform simulations " + TextTools::toString(nS+1) + (nbsimul>1?"_"+TextTools::toString(isimul+1):""));
+        ApplicationTools::displayTask(" Perform simulations " + TextTools::toString(nS + 1) + (nbsimul > 1 ? "_" + TextTools::toString(isimul + 1) : ""));
         ApplicationTools::displayTaskDone();
 
         if (withRates || withStates)
@@ -565,16 +569,16 @@ int main(int args, char** argv)
         }
         else
           sites = ss->simulate(nbSites);
-        
-        string outnf = (nbsimul > 1 ? mfnames + "_" + TextTools::toString(isimul+1):mfnames);
-        
+
+        string outnf = (nbsimul > 1 ? mfnames + "_" + TextTools::toString(isimul + 1) : mfnames);
+
         ApplicationTools::displayResult(" Output file", outnf);
         ApplicationTools::displayMessage("");
 
         oAln->writeAlignment(outnf, *sites, true);
       }
     }
-    
+
     bppseqgen.done();
   }
   catch (exception& e)

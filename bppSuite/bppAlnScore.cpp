@@ -221,7 +221,7 @@ int main(int args, char** argv)
     if (outputIndexCs != "none")
     {
       ApplicationTools::displayResult("Output CS index to", outputIndexCs);
-      
+
       indexOutCs << "# SGED index file version 1.00" << endl;
       indexOutCs << "# SGED index start" << endl;
       indexOutCs << "AlnPos,OrigPos" << endl;
@@ -229,10 +229,11 @@ int main(int args, char** argv)
       size_t pos = 0;
       for (size_t i = 0; i < cs.size(); ++i)
       {
-	if (cs[i] == 1) {
+        if (cs[i] == 1)
+        {
           indexOutCs << ++pos << "," << sitesTest->site(i).getCoordinate() << endl;
-	}
-      } 
+        }
+      }
     }
 
     string outputIndexSps = ApplicationTools::getAFilePath("output.index.sps", bppalnscore.getParams(), false, false);
@@ -241,7 +242,7 @@ int main(int args, char** argv)
     {
       ApplicationTools::displayResult("Output SPS index to", outputIndexSps);
       double spsThreshold = ApplicationTools::getDoubleParameter("output.sps_thresholds", bppalnscore.getParams(), 0.8);
-      
+
       indexOutSps << "# SGED index file version 1.00" << endl;
       indexOutSps << "# SGED index start" << endl;
       indexOutSps << "AlnPos,OrigPos" << endl;
@@ -249,12 +250,13 @@ int main(int args, char** argv)
       size_t pos = 0;
       for (size_t i = 0; i < sps.size(); ++i)
       {
-	if (sps[i] >= spsThreshold) {
+        if (sps[i] >= spsThreshold)
+        {
           indexOutSps << ++pos << "," << sitesTest->site(i).getCoordinate() << endl;
-	}
-      }  
+        }
+      }
     }
- 
+
     // We're done!
     bppalnscore.done();
   }
