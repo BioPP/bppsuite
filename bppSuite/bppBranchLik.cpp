@@ -323,7 +323,7 @@ int main(int args, char** argv)
             if (perSite)
               (*rates)(rangealt[posalt], TextTools::toString(edgeid)) = TextTools::toString(log(vl[poslik]), 12);
             else
-              value += -log(vl[poslik]);
+              value += log(vl[poslik]);
 
             posalt++;
             poslik++;
