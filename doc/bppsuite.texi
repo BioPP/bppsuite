@@ -2080,7 +2080,7 @@ process2=NonHomogeneous(model1=1,model1.nodes_id=(1:4,6:9),model2=2,model2.nodes
 
 A scenario number can be declared in the case of mixed models inside
 the process. It describes how the submodels are organized along the
-phylogeny. @xref{Scenario}.
+phylogeny. @xref{Scenarios}.
 
 In the case of mixed models, if no scenario is declared, the mixture
 is made inside each branch, which means that a site can swtch between
@@ -2171,7 +2171,7 @@ process7=Partition(process1=2, process2=5, process1.sites=(1,5:20,24-35), proces
 
 
 @node  Scenarios, Phylo-likelihoods, Process, Likelihoods
-@anchor{Scenario}
+@anchor{Scenarios}
 @subsection Scenarios with mixture models
 
 In default setting of mixture models in a process, each branch has its
