@@ -109,6 +109,7 @@ else(NO_DEP_CHECK)
     # Subdirectories
     add_subdirectory(bppSuite)
     add_subdirectory(doc)
+    add_subdirectory(man)
 endif(NO_DEP_CHECK)
 
 # Packager
