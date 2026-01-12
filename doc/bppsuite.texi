@@ -94,6 +94,7 @@ Setting up the substitution models
 * Meta::                        Meta models
 * Mixture::                     Mixture of models
 * Conditioned::                 Models conditioned by events
+* Register::
 
 Bio++ Program Suite Reference
 
@@ -686,7 +687,7 @@ whether distances should be signed or not.
 @c ------------------------------------------------------------------------------------------------------------------
 
 
-@node Likelihoods, Estimation, AlphabetIndex, Common
+@node Likelihoods, Distribution, AlphabetIndex, Common
 @section Declaring Phylo-likelihoods
 
 @menu
