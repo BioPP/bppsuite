@@ -80,6 +80,7 @@ Declaring Phylo-likelihoods
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
 * Process::                     Process along trees
+* Scenarios::
 * Phylo-likelihoods::           Declaration of phylogenetic likelihoods
 * Linking::                     Linking parameters
 
@@ -685,7 +686,7 @@ whether distances should be signed or not.
 @c ------------------------------------------------------------------------------------------------------------------
 
 
-@node Likelihoods, Distribution, AlphabetIndex, Common
+@node Likelihoods, Estimation, AlphabetIndex, Common
 @section Declaring Phylo-likelihoods
 
 @menu
@@ -694,6 +695,7 @@ whether distances should be signed or not.
 * FrequenciesSet::              Frequencies 
 * Rates::                       Rates across sites
 * Process::                     Process along trees
+* Scenarios::
 * Phylo-likelihoods::           Declaration of phylogenetic likelihoods
 * Linking::                     Linking parameters
 @end menu
@@ -1976,7 +1978,7 @@ with a probability @var{p}.
 
 @end table
 
-@node  Process, Phylo-likelihoods, Rates, Likelihoods
+@node  Process, Scenarios, Rates, Likelihoods
 @subsection Setting up the processes
 
 
@@ -2582,7 +2584,7 @@ scenario1 = path1 | path2 | complete
 
 
 
-@node Phylo-likelihoods, Linking, Process, Likelihoods
+@node Phylo-likelihoods, Linking, Scenarios, Likelihoods
 @subsection Setting up phylo-likelihoods
 
 A phylo-likelihood is an object defined by a data and substitution
@@ -2793,7 +2795,7 @@ are @var{Mixture.theta1}, @var{Mixture.1_Beta.alpha},
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Estimation, WritingSequences, Distribution, Common
+@node Estimation, WritingSequences, Likelihoods, Common
 @section Numerical parameters estimation
 
 Some programs allow you to (re-)estimate numerical parameters, including
