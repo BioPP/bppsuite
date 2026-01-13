@@ -2170,8 +2170,7 @@ process7=Partition(process1=2, process2=5, process1.sites=(1,5:20,24-35), proces
 @end table
 
 
-@node  Scenarios, Phylo-likelihoods, Process, Likelihoods
-@anchor{Scenarios}
+@node Scenarios, Phylo-likelihoods, Process, Likelihoods
 @subsection Scenarios with mixture models
 
 In default setting of mixture models in a process, each branch has its
@@ -2793,7 +2792,7 @@ are @var{Mixture.theta1}, @var{Mixture.1_Beta.alpha},
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Estimation, WritingSequences, Likelihoods, Common
+@node Estimation, WritingSequences, Distribution, Common
 @section Numerical parameters estimation
 
 Some programs allow you to (re-)estimate numerical parameters, including
