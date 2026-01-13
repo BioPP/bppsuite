@@ -3331,7 +3331,7 @@ the previous section for setting the alphabet, loading the sequences
 Given a phylo-likelihood computed on a process or a set of processes
 in a Partition, the model(s) of another process -- aka the alternative
 process -- are applied on all branches the one after the other, and
-(site-)likelihoods are computed given this change. The alternative
+(site-)log-likelihoods are computed given this change. The alternative
 process is described as normal, the keyword @option{alt_process} is
 used to give the number of the alternative process.
 

@@ -1,0 +1,47 @@
+.\" SPDX-FileCopyrightText: The Bio++ Development Group
+.\"
+.\" SPDX-License-Identifier: CECILL-2.1
+
+.TH BPPBRANCHLIK 1 LOCAL
+
+.SH NAME
+
+bppbranchlik - Computation of per branch (and per site) log-likelihood
+of a model (ie only on this branch) in another model background (ie on
+all other branches).
+
+.SH SYNOPSIS
+
+.B bppbranchlik [options]
+
+.SH AVAILABILITY
+
+All UNIX flavors
+
+.SH DESCRIPTION
+
+Given a phylo-likelihood computed on a process or a set of processes
+in a Partition, the model(s) of another process -- aka the alternative
+process -- are applied on all branches the one after the other, and
+(site-)log-likelihoods are computed given this change. 
+
+.SH OPTIONS
+
+You should refer to 'info bppsuite' or to the online manual of
+bppsuite for a complete list of available options.
+
+.TP 5
+
+--noninteractive
+
+generates output for redirection in a file.
+
+.TP
+
+param=file
+
+reads a file for loading options
+
+.SH AUTHOR
+
+The Bio++ Development Team.
