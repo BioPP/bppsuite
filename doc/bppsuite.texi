@@ -68,6 +68,7 @@ Common arguments encountered in several programs.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
 * Likelihoods::                 All modeling objects that lead to likelihood of phylogenies.
+* Distribution::                Distributions for parameters, branch lengths, ...
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
 * WritingTrees::                Writing trees to files. 
