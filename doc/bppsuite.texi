@@ -68,7 +68,7 @@ Common arguments encountered in several programs.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
 * Likelihoods::                 All modeling objects that lead to likelihood of phylogenies.
-* Distribution::                Distributions for parameters, branch lengths, ...
+* Distributions::               Distributions for parameters, branch lengths, ...
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
 * WritingTrees::                Writing trees to files. 
@@ -686,7 +686,7 @@ whether distances should be signed or not.
 @c ------------------------------------------------------------------------------------------------------------------
 
 
-@node Likelihoods, Estimation, AlphabetIndex, Common
+@node Likelihoods, Distributions, AlphabetIndex, Common
 @section Declaring Phylo-likelihoods
 
 @menu
@@ -2685,7 +2685,7 @@ Full.theta1_1 = 0.1
 @end example
 @end cartouche
 
-@node Distribution, Estimation, Likelihoods, Common
+@node Distributions, Estimation, Likelihoods, Common
 @anchor{Discrete distributions}
 @section Discrete distributions
 
@@ -2795,7 +2795,7 @@ are @var{Mixture.theta1}, @var{Mixture.1_Beta.alpha},
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Estimation, WritingSequences, Likelihoods, Common
+@node Estimation, WritingSequences, Distributions, Common
 @section Numerical parameters estimation
 
 Some programs allow you to (re-)estimate numerical parameters, including
@@ -3078,7 +3078,7 @@ values (default: true).
 The BppSeqGen program uses the common syntax introduced in the
 previous section for setting the alphabet, loading the sequences
 (@pxref{Sequences}), trees (@pxref{Tree}), root frequencies
-(@pxref{FrequenciesSet}), substitution rates (@pxref{Distribution}),
+(@pxref{FrequenciesSet}), substitution rates (@pxref{Distributions}),
 models (@pxref{Model}) and writing sequence data
 (@pxref{WritingSequences}).
 
