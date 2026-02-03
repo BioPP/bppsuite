@@ -68,7 +68,6 @@ Common arguments encountered in several programs.
 * Tree::                        Loading trees.
 * AlphabetIndex::               Setting biochemical properties and distances. 
 * Likelihoods::                 All modeling objects that lead to likelihood of phylogenies.
-* Distributions::               Distributions for parameters, branch lengths, ...
 * Estimation::                  Estimating parameters by maximizing a likelihood function.
 * WritingSequences::            Writing sequences/alignments to files. 
 * WritingTrees::                Writing trees to files. 
@@ -686,7 +685,7 @@ whether distances should be signed or not.
 @c ------------------------------------------------------------------------------------------------------------------
 
 
-@node Likelihoods, Distributions, AlphabetIndex, Common
+@node Likelihoods, Estimation, AlphabetIndex, Common
 @section Declaring Phylo-likelihoods
 
 @menu
@@ -2795,7 +2794,7 @@ are @var{Mixture.theta1}, @var{Mixture.1_Beta.alpha},
 
 @c ------------------------------------------------------------------------------------------------------------------
 
-@node Estimation, WritingSequences, Distributions, Common
+@node Estimation, WritingSequences, Likelihoods, Common
 @section Numerical parameters estimation
 
 Some programs allow you to (re-)estimate numerical parameters, including
