@@ -1,8 +1,9 @@
-% SPDX-FileCopyrightText: The Bio++ Development Group
-%
-% SPDX-License-Identifier: CECILL-2.1
+<!-- SPDX-FileCopyrightText: The Bio++ Development Group
 
-# Tutorial for bppsuite
+     SPDX-License-Identifier: CECILL-2.1 -->
+
+
+# Tutorial for first hints in maximum likelihood inference
 
 Laurent Guéguen laurent.gueguen@univ-lyon1.fr
 
