@@ -101,10 +101,10 @@ else(NO_DEP_CHECK)
     endif(CMAKE_INSTALL_PREFIX)
 
     include(GNUInstallDirs)
-    find_package(bpp-phyl 3.0.0 REQUIRED)
-    find_package(bpp-popgen 3.0.0 REQUIRED)
+    find_package(bpp-phyl 13.0.0 REQUIRED)
+    find_package(bpp-popgen 9.0.0 REQUIRED)
 
-    find_package(Eigen3 3.3 REQUIRED PATHS /usr/lib NO_MODULE)
+    find_package(Eigen3 REQUIRED PATHS /usr/lib NO_MODULE)
 
     # Subdirectories
     add_subdirectory(bppSuite)
