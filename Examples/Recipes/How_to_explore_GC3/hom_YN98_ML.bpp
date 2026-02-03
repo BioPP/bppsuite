@@ -28,7 +28,13 @@ input.tree1=user(file=spec_tree.dnd, format=Newick, data=1)
 #                Model
 # --------------------------------------------------------
 
+#model1=MixedModel(model=MG94xREV(omega=Simple(values=(0.01,1),probas=(0.5,0.5)), frequencies=F3X4), initFreqs=observed,data=1)
+
+MODEL=MG94xREV
+
 model1=YN98(omega=0.01, frequencies=F3X4, initFreqs=observed,data=1)
+
+optimization.constrain_parameters = $(MODEL).omega_Simple.V1_1 = [0.002;0.999], $(MODEL).omega_Simple.V3_1 = ]1;999]
 
 root_freq1=F3X4(initFreqs=observed,data=1)
 
