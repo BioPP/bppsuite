@@ -419,26 +419,16 @@ int main(int args, char** argv)
       colNames.push_back("Ll");
 
       Vdouble dval;
-      std::vector<string> dnval;
-      
       for (size_t i = 0; i < nbcl; i++)
       {
         auto pSM = pMatm->getNModel(static_cast<size_t>(vvnmod[i][0]));
         double valPar = pSM->getParameterValue(pSM->getParameterNameWithoutNamespace(parname));
         dval.push_back(valPar);
-        auto sv = TextTools::toString(valPar);
-        auto it = std::find(dnval.begin(),dnval.end(),sv);
-        while (it!=dnval.end()) // To ensure different col names
-        {
-          sv = "0" + sv;
-          it = std::find(dnval.begin(),dnval.end(),sv);
-        }
-        dnval.push_back(sv);
-        colNames.push_back("Ll_" + realparname + "=" + sv);
+        colNames.push_back("Ll_" + realparname + "=" + TextTools::toString(valPar));
       }
       for (size_t i = 0; i < nbcl; i++)
       {
-        colNames.push_back("Pr_" + realparname + "=" + dnval[i]);
+        colNames.push_back("Pr_" + realparname + "=" + TextTools::toString(dval[i]));
       }
 
       colNames.push_back("mean");
@@ -512,7 +502,7 @@ int main(int args, char** argv)
         vvd.push_back(vd);
 
         ApplicationTools::displayMessage("\n");
-        ApplicationTools::displayMessage("Parameter " + par2 + "=" + dnval[i] + " with rate=" + TextTools::toString(vRates[i]));
+        ApplicationTools::displayMessage("Parameter " + par2 + "=" + TextTools::toString(dval[i]) + " with rate=" + TextTools::toString(vRates[i]));
 
         ApplicationTools::displayResult("Log likelihood", TextTools::toString(tl->getValue(), 15));
         ApplicationTools::displayResult("Probability", TextTools::toString(vsprob[i], 15));
