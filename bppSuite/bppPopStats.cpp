@@ -306,8 +306,8 @@ int main(int args, char** argv)
       if (estimateAncestor)
       {
         MarginalAncestralReconstruction asr(lik);
-        uint outgroupId = uint(tree->getLeafId(pscOut->sequence(0).getName()));
-        ancestralSequence = asr.getAncestralSequenceForNode(uint(tree->getFatherId(int(outgroupId))));
+        unsigned int outgroupId = static_cast<unsigned int>(tree->getLeafId(pscOut->sequence(0).getName()));
+        ancestralSequence = asr.getAncestralSequenceForNode(static_cast<unsigned int>(tree->getFatherId(int(outgroupId))));
       }
       if (codonAlphabet)
       {

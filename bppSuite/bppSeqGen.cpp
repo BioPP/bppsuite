@@ -348,7 +348,7 @@ int main(int args, char** argv)
 
       std::shared_ptr<const AlignmentDataInterface> data;
       bool sampleseq = false;
-      SampleClass<uint> nseq;
+      SampleClass<unsigned int> nseq;
 
       string infosFile = ApplicationTools::getAFilePath("input.infos", argsim, false, false, "", 1, "", 1);
 

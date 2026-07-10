@@ -242,8 +242,8 @@ int main(int args, char** argv)
       if (approx)
         type = OptimizationTools::DISTANCEMETHOD_INIT;
 
-      uint bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppdist.getParams(), false, "", true, false);
-      optopt.verbose = bootstrapVerbose;
+      bool bootstrapVerbose = ApplicationTools::getBooleanParameter("bootstrap.verbose", bppdist.getParams(), false, "", true, false);
+      optopt.verbose = bootstrapVerbose ? 1 : 0;
 
       string bsTreesPath = ApplicationTools::getAFilePath("bootstrap.output.file", bppdist.getParams(), false, false);
       shared_ptr<ofstream> out = NULL;
