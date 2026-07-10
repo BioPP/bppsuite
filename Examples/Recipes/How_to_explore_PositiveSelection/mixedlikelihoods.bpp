@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: The Bio++ Development Group
+#
+# SPDX-License-Identifier: CECILL-2.1
+
+# The alphabet to use:
+# DNA, RNA or Protein
+alphabet=Codon(letter=DNA)
+genetic_code=Standard
+
+DATA=APOBEC3G_primates
+
+# ----------------------------------------------------------------
+#         Alignment
+# ----------------------------------------------------------------
+
+input.data1=alignment(file = $(DATA).fasta, format = Fasta, sites_to_use = all)
+
+# ----------------------------------------------------------------------------------------
+#                                     Input tree file
+# ----------------------------------------------------------------------------------------
+
+input.tree1=user(file = hom_M0/$(DATA).ml_h.dnd_1, format = Newick)
+
+# --------------------------------------------------------
+#                                     Computation
+# --------------------------------------------------------
+
+output.likelihoods.file = $(OUTPUTDIR)/$(DATA)_llik.tsv
+
