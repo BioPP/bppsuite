@@ -178,7 +178,7 @@ int main(int args, char** argv)
 
 
     // get the branch numbers of tree for alt process: all process must have the same numbers
-    std::vector<uint> brnum;
+    std::vector<unsigned int> brnum;
     for (auto prn:maltproc)
     {
       const auto& brn = prn.second.proc_->parametrizablePhyloTree().getAllEdgesIndexes();
