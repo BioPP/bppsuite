@@ -20,4 +20,4 @@ input.sequence.format.ingroup=Phylip(order=interleaved, type=classic)
 # Analysis
 # ----------------
 
-pop.stats=CodonSiteStatistics(output.file=alignment.codons.csv),PiN_PiS
+pop.stats=CodonSiteStatistics(output.file=alignment.codons.csv),CodonNucleotideSiteStatistics(output.file=alignment.codon_positions.csv),PiN_PiS

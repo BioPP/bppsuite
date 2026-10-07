@@ -3672,8 +3672,8 @@ Output an index mapping the selected SPS alignment positions to the original ali
 @node bpppopstats, bpptreedraw, bppalnscore, Reference
 @section BppPopStats: Bio++ Population Genetics Statistics
 
-The @command{BppPopStats} program computes population genetics statistics from a sequence input alignment.
-It can compute glabal alignment statistics, as well as site-specific statistics. In the first case, results
+The @command{BppPopStats} program computes population genetics statistics from an input sequence alignment.
+It can compute global alignment statistics, as well as (codon)site-specific statistics. In the first case, results
 are output on screen or in a log file. In the second case, results are written in a table file, with one site per line.
 Statistics available also depend on the type on input data (coding or non-coding).
 
@@ -3798,7 +3798,7 @@ Generate a table with codon-site specifics statistics, including:
 
 @item Whether the site is synonymous polymorphic
 
-@item Whether the site is four-fold degenerated
+@item Whether the site is four-fold degenerate, that is, if all codons are four-fold degenerate at the third position + the codon site is synonymous polymorphic.
 
 @item Non-synonymous diversity (piN)
 
@@ -3809,6 +3809,53 @@ Generate a table with codon-site specifics statistics, including:
 @item dN, if an outgroup is available
 
 @item dS, if an outgroup is available
+
+@end itemize
+
+@item CodonNucleotideSiteStatistics
+Generate a table with sites within codons specifics statistics.
+This is similar to CodonSiteStatistics, but outputing three lines per codon, one for each position.
+Statistics include:
+
+@itemize @bullet
+
+@item The codon number
+
+@item The position within the codon
+
+@item Whether the site is complete or not
+
+@item Number of distinct states
+
+@item Minor allele frequency
+
+@item Major allele frequency
+
+@item Minor allele
+
+@item Major allele
+
+@item State in the first outgroup sequence, if any
+
+@item Ancestral state, if computed
+
+@item Mean number of synonymous positions for polymorphism
+
+@item Whether the site is synonymous polymorphic
+
+@item Whether the site is zero-fold degenerate (that is, if all codons are zero-fold degenerate at this position)
+
+@item Whether the site is four-fold degenerate (that is, if all codons are four-fold degenerate at this position)
+
+@item Non-synonymous diversity (piN)
+
+@item Synonymous diversity (piS)
+
+@item Mean number of synonymous positions for divergence
+
+@item dN, if an outgroup is available (0 or 1, since it is per nucleotide position)
+
+@item dS, if an outgroup is available (0 or 1, since it is per nucleotide position)
 
 @end itemize
 

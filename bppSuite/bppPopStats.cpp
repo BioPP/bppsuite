@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <memory>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -306,7 +307,9 @@ int main(int args, char** argv)
       if (estimateAncestor)
       {
         MarginalAncestralReconstruction asr(lik);
-        unsigned int outgroupId = static_cast<unsigned int>(tree->getLeafId(pscOut->sequence(0).getName()));
+        unsigned int outgroupId = static_cast<unsigned int>(tree->getLeafId(pscOut->sequence(0).getName())); //Use first outgroup sequence only for now.
+        if (pscOut->getNumberOfSequences() > 1)
+	  ApplicationTools::displayWarning("Only the first outgroup sequence will be used to compute ancestral states.");
         ancestralSequence = asr.getAncestralSequenceForNode(static_cast<unsigned int>(tree->getFatherId(int(outgroupId))));
       }
       if (codonAlphabet)
@@ -617,7 +620,7 @@ int main(int args, char** argv)
         ApplicationTools::displayResult("Site statistics output to:", path);
         ofstream out(path.c_str(), ios::out);
         out << "Site\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
-        out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerated\tPiN\tPiS";
+        out << "\tMeanNumberSynPos\tIsSynPoly\tIs4Degenerate\tPiN\tPiS";
         bool outgroup = (pscOut && pscOut->getNumberOfSequences() > 0);
         bool minChange = ApplicationTools::getBooleanParameter("complex_codon.min_change", cmdArgs, false);
         if (outgroup)
@@ -638,7 +641,7 @@ int main(int args, char** argv)
         unique_ptr<SiteContainerInterface> sitesIn(pscIn->toSiteContainer());
         unique_ptr<SiteContainerInterface> sitesOut;
         shared_ptr<SiteContainerInterface> consensus(new VectorSiteContainer(pscIn->getAlphabet()));
-        if (outgroup)
+        if (outgroup && !estimateAncestor) //If we do not have ancestral sequences, we use consensus sequences instead
         {
           sitesOut = pscOut->toSiteContainer();
           unique_ptr<Sequence> inseq(SiteContainerTools::getConsensus(*sitesIn, "ingroup", true, false));
@@ -658,35 +661,36 @@ int main(int args, char** argv)
           int maxState = -1;
           size_t nbAlleles = 0;
           size_t nbMissing = 0;
-          for (map<int, size_t>::iterator it = counts.begin(); it != counts.end(); it++)
+          for (const auto& it : counts)
           {
-            if (!alphabet->isUnresolved(it->first)
-                && !alphabet->isGap(it->first))
+            if (!alphabet->isUnresolved(it.first)
+                && !alphabet->isGap(it.first))
             {
               nbAlleles++;
-              if (it->second != 0)
+              if (it.second != 0)
               {
-                if (it->second < minFreq)
+                if (it.second < minFreq)
                 {
-                  minFreq = it->second;
-                  minState = it->first;
+                  minFreq = it.second;
+                  minState = it.first;
                 }
-                if (it->second > maxFreq)
+                if (it.second > maxFreq)
                 {
-                  maxFreq = it->second;
-                  maxState = it->first;
+                  maxFreq = it.second;
+                  maxState = it.first;
                 }
               }
             }
             else
             {
-              nbMissing += it->second;
+              nbMissing += it.second;
             }
           }
 
           out << site.getCoordinate() << "\t";
           out << nbMissing << "\t";
           out << nbAlleles << "\t";
+	  double nbSynPos = 0;
           if (nbAlleles > 0)
           {
             // The site is not exclusively made of missing data
@@ -696,14 +700,15 @@ int main(int args, char** argv)
             out << alphabet->intToChar(maxState) << "\t";
             if (estimateAncestor)
             {
-              out << CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa) << "\t";
+              nbSynPos = CodonSiteTools::numberOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa);
             }
             else
             {
-              out << CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa) << "\t";
+              nbSynPos = CodonSiteTools::meanNumberOfSynonymousPositions(site, *gCode, kappa);
             }
+            out << nbSynPos << "\t";
             out << CodonSiteTools::isSynonymousPolymorphic(site, *gCode) << "\t";
-            out << CodonSiteTools::isFourFoldDegenerated(site, *gCode) << "\t";
+            out << CodonSiteTools::isFourFoldDegenerate(site, *gCode) << "\t";
             out << CodonSiteTools::piNonSynonymous(site, *gCode) << "\t";
             out << CodonSiteTools::piSynonymous(site, *gCode);
           }
@@ -723,16 +728,15 @@ int main(int args, char** argv)
           if (outgroup)
           {
             // Add divergence
-            int ingroupState = consensus->sequence(0)[i];
-            int outgroupState = consensus->sequence(1)[i];
+            int ingroupState = estimateAncestor ? (*ancestralSequence)[i] : consensus->sequence(0)[i];
+            int outgroupState = estimateAncestor ? pscOut->sequence(0)[i] : consensus->sequence(1)[i];
             if (codonAlphabet->isUnresolved(outgroupState) || codonAlphabet->isGap(outgroupState) || nbAlleles == 0)
             {
               out << "\tNA\tNA\tNA";
             }
             else
             {
-              out << "\t" << (CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa) +
-              CodonSiteTools::numberOfSynonymousPositions(ingroupState, *gCode, kappa)) / 2.;
+              out << "\t" << (nbSynPos + CodonSiteTools::numberOfSynonymousPositions(outgroupState, *gCode, kappa)) / 2.;
               // Compare with outgroup:
               double nt = static_cast<double>(CodonSiteTools::numberOfDifferences(outgroupState, ingroupState, *codonAlphabet));
               double ns = CodonSiteTools::numberOfSynonymousDifferences(outgroupState, ingroupState, *gCode, minChange);
@@ -743,6 +747,228 @@ int main(int args, char** argv)
             }
           }
           out << endl;
+        }
+      }
+
+      // +----------------------------------+
+      // | Codon nucleotide site statistics |
+      // +----------------------------------+
+      else if (cmdName == "CodonNucleotideSiteStatistics")
+      {
+        if (!codonAlphabet)
+        {
+          throw Exception("CodonNucleotideSiteStatistics can only be used with a codon alignment. Check the input alphabet!");
+        }
+        string path = ApplicationTools::getAFilePath("output.file", cmdArgs, true, false);
+        if (path == "none")
+          throw Exception("You must specify an output file for CodonNucleotideSiteStatistics");
+        ApplicationTools::displayResult("Nucleotide site statistics output to:", path);
+        ofstream out(path.c_str(), ios::out);
+        out << "Site\tCodonPos\tMissingDataFrequency\tNbAlleles\tMinorAlleleFrequency\tMajorAlleleFrequency\tMinorAllele\tMajorAllele";
+        out << "\tMeanNumberSynPos\tIsSynPoly\tNbPolymorphicPositions\tIs4Degenerate\tIs0Degenerate";
+        bool outgroup = (pscOut && pscOut->getNumberOfSequences() > 0);
+        bool minChange = ApplicationTools::getBooleanParameter("complex_codon.min_change", cmdArgs, false);
+        if (outgroup)
+        {
+          ApplicationTools::displayResult("Complex codons path", minChange ? "min non-synonymous" : "equal weight");
+          out << "\tOutgroupAllele";
+        }
+        if (estimateAncestor)
+        {
+          out << "\tAncestralAllele";
+        }
+        if (outgroup)
+        {
+          out << "\tMeanNumberSynPosDiv\tdN\tdS";
+        }
+        out << endl;
+
+        unique_ptr<SiteContainerInterface> sitesIn(pscIn->toSiteContainer());
+        unique_ptr<SiteContainerInterface> sitesOut;
+        shared_ptr<SiteContainerInterface> consensus(new VectorSiteContainer(pscIn->getAlphabet()));
+        if (outgroup && !estimateAncestor) //If we do not have ancestral sequences, we use consensus sequences instead
+        {
+          sitesOut = pscOut->toSiteContainer();
+          unique_ptr<Sequence> inseq(SiteContainerTools::getConsensus(*sitesIn, "ingroup", true, false));
+          consensus->addSequence("InGroup", inseq);
+          unique_ptr<Sequence> outseq(SiteContainerTools::getConsensus(*sitesOut, "outgroup", true, false));
+          consensus->addSequence("OutGroup", outseq);
+        }
+
+        for (size_t i = 0; i < sitesIn->getNumberOfSites(); ++i)
+        {
+          const Site& site = sitesIn->site(i);
+
+	  // Get mean numbers of synonymous positions:
+	  vector<double> nbSynPos;
+          if (estimateAncestor)
+          {
+            nbSynPos = CodonSiteTools::numbersOfSynonymousPositions(ancestralSequence->getValue(i), *gCode, kappa);
+          }
+          else
+          {
+            nbSynPos = CodonSiteTools::meanNumbersOfSynonymousPositions(site, *gCode, kappa);
+          }
+
+	  // Get polymorphic flags:
+	  auto areNSitesPoly = CodonSiteTools::arePositionsPolymorphic(site);
+
+	  // Is the codon site synonymous polymorphic?
+	  bool isCSitePoly = CodonSiteTools::isSynonymousPolymorphic(site, *gCode);
+
+	  // Get 0-fold flags:
+	  vector<bool> is0FoldDegenerated(3);
+          if (estimateAncestor)
+          {
+	    int ac = ancestralSequence->getValue(i);
+            is0FoldDegenerated[0] = gCode->isZeroFoldDegenerate(ac, 0);
+            is0FoldDegenerated[1] = gCode->isZeroFoldDegenerate(ac, 1);
+            is0FoldDegenerated[2] = gCode->isZeroFoldDegenerate(ac, 2);
+          }
+          else
+          {
+            is0FoldDegenerated[0] = CodonSiteTools::isZeroFoldDegenerate(site, *gCode, 0);
+            is0FoldDegenerated[1] = CodonSiteTools::isZeroFoldDegenerate(site, *gCode, 1);
+            is0FoldDegenerated[2] = CodonSiteTools::isZeroFoldDegenerate(site, *gCode, 2);
+          }
+
+	  // Get 4-fold flags:
+	  vector<bool> is4FoldDegenerated(3);
+          if (estimateAncestor)
+          {
+	    int ac = ancestralSequence->getValue(i);
+            is4FoldDegenerated[0] = gCode->isFourFoldDegenerate(ac, 0);
+            is4FoldDegenerated[1] = gCode->isFourFoldDegenerate(ac, 1);
+            is4FoldDegenerated[2] = gCode->isFourFoldDegenerate(ac, 2);
+          }
+          else
+          {
+            is4FoldDegenerated[0] = CodonSiteTools::isFourFoldDegenerate(site, *gCode, 0, false);
+            is4FoldDegenerated[1] = CodonSiteTools::isFourFoldDegenerate(site, *gCode, 1, false);
+            is4FoldDegenerated[2] = CodonSiteTools::isFourFoldDegenerate(site, *gCode, 2, false);
+          }
+
+	  // Get polymorphic flags:
+	  auto arePositionsPolymorphic = CodonSiteTools::arePositionsPolymorphic(site);
+	  auto nbPolPositions = std::count(arePositionsPolymorphic.begin(), arePositionsPolymorphic.end(), true);
+
+	  // Get individual sites:
+	  VVint nucSites(3);
+	  for (size_t j = 0; j < site.size(); ++j)
+	  {
+            int c = site.getValue(j);
+            nucSites[0].push_back(codonAlphabet->getFirstPosition(c));
+            nucSites[1].push_back(codonAlphabet->getSecondPosition(c));
+            nucSites[2].push_back(codonAlphabet->getThirdPosition(c));
+	  }
+         
+	  // Divergence data:
+	  int ingroupState = -1, outgroupState = -1;
+	  vector<double> nbSynPosOutgroup;
+	  bool isSynDiv = false;
+	  if (outgroup)
+          {
+            ingroupState = estimateAncestor ? (*ancestralSequence)[i] : consensus->sequence(0)[i];
+            outgroupState = estimateAncestor ? pscOut->sequence(0)[i] : consensus->sequence(1)[i];
+	    nbSynPosOutgroup = CodonSiteTools::numbersOfSynonymousPositions(outgroupState, *gCode, kappa);
+            isSynDiv = gCode->areSynonymous(ingroupState, outgroupState);
+	  }
+       
+	  // Loop over NSites:
+	  for (size_t pos = 0; pos < 3; ++pos)
+	  {
+	    shared_ptr<const Alphabet> nucAlphabet = codonAlphabet->getNucleicAlphabet();
+	    Site ns(nucSites[pos], nucAlphabet);
+            map<int, size_t> counts;
+	    SymbolListTools::getCounts(ns, counts);
+            size_t minFreq = site.size() + 1;
+            size_t maxFreq = 0;
+            int minState = -1;
+            int maxState = -1;
+            size_t nbAlleles = 0;
+            size_t nbMissing = 0;
+            for (const auto& it : counts)
+            {
+              if (!nucAlphabet->isUnresolved(it.first)
+                  && !nucAlphabet->isGap(it.first))
+              {
+                nbAlleles++;
+                if (it.second != 0)
+                {
+                  if (it.second < minFreq)
+                  {
+                    minFreq = it.second;
+                    minState = it.first;
+                  }
+                  if (it.second > maxFreq)
+                  {
+                    maxFreq = it.second;
+                    maxState = it.first;
+                  }
+                }
+              }
+              else
+              {
+                nbMissing += it.second;
+              }
+            }
+
+            out << site.getCoordinate() << "\t" << pos << "\t";
+            out << nbMissing << "\t";
+            out << nbAlleles << "\t";
+            if (nbAlleles > 0)
+            {
+              // The site is not exclusively made of missing data
+              out << minFreq << "\t";
+              out << maxFreq << "\t";
+              out << nucAlphabet->intToChar(minState) << "\t";
+              out << nucAlphabet->intToChar(maxState) << "\t";
+              out << nbSynPos[pos] << "\t";
+	      out << isCSitePoly << "\t";
+	      out << nbPolPositions << "\t";
+              out << is4FoldDegenerated[pos] << "\t";
+              out << is0FoldDegenerated[pos] << "\t";
+            }
+            else
+            {
+              out << "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA";
+            }
+
+            if (outgroup)
+            {
+              out << "\t" << pscOut->sequence(0).getChar(i)[pos];
+            }
+            if (estimateAncestor)
+            {
+              out << "\t" << (nbAlleles == 0 ? 'N' : ancestralSequence->getChar(i)[pos]);
+            }
+            if (outgroup)
+            {
+              // Add divergence
+              int ingroupNState = codonAlphabet->getNPosition(ingroupState, pos);
+              int outgroupNState = codonAlphabet->getNPosition(outgroupState, pos);
+              if (nucAlphabet->isUnresolved(outgroupNState) || nucAlphabet->isGap(outgroupNState) || nbAlleles == 0)
+              {
+                out << "\tNA\tNA\tNA";
+              }
+              else
+              {
+                out << "\t" << (nbSynPos[pos] + nbSynPosOutgroup[pos]) / 2.;
+                // Compare with outgroup:
+		if (ingroupNState == outgroupNState) {
+		  // No difference
+                  out << "\t0\t0";
+		} else {
+		  if (isSynDiv) {
+                    out << "\t0\t1";
+		  } else {
+                    out << "\t1\t0";
+		  }
+		}
+              }
+            }
+            out << endl;
+          }
         }
       }
 
