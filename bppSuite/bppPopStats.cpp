@@ -927,7 +927,7 @@ int main(int args, char** argv)
 	      out << isCSitePoly << "\t";
 	      out << nbPolPositions << "\t";
               out << is4FoldDegenerated[pos] << "\t";
-              out << is0FoldDegenerated[pos] << "\t";
+              out << is0FoldDegenerated[pos];
             }
             else
             {
